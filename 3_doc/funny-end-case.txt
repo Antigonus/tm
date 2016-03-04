@@ -1,0 +1,17 @@
+
+test routines say:
+
+* (test-all)
+all 0 passed
+T
+
+this seems in correct.  0 failed, 0 passed would be correct.  But if nothing passed,
+did the regression not fail?   But if nothing failed, did regression not pass?
+
+perhpas:
+
+* (test-all)
+0 failed
+regression passes
+
+;-)

@@ -1,0 +1,29 @@
+  (global-set-key (kbd "C-x g g SPC") [?γ])
+  (global-set-key (kbd "C-x g G SPC") [?Γ])
+
+  (global-set-key (kbd "C-x g l SPC") [?λ])
+  (global-set-key (kbd "C-x g L SPC") [?Λ])
+
+  (global-set-key (kbd "C-x g p SPC") [?π])
+  (global-set-key (kbd "C-x g P SPC") [?Π])
+
+  (global-set-key (kbd "C-x g > = SPC") [?≥])
+  (global-set-key (kbd "C-x g < = SPC") [?≤])
+  (global-set-key (kbd "C-x g ! = SPC") [?≠])
+      
+  (global-set-key (kbd "C-x g nil SPC") [?∅])
+
+  (global-set-key (kbd "C-x g neg SPC") [?¬])
+
+  (global-set-key (kbd "C-x g and SPC") [?∧])
+  (global-set-key (kbd "C-x g or SPC") [?∨])
+
+  (global-set-key (kbd "C-x g ex SPC") [?∃])
+  (global-set-key (kbd "C-x g exists SPC") [?∃])
+  (global-set-key (kbd "C-x g all SPC") [?∀])
+
+  (global-set-key (kbd "C-x g do SPC") [?⟳])
+
+  (global-set-key (kbd "C-x g rm SPC") [?◨])
+  (global-set-key (kbd "C-x g lm SPC") [?◧])
+
