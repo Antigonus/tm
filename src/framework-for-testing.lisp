@@ -18,7 +18,7 @@ See LICENSE.txt
 
   
 |#
-  (in-package #:le)
+  (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; test/debug
@@ -41,7 +41,7 @@ See LICENSE.txt
        (princ "hooking test: ")
        (princ (symbol-name ',a-test))
        (nl)
-       (push ',a-test le::*test-routines*)
+       (push ',a-test tm::*test-routines*)
        t
        ))
 
@@ -51,8 +51,8 @@ See LICENSE.txt
        (princ (symbol-name ',a-test))
        (nl)
        (setq 
-         le::*test-routines*
-         (delete-if (λ(e)(eq ',a-test e)) le::*test-routines*)
+         tm::*test-routines*
+         (delete-if (λ(e)(eq ',a-test e)) tm::*test-routines*)
          )
        t
        ))

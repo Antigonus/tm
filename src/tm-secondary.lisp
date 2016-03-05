@@ -5,7 +5,7 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 
 ;;--------------------------------------------------------------------------------
@@ -21,22 +21,21 @@ See LICENSE.txt
 ;;   with within the those slots and this cue-to to not have an entropy problem.
 ;;
   (defun cue-to
-    "Unless tm-cued type is (typep (type-of tm-orig)), tm-cued is changed to the type of tm-orig.
-     tm-cued is either already on the same tape as tm-orig, or it mounts it.
-     tm-cued is cued to the same cell that tm-orig's head is on.
-     Returns tm-cued.
-     "
     (
-      (tm-cued tape-machine) ; tm-cued original contents get clobbered
-      (tm-orig tape-machine) ; tm-orign remains undisturbed
+      tm-cued ; original contents get clobbered
+      tm-orig ; remains undisturbed
       )
+    "Unless tm-cued type is (typep (type-of tm-orig)), tm-cued is changed to the type of
+     tm-orig.  tm-cued is either already on the same tape as tm-orig, or it mounts it.
+     tm-cued is cued to the same cell that tm-orig's head is on.  Returns tm-cued.
+     "
     (unless (typep tm-cued (type-of tm-orig)) (change-class tm-cued (type-of tm-orig)))
     (setf (tape tm-cued) (tape tm-orig))
     (setf (HA tm-cued) (HA tm-orig))
     tm-cued
     )
 
-  (defun dup ((tm-orig tape-machine))
+  (defun dup (tm-orig)
     "Returns a tm with head on the same cell."
     (let(
           (tm-dup (make-instance (type-of tm-orig)))

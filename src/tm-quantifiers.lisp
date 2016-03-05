@@ -7,16 +7,12 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; looping, see also s-together⟳
 ;;
   (defun ⟳ 
-    "do - step accepts a tape machine, a work function, and a rightmost continuation The
-     work function is called, the machine steps, and this repeats until the machine can no
-     longer step.
-     "
     (
       tm 
       step 
@@ -24,8 +20,10 @@ See LICENSE.txt
       (work #'do-nothing) 
       (cont-rightmost (be t))
       )
-    "Calls work. Then op calls do-work repeatedly until end.
-     Then calls cont-rightmost."
+    "'do'.  Step is a function that accepts a tape machine, a work function, and a
+     rightmost continuation. The work function is called, then step is called, and this
+     repeats until step takes the rightmost continuation.
+     "
     (labels(
              (do-work ()
                (funcall work)

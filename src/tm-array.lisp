@@ -23,7 +23,7 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; a specialization

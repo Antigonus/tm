@@ -5,7 +5,7 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 (defvar *mk-tm-hash* (make-hash-table :test 'eq))
 

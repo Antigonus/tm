@@ -5,7 +5,7 @@ See LICENSE.txt
   
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; tree quantifiers

@@ -6,7 +6,7 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;;  stack as operators on a tape

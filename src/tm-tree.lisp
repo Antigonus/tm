@@ -13,7 +13,7 @@ See LICENSE.txt
 
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;;  tape machine on a tree 

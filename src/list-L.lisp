@@ -4,7 +4,7 @@ Released under the MIT License (MIT)
 See LICENSE.txt
   
 |#
-  (in-package #:le)
+  (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; o
@@ -175,7 +175,7 @@ See LICENSE.txt
   (defmacro L (&rest objects)
     (cond
       ((null objects) ∅)
-      ((¬∃ (mk-tm-list-0 objects) #'le::to-be-opened)
+      ((¬∃ (mk-tm-list-0 objects) #'tm::to-be-opened)
         `(list ,@objects)
         )
       (t

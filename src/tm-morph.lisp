@@ -36,7 +36,7 @@ See LICENSE.txt
 |#
 
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; a specialization
@@ -53,7 +53,7 @@ See LICENSE.txt
       &optional
       init
       (cont-ok #'echo) 
-      (cont-fail error 'tm-mk-bad-init-type :text "expected a line struct")
+      (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected a morph struct")))
       )
     (let(
           (tm (make-instance 'tm-transform))

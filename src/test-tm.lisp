@@ -13,7 +13,7 @@ See LICENSE.txt
   to see the results of individual tests.
   
 |#
-  (in-package #:le)
+  (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; tm-si

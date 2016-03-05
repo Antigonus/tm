@@ -5,7 +5,7 @@ See LICENSE.txt
   
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 (defun newline ()
   "no inputs, outputs a string that is just a newline"

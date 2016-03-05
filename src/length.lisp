@@ -6,7 +6,7 @@ See LICENSE.txt
   Bounded length checks.
 
 |#
-(in-package #:le)
+(in-package #:tm)
 
 
 (defgeneric singleton (tm))

@@ -12,7 +12,7 @@ See LICENSE.txt
   more efficient to provide that one as the first argument.
 
 |#
-(in-package #:le)
+(in-package #:tm)
 
 
 ;;--------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ See LICENSE.txt
   
 |#
 
-(in-package #:le)
+(in-package #:tm)
 
 
 (defmacro defsynonym (old-name new-name)

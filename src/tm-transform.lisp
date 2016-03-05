@@ -23,7 +23,7 @@ See LICENSE.txt
 |#
 
 
-(in-package #:le)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; a specialization
@@ -41,7 +41,7 @@ See LICENSE.txt
       &optional
       init
       (cont-ok #'echo) 
-      (cont-fail error 'tm-mk-bad-init-type :text "expected a line struct")
+      (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected a transform struct")))
       )
     (let(
           (tm (make-instance 'tm-transform))
@@ -123,7 +123,7 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (a (transform-tm (tape tm)) object cont-ok cont-rightmost)
+    (a (transform-tm (tape tm)) object cont-ok cont-no-alloc)
     )
 
   (defmethod -a◧-s
@@ -134,7 +134,7 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (-a◧-s (transform-tm (tape tm)) object cont-ok cont-rightmost)
+    (-a◧-s (transform-tm (tape tm)) object cont-ok cont-no-alloc)
     )
 
   (defmethod d 
@@ -160,7 +160,7 @@ See LICENSE.txt
       (cont-no-alloc
         (λ()(error 'tm-alloc-fail :text "could not spill")))
       )
-    (◧d (transform-tm (tape tm)) spill cont-ok cont-rightmost)
+    (◧d (transform-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
     )
 
   ;; current value moved off rightmost, new value fills in.
