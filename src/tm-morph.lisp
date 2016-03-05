@@ -82,20 +82,19 @@ See LICENSE.txt
     (w (morph-tm (tape tm)) object)
     )
  
-  ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-morph)) 
     (cue-leftmost (morph-tm (tape tm)))
     )
 
-  (defun tms-on-same-cell-morph-0 (tm0 tm1 cont-true cont-false)
-    (tms-on-same-cell-morph-0 
+  (defun heads-on-same-cell-morph-0 (tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-morph-0 
       (morph-tm (tape tm0))
       (morph-tm (tape tm1))
       cont-true
       cont-false
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-morph) 
       (tm1 tape-machine) 
@@ -103,10 +102,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-morph-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-morph-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-morph) 
@@ -114,7 +113,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-morph-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-morph-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -167,17 +166,6 @@ See LICENSE.txt
             )))
       ))
 
-  (defmethod -a◧-s
-    (
-      (tm tm-morph)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
-      )
-    (-a◧-s (morph-tm (tape tm)) object cont-ok cont-no-alloc)
-    )
-
   (defmethod d 
     (
       (tm tm-morph)
@@ -204,15 +192,3 @@ See LICENSE.txt
     (◧d (morph-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
     )
 
-  ;; current value moved off rightmost, new value fills in.
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-morph)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (m (morph-tm (tape tm)) fill cont-ok cont-rightmost)
-    )

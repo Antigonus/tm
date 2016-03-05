@@ -50,7 +50,7 @@ See LICENSE.txt
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
       )
-    (tms-on-same-cell tm@ tm◨ 
+    (heads-on-same-cell tm@ tm◨ 
       cont-empty
       (λ() 
         (d tm@ 'r
@@ -63,7 +63,7 @@ See LICENSE.txt
   ;; this works for stacks or queues
   (defun embedded-empty (tm@ tm◨ &optional (cont-true (be t)) (cont-false (be ∅)))
     "To get tm◨ for stack, dup tm@ after the first en-stack operation, then step."
-    (tms-on-same-cell tm@ tm◨ cont-true cont-false)
+    (heads-on-same-cell tm@ tm◨ cont-true cont-false)
     )
 
 ;;--------------------------------------------------------------------------------

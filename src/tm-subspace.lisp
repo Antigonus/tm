@@ -44,7 +44,7 @@ See LICENSE.txt
         (funcall cont-fail)
         )
 
-      (setf (HA tm) (dup (subspace-leftmost init)))
+      (setf (HA tm) (dup (subspace-leftmost init))) ; HA is a dup of the leftmost machine
       (setf (tape tm) init)
       (funcall cont-ok tm)
       ))
@@ -63,29 +63,30 @@ See LICENSE.txt
     t
     )
  
-  ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-subspace)) 
-    (setf (HA tm) (car (tape tm)))
+    (cue-to (HA tm) (subspace-leftmost (tape tm)))
     t
     )
 
-  ;; Interesting problem because the cons cell for tape
-  ;; will copy and not be eq, for two duped machines.
-  ;; The line is read only, so perhaps just a head number match
-  ;; is good enough to say they are on the same cell.
-  ;; We will go with that.
-  (defun tms-on-same-cell-subspace-0 (tm0 tm1 cont-true cont-false)
-    (if
-      (∧
-        (typep tm0 'tm-subspace)
-        (typep tm1 'tm-subspace)
-        (eql (HA tm0) (HA tm1))
+  ;; subspaces may be nested
+  (defun heads-on-same-cell-subspace (tm0 tm1 cont-true cont-false)
+    (let(
+          (base-0 tm0)
+          (base-1 tm1)
+          )
+      (loop
+        (unless (typep base-0 'tm-subspace) return)
+        (setf base-0 (HA base-0))
         )
-      (funcall cont-true)
-      (funcall cont-false)
+      (loop
+        (unless (typep base-1 'tm-subspace) return)
+        (setf base-1 (HA base-1))
+        )
+      (heads-on-same-cell base-0 base-1 cont-true cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-subspace) 
       (tm1 tape-machine) 
@@ -93,10 +94,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-subspace-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-subspace tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-subspace) 
@@ -104,7 +105,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-subspace-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-subspace tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -114,23 +115,8 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (let(
-          (sup (line-bound (tape tm)))
-          (∆   (line-∆ (tape tm)))
-          )
-      (if
-        (∧
-          sup
-          (> 
-            (+ (HA tm) ∆)
-            sup
-            )
-          )
-        (funcall cont-rightmost)
-        (progn
-          (setf (HA tm) (+ (HA tm) ∆))
-          (funcall cont-ok)
-          ))))
+    (s (HA tm) cont-ok cont-rightmost)
+    )
 
   ;; allocate a cell
   (defmethod a
@@ -138,63 +124,44 @@ See LICENSE.txt
       (tm tm-subspace)
       object
       &optional
-      cont-ok
-      cont-no-alloc
-      )
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'tm-read-only)
-    )
-
-  (defmethod -a◧-s
-    (
-      (tm tm-subspace)
-      object
-      &optional
-      cont-ok
+      (cont-ok (be t))
       (cont-no-alloc (error 'tm-alloc-fail))
       )
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'tm-read-only)
+    (a (HA tm) cont-ok cont-no-alloc)
     )
-  
+
   (defmethod d 
     (
       (tm tm-subspace)
       &optional 
       spill
-      cont-ok
+      (cont-ok (be t))
       (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
+      (cont-no-alloc (error 'tm-alloc-fail))
       )
-    (declare (ignore tm spill cont-ok cont-rightmost cont-no-alloc))
-    (error 'tm-read-only)
-    )
+    (if
+      (heads-on-same-cell (HA tm) (subspace-rightmost (tape tm)))
+      (funcall cont-rightmost)
+      (d (HA tm) spill cont-ok cont-rightmost cont-no-alloc)
+      ))
 
   (defmethod ◧d 
     (
       (tm tm-subspace)
       &optional 
       spill
-      cont-ok 
+      (cont-ok  (be t))
       (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
+      (cont-no-alloc (error 'tm-alloc-fail))
       )
-    (declare (ignore tm spill cont-ok cont-rightmost cont-no-alloc))
-    (error 'tm-read-only)
-    )
-
-  ;; current value moved off rightmost, new value fills in.
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-subspace)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (declare (ignore tm fill cont-ok cont-rightmost))
-    (error 'tm-read-only)
-    )
+    (if
+      (heads-on-same-cell (subspace-leftmost (tape tm)) (subspace-rightmost (tape tm)))
+      (funcall cont-rightmost)
+      (when 
+        (heads-on-same-cell (subspace-leftmost (tape tm)) (HA tm))
+        (s (HA tm))
+        )
+      (s (subspace-leftmost (tape tm))) ; deallocates from the subspace, it remains in the space
+      ))
 
     

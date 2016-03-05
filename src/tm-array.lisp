@@ -90,7 +90,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-array) 
       (tm1 tm-array) 
@@ -122,7 +122,7 @@ See LICENSE.txt
       (and
         (eq (r tm0) 'array)
         (eql (r tm1) 7)
-        (tms-on-same-cell tm1 tm2)
+        (heads-on-same-cell tm1 tm2)
         )))
   (test-hook test-mk-tm-array-0-0)
 
@@ -164,7 +164,7 @@ See LICENSE.txt
         (cue-to y x)
         (eq (r x) 'b)
         (eq (r y) 'b)
-        (tms-on-same-cell x y)
+        (heads-on-same-cell x y)
         (cue-rightmost x)
         (eq (r x) 'c)
         )))

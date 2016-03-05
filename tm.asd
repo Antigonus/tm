@@ -36,17 +36,13 @@ See LICENSE.txt
                              (:file "tm-void")
                              (:file "tm-singular-affine")
                              (:file "tm-singular-projective")
-                             (:file "tm-line")
+                             (:file "tm-linear")
 
                              (:file "tm-transform")
                              (:file "tm-morph")
-#|
-
-
-                             (:file "tm-read-filter")
-                             (:file "tm-write-filter")
-
                              (:file "tm-subspace")
+
+#|
 
 
                              (:file "data-structures")

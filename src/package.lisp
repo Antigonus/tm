@@ -62,10 +62,9 @@ See LICENSE.txt
       #:w
       #:cue-leftmost
       #:cue-to
-      #:tms-on-same-cell
+      #:heads-on-same-cell
       #:so
       #:a
-      #:-a◧-s
       #:d
       #:◧d
       #:m  
@@ -88,8 +87,8 @@ See LICENSE.txt
       #:as
       #:a◨
       #:a◨s
-
-      #:gs
+      #:-a
+      #:-a-s
 
     ;;tm-si
     ;;

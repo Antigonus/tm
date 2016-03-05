@@ -36,7 +36,7 @@ See LICENSE.txt
           )
       (cue-leftmost tm1)
       (s tm1
-        (λ() (tms-on-same-cell tm0 tm1 cont-true cont-false))
+        (λ() (heads-on-same-cell tm0 tm1 cont-true cont-false))
         cont-false
         )))
 
@@ -63,7 +63,7 @@ See LICENSE.txt
               )
           (cue-leftmost tm1)
           (sn tm1 n
-            (tms-on-same-cell tm0 tm1 cont-true cont-false)
+            (heads-on-same-cell tm0 tm1 cont-true cont-false)
             cont-false
             )))
       ))
@@ -152,7 +152,7 @@ See LICENSE.txt
           (tm0-dup (dup tm0))
           )
       (s tm0-dup
-        (λ() (tms-on-same-cell tm0-dup tm0 cont-true cont-false))
+        (λ() (heads-on-same-cell tm0-dup tm0 cont-true cont-false))
         cont-false
         )))
 
@@ -172,14 +172,14 @@ See LICENSE.txt
         (distance-n tm0 tm1 (- n) cont-true cont-false)
         )
       ((= n 0)
-        (tms-on-same-cell tm0 tm1 cont-true cont-false)
+        (heads-on-same-cell tm0 tm1 cont-true cont-false)
         )
       (t
         (let(
               (tm0-dup (dup tm0))
               )
           (sn tm0-dup n
-            (λ() (tms-on-same-cell tm0-dup tm1 cont-true cont-false))
+            (λ() (heads-on-same-cell tm0-dup tm1 cont-true cont-false))
             cont-false
             )))))
 
@@ -240,7 +240,7 @@ See LICENSE.txt
       (cont-left-of (be 'left-of))
       )
     (if
-      (tms-on-same-cell tm0 tm1)
+      (heads-on-same-cell tm0 tm1)
       (funcall cont-same)
       (let(
             (tm0-dup (dup tm0))
@@ -253,7 +253,7 @@ See LICENSE.txt
                      tm0
                      (λ()
                        (if
-                         (tms-on-same-cell tm0-dup tm1) ; but tm0 isn't on the same cell..
+                         (heads-on-same-cell tm0-dup tm1) ; but tm0 isn't on the same cell..
                          (funcall cont-right-of)
                          (take-step)
                          ))

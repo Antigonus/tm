@@ -140,7 +140,7 @@ See LICENSE.txt
           (tm1 (dup tm))
           )
       (cue-leftmost tm1)
-      (tms-on-same-cell tm1 tm cont-true cont-false)
+      (heads-on-same-cell tm1 tm cont-true cont-false)
       ))
 
   (defgeneric on-rightmost (tm &optional cont-true cont-false)
@@ -179,7 +179,7 @@ See LICENSE.txt
       (cont-bound (be ∅))
       )
     (cond
-      ((tms-on-same-cell tm0 tm1) (funcall cont-bound))
+      ((heads-on-same-cell tm0 tm1) (funcall cont-bound))
       (t
         (s tm0 cont-ok cont-rightmost)
       )))
@@ -206,27 +206,6 @@ See LICENSE.txt
       )
     (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
     )
-
-  (defgeneric -a◧ (tm object &optional cont-ok cont-no-alloc)
-    (:documentation 
-      " With a contract that tm is at leftmost, inserts a cell to the left of HA.
-        Like -a◧-s, but no step is taken.
-      "
-      ))
-
-  (defmethod -a◧
-    (
-      (tm tape-machine)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
-      )
-    (let(
-          (tm1 (dup tm))
-          )
-      (-a◧-s tm1 object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
-      ))
 
   (defgeneric a◨ (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
@@ -262,7 +241,30 @@ See LICENSE.txt
     (as tm object cont-ok cont-no-alloc)
     )
 
-     
+  (defgeneric -a (tm object &optional cont-ok cont-no-alloc)
+    (:documentation 
+      "Allocate a new cell to the left of the head."
+      ))
+
+  (defmethod -a (tm object &optional cont-ok cont-no-alloc)
+    (a tm (r tm) #'donothing cont-no-alloc)
+    (w tm object)
+    (s tm
+      cont-ok
+      (λ()(error 'tm-impossible-to-get-here :text "we just called #'a")))
+    )
+
+  (defgeneric -a-s (tm object &optional cont-ok cont-no-alloc)
+    (:documentation 
+      "Allocate a new cell to the left of the head.  Then step left."
+      ))
+
+  (defmethod -a-s (tm object &optional cont-ok cont-no-alloc)
+    (a tm (r tm) #'donothing cont-no-alloc)
+    (w tm object)
+    (funcall cont-ok)
+    )
+
 ;;--------------------------------------------------------------------------------
 ;; deallocate cells (delete cells)  
 ;;  deallocated cells can be moved to spill, so this can also be reallocation
@@ -270,3 +272,31 @@ See LICENSE.txt
 
 
      
+;;--------------------------------------------------------------------------------
+;; moving data
+;;
+
+  (defgeneric m (tm fill &optional cont-ok cont-rightmost))
+
+  (defmethod m 
+    (
+      (tm tape-machine)
+      fill
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (be ∅)) ; rightmost of fill
+      )
+    (let(
+          (fill-object (r fill))
+          displaced-object
+          )
+      (⟳ tm #'s
+        (λ()
+          (setf displaced-object (r tm))
+          (w tm fill-object)
+          (setf fill-object displaced-object)
+          )
+        (λ()
+          (s fill cont-ok cont-rightmost)
+          ))))
+  

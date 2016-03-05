@@ -60,7 +60,7 @@ See LICENSE.txt
     t
     )
 
-  (defun tms-on-same-cell-singular-affine-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-singular-affine-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
         (typep tm0 'tm-singular-affine)
@@ -71,7 +71,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-singular-affine) 
       (tm1 tape-machine) 
@@ -79,10 +79,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-singular-affine-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-singular-affine-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-singular-affine) 
@@ -90,7 +90,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-singular-affine-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-singular-affine-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -106,18 +106,6 @@ See LICENSE.txt
 
   ;; allocate a new window cell, and writes it.
   ;; note this routine has been optimized and the allocation part is gone ;-)
-  (defun a-singular-affine
-    (
-      tm
-      object 
-      cont-ok
-      cont-no-alloc
-      )
-    (declare (ignore cont-no-alloc)) ; we have an infinite supply of window cells ;-)
-    (w tm object)
-    (funcall cont-ok)
-    )
-
   (defmethod a 
     (
       (tm tm-singular-affine) 
@@ -126,20 +114,11 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (be ∅))
       )
-    (a-singular-affine tm object cont-ok cont-no-alloc)
+    (declare (ignore cont-no-alloc)) ; we have an infinite supply of window cells ;-)
+    (w tm object)
+    (funcall cont-ok)
     )
 
-  (defmethod -a◧-s 
-    (
-      (tm tm-singular-affine) 
-      object 
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (be ∅))
-      )
-    (a-singular-affine tm object cont-ok cont-no-alloc)
-    )
-  
   (defun d-singular-affine
     (
       tm 
@@ -177,17 +156,3 @@ See LICENSE.txt
     (d-singular-affine tm spill cont-ok cont-rightmost cont-no-alloc)
     )
 
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-singular-affine)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (w tm (r fill))
-    (s fill
-      cont-ok
-      cont-rightmost
-      ))

@@ -56,11 +56,11 @@ See LICENSE.txt
        (typep sublist 'tape-machine)
         (progn
           (cue-leftmost sublist)
-          (-a◧ sublist object cont-ok cont-no-alloc)
+          (-a sublist object cont-ok cont-no-alloc)
           )
         (mk-tm (type-of object) object
           (λ()
-            (-a◧ sublist object cont-ok cont-no-alloc)
+            (-a sublist object cont-ok cont-no-alloc)
             )
           cont-mk-tm-fail
           ))))
@@ -82,11 +82,11 @@ See LICENSE.txt
        (typep sublist 'tape-machine)
         (progn
           (cue-leftmost sublist)
-          (-a◧-s sublist object cont-ok cont-no-alloc)
+          (-a-s sublist object cont-ok cont-no-alloc)
           )
         (mk-tm (type-of object) object
           (λ()
-            (-a◧-s sublist object cont-ok cont-no-alloc)
+            (-a-s sublist object cont-ok cont-no-alloc)
             )
           cont-mk-tm-fail
           ))))

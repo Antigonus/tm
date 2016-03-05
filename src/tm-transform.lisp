@@ -70,20 +70,19 @@ See LICENSE.txt
     (funcall (transform-reverse (tape tm)) tm object)
     )
  
-  ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-transform)) 
     (cue-leftmost (transform-tm (tape tm)))
     )
 
-  (defun tms-on-same-cell-transform-0 (tm0 tm1 cont-true cont-false)
-    (tms-on-same-cell-transform-0 
+  (defun heads-on-same-cell-transform-0 (tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-transform-0 
       (transform-tm (tape tm0))
       (transform-tm (tape tm1))
       cont-true
       cont-false
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-transform) 
       (tm1 tape-machine) 
@@ -91,10 +90,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-transform-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-transform-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-transform) 
@@ -102,7 +101,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-transform-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-transform-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -124,17 +123,6 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (a (transform-tm (tape tm)) object cont-ok cont-no-alloc)
-    )
-
-  (defmethod -a◧-s
-    (
-      (tm tm-transform)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
-      )
-    (-a◧-s (transform-tm (tape tm)) object cont-ok cont-no-alloc)
     )
 
   (defmethod d 
@@ -161,17 +149,4 @@ See LICENSE.txt
         (λ()(error 'tm-alloc-fail :text "could not spill")))
       )
     (◧d (transform-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
-    )
-
-  ;; current value moved off rightmost, new value fills in.
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-transform)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (m (transform-tm (tape tm)) fill cont-ok cont-rightmost)
     )

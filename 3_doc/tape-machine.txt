@@ -63,7 +63,6 @@
       w write cell under the head
    
       s step 
-      g gather - puts provided cell on to tape just to the right of head cell
       a allocate/add/append a new cell, place it just to the right of head cell, requires fill
       d deallocate/drop/delete cell - optional spill (i.e. realloc)
       m move data, no allocation or deallocation of cells, requires fill
@@ -95,3 +94,23 @@ be provided for inializing the newly allocated or newly vacated cells.
 copy copies objects, there is no allocation or deallocation.  If both
 tape machines are on the same tape, then there can be overlaps, currently
 this is not contemplated, it is a todo item.
+
+-------------
+
+    tape-side command head-contract quantification
+
+
+𝝐 = not present
+tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
+command: [rwsadm]   ;one letter, to make concat for command language work
+head-contract: [◧◨𝝐]     ;head on leftmost, head on rightmost, or no contract
+quantification: [n*𝝐]  ; count, repeat to end, or do once
+
+if there is to be a step after the command runs, add an s to the end of
+the command.
+
+as  append and step
+
+-a-s  append to the left, step to the left
+
+

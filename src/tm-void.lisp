@@ -34,7 +34,7 @@ See LICENSE.txt
     t
     )
 
-  (defun tms-on-same-cell-void-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-void-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
         (typep tm0 'tm-void)
@@ -44,7 +44,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-void) 
       (tm1 tape-machine) 
@@ -52,10 +52,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-void) 
@@ -63,10 +63,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defun test-tms-on-same-cell-void-0 ()
+  (defun test-heads-on-same-cell-void-0 ()
     (let(
           (a (mk-tm-void))
           (b (mk-tm-void))
@@ -75,11 +75,11 @@ See LICENSE.txt
       (setf (HA c) 1)
       (setf (tape c) 2)
       (∧
-        (tms-on-same-cell a b)
-        (¬ (tms-on-same-cell a c))
-        (¬ (tms-on-same-cell c a))
+        (heads-on-same-cell a b)
+        (¬ (heads-on-same-cell a c))
+        (¬ (heads-on-same-cell c a))
         )))
-   (test-hook test-tms-on-same-cell-void-0)
+   (test-hook test-heads-on-same-cell-void-0)
 
   ;; rightmost is true if the head is on a rightmost cell
   ;; void doesn't have cells so rightmost can't be true
@@ -96,11 +96,6 @@ See LICENSE.txt
     )
 
   (defmethod a ((tm tm-void) object &optional cont-ok cont-no-alloc)
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    t
-    )
-
-  (defmethod -a◧-s ((tm tm-void) object &optional cont-ok cont-no-alloc)
     (declare (ignore tm object cont-ok cont-no-alloc))
     t
     )
@@ -132,20 +127,4 @@ See LICENSE.txt
     (declare (ignore tm spill cont-rightmost cont-no-alloc))
     (funcall cont-ok)
     )
-
-  (defmethod m 
-    (
-      (tm tm-void)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (declare (ignore tm))
-    (s fill
-      cont-ok
-      cont-rightmost
-      ))
-
-
 

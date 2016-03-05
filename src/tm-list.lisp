@@ -103,7 +103,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-list) 
       (tm1 tm-list) 
@@ -161,7 +161,7 @@ See LICENSE.txt
         (cue-to y x) 
         (eq (r x) 'b)
         (eq (r y) 'b)
-        (tms-on-same-cell x y)
+        (heads-on-same-cell x y)
         (cue-rightmost x)
         (eq (r x) 'c)
         )))
@@ -227,7 +227,7 @@ See LICENSE.txt
       (cont-bound (be ∅))
       )
     (cond
-      ((tms-on-same-cell tm0 tm1) (funcall cont-bound))
+      ((heads-on-same-cell tm0 tm1) (funcall cont-bound))
       ((¬ (cdr (HA tm0))) (funcall cont-rightmost))
       (t
         (setf (HA tm0) (cdr (HA tm0)))

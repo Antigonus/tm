@@ -55,7 +55,7 @@ See LICENSE.txt
     t
     )
 
-  (defun tms-on-same-cell-singular-projective-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-singular-projective-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
         (typep tm0 'tm-singular-projective)
@@ -66,7 +66,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-singular-projective) 
       (tm1 tape-machine) 
@@ -74,10 +74,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-singular-projective-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-singular-projective-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-singular-projective) 
@@ -85,7 +85,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-singular-projective-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-singular-projective-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -101,18 +101,6 @@ See LICENSE.txt
 
   ;; allocate a cell .. but can't
   (defmethod a
-    (
-      (tm tm-singular-projective)
-      object
-      &optional
-      cont-ok
-      (cont-no-alloc (error 'tm-alloc-fail))
-      )
-    (declare (ignore tm object cont-ok))
-    (funcall cont-no-alloc)
-    )
-
-  (defmethod -a◧-s
     (
       (tm tm-singular-projective)
       object
@@ -149,20 +137,3 @@ See LICENSE.txt
     (declare (ignore tm spill cont-ok cont-no-alloc))
     (funcall cont-rightmost)
     )
-
-  ;; current value moved off rightmost, new value fills in.
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-singular-projective)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (w tm (r fill))
-    (s fill
-      cont-ok
-      cont-rightmost
-      ))
-

@@ -69,7 +69,6 @@ See LICENSE.txt
     t
     )
  
-  ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-line)) 
     (setf (HA tm) (car (tape tm)))
     t
@@ -80,7 +79,7 @@ See LICENSE.txt
   ;; The line is read only, so perhaps just a head number match
   ;; is good enough to say they are on the same cell.
   ;; We will go with that.
-  (defun tms-on-same-cell-line-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-line-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
         (typep tm0 'tm-line)
@@ -91,7 +90,7 @@ See LICENSE.txt
       (funcall cont-false)
       ))
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tm-line) 
       (tm1 tape-machine) 
@@ -99,10 +98,10 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defmethod tms-on-same-cell 
+  (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
       (tm1 tm-line) 
@@ -110,7 +109,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (tms-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
@@ -151,18 +150,6 @@ See LICENSE.txt
     (error 'tm-read-only)
     )
 
-  (defmethod -a◧-s
-    (
-      (tm tm-line)
-      object
-      &optional
-      cont-ok
-      (cont-no-alloc (error 'tm-alloc-fail))
-      )
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'tm-read-only)
-    )
-  
   (defmethod d 
     (
       (tm tm-line)
@@ -189,18 +176,3 @@ See LICENSE.txt
     (error 'tm-read-only)
     )
 
-  ;; current value moved off rightmost, new value fills in.
-  ;; fill is one before cell to be read from
-  (defmethod m 
-    (
-      (tm tm-line)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
-      )
-    (declare (ignore tm fill cont-ok cont-rightmost))
-    (error 'tm-read-only)
-    )
-
-    

@@ -47,7 +47,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head location predicate
 ;;
-  (defgeneric tms-on-same-cell (tm0 tm1 &optional cont-true cont-false)
+  (defgeneric heads-on-same-cell (tm0 tm1 &optional cont-true cont-false)
     (:documentation "tm0 and tm1 heads are on the same cell")
     )
 
@@ -89,16 +89,6 @@ See LICENSE.txt
        "
       ))
 
-  ;; Absolute.  Take for example a single linked list implementation. It can not step
-  ;; left, but it can redefine the list to point to a cons that points to the old list.
-  ;; I.e. prepend is possible.  I don't think that choosing this as primary will
-  ;; negatively impact other implementations.
-  ;;
-    (defgeneric -a◧-s (tm object &optional cont-ok cont-no-alloc)
-      (:documentation 
-        "With a contract that tm is at leftmost, inserts a new cell to the left of HA.
-         Steps left to the new cell"
-        ))
 
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
@@ -130,7 +120,6 @@ See LICENSE.txt
        "
       ))
 
-  ;; this is the inverse operation to -a◧-s
   (defgeneric ◧d (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to #'d but the leftmost cell is deallocated independent of where
@@ -138,22 +127,4 @@ See LICENSE.txt
        to the new leftmost cell, unless the leftmost cell is the rightmost cell,
        in which case cont-rightmost is called."
       ))
-
-;;--------------------------------------------------------------------------------
-;; data motion
-;;
-
-  ;; move
-  ;; This can be emulated on a list by rotating the list, and writing the new
-  ;; leftmost, however, other heads (if dup or cue-to has been used) would have to be
-  ;; moved left by one to get this absolutely correct.
-  ;;
-    (defgeneric m (tm fill &optional cont-ok cont-rightmost)
-      (:documentation
-        "Musical chairs, all objects on the right hand side of the head more right one
-         cell.  The object on rightmost is thrown away (so copy it first if you need it).
-         Fill is first read, then stepped.  If it steps from rightmost, then we take
-         the cont-rightmost exit, otherwise we take the cont-ok exit.
-         "
-        ))
 
