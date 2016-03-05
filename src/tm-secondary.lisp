@@ -262,29 +262,6 @@ See LICENSE.txt
     (as tm object cont-ok cont-no-alloc)
     )
 
-;;--------------------------------------------------------------------------------
-;; gather
-;;
-  (defgeneric gs (tm cell-reference &optional cont-ok cont-rightmost cont-no-alloc)
-    (:documentation "Similar to #'g, but steps tm after the operation.")
-    )
-
-  (defmethod gs 
-    (
-      (tm tape-machine)
-      cell-reference
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
-      )
-    (g tm cell-reference 
-      (λ()
-        (s tm cont-ok cont-rightmost)
-        )
-      cont-no-alloc
-      ))
-
      
 ;;--------------------------------------------------------------------------------
 ;; deallocate cells (delete cells)  

@@ -5,17 +5,17 @@ See LICENSE.txt
 
   We defined a transform as a function that would take one object as input, and then
   produce one object as output.  I did not call that a one to one mapping, because, should
-  the transform function have state, it may return a different object at times though
-  given same input object.  It is always one object in, and one object out, but it might
-  not be one to one. It might be one to many. Any example of such a transform that is one
-  in to one out, but one to many is a moving average filter.
+  the transform function have state, it may return a different output object at different
+  times though given same input object.  It is always one object in, and one object out,
+  but it might not be one to one. It might be one to many. Any example of such a transform
+  is a moving average filter.
 
-  Transform functions have some drawbacks. For example, they can not be used to drop
-  a value on read.  When read is called, it must produce an object. When write is
-  given an object, we might fail to do the right, but then the old value is still there,
-  so in a sense, this becomes the tranform output. Similarly, we can not read or write
-  multiple values, because #r and #w do not have the continutations to handle end 
-  cases for stepping or allocation.
+  Transform functions have some drawbacks. For example, they can not be used to drop a
+  value on read.  When read is called, it must produce an object. When write is given an
+  object, we might fail to do the write, but even then the old value is still there, so in
+  a sense, this becomes the tranform output. Similarly, we can not read or write multiple
+  values, because #r and #w do not have the continutations to handle end cases for
+  stepping or allocation.
 
   Here we define a morph function to play a similar role to the transform function, but to
   also facilitate multiple value return.  The morph function accepts a single object as
@@ -24,10 +24,10 @@ See LICENSE.txt
   The two primary functions that can support mophing are #'a and #'d, and their end case
   variations.  #'a and #'d are both writing functions.  They both allocate cells at their
   destination.  The differences is that #'d deallocates the cell from the source after
-  reading, and attempts to re-attach to spill. If this is not possible then #'d is
-  allowed to move the object instead of the cell, and then to drop the cell. Hence, we
-  can use the same morph function with both #'a and #'d, though we will probably 
-  not be able keep the cell reuse feature.
+  reading, and attempts to re-attach it to the spill tape. If this is not possible then
+  #'d is allowed to move the object instead of the cell, and then to drop the cell. So we
+  will make a simplification, and drop the cell and give the object to the morph function.
+  Hence, we can use the same morph function with both #'a and #'d.
 
   The reason this is morphological rather than transformational, is that the structure of
   the output tape is changed, and possibly the input tape as well.  I.e. we allocate and
@@ -75,11 +75,11 @@ See LICENSE.txt
 ;; essential methods
 ;;
   (defmethod r ((tm tm-morph)) 
-    (funcall r (morph-tm (tape tm)))
+    (r (morph-tm (tape tm)))
     )
 
   (defmethod w ((tm tm-morph) object)
-    (funcall w (morph-tm (tape tm)))
+    (w (morph-tm (tape tm)) object)
     )
  
   ;; already on leftmost
@@ -147,7 +147,7 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
-          (result (multiple-value-list (funcall (morph tm) object)))
+          (result (multiple-value-list (funcall (morph-morph tm) object)))
           )
       (when
         result
@@ -175,7 +175,7 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (-a◧-s (morph-tm (tape tm)) object cont-ok cont-rightmost)
+    (-a◧-s (morph-tm (tape tm)) object cont-ok cont-no-alloc)
     )
 
   (defmethod d 
@@ -201,7 +201,7 @@ See LICENSE.txt
       (cont-no-alloc
         (λ()(error 'tm-alloc-fail :text "could not spill")))
       )
-    (◧d (morph-tm (tape tm)) spill cont-ok cont-rightmost)
+    (◧d (morph-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
     )
 
   ;; current value moved off rightmost, new value fills in.

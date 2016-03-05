@@ -39,6 +39,7 @@ See LICENSE.txt
                              (:file "tm-line")
 
                              (:file "tm-transform")
+                             (:file "tm-morph")
 #|
 
 
