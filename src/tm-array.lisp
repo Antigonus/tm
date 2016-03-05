@@ -1,7 +1,7 @@
 #|
-  Copyright (C) 2014 Reasoning Technology  All Rights Reserved.
-  COMPANY CONFIDENTIAL Reaosning Technology
-  author: thomas w. lynch
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
 
   An adjustable array facilitates new allocation on rightmost.  In contrast, a fixed array
   allocation is more complicated.  Rightmost can be extended only until righmost hits the 

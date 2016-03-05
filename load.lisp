@@ -6,11 +6,10 @@
 |#
 
 (require "asdf")
-(require "closer-mop")
 (pushnew (truename ".") asdf:*central-registry* :test #'equal)
-(asdf:load-system "le")
-(require "le")
-(use-package 'le)
+(asdf:load-system "tm")
+(require "tm")
+(use-package 'tm)
 
 
 

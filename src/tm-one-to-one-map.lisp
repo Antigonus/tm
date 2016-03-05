@@ -1,7 +1,7 @@
 #|
-  Copyright (C) 2014 Reasoning Technology  All Rights Reserved.
-  COMPANY CONFIDENTIAL Reaosning Technology
-  author: thomas w. lynch
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
 
   This machine takes as initial values a tape machine and two functions, a forward
   transform and a reverse transform.

@@ -1,7 +1,7 @@
 #|
-  Copyright (C) 2014 Reasoning Technology  All Rights Reserved.
-  COMPANY CONFIDENTIAL Reaosning Technology
-  author: thomas w. lynch
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
 
   We defined a transform as a function that would take one object as input, and then
   produce one object as output.  I did not call that a one to one mapping, because, should

@@ -1,5 +1,8 @@
-
 #|
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
+
   SBCL condition reporting behavior tests.  Initially the handler set to 
   'condition'  reports an exception thrown from  #'call-xxx but not from
   #'call-www.  But the only difference is where the function xx (or ww)

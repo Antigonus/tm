@@ -1,8 +1,17 @@
+#|
+
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
+
+|#
+
+
 (in-package :asdf-user)
 
 (defsystem #:tm
   :name "tm"
-  :version "0.1"
+  :version "0.2"
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :depends-on ("local-time")
@@ -13,9 +22,8 @@
                              (:file "conditions")
 
                              (:file "fundamental")
-                             (:file "test")
+                             (:file "framework-for-testing")
                              (:file "functions")
-
 
                              (:file "mk-tm")
                              (:file "tm-primary")
@@ -54,7 +62,7 @@
                              
                              (:file "tree-0")
                              (:file "list-lang") ; accessor lang here delta-s etc.
-                             (:file "test-le")
+                             (:file "test-tm")
 |#
                              ))))
 
