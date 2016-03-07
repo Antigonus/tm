@@ -43,13 +43,10 @@ See LICENSE.txt
                              (:file "tm-subspace")
 
                              (:file "data-structures")
+
+                             (:file "tm-list-primary")
                              
-
 #|
-
-
-
-                             (:file "tm-list")
                              (:file "data-structures-list")
 
                              (:file "tm-array")

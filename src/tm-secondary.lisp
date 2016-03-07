@@ -112,12 +112,18 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; cueing
-;;
-
+;;  
   (defgeneric cue-rightmost (tm)
     (:documentation "Cue tm's head to the rightmost cell.")
     )
-  (defmethod cue-rightmost ((tm tape-machine)) (s* tm))
+
+  ;; primary does not depend on quantifiers, so I build the loop
+  (defmethod cue-rightmost ((tm tape-machine))
+    (labels(
+             (work() (s tm #'work (be t)))
+             )
+      (work)
+      ))
 
 
 ;;--------------------------------------------------------------------------------
@@ -185,7 +191,7 @@ See LICENSE.txt
       )))
 
 ;;--------------------------------------------------------------------------------
-;; allocate new cells  (add cells)
+;; cell allocation
 ;;
 ;; Allocated cells must be initialized.  The initialization value is provided
 ;; by a three way fill function.  The three being skip, object, tm-fill.  
