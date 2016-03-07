@@ -191,6 +191,29 @@ See LICENSE.txt
 ;; by a three way fill function.  The three being skip, object, tm-fill.  
 ;;
 
+  (defgeneric a◧ (tm object &optional cont-ok cont-no-alloc)
+    (:documentation
+      "Allocates a new leftmost cell."
+      ))
+
+  (defmethod a◧
+    (
+      (tm tape-machine)
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (let(
+          (tm1 (dup tm))
+          )
+      (cue-leftmost tm1)
+      (a tm1 (r tm1)
+        (λ() (w tm1 object)(funcall cont-ok))
+        cont-no-alloc
+        )
+      ))
+
   (defgeneric as (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
       "Like #'a, but tm is stepped to the new cell"
@@ -207,13 +230,13 @@ See LICENSE.txt
     (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
     )
 
-  (defgeneric a◨ (tm object &optional cont-ok cont-no-alloc)
+  (defgeneric ah◨ (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
-      "#'a with a contract that tm is at rightmost.
+      "#'a with a contract that the head is on rightmost.
        Some implementatons will be able to specialize this and make it more efficient.
       "))
 
-  (defmethod a◨
+  (defmethod ah◨
     (
       (tm tape-machine)
       object
@@ -224,13 +247,13 @@ See LICENSE.txt
     (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
     )
 
-  (defgeneric a◨s (tm object &optional cont-ok cont-no-alloc)
+  (defgeneric ah◨s (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
-      "#'as with a contract that tm is at rightmost.
+      "#'as with a contract that the head is on rightmost.
        Some implementatons will be able to specialize this and make it more efficient.
       "))
 
-  (defmethod a◨s
+  (defmethod ah◨s
     (
       (tm tape-machine)
       object
@@ -247,12 +270,15 @@ See LICENSE.txt
       ))
 
   (defmethod -a (tm object &optional cont-ok cont-no-alloc)
-    (a tm (r tm) #'donothing cont-no-alloc)
-    (w tm object)
-    (s tm
-      cont-ok
-      (λ()(error 'tm-impossible-to-get-here :text "we just called #'a")))
-    )
+    (a tm (r tm) 
+      (λ()
+        (w tm object)
+        (s tm
+          cont-ok
+          (λ()(error 'tm-impossible-to-get-here :text "we just called #'a"))
+          ))
+      cont-no-alloc
+      ))
 
   (defgeneric -a-s (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
@@ -260,17 +286,59 @@ See LICENSE.txt
       ))
 
   (defmethod -a-s (tm object &optional cont-ok cont-no-alloc)
-    (a tm (r tm) #'donothing cont-no-alloc)
-    (w tm object)
-    (funcall cont-ok)
-    )
+    (a tm (r tm) 
+      (λ() 
+        (w tm object)
+        (funcall cont-ok)
+        )
+      cont-no-alloc
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; deallocate cells (delete cells)  
-;;  deallocated cells can be moved to spill, so this can also be reallocation
 ;;
+  (defgeneric d◧ (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
+    (:documentation 
+      "Similar to #'d but the leftmost cell is deallocated independent of where the head
+       is located, unless the leftmost cell is the rightmost cell, in which case
+       cont-rightmost is called. If the tape head is on the leftmost cell, it is moved to
+       the new leftmost cell.
+       "
+      ))
 
-
+  ;; we dup tm, cue to leftmost, swap leftmost and the next cell's objects, then
+  ;; do regular deallocate
+  (defmethod d◧
+    (
+      (tm tape-machine)
+      &optional
+      spill
+      (cont-ok #'echo)
+      (cont-rightmost (be ∅))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (let(
+          (tm◧ (dup tm))
+          )
+      (if
+        (on-leftmost tm)
+        (s tm #'do-nothing (λ()(funcall cont-rightmost)))
+        (cue-leftmost tm◧)
+        )
+      (let(
+            (obj-0 (r tm◧))
+            )
+        (r-index tm◧ 1
+          (λ(obj-1)
+            (w tm◧ obj-1)
+            (w-index tm◧ obj-0 1
+              #'do-nothing 
+              (λ()(error 'tm-impossible-to-get-here :text "we just did a r-index 1"))
+              )
+            (d tm spill cont-ok cont-rightmost cont-no-alloc)
+            )
+          (λ()(error 'tm-impossible-to-get-here :text "we know tm is further to the right"))
+          ))))         
      
 ;;--------------------------------------------------------------------------------
 ;; moving data

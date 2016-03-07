@@ -137,16 +137,3 @@ See LICENSE.txt
       )
     (d (transform-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
     )
-
-  (defmethod ◧d 
-    (
-      (tm tm-transform)
-      &optional 
-      spill
-      (cont-ok (be t))
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      (cont-no-alloc
-        (λ()(error 'tm-alloc-fail :text "could not spill")))
-      )
-    (◧d (transform-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
-    )

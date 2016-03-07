@@ -26,7 +26,7 @@ See LICENSE.txt
 
   (defstruct line
     (infimum 0) ; the value for the leftmost cell, our integration constant
-    (bound ∅) ; a boundary that we may not pass
+    (bound ∅) ; either ∅, or a boundary that we may not pass
     (∆ 1) ; a step increment
     )
 
@@ -162,17 +162,3 @@ See LICENSE.txt
     (declare (ignore tm spill cont-ok cont-rightmost cont-no-alloc))
     (error 'tm-read-only)
     )
-
-  (defmethod ◧d 
-    (
-      (tm tm-line)
-      &optional 
-      spill
-      cont-ok 
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
-      )
-    (declare (ignore tm spill cont-ok cont-rightmost cont-no-alloc))
-    (error 'tm-read-only)
-    )
-

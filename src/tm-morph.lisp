@@ -166,6 +166,7 @@ See LICENSE.txt
             )))
       ))
 
+  ;; morph not yet implemented on d d◧.
   (defmethod d 
     (
       (tm tm-morph)
@@ -177,18 +178,5 @@ See LICENSE.txt
         (λ()(error 'tm-alloc-fail :text "could not spill")))
       )
     (d (morph-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
-    )
-
-  (defmethod ◧d 
-    (
-      (tm tm-morph)
-      &optional 
-      spill
-      (cont-ok (be t))
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      (cont-no-alloc
-        (λ()(error 'tm-alloc-fail :text "could not spill")))
-      )
-    (◧d (morph-tm (tape tm)) spill cont-ok cont-rightmost cont-no-alloc)
     )
 

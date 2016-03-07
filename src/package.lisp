@@ -66,7 +66,7 @@ See LICENSE.txt
       #:so
       #:a
       #:d
-      #:◧d
+      #:d◧
       #:m  
 
     ;;tm-secondary
@@ -85,8 +85,8 @@ See LICENSE.txt
       #:s≠
 
       #:as
-      #:a◨
-      #:a◨s
+      #:ah◨
+      #:ah◨s
       #:-a
       #:-a-s
 

@@ -122,11 +122,11 @@ See LICENSE.txt
           (labels(
                    (gather-object()
                      (unless gathered (setq gathered (mk-tm-list-0)))
-                     (a◨ gathered (r src))
+                     (ah◨ gathered (r src))
                      )
                    (append-gathered()
                      (when gathered
-                       (a◨ dst (tape gathered))
+                       (ah◨ dst (tape gathered))
                        (setq gathered ∅)
                        ))
                    (append-opened-list()

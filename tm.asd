@@ -42,11 +42,13 @@ See LICENSE.txt
                              (:file "tm-morph")
                              (:file "tm-subspace")
 
+                             (:file "data-structures")
+                             
+
 #|
 
 
-                             (:file "data-structures")
-                             
+
                              (:file "tm-list")
                              (:file "data-structures-list")
 

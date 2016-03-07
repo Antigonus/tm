@@ -59,8 +59,8 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    "When returning true, tm is at the first cell that has an object where pred is true.
-    When returning false, tm is at rightmost, and there was no cell where pred was true."
+    "When returning true, tm head is on the first cell that has an object where pred is true.
+    When returning false, tm head is on rightmost, and there was no cell where pred was true."
     (⟳ tm #'s
       (λ(the-tm)(when (funcall pred the-tm) (return-from ∃ (funcall cont-true))))
       cont-false

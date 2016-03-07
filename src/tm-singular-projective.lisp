@@ -124,16 +124,3 @@ See LICENSE.txt
     (declare (ignore tm spill cont-ok cont-no-alloc))
     (funcall cont-rightmost)
     )
-
-  (defmethod ◧d 
-    (
-      (tm tm-singular-projective)
-      &optional 
-      spill
-      cont-ok 
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
-      )
-    (declare (ignore tm spill cont-ok cont-no-alloc))
-    (funcall cont-rightmost)
-    )

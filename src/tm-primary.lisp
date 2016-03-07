@@ -89,7 +89,6 @@ See LICENSE.txt
        "
       ))
 
-
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
@@ -114,17 +113,10 @@ See LICENSE.txt
   (defgeneric d (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Deallocates one cell to the right of the head.
-       If spill exists, #'d puts the deallocated cell on spill.
-       If spill can not take such cells, then it creates a new allocation
-       on spill, this is the only reason a cont-no-alloc might be taken.
+       If spill exists, #'d tries to put the deallocated cell on spill.
+       If spill can not take such cells, then it calls (as spill (r tm)),
+       to move the object of the deallocated cell. Cont-ok is called with 
+       the object from the deallocated cell.
        "
-      ))
-
-  (defgeneric ◧d (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
-    (:documentation 
-      "Similar to #'d but the leftmost cell is deallocated independent of where
-       the head is located. If the tape head is on the leftmost cell, it is moved
-       to the new leftmost cell, unless the leftmost cell is the rightmost cell,
-       in which case cont-rightmost is called."
       ))
 

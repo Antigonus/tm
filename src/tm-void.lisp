@@ -22,7 +22,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; essential methods
 ;;
-  (defmethod r ((tm tm-void)) (error 'read-on-void))
+  (defmethod r ((tm tm-void)) ∅)
 
   (defmethod w ((tm tm-void) object)
     (declare (ignore tm object))
@@ -100,31 +100,29 @@ See LICENSE.txt
     t
     )
   
-  ;; we don't spill on the grounds that there is nothing to spill
+  (defmethod a
+    (
+      (tm tm-void)
+      object
+      &optional
+      cont-ok
+      cont-no-alloc
+      )
+    (declare (ignore tm object cont-no-alloc))
+    (funcall cont-ok)
+    )
+
   (defmethod d 
     (
       (tm tm-void)
       &optional 
       spill
-      (cont-ok (be t))
+      (cont-ok #'echo)
       cont-rightmost
       cont-no-alloc
       )
-    (declare (ignore tm spill cont-rightmost cont-no-alloc))
-    (funcall cont-ok)
-    )
-
-  ;; we don't spill on the grounds that there is nothing to spill
-  (defmethod ◧d 
-    (
-      (tm tm-void)
-      &optional 
-      spill
-      (cont-ok (be t))
-      cont-rightmost
+    (declare (ignore tm cont-rightmost))
+    (a spill ∅
+      (λ() (funcall cont-ok ∅))
       cont-no-alloc
-      )
-    (declare (ignore tm spill cont-rightmost cont-no-alloc))
-    (funcall cont-ok)
-    )
-
+      ))

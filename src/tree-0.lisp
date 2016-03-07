@@ -116,11 +116,11 @@ See LICENSE.txt
                    (cond
                      ((atom tree) ∅)
                      ((funcall pred tree)
-                       (a◨ true-results-rm tree)
+                       (ah◨ true-results-rm tree)
                        t
                        )
                      ((¬∃* tree #'bifurcate-tree-1)
-                       (a◨ false-results-rm tree)
+                       (ah◨ false-results-rm tree)
                        ∅
                        )
                      (t t)

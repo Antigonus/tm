@@ -1,3 +1,4 @@
+
   In deterministic computing a state variable has a single value at any given
   step during computation.  This is the definition of deterministic computing,
   and the implications of determinism, and its complement, non-determinism, have
@@ -8,11 +9,11 @@
   various users of an index.  This stands in contrast to the destructive modification of
   data, for example a list, where another user of a destructively modifed list will
   suddenly have its copy changed - thus causing the list to become a vehicle for
-  communication possibly without the required protocol overhead to make such communication
+  communication, but one without the required protocol overhead to make such communication
   work well.
 
-  An tape machine is an abstraction of an index for arbitrary containers rather than
-  for arrays.  It is theoretically related to Turing machines, and in implementation
+  A tape machine is an abstraction of an index for arbitrary containers rather than
+  just for arrays.  It is theoretically related to Turing machines, and in implementation
   related to iterators. Hence, we destructively modify our tape machines in order
   to represent advancing state, just as is done with loop indexes when scanning arrays.
 
@@ -67,20 +68,6 @@
       d deallocate/drop/delete cell - optional spill (i.e. realloc)
       m move data, no allocation or deallocation of cells, requires fill
 
-    i suffix, use object as though it were the right hand side.
-      this supports objects as tapes (and thus trees and linear spaces).
-    n suffix, repeat n times
-    * repeat until depletion of a resource or a bound is hit
-    ≠ suffix, step if this tm is not equal to bounding tm
-    - prefix, to affect left instead of right, if the container supports it
-   -- prefix when two tapes are involved, spec the direction for each
-   -+    plus plus is the no prefix version
-   +-    variations never reverse the order between objects
-    ◨ as first suffix, contract tm is on rightmost, prefix, operation affects rightmost
-    ◧ as first suffix, contract tm is on leftmost, prefix, operation affects leftmost
-
-    s used as a suffix means that tm is stepped after the operation
-
 gather, g, accepts a cell and puts it on to the tape just to the right of the head cell.
 Somewhat similar to alloc, a, but the initialization data is a cell rather than
 an object.
@@ -95,15 +82,16 @@ copy copies objects, there is no allocation or deallocation.  If both
 tape machines are on the same tape, then there can be overlaps, currently
 this is not contemplated, it is a todo item.
 
--------------
+syntax of a command
 
-    tape-side command head-contract quantification
+    tape-side command tape-end-specifier head-contract quantification 
 
 
 𝝐 = not present
 tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
-command: [rwsadm]   ;one letter, to make concat for command language work
-head-contract: [◧◨𝝐]     ;head on leftmost, head on rightmost, or no contract
+command: [rwsadm]   ;one letter
+head-contract: [h◧ h◨ 𝝐]     ;head on leftmost, head on rightmost, or no contract
+tape-end-specifier:  [◧ ◨ 𝝐] ; operates on, ◧ leftmost, ◨ rightmost, 𝝐 on head
 quantification: [n*𝝐]  ; count, repeat to end, or do once
 
 if there is to be a step after the command runs, add an s to the end of

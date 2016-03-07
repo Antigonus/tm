@@ -21,7 +21,7 @@ See LICENSE.txt
 
   (defgeneric on+1 (tm &optional cont-true cont-false)
     (:documentation
-      "tm head is one to the right of the leftmost cell, i.e. at cell 1."
+      "tm head is one to the right of the leftmost cell, i.e. on cell 1."
       ))
 
   (defmethod on+1

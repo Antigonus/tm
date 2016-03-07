@@ -272,8 +272,8 @@ See LICENSE.txt
       t
       ))
 
-  ;; programmer promises that tm is at rightmost
-  (defmethod a◨ ((tm tm-list) object)
+  ;; programmer promises that tm is on rightmost
+  (defmethod ah◨ ((tm tm-list) object)
     (let(
           (new-cell (cons object ∅))
           )
@@ -282,7 +282,7 @@ See LICENSE.txt
       t
       ))
 
-  (defmethod a◨. ((tm tm-list) object)
+  (defmethod ah◨. ((tm tm-list) object)
     (let(
           (new-cell (cons object ∅))
           )
@@ -290,22 +290,22 @@ See LICENSE.txt
       t
       ))
 
-  (defun test-a◨-10 ()
+  (defun test-ah◨-10 ()
     (let*(
            (a (list 1 2 3))
            (tm1 (mk-tm-list-0 a))
            )
       (cue-rightmost tm1)
-      (a◨ tm1 '4)
+      (ah◨ tm1 '4)
       (equal
         (to-list tm1)
         '(1 2 3 4)
         )))
-  (test-hook test-a◨-10)
+  (test-hook test-ah◨-10)
 
-  ;; programmer promises that tm is at leftmost
+  ;; programmer promises that tm is on leftmost
   ;; tape r/w head moves left to be on the new cell
-  (defmethod -a◧ ((tm tm-list) object)
+  (defmethod -ah◧ ((tm tm-list) object)
     (let(
           (new-cell (cons object ∅))
           )
@@ -387,7 +387,7 @@ See LICENSE.txt
 
   ;; deallocates the leftmost cell, if the head is on leftmost, moves it to the
   ;; new leftmost
-  (defmethod ◧d 
+  (defmethod d◧ 
     (
       (tm tm-list)
       &optional 
@@ -398,7 +398,7 @@ See LICENSE.txt
 
     (unless ; can't delete lm if it is the only cell
       (cdr (tape tm))
-      (return-from ◧d (funcall cont-rightmost))
+      (return-from d◧ (funcall cont-rightmost))
       )
 
     (when ; if head is on lm, step it
@@ -427,25 +427,25 @@ See LICENSE.txt
             )))
       ))
 
-  (defun test-◧d-0 ()
+  (defun test-d◧-0 ()
     (let*(
            (a (list 1 2 3))
            (tm1 (mk-tm-list-0 a))
            )
-      (◧d tm1)
+      (d◧ tm1)
       (equal
         (to-list tm1)
         '(2 3)
         )))
-  (test-hook test-◧d-0)
+  (test-hook test-d◧-0)
 
-  (defun test-◧d-1 ()
+  (defun test-d◧-1 ()
     (let*(
            (tm1 (mk-tm-list-0))
            )
-      (◧d tm1 'd (be ∅) (be t))
+      (d◧ tm1 'd (be ∅) (be t))
       ))
-  (test-hook test-◧d-1)
+  (test-hook test-d◧-1)
 
 
   ;; the - behaviors need to be better explored

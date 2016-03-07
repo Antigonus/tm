@@ -4,110 +4,64 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+Removing the 'embedded' stack/queue, because the same thing can be 
+achieved using a subspace.
+
+
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;;  stack as operators on a tape
+;;  tape is stack
 ;;
-;;  When the stack extends to the end of the tape it can be represented with
-;;  just tm@.  The empty test is not really needed, as dequeue has an empty stack
-;;  continuation.  However, (on-rightmost tm@) is an empty test.
+;; Leftmost is an attachment point for the stack.
 ;;
-;;  For an embedded stack, once a valid tm◨ is found, it remains valid, as new
-;;  objects are given new cells.  So it can be found by stepping from leftmost
-;;  after the first push.
-;;
-  (defun stack-enqueue (tm@ object)
-    "tm@ is on an attachment point for a stack.
-     Everything to the right of tm@ is considered to be on the stack.
-    "
-    (a. tm@ object)
+  (defun stack-enqueue (tm-h◧ object)
+    "Pulls an object on to the stack"
+    (a tm-h◧ object)
     )
 
   ;; in the English language, dequeue means to remove something from a queue
   ;; it is pronounced d-q
   (defun stack-dequeue
     (
-      tm@ 
+      tm-h◧
       &optional 
       (cont-ok #'echo) 
       (cont-empty (error 'dequeue-from-empty :text "stack is empty"))
       )
-    (d tm@ 'r
-      (λ(object)(funcall cont-ok object))
-      cont-empty
-      ))
-
-  ;; a stack can be embedded, provided that we record tm◨ of for the 
-  ;; stack after the first push.
-  (defun embedded-stack-dequeue
-    (
-      tm@ 
-      tm◨
-      &optional 
-      (cont-ok #'echo) 
-      (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
-      )
-    (heads-on-same-cell tm@ tm◨ 
-      cont-empty
-      (λ() 
-        (d tm@ 'r
-          (λ(object)(funcall cont-ok object))
-          cont-empty
-          )))
+    "Pulls an object off of the stack"
+    (d tm-h◧ ∅ cont-ok cont-empty)
     )
 
-  ;; or non-embedded-empty, use on-rightmost
-  ;; this works for stacks or queues
-  (defun embedded-empty (tm@ tm◨ &optional (cont-true (be t)) (cont-false (be ∅)))
-    "To get tm◨ for stack, dup tm@ after the first en-stack operation, then step."
-    (heads-on-same-cell tm@ tm◨ cont-true cont-false)
+  (defun stack-empty (tm-h◧ &optional (cont-true (be t)) (cont-false (be ∅)))
+    (on-rightmost tm-h◧ cont-true cont-false)
     )
 
 ;;--------------------------------------------------------------------------------
 ;;  queue as operators on a tape
 ;;
-;;  When the whole tape is a queue it is possible to use tm◨ to represent the queue, and
-;;  then to recover tm@ with (cue-to-leftmost (dup tm◨)).
+;; tm-h◧ is the pull point, using #'d
+;; tm-h◨ is the push point, using #'a
 ;;
-  (defun queue-enqueue (tm◨ object)
-    "tm◨ is the rightmost cell of the queue, but not necessarily of the tape."
-    (a tm◨ object)
+;; for an empty queue tm-h◨ is also leftmost
+;;
+  (defun queue-enqueue (tm-h◨ object)
+    (as tm-h◨ object)
     )
 
   (defun queue-dequeue
     (
-      tm@ 
+      tm-h◧ 
       &optional 
       (cont-ok #'echo) 
-      (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
+      (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (if
-      (on+1 tm@)
-      (progn
-        (cue-leftmost tm@)
-        (d tm@ 'r cont-ok cont-empty)
-        )
-      (let(
-            (tm1 (dup tm@))
-            )
-        (cue-leftmost tm1)
-        (stack-dequeue tm1 cont-ok cont-empty)
-        )))
-
-  (defun embedded-queue-dequeue
-    (
-      tm@ 
-      tm◨
-      &optional 
-      (cont-ok #'echo) 
-      (cont-empty (error 'dequeue-from-empty :text "stack is empty"))
-      )
-    (embedded-stack-dequeue tm@ tm◨ cont-ok cont-empty)
+    (stack-dequeue tm-h◧ cont-ok cont-empty)
     )
 
+  (defun queue-empty (tm-h◧ tm-h◨) (heads-on-same-cell tm-h◧ tm-h◨))
 
 ;;--------------------------------------------------------------------------------
 ;;  queues and stacks as objects of their own
@@ -116,7 +70,7 @@ See LICENSE.txt
   ;; the leftmost cell on the tape is the attachment point, i.e. a padding cell
   (defclass buffer(tape-machine)())
 
-  (defgeneric enqueue (buffer object)) ; push is already reserved as a function name
+  (defgeneric enqueue (buffer object))
   (defgeneric dequeue (buffer &optional cont-ok cont-empty))
 
   (defgeneric empty  (buf))
@@ -132,51 +86,47 @@ See LICENSE.txt
 
   (defmethod dequeue 
     (
-      (buf stack)
+      (tm-h◧ stack)
       &optional 
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (stack-dequeue buf cont-ok cont-empty)
+    (stack-dequeue tm-h◧ cont-ok cont-empty)
     )
 
   (defmethod enqueue
     (
-      (buf stack)
+      (tm-h◧ stack)
       object
       )
-    (stack-enqueue buf object)
+    (stack-enqueue tm-h◧ object)
     )
     
 ;;--------------------------------------------------------------------------------
-;; embedded stack
-;;
-
-
-;;--------------------------------------------------------------------------------
 ;; queue
+;;
+;; queue is represented by tm-h◨,  and tm-h◧ is recovered using (cue-leftmost)
 ;;
   (defclass queue (buffer)())
 
   (defmethod dequeue 
     (
-      (buf queue)
+      (tm-h◨ queue)
       &optional 
       (cont-ok #'echo) ; dequeueed object is sent here
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (queue-dequeue buf cont-ok cont-empty)
-    )
+    (let(
+          (tm-h◧ (cue-leftmost (dup tm-h◨)))
+          )
+      (queue-dequeue tm-h◧ cont-ok cont-empty)
+      ))
     
   (defmethod enqueue
     (
-      (buf queue)
+      (tm-h◨ queue)
       object
       )
-    (queue-enqueue buf object)
+    (queue-enqueue tm-h◨ object)
     )
 
-;;--------------------------------------------------------------------------------
-;; embedded stack / queue
-;;  this would be useful .. should implement it ..
-;; ...

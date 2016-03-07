@@ -129,7 +129,7 @@ See LICENSE.txt
       )
     (declare (ignore cont-rightmost cont-no-alloc))
     (when spill (as spill (HA tm)))
-    (funcall cont-ok)
+    (funcall cont-ok (HA tm))
     )
 
   (defmethod d 
@@ -143,16 +143,3 @@ See LICENSE.txt
       )
     (d-singular-affine tm spill cont-ok cont-rightmost cont-no-alloc)
     )
-
-  (defmethod ◧d 
-    (
-      (tm tm-singular-affine)
-      &optional 
-      spill
-      (cont-ok (be t))
-      cont-rightmost
-      cont-no-alloc
-      )
-    (d-singular-affine tm spill cont-ok cont-rightmost cont-no-alloc)
-    )
-

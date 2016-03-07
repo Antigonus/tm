@@ -12,9 +12,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; conditions
 ;;
-  (define-condition tm-read-on-void (error)
-    ((text :initarg :text :reader text)))
-
   (define-condition tm-alloc-fail (error)
     ((text :initarg :text :reader text)))
 
@@ -77,7 +74,7 @@ See LICENSE.txt
   (define-condition tm-computationally-impossible (error)
     ((text :initarg :text :reader text)))
 
-  ;; When the head is at rightmost, there are not cells further right that can be
+  ;; When the head is on rightmost, there are not cells further right that can be
   ;; deallocated.
   (define-condition tm-deallocation-request-at-rightmost (error)
     ((text :initarg :text :reader text)))

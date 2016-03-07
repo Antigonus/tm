@@ -75,11 +75,11 @@ See LICENSE.txt
           (base-1 tm1)
           )
       (loop
-        (unless (typep base-0 'tm-subspace) return)
+        (unless (typep base-0 'tm-subspace) (return))
         (setf base-0 (HA base-0))
         )
       (loop
-        (unless (typep base-1 'tm-subspace) return)
+        (unless (typep base-1 'tm-subspace) (return))
         (setf base-1 (HA base-1))
         )
       (heads-on-same-cell base-0 base-1 cont-true cont-false)
@@ -145,23 +145,5 @@ See LICENSE.txt
       (d (HA tm) spill cont-ok cont-rightmost cont-no-alloc)
       ))
 
-  (defmethod ◧d 
-    (
-      (tm tm-subspace)
-      &optional 
-      spill
-      (cont-ok  (be t))
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      (cont-no-alloc (error 'tm-alloc-fail))
-      )
-    (if
-      (heads-on-same-cell (subspace-leftmost (tape tm)) (subspace-rightmost (tape tm)))
-      (funcall cont-rightmost)
-      (when 
-        (heads-on-same-cell (subspace-leftmost (tape tm)) (HA tm))
-        (s (HA tm))
-        )
-      (s (subspace-leftmost (tape tm))) ; deallocates from the subspace, it remains in the space
-      ))
 
     
