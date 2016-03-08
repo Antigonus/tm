@@ -15,6 +15,24 @@ See LICENSE.txt
 |#
   (in-package #:tm)
 
+
+;;--------------------------------------------------------------------------------
+;; tm-accesories
+;;
+  (defun test-r-index-0 ()
+    (let(
+          (k (mk-tm 'tm-list (list 6 7 8)))
+          )
+      (∧
+        (= 6 (r-index k 0))
+        (= 7 (r-index k 1))
+        (= 8 (r-index k 2))
+        (= 1 (r-index k 3
+               (λ(x)(declare (ignore x)) ∅)
+               #'echo
+               )))))
+  (test-hook test-r-index-0)
+
 ;;--------------------------------------------------------------------------------
 ;; tm-si
 ;;
@@ -39,6 +57,7 @@ See LICENSE.txt
         (= (r y1) 11)
         (s y1)
         (= (r y1) 12)
+        (s y1)
         (si y1)
         (= (r y1) 1)
         (s y1)
@@ -56,9 +75,9 @@ See LICENSE.txt
   (defun test-∃-0 ()
     (let*(
            (y '(1 2 (3 4) 5))
-           (ytm (mk-tm-list-0 y))
+           (ytm (mk-tm-list y))
            )
-      (∃ ytm (λ()(and (typep (r ytm) 'cons) (eql 3 (car (r ytm))))))
+      (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
       (equal (r ytm) '(3 4))
       ))
   (test-hook test-∃-0) 
@@ -66,9 +85,9 @@ See LICENSE.txt
   (defun test-¬∀-0 ()
     (let*(
            (y '(1 3 4 5))
-           (ytm (mk-tm-list-0 y))
+           (ytm (mk-tm-list y))
            )
-      (¬∀ ytm (λ(i)(and (numberp i) (oddp i))))
+      (¬∀ ytm (λ(tm)(and (numberp (r tm)) (oddp (r tm)))))
       (= (r ytm) 4)
       ))
   (test-hook test-¬∀-0) 
@@ -76,19 +95,19 @@ See LICENSE.txt
   (defun test-d*-0 ()
     (let*(
            (a (list 1 2 3))
-           (tm1 (mk-tm-list-0 a))
+           (tm1 (mk-tm-list a))
            )
       (d* tm1)
       (equal
-        (to-list tm1)
+        (tape tm1)
         '(1)
         )))
-  (test-hook test-ds*-0)
+  (test-hook test-d*-0)
 
   (defun test-sn-0 ()
     (let*(
            (y '(1 3 6 5))
-           (tmy (mk-tm-list-0 y))
+           (tmy (mk-tm-list y))
            )
       (and
         (sn tmy 2
@@ -102,15 +121,34 @@ See LICENSE.txt
             )))))
   (test-hook test-sn-0)
 
+  (defun test-sn-1 ()
+    (let(
+          (k0 (mk-tm 'tm-list (list 10 11 12)))
+          (k1 (mk-tm 'tm-list (list 13 14 15)))
+          )
+      (∧
+        (= (r k0) 10)
+        (sn k0 1)
+        (= (r k0) 11)
+        (= (sn k0 22 (be ∅) #'echo) 21)
+
+        (= (r k1) 13)
+        (sn k1 2)
+        (= (r k1) 15)
+        (sn k1 1 (be ∅) (be t))
+        )))
+  (test-hook test-sn-1)
+
+
 ;;--------------------------------------------------------------------------------
 ;; length.lisp
 ;;
   (defun test-ton-0 ()
     (let(
-          (a (mk-tm-list-0))
-          (b (mk-tm-list-0 '(1)))
-          (c (mk-tm-list-0 '(1 2)))
-          (d (mk-tm-list-0 '(1 2 3)))
+          (a (mk-tm-list))
+          (b (mk-tm-list '(1)))
+          (c (mk-tm-list '(1 2)))
+          (d (mk-tm-list '(1 2 3)))
           )
       (∧
         (∧ (singleton a) (eq (r a) 'list))
@@ -128,7 +166,7 @@ See LICENSE.txt
 
   (defun test-length≥-0 () 
     (let(
-          (tm (mk-tm-list-0 '(a b c)))
+          (tm (mk-tm-list '(a b c)))
           )
     (and
       (length≥ tm 2)
@@ -139,7 +177,7 @@ See LICENSE.txt
 
   (defun test-length=-0 () 
     (let(
-          (tm (mk-tm-list-0 '(a b c)))
+          (tm (mk-tm-list '(a b c)))
           )
       (and
         (not (length= tm 2))
@@ -155,8 +193,8 @@ See LICENSE.txt
 #|
   (defun test-s-map-0 ()
     (let*(
-           (tm0 (mk-tm-list-0 '(1 2 3)))
-           (tm1 (mk-tm-list-0))
+           (tm0 (mk-tm-list '(1 2 3)))
+           (tm1 (mk-tm-list))
            )
       (labels(
                (inc(input-object cont-forward &rest rest-conts)
@@ -187,8 +225,8 @@ See LICENSE.txt
                  )
                )
         (let*(
-               (tm0 (mk-tm-list-0 '(1 2 3)))
-               (tm1 (mk-tm-list-0))
+               (tm0 (mk-tm-list '(1 2 3)))
+               (tm1 (mk-tm-list))
                )
           (⟳ tm0 
             (λ(tm0 cont-ok cont-rightmost)
@@ -205,7 +243,7 @@ See LICENSE.txt
 ;;
   (defun test-⟳-0 ()
     (let(
-          (tm (mk-tm-list-0 '(a b c)))
+          (tm (mk-tm-list '(a b c)))
           (n  3)
           )
       (⟳ tm #'s (λ()(incf n)))

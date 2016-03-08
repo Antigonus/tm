@@ -55,40 +55,43 @@ See LICENSE.txt
     ;;
       #:mk-tm
 
-    ;;tm-primary
+    ;;tm-primitives
     ;;
       #:tape-machine ; class
       #:r
       #:w
-      #:cue-leftmost
-      #:cue-to
       #:heads-on-same-cell
       #:so
       #:a
       #:d
-      #:d◧
-      #:m  
 
-    ;;tm-secondary
+    ;;tm-accessories - more than just a primitive interface
     ;;
+      #:cue-to
       #:dup
+
       #:ws
       #:r-index
       #:w-index
 
       #:cue-rightmost
+      #:cue-leftmost
 
       #:on-leftmost
       #:on-rightmost
 
-      #:s
-      #:s≠
+      #:s≠ 
 
+      #:a◧
       #:as
       #:ah◨
       #:ah◨s
       #:-a
       #:-a-s
+
+      #:d◧
+
+      #:m  
 
     ;;tm-si
     ;;
@@ -130,7 +133,7 @@ See LICENSE.txt
       #:on+1
       #:on+n
       #:on-rightmost-1
-      #:on-rightnost+n ; no will typically be negative
+      #:on-rightnost+n ; n will typically be negative
       #:address
       #:distance-1
       #:distance-n
@@ -145,13 +148,13 @@ See LICENSE.txt
 
     ;; useful machines
     ;;
-      #:tm-void
-      #:tm-singular-affine
-      #:tm-singular-projective
-
       #:mk-tm-void
       #:mk-tm-singular-affine
       #:mk-singular-projective
+
+      #:tm-void
+      #:tm-singular-affine
+      #:tm-singular-projective
 
     ;; number of allocated cells, i.e. length
     ;;
@@ -170,12 +173,9 @@ See LICENSE.txt
     ;;
       #:stack-enqueue
       #:stack-dequeue
-      #:embedded-stack-dequeue
-      #:embedded-empty
 
       #:queue-enqueue
       #:queue-dequeue
-      #:embedded-queue-dequeue
 
       #:buffer
       #:enqueue
@@ -185,6 +185,11 @@ See LICENSE.txt
       #:stack
       #:queue
 
+    ;; tm-list-primitives
+    ;;
+      #:mk-tm-list
+      #:tm-list
+      
     ;; list-0
     ;;
       #:bifurcate

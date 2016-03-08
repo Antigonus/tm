@@ -23,7 +23,10 @@ See LICENSE.txt
           )
       (if
         (typep object 'tape-machine)
-        (cue-to tm object)
+        (progn
+          (cue-to tm object)
+          (funcall cont-ok)
+          )
         (mk-tm (type-of object) object
           (λ(new-tm) 
             (cue-to tm new-tm)

@@ -40,7 +40,9 @@ See LICENSE.txt
   (defgeneric cue-leftmost (tm)
     (:documentation 
       "Cue tm's head to the leftmost cell.
-       This method might not be available for all implementations."
+       Returns tm.
+       This method might not be available for all implementations.
+       "
       ))
 
 

@@ -64,7 +64,7 @@ See LICENSE.txt
     (sn tm index cont-ok cont-rightmost)
     )
 
-  (defgeneric r-index (tm &optional index cont-ok cont-index-beyond-rightmost)
+  (defgeneric r-index (tm index &optional cont-ok cont-index-beyond-rightmost)
     (:documentation 
       "Read as though tm stepped index number of times before the read.
        index defaults to 1."
@@ -76,8 +76,8 @@ See LICENSE.txt
   (defmethod r-index
     (
       (tm tape-machine)
+      index
       &optional 
-      (index 1)
       (cont-ok #'echo) 
       (cont-index-beyond-rightmost
         (λ() (error 'tm-read-beyond-rightmost :text "attempt to read beyond the rightmost allocated cell of the tape") ∅)
@@ -86,19 +86,19 @@ See LICENSE.txt
     (let(
           (tm1 (dup tm))
           )
-      (sn tm index
+      (sn tm1 index
         (λ()(funcall cont-ok (r tm1)))
-        (funcall cont-index-beyond-rightmost)
+        (λ(n)(funcall cont-index-beyond-rightmost n))
         )))
 
-  (defgeneric w-index (tm object &optional index cont-ok cont-index-beyond-rightmost))
+  (defgeneric w-index (tm object index &optional cont-ok cont-index-beyond-rightmost))
 
   (defmethod w-index
     (
       (tm tape-machine)
       object
+      index
       &optional 
-      (index 1)
       (cont-ok (be t)) 
       (cont-index-beyond-rightmost (be ∅))
       )
@@ -107,7 +107,7 @@ See LICENSE.txt
           )
       (sn tm index
         (λ() (w tm1 object) (funcall cont-ok))
-        (funcall cont-index-beyond-rightmost)
+        (λ() (funcall cont-index-beyond-rightmost))
         )))
 
 ;;--------------------------------------------------------------------------------
@@ -312,8 +312,7 @@ See LICENSE.txt
        "
       ))
 
-  ;; we dup tm, cue to leftmost, swap leftmost and the next cell's objects, then
-  ;; do regular deallocate
+  ;; swap objects between cell-0 to cell-1, then call #'d
   (defmethod d◧
     (
       (tm tape-machine)
@@ -323,28 +322,27 @@ See LICENSE.txt
       (cont-rightmost (be ∅))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
+    (when (singleton tm) (return-from d◧ (funcall cont-rightmost)))
     (let(
-          (tm◧ (dup tm))
+          (tm0 (dup tm))
           )
-      (if
-        (on-leftmost tm)
-        (s tm #'do-nothing (λ()(funcall cont-rightmost)))
-        (cue-leftmost tm◧)
-        )
+      (cue-leftmost tm0)
       (let(
-            (obj-0 (r tm◧))
+            (tm1 (dup tm0))
             )
-        (r-index tm◧ 1
-          (λ(obj-1)
-            (w tm◧ obj-1)
-            (w-index tm◧ obj-0 1
-              #'do-nothing 
-              (λ()(error 'tm-impossible-to-get-here :text "we just did a r-index 1"))
-              )
-            (d tm spill cont-ok cont-rightmost cont-no-alloc)
-            )
-          (λ()(error 'tm-impossible-to-get-here :text "we know tm is further to the right"))
-          ))))         
+        (s tm1
+          (λ() 
+            (let(
+                  (obj-0 (r tm0))
+                  (obj-1 (r tm1))
+                  )
+              (w tm0 obj-1)
+              (w tm1 obj-0)
+              (d tm spill cont-ok cont-rightmost cont-no-alloc)
+              ))
+          (λ()(error 'tm-impossible-to-get-here))
+          ))))
+
      
 ;;--------------------------------------------------------------------------------
 ;; moving data

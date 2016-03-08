@@ -62,7 +62,7 @@ See LICENSE.txt
     "When returning true, tm head is on the first cell that has an object where pred is true.
     When returning false, tm head is on rightmost, and there was no cell where pred was true."
     (⟳ tm #'s
-      (λ(the-tm)(when (funcall pred the-tm) (return-from ∃ (funcall cont-true))))
+      (λ()(when (funcall pred tm) (return-from ∃ (funcall cont-true))))
       cont-false
       ))
 
@@ -313,19 +313,24 @@ See LICENSE.txt
       "
       ))
 
-  ;; spill may only be 'drop or a tape machine
   (defmethod d*
     (
       (tm tape-machine)
       &optional 
       spill
       (cont-rightmost (be t))
-      (cont-no-alloc (be ∅))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (labels(
              (do-work()
-               (d tm spill #'do-work cont-rightmost cont-no-alloc)
-               )
+               (d tm spill 
+                 (λ(object) 
+                   (declare (ignore object))
+                   (funcall #'do-work)
+                   )
+                 cont-rightmost
+                 cont-no-alloc
+                 ))
              )
       (do-work)
       ))
@@ -346,7 +351,7 @@ See LICENSE.txt
       (n integer)
       &optional 
       (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (cont-rightmost (λ(n)(declare (ignore n)) ∅))
       )
     (labels(
              (count-test()
@@ -361,7 +366,7 @@ See LICENSE.txt
                (s 
                  tm 
                  #'work
-                 (λ()(funcall cont-rightmost n))
+                 (λ()(funcall (return-from sn (funcall cont-rightmost n))))
                  ))
              )
       (count-test)

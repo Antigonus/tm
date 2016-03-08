@@ -117,8 +117,9 @@ achieved using a subspace.
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
     (let(
-          (tm-h◧ (cue-leftmost (dup tm-h◨)))
+          (tm-h◧ (dup tm-h◨))
           )
+      (cue-leftmost tm-h◧)
       (queue-dequeue tm-h◧ cont-ok cont-empty)
       ))
     

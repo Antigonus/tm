@@ -26,8 +26,8 @@ See LICENSE.txt
                              (:file "functions")
 
                              (:file "mk-tm")
-                             (:file "tm-primary")
-                             (:file "tm-secondary")
+                             (:file "tm-primitives")
+                             (:file "tm-accessories")
                              (:file "tm-si")
                              (:file "tm-quantifiers")
                              (:file "location")
@@ -42,13 +42,17 @@ See LICENSE.txt
                              (:file "tm-morph")
                              (:file "tm-subspace")
 
-                             (:file "data-structures")
+                             (:file "buffers")
 
-                             (:file "tm-list-primary")
-                             
+                             (:file "tm-list-primitives")
+                             (:file "tm-list-accessories")
+                             (:file "tm-list-buffers")
+     
+                             (:file "test-tm")
+                             (:file "test-list-buffers")
+
+
 #|
-                             (:file "data-structures-list")
-
                              (:file "tm-array")
 
                              (:file "tm-tree")
@@ -58,7 +62,6 @@ See LICENSE.txt
                              
                              (:file "tree-0")
                              (:file "list-lang") ; accessor lang here delta-s etc.
-                             (:file "test-tm")
 |#
                              ))))
 
