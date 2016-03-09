@@ -3,13 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Tape has been weaved through a tree.
-
-  To prevent traversal from entering a list object, step away from that cell
-  using the tm-list's step function.
-
-  If you want to replace an object with another, say for a filter action, simply
-  write the cell with the new data.  (w tm object).
+  The machine's tape has been weaved through a tree.
 
 |#
 
@@ -34,15 +28,17 @@ See LICENSE.txt
   (defclass tm-depth-list (tm-depth tm-list)())
 
   ;; temporary, init needs a set-by-caller flag ...
-  (defun mk-tm-depth-list-0 (&optional init buffer-tm)
+  (defun mk-tm-depth-list (&optional init buffer-tm)
     (declare (ignore buffer-tm))
     (let(
           (i (make-instance 'tm-depth-list))
           )
-      (init-tm-list-0 i init)
-      (setf (history i) (mk-stack-list-0))
+      (init-tm-list i init)
+      (setf (history i) (mk-stack-list))
       i
       ))
+  (mk-tm-hook 'tm-depth-list #'mk-tm-depth-list)
+
 
   ;; When stepping from a sublist, we step into the sublist to its first object.  We stack
   ;; the tm of the sublist so that we can return to the sublist and step over it later.
@@ -106,29 +102,6 @@ See LICENSE.txt
           (so tm cont-so #'dequeue-sublist)
           )))
 
-    (defun test-s-depth-0 ()
-      (let*(
-             (a-tree '(1 (2 (3 4)) 5))
-             (tm (mk-tm-depth-list-0 a-tree))
-             )
-        (∧
-          (= (r tm) 1)
-          (eq (s-depth-ru tm) 'so)
-          (equal (r tm) '(2 (3 4)))
-          (eq (s-depth-ru tm) 'si)
-          (= (r tm) 2)
-          (eq (s-depth-ru tm) 'so)
-          (equal (r tm) '(3 4))
-          (eq (s-depth-ru tm) 'si)
-          (= (r tm) 3)
-          (eq (s-depth-ru tm) 'so)
-          (= (r tm) 4)
-          (eq (s-depth-ru tm) 'dequeue)
-          (= (r tm) 5)
-          (eq (s-depth-ru tm) 'rightmost)
-          )))
-    (test-hook test-s-depth-0)
-
     (defmethod s
       (
         (tm tm-depth)
@@ -149,29 +122,6 @@ See LICENSE.txt
         (step-depth)
         ))
 
-  (defun test-tm-depth-s-1 ()
-    (let*(
-           (a-tree '(1 (2 (3 4)) 5))
-           (tm (mk-tm-depth-list-0 a-tree))
-           )
-      (∧
-        (= (r tm) 1)
-        (s tm)
-        (equal (r tm) '(2 (3 4)))
-        (s tm)
-        (= (r tm) 2)
-        (s tm)
-        (equal (r tm) '(3 4))
-        (s tm)
-        (= (r tm) 3)
-        (s tm)
-        (= (r tm) 4)
-        (s tm)
-        (= (r tm) 5)
-        (not (s tm))
-        )))
-  (test-hook test-tm-depth-s-1)
-
 
 ;;--------------------------------------------------------------------------------
 ;;  tape machine follows a breadth first traversal of a tree
@@ -181,15 +131,18 @@ See LICENSE.txt
   (defclass tm-breadth-list (tm-breadth tm-list)())
 
   ;; temporary, init needs a set-by-caller flag ...
-  (defun mk-tm-breadth-list-0 (&optional init buffer-tm)
+  (defun mk-tm-breadth-list (&optional init buffer-tm)
     (declare (ignore buffer-tm))
     (let(
           (i (make-instance 'tm-breadth-list))
           )
-      (init-tm-list-0 i init)
-      (setf (history i) (mk-queue-list-0))
+      (init-tm-list i init)
+      (setf (history i) (mk-queue-list))
       i
       ))
+  (mk-tm-hook 'tm-beadth-list #'mk-tm-breadth-list)
+
+
 
   ;; When stepping from a sublist, we step over the sublist to the next object.
   ;; We queue the sublist so that we can go back to it and traverse through it later.
@@ -253,33 +206,4 @@ See LICENSE.txt
         cont-rightmost
         ))
 
-   (defun test-tm-breadth-s-1 ()
-     (let*(
-            (a-tree '(1 (2 (3 4)) 5))
-            (tm (mk-tm-breadth-list-0 a-tree))
-            )
-       (and
-         (= (r tm) 1)
-
-         (s tm)
-         (equal (r tm) '(2 (3 4)))
-
-         (s tm)
-         (= (r tm) 5)
-
-         (s tm)
-         (= (r tm) 2)
-
-         (s tm)
-         (equal (r tm) '(3 4))
-
-         (s tm)
-         (= (r tm) 3)
-
-         (s tm)
-         (= (r tm) 4)
-
-         (not (s tm))
-         )))
-   (test-hook test-tm-breadth-s-1)
 

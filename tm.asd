@@ -41,16 +41,17 @@ See LICENSE.txt
                               (:file "tm-morph")
                               (:file "tm-subspace")
 
-                              (:file "buffers")
-
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               (:file "tm-list-buffers")
 
+                              (:file "buffers")
+
+                              (:file "tm-tree")
+
                               #|
                               (:file "tm-array")
 
-                              (:file "tm-tree")
 
                               (:file "list-0")
                               (:file "list-L")
@@ -76,12 +77,9 @@ See LICENSE.txt
                               (:file "tm-void")
                               (:file "buffers")
                               (:file "tm-list-primitives")
+                              (:file "tm-tree")
                               ))
 
-               (:module "try"
-                :components (
-                              (:file "handler")
-                              ))
                ))
   
   

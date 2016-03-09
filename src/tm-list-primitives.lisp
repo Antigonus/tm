@@ -14,7 +14,7 @@ See LICENSE.txt
 ;;
   (defclass tm-list (tape-machine)())
 
-  (defun init-tm-list-0
+  (defun init-tm-list
     (
       instance
       &optional 
@@ -61,8 +61,8 @@ See LICENSE.txt
           )
       (if 
         (eq (type-of init) 'tm-list) 
-        (init-tm-list-0 instance ∅ cont-ok cont-fail)
-        (init-tm-list-0 instance init cont-ok cont-fail)
+        (init-tm-list instance ∅ cont-ok cont-fail)
+        (init-tm-list instance init cont-ok cont-fail)
         )))
 
    (mk-tm-hook 'tm-list #'mk-tm-list)
