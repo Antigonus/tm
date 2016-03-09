@@ -180,7 +180,14 @@ See LICENSE.txt
     ;;
       #:mk-tm-list
       #:tm-list
-      
+
+    ;; tm-list-buffer
+    ;;
+      #:stack-list
+      #:mk-stack-list
+      #:queue-list
+      #:mk-queue-list
+
     ;; list-0
     ;;
       #:bifurcate

@@ -29,14 +29,23 @@ a stack it is the 'bottom' of the stack.  It is signified as tm-h◨ - a tape ma
 a contract that the head is at rightmost.  When a new object is placed on the
 queue, the cell for that new object is allocated just to the right of X.
 
-Note that if the queue, or stack has only one value, so it looks like this,
+When the stack has multiple values, i.e. like this,
+
+    A Y W ... X
+
+Then using #'d to pull or dequeue a value works well, and after the operation, the
+stack/queue looks like this:
+
+   A W ... X
+
+However if the queue has only one value, i.e. like this,
 
      A X
 
-then dequeueing that one value, dequeueing X, causes us to deallocate the 
-attachment point for queueing new cells.  If we didn't do anything special for this
-case we would fail test-queue-1 because tm-h◨  would be left floating in limbo.
-
+Then calling #'d to dequeue a value would remove our enqueue attachment point!  That would
+be bad.  tm-h◨ would be pointing into the mysterious land of deallocated cells. It is to
+avoid that eventuality that we treat the case of removing the last item from the queue
+specially.
 
 |#
 
@@ -48,7 +57,7 @@ case we would fail test-queue-1 because tm-h◨  would be left floating in limbo
 ;; Leftmost is an attachment point for the stack.
 ;;
   (defun stack-enqueue (tm-h◧ object)
-    "Pulls an object on to the stack"
+    "Pushes an object on to the stack"
     (a tm-h◧ object)
     )
 
@@ -160,7 +169,7 @@ case we would fail test-queue-1 because tm-h◨  would be left floating in limbo
           (tm-h◧ (dup tm-h◨))
           )
       (cue-leftmost tm-h◧)
-      (queue-dequeue tm-h◧ cont-ok cont-empty)
+      (queue-dequeue tm-h◧ tm-h◨ cont-ok cont-empty)
       ))
     
   (defmethod enqueue
