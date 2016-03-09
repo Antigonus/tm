@@ -5,9 +5,6 @@ See LICENSE.txt
 
 |#
 
-
-
-
 ;;--------------------------------------------------------------------------------
 ;;
   (defpackage #:tm
@@ -35,14 +32,6 @@ See LICENSE.txt
       #:nl
       #:defparam
 
-    ;; test
-    ;;
-      #:test-hook
-      #:test-remove
-      #:test-all
-      #:*log-default-file-name*
-      #:print-to-log
-
     ;;functions
     ;;
       #:boolify
@@ -62,10 +51,11 @@ See LICENSE.txt
       #:w
       #:heads-on-same-cell
       #:so
+      #:s
       #:a
       #:d
 
-    ;;tm-accessories - more than just a primitive interface
+    ;;tm-derived - more than just a primitive interface
     ;;
       #:cue-to
       #:dup
@@ -133,12 +123,13 @@ See LICENSE.txt
       #:on+1
       #:on+n
       #:on-rightmost-1
-      #:on-rightnost+n ; n will typically be negative
+      #:on-rightmost+n ; n will typically be negative
       #:address
-      #:distance-1
-      #:distance-n
-      #:location-cmp
+      #:distance+1
+      #:distance+n
+      #:distance
 
+      #:location-cmp
       #:location≥
       #:location>
       #:location<
@@ -217,6 +208,14 @@ See LICENSE.txt
       #:q
       #:unwrap
       #:L
+
+    ;; test framework
+    ;;
+      #:test-hook
+      #:test-remove
+      #:test-all
+      #:*log-default-file-name*
+      #:print-to-log
 
       ))
 

@@ -63,7 +63,7 @@ See LICENSE.txt
               )
           (cue-leftmost tm1)
           (sn tm1 n
-            (heads-on-same-cell tm0 tm1 cont-true cont-false)
+            (λ()(heads-on-same-cell tm0 tm1 cont-true cont-false))
             cont-false
             )))
       ))
@@ -87,9 +87,9 @@ See LICENSE.txt
       ))
 
   ;; n will typically be negative
-  (defgeneric on-rightmost-n (tm n &optional cont-true cont-false))
+  (defgeneric on-rightmost+n (tm n &optional cont-true cont-false))
 
-  (defmethod on-rightmost-n
+  (defmethod on-rightmost+n
     ( 
       (tm0 tape-machine) 
       (n integer)
@@ -104,8 +104,8 @@ See LICENSE.txt
         (let(
               (tm1 (dup tm0))
               )
-          (sn tm1 n
-            (on-rightmost tm1 cont-true cont-false)
+          (sn tm1 (- n)
+            (λ()(on-rightmost tm1 cont-true cont-false))
             cont-false
             )))
       ))
@@ -124,23 +124,30 @@ See LICENSE.txt
           )
       (cue-leftmost tm1)
       (labels(
-               (take-step()
+               (scan-right()
                  (s≠ 
                    tm1
                    tm0 
-                   (λ()(incf n)(take-step))
+                   (λ()(incf n)(scan-right))
+                   (λ()
+                     (on-rightmost tm0
+                       (λ() n)
+                       (error 'tm-impossible-to-get-here)
+                       ))
                    (λ() n)
                    ))
                )
-        (take-step)
-        )))
+        (heads-on-same-cell tm1 tm0
+          (be 0)
+          (λ() (scan-right))
+          ))))
 
 ;;--------------------------------------------------------------------------------
 ;; relative location
 ;;
-  (defgeneric distance-1 (tm0 tm1 &optional cont-true cont-false))
+  (defgeneric distance+1 (tm0 tm1 &optional cont-true cont-false))
 
-  (defmethod distance-1
+  (defmethod distance+1
     ( 
       (tm0 tape-machine) 
       (tm1 tape-machine)
@@ -152,13 +159,13 @@ See LICENSE.txt
           (tm0-dup (dup tm0))
           )
       (s tm0-dup
-        (λ() (heads-on-same-cell tm0-dup tm0 cont-true cont-false))
+        (λ() (heads-on-same-cell tm0-dup tm1 cont-true cont-false))
         cont-false
         )))
 
-  (defgeneric distance-n (tm0 tm1 n &optional cont-true cont-false))
+  (defgeneric distance+n (tm0 tm1 n &optional cont-true cont-false))
 
-  (defmethod distance-n
+  (defmethod distance+n
     ( 
       (tm0 tape-machine) 
       (tm1 tape-machine)
@@ -169,7 +176,7 @@ See LICENSE.txt
       )
     (cond
       ((< n 0)
-        (distance-n tm0 tm1 (- n) cont-true cont-false)
+        (distance+n tm1 tm0 (- n) cont-true cont-false)
         )
       ((= n 0)
         (heads-on-same-cell tm0 tm1 cont-true cont-false)
@@ -183,6 +190,20 @@ See LICENSE.txt
             cont-false
             )))))
 
+  ;; distance from tm0 on the left, to tm1 on the right
+  (defgeneric distance (tm0 tm1))
+
+  ;; not a good implementation ..
+  ;; this should calc steps from one to the other as address is open ended
+  ;; it would have to interleave going both directions
+  ;; keep this as a reference implementation.
+  (defmethod distance
+    ( 
+      (tm0 tape-machine) 
+      (tm1 tape-machine)
+      )
+    (- (address tm1) (address tm0))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; compare locations
@@ -192,41 +213,28 @@ See LICENSE.txt
   (defgeneric location-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
 
+  ;; not good implementations
+  ;; both location-cmps need to short circuit, stop stepping, once the result is
+  ;; apparent .. had code doing that before, but I changed some interface defs..
+  ;; keep these as reference implementations, (a level above tape machine??)
+
   ;; (location tm0) <?> n
   (defmethod location-cmp
     (
       (tm0 tape-machine)
       (n1 integer)
       &optional 
-      (cont-right-of (be 'right-of))
-      (cont-same     (be 'same))
       (cont-left-of  (be 'left-of))
+      (cont-same     (be 'same))
+      (cont-right-of (be 'right-of))
       )
     (let(
-          (n0 0)
-          (tm0-dup (dup tm0))
+          (n0 (address tm0))
           )
-      (cue-leftmost tm0-dup)
-      (labels(
-               (take-step()
-                 (s≠
-                   tm0-dup
-                   tm0
-                   (λ()
-                     (incf n0)
-                     (if 
-                       (> n0 n1) 
-                       (funcall cont-right-of)
-                       (take-step)
-                       ))
-                   (λ()
-                     (if 
-                       (< n0 n1) 
-                       (funcall cont-left-of)
-                       (funcall cont-same)
-                       ))))
-               )
-        (take-step)
+      (cond
+        ((< n0 n1) (funcall cont-left-of))
+        ((= n0 n1) (funcall cont-same))
+        ((> n0 n1) (funcall cont-right-of))
         )))
 
   ;; (location tm0) <?> (location tm1)
@@ -235,34 +243,12 @@ See LICENSE.txt
       (tm0 tape-machine)
       (tm1 tape-machine)
       &optional 
-      (cont-right-of (be 'right-of))
-      (cont-same   (be 'same))
       (cont-left-of (be 'left-of))
+      (cont-same   (be 'same))
+      (cont-right-of (be 'right-of))
       )
-    (if
-      (heads-on-same-cell tm0 tm1)
-      (funcall cont-same)
-      (let(
-            (tm0-dup (dup tm0))
-            )
-        (cue-leftmost tm0-dup)
-        (labels(
-                 (take-step()
-                   (s≠
-                     tm0-dup
-                     tm0
-                     (λ()
-                       (if
-                         (heads-on-same-cell tm0-dup tm1) ; but tm0 isn't on the same cell..
-                         (funcall cont-right-of)
-                         (take-step)
-                         ))
-                     (λ()
-                       (funcall cont-left-of)
-                       )))
-                 )
-          (take-step)
-          ))))
+    (location-cmp tm0 (address tm1) cont-left-of cont-same cont-right-of)
+    )
 
 
 ;;--------------------------------------------------------------------------------
@@ -272,7 +258,7 @@ See LICENSE.txt
   ;;000 false
 
   ;;001
-  (defun location< 
+  (defun location>
    (
      tm0 
      n-or-tm1
@@ -296,7 +282,7 @@ See LICENSE.txt
     )
 
   ;;011
-  (defun location≤ 
+  (defun location≥ 
    (
      tm0 
      n-or-tm1
@@ -308,7 +294,7 @@ See LICENSE.txt
     )
 
   ;;100
-  (defun location> 
+  (defun location< 
    (
      tm0 
      n-or-tm1
@@ -332,7 +318,7 @@ See LICENSE.txt
     )
 
   ;;110
-  (defun location≥
+  (defun location≤
    (
      tm0 
      n-or-tm1

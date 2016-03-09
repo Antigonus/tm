@@ -75,20 +75,6 @@ See LICENSE.txt
   (defmethod r ((tm tm-list)) (car (HA tm)))
   (defmethod w ((tm tm-list) object) (setf (car (HA tm)) object) t)
 
-  (defun test-mk-tm-list-0 ()
-    (let*(
-          (tm0 (mk-tm 'tm-list))
-          (tm1 (mk-tm 'cons (list 7 2 -3)))
-          (tm2 (mk-tm 'tm-list tm1))
-          )
-      (and
-        (eq (r tm0) 'list)
-        (eql (r tm1) 7)
-        (eq (car (tape tm2)) 'list)
-        (on-rightmost tm2)
-        )))
-  (test-hook test-mk-tm-list-0)
-
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
@@ -97,29 +83,9 @@ See LICENSE.txt
     (setf (HA tm) (tape tm))
     )
   
-  (defun test-cue-0 ()
-    (let(
-          (x (mk-tm-list '(a b c)))
-          (y (mk-tm-list))
-          )
-      (and
-        (eq (r x) 'a)
-        (eq (r y) 'list)
-        (s x)
-        (cue-to y x) 
-        (eq (r x) 'b)
-        (eq (r y) 'b)
-        (heads-on-same-cell x y)
-        (cue-rightmost x)
-        (eq (r x) 'c)
-        )))
-  (test-hook test-cue-0)
-
-
 ;;--------------------------------------------------------------------------------
 ;;  head location predicates
 ;;
-
   (defmethod heads-on-same-cell 
     (
       (tm0 tm-list) 
@@ -172,21 +138,6 @@ See LICENSE.txt
       )
     (s-work-list tm cont-ok cont-rightmost)
     )
-
-  (defun test-s-0 ()
-    (let*(
-           (y '(1 2 (3 4) 5))
-           (ytm (mk-tm-list y))
-          )
-      (and
-        (s ytm)
-        (s ytm)
-        (equal '(3 4) (r ytm))
-        (s ytm)
-        (not (s ytm))
-        )))
-  (test-hook test-s-0) 
-
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -253,19 +204,6 @@ See LICENSE.txt
         ;;else there is no cell-1 to cut, no cell-2 to route to
         (funcall cont-rightmost)
         )))
-
-  (defun test-d-0 ()
-    (let*(
-           (a (list 1 2 3))
-           (tm1 (mk-tm-list a))
-           )
-      (d tm1)
-      (equal
-        (tape tm1)
-        '(1 3)
-        )))
-  (test-hook test-d-0)
-
 
 
         

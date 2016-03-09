@@ -8,6 +8,36 @@ Removing the 'embedded' stack/queue, because the same thing can be
 achieved using a subspace.
 
 
+          the attachment point for adding to a queue
+          rightmost
+          a object on the stack / in the queue
+          |
+          |
+     A .. X
+     |
+     |
+     leftmost
+     the attachment point for the stack/queue
+     also the dequue point
+
+In this diagram of a tape, A is the attachment cell for the stack. It is signfied as tm-h◧
+- a tape machine with a contract that the head is at rightmost. The stack or queue does
+not read or write this cell, rather it treats it purely has an attachment point.
+
+X is the rightmost of the tape. For queues it is the allocation point for new data.  For
+a stack it is the 'bottom' of the stack.  It is signified as tm-h◨ - a tape machine with
+a contract that the head is at rightmost.  When a new object is placed on the
+queue, the cell for that new object is allocated just to the right of X.
+
+Note that if the queue, or stack has only one value, so it looks like this,
+
+     A X
+
+then dequeueing that one value, dequeueing X, causes us to deallocate the 
+attachment point for queueing new cells.  If we didn't do anything special for this
+case we would fail test-queue-1 because tm-h◨  would be left floating in limbo.
+
+
 |#
 
 (in-package #:tm)
@@ -53,11 +83,21 @@ achieved using a subspace.
 
   (defun queue-dequeue
     (
-      tm-h◧ 
+      tm-h◧
+      tm-h◨
       &optional 
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
+
+    ;; park the head to prevent having tm-h◨ going into limbo when emptying a queue
+    (distance+1
+      tm-h◧ 
+      tm-h◨ 
+      (λ()(cue-to tm-h◨ tm-h◧))
+      #'do-nothing
+      )
+
     (stack-dequeue tm-h◧ cont-ok cont-empty)
     )
 

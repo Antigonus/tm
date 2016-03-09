@@ -66,21 +66,6 @@ See LICENSE.txt
     (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
     )
 
-  (defun test-heads-on-same-cell-void-0 ()
-    (let(
-          (a (mk-tm-void))
-          (b (mk-tm-void))
-          (c (make-instance 'tape-machine))
-          )
-      (setf (HA c) 1)
-      (setf (tape c) 2)
-      (∧
-        (heads-on-same-cell a b)
-        (¬ (heads-on-same-cell a c))
-        (¬ (heads-on-same-cell c a))
-        )))
-   (test-hook test-heads-on-same-cell-void-0)
-
   ;; rightmost is true if the head is on a rightmost cell
   ;; void doesn't have cells so rightmost can't be true
   ;; as we are either rightmost or ok, we must be ok ;-)

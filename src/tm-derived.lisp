@@ -3,6 +3,17 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+These functions derive the remainder of the tape-machine interface while using only the
+primitives from tm-primitives.  
+
+There is no functional need for a new tape machine implementation to specialize these
+functions.  Still, some implementations will want to specialize these functions for
+performance reasons.
+
+Because these are built upon the primitives, they can only be tested against implementations
+of the primitives.
+
+
 |#
 
 (in-package #:tm)

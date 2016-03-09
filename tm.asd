@@ -17,52 +17,74 @@ See LICENSE.txt
   :depends-on ("local-time")
   :serial t
   :components((:module "src"
-               :components (
-                             (:file "package")
-                             (:file "conditions")
+                :components (
+                              (:file "package")
+                              (:file "conditions")
 
-                             (:file "fundamental")
-                             (:file "framework-for-testing")
-                             (:file "functions")
+                              (:file "fundamental")
+                              (:file "functions")
 
-                             (:file "mk-tm")
-                             (:file "tm-primitives")
-                             (:file "tm-accessories")
-                             (:file "tm-si")
-                             (:file "tm-quantifiers")
-                             (:file "location")
-                             (:file "length")
+                              (:file "mk-tm")
+                              (:file "tm-primitives")
+                              (:file "tm-derived")
+                              (:file "tm-si")
+                              (:file "tm-quantifiers")
+                              (:file "location")
+                              (:file "length")
 
-                             (:file "tm-void")
-                             (:file "tm-singular-affine")
-                             (:file "tm-singular-projective")
-                             (:file "tm-linear")
+                              (:file "tm-void")
+                              (:file "tm-singular-affine")
+                              (:file "tm-singular-projective")
+                              (:file "tm-linear")
 
-                             (:file "tm-transform")
-                             (:file "tm-morph")
-                             (:file "tm-subspace")
+                              (:file "tm-transform")
+                              (:file "tm-morph")
+                              (:file "tm-subspace")
 
-                             (:file "buffers")
+                              (:file "buffers")
 
-                             (:file "tm-list-primitives")
-                             (:file "tm-list-accessories")
-                             (:file "tm-list-buffers")
-     
-                             (:file "test-tm")
-                             (:file "test-list-buffers")
+                              (:file "tm-list-primitives")
+                              (:file "tm-list-derived")
+                              (:file "tm-list-buffers")
 
+                              #|
+                              (:file "tm-array")
 
-#|
-                             (:file "tm-array")
+                              (:file "tm-tree")
 
-                             (:file "tm-tree")
+                              (:file "list-0")
+                              (:file "list-L")
+                              
+                              (:file "tree-0")
+                              (:file "list-lang") ; accessor lang here delta-s etc.
+                              |#
+                              ))
 
-                             (:file "list-0")
-                             (:file "list-L")
-                             
-                             (:file "tree-0")
-                             (:file "list-lang") ; accessor lang here delta-s etc.
-|#
-                             ))))
+               (:module "test-framework"
+                :components (
+                              (:file "framework")
+                              ))
+
+               (:module "test"
+                :components (
+                              (:file "length")
+                              (:file "location")
+                              (:file "tm")
+                              (:file "tm-derived")
+                              (:file "tm-quantifiers")
+                              (:file "tm-si")
+                              (:file "tm-void")
+                              (:file "buffers")
+                              (:file "tm-list-primitives")
+                              ))
+
+               (:module "try"
+                :components (
+                              (:file "handler")
+                              ))
+               ))
+  
+  
+
 
 

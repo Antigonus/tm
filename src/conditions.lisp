@@ -56,10 +56,10 @@ See LICENSE.txt
   (define-condition tm-cant-si (error)
     ((text :initarg :text :reader text)))
 
-  ;; Sometimes there is a branch in the code that due to reasons, perhaps unobvious ones,
-  ;; it just can't be gotten to.  But rather than depend upon our feable cognitive
-  ;; abilities in the absolute, we take the branch.  Also, sometimes dependent code
-  ;; changes, and a once impossible branch becomes possible.
+  ;; Sometimes the program logic assures that a continuation can not be reached.  In such
+  ;; a case this condition should be raised.  Reasons for reaching such conditions include
+  ;; design mistakes, and program bugs either in the code, or due to unconsidered
+  ;; interactions between threads.
   (define-condition tm-impossible-to-get-here (error)
     ((text :initarg :text :reader text)))
 
