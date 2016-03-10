@@ -29,8 +29,11 @@ See LICENSE.txt
                               (:file "tm-derived")
                               (:file "tm-si")
                               (:file "tm-quantifiers")
+
+                              (:file "list-L")
                               (:file "location")
                               (:file "length")
+                              (:file "buffers")
 
                               (:file "tm-void")
                               (:file "tm-singular-affine")
@@ -43,18 +46,19 @@ See LICENSE.txt
 
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
+
+
                               (:file "tm-list-buffers")
 
-                              (:file "buffers")
-
                               (:file "tm-tree")
+
+                              (:file "worker")
 
                               #|
                               (:file "tm-array")
 
 
                               (:file "list-0")
-                              (:file "list-L")
                               
                               (:file "tree-0")
                               (:file "list-lang") ; accessor lang here delta-s etc.
@@ -78,6 +82,8 @@ See LICENSE.txt
                               (:file "buffers")
                               (:file "tm-list-primitives")
                               (:file "tm-tree")
+                              (:file "list-L")
+                              (:file "worker")
                               ))
 
                ))

@@ -12,6 +12,12 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; conditions
 ;;
+
+  ;; the tm:o function may only be used inside of L (or [])
+  (define-condition use-of-o (error)
+    ((text :initarg :text :reader text)))
+
+  ;; used for #'a and #'d on spill when allocation fails
   (define-condition tm-alloc-fail (error)
     ((text :initarg :text :reader text)))
 

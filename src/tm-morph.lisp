@@ -126,6 +126,8 @@ See LICENSE.txt
     (s (morph-tm (tape tm)) cont-ok cont-rightmost)
     )
 
+  ;; this should dup tm, and call as, but note we call #'a
+  ;; from as .. similar to the s and so situation
   (defmethod a
     (
       (tm tm-morph)
@@ -166,7 +168,8 @@ See LICENSE.txt
             )))
       ))
 
-  ;; morph not yet implemented on d d◧.
+  ;; morph not yet implemented on d
+  ;; but similar to the as immplementation, but we rip up the source
   (defmethod d 
     (
       (tm tm-morph)

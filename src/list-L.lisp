@@ -17,7 +17,7 @@ See LICENSE.txt
 ;;  
   (defun o (&rest objects)
     (declare (ignore objects))
-    (error 'use-of-o-error :text "'o function only has meaning inside of L or Ln")
+    (error 'use-of-o :text "'o function only has meaning inside of L or Ln")
     )
 
 ;;--------------------------------------------------------------------------------
@@ -61,18 +61,6 @@ See LICENSE.txt
             )))
      ))
 
-  (defun test-unwrap-0 ()
-    (and
-      (equal (unwrap '()) '())
-      (equal (unwrap '(1)) '(1))
-      (equal (unwrap '(1 2 3)) '(1 2 3))
-      (equal (unwrap '((1))) '(1))
-      (equal (unwrap '(1 (2 3) 4)) '(1 2 3 4))
-      (equal (unwrap '((1 2) (3 (4 (5 6)) 7) 8))  '(1 2 3 (4 (5 6)) 7 8) )
-      (equal (unwrap '((1 2) () (3 (4 (5 6)) 7) 8))  '(1 2 3 (4 (5 6)) 7 8) )
-      ))
-  (test-hook test-unwrap-0)    
-
 ;;--------------------------------------------------------------------------------
 ;; meta-wrap
 ;;   given a src list, returns a dst list
@@ -115,13 +103,13 @@ See LICENSE.txt
       ((atom src-list) `(list ,src-list))
       (t
         (let(
-              (dst (mk-tm-list-0))
+              (dst (mk-tm-list))
               (gathered ∅)
-              (src (mk-tm-list-0 src-list))
+              (src (mk-tm-list src-list))
               )
           (labels(
                    (gather-object()
-                     (unless gathered (setq gathered (mk-tm-list-0)))
+                     (unless gathered (setq gathered (mk-tm-list)))
                      (ah◨ gathered (r src))
                      )
                    (append-gathered()
@@ -130,7 +118,7 @@ See LICENSE.txt
                        (setq gathered ∅)
                        ))
                    (append-opened-list()
-                     (d* (mk-tm-list-0 (r src)) dst) ; move the opened list directly to dst
+                     (d* (mk-tm-list (r src)) dst) ; move the opened list directly to dst
                      )
                    (work()
                      (if
@@ -145,14 +133,6 @@ See LICENSE.txt
             (⟳ src #'s #'work #'append-gathered)
             (tape dst)
             )))))
-
-    (defun test-meta-wrap-0 ()
-      (and
-        (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
-        (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
-        (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
-        ))
-    (test-hook test-meta-wrap-0)
 
 
 ;;--------------------------------------------------------------------------------
@@ -174,14 +154,12 @@ See LICENSE.txt
 ;;
   (defmacro L (&rest objects)
     (cond
-      ((null objects) ∅)
-      ((¬∃ (mk-tm-list-0 objects) #'tm::to-be-opened)
+      ((¬ objects) ∅)
+      ((¬∃ (mk-tm-list objects) (λ(tm)(to-be-opened (r tm))))
         `(list ,@objects)
         )
       (t
         `(unwrap ,(meta-wrap objects))
         )))
 
-;; see test-le.lisp for further tests. (sbcl has issues with macro definition and
-;; use being in the same file)
   

@@ -117,6 +117,12 @@ See LICENSE.txt
       #:asn
       #:dn
 
+    ;;list-L
+    ;;
+      #:o
+      #:q
+      #:unwrap
+      #:L
 
     ;; location
     ;;
@@ -159,6 +165,10 @@ See LICENSE.txt
       #:length≤
       #:length=
       #:length≠
+
+    ;; tm-linear
+    ;;
+      #:line
 
     ;; data-structures
     ;;
@@ -209,13 +219,6 @@ See LICENSE.txt
       #:drop
 
             
-    ;;list-L
-    ;;
-      #:o
-      #:q
-      #:unwrap
-      #:L
-
     ;; test framework
     ;;
       #:test-hook

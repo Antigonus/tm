@@ -9,7 +9,7 @@ See LICENSE.txt
   or logical concept being tested.
 
 |#
-  (in-package #:tm)
+  (in-package :tm)
 
 
 
@@ -60,29 +60,5 @@ See LICENSE.txt
             (tape tm1) '(list 2 3 4)
             ))))
 
-
-;;--------------------------------------------------------------------------------
-;; from list-L
-
-  (defun test-q-0 () (equal (q a b c) '(a b c)))
-  (test-hook test-q-0)
-
-  (defun test-q-1 ()
-    (equal '(a (b c) d) (q a (b c) d))
-    )
-  (test-hook test-q-1)
-
-  (defun test-L-0 ()
-    (equal
-      (L 1 '(2 3) (o '(4 5)))
-      '(1 (2 3) 4 5)
-      ))
-  (test-hook test-L-0)
-
-  (defun mk-7 () 7)
-
-  (defun test-L-1 ()
-    (equal (L (o (q a b mk-7)) (mk-7)) '(A B mk-7 7)))
-  (test-hook test-L-1)
 
 |#
