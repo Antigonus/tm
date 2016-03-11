@@ -5,25 +5,51 @@ See LICENSE.txt
 
 'worker' is short for 'assembly line worker'.
 
-An assembly line worker accepts zero or more source tape machines, a state variable, and
-zero or more destination tape machines.  Upon each call to the worker, a new destination
-is written to one or more of the destination tapes.  Each call causes the write of one
-result unit.  After the call the destination tape heads are left on the cells for the new
-values, so they may be read.  A worker may return a value that characterizes the
-destination, and may do so via one or more continuations.
+An assembly line worker connects to zero or more source tape machines, a state variable,
+and zero or more destination tape machines. The connection returns a step function.  Upon
+each call to this step function, one result is computed and written to the destination
+tapes.
 
-In the simplest case there is one source machine, a state variable, and one destination
-machine, and the worker uses #'as to put a new value on the destination machine.  The
-value may be read from the destination machine using #'r.  In this case the worker is a
-kind of pipe processor.
-
-Though we have a contract about writing the destination (one result unit per step), in
-general no contracts are made about the source machines, though specific workers may make
-specific contracts.
+Though we have a contract about writing a result per step to the destination, in general
+no contracts are made about consuming values from the source machines, though specific
+workers may make specific contracts.
 
 |#
 
 (in-package #:tm)
+
+;; this macro defines a worker function called 'name',  a connection
+;; function called 'connect-name', and a step function called s-name.
+;;
+(defmacro def-worker (name src dst args conts &body body)
+  (let(
+        (name-str (symbol-name name))
+        )
+    (let(
+          (connect-name (concatenate 'string "connect-" name-str))
+          (step-name (concatentate 'string "s-" name-str))
+          )
+      (let(
+            (connect-symbol (intern connect-name))
+            (step-symbol (intern step-name))
+            )
+        `(progn
+
+           (defun ,name (,src ,dst &optional ,args ,conts)
+             ,@body
+             )
+
+           (defun ,connect-symbol (,src ,dst ,args ,conts)
+             (setf (symbol-function ,step-symbol) 
+               (λ()
+                 (funcall ,name ,src ,dst ,args ,conts)
+                 )))
+           )))))
+           
+
+
+
+
 
 (defmacro def-worker (name state src dst conts &body body)
   (cond

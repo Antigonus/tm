@@ -52,7 +52,7 @@ See LICENSE.txt
 
                               (:file "tm-tree")
 
-                              (:file "worker")
+;;                              (:file "worker")
 
                               #|
                               (:file "tm-array")
@@ -83,7 +83,7 @@ See LICENSE.txt
                               (:file "tm-list-primitives")
                               (:file "tm-tree")
                               (:file "list-L")
-                              (:file "worker")
+;;                              (:file "worker")
                               ))
 
                ))
