@@ -49,7 +49,12 @@ See LICENSE.txt
 
 (defun mk-7 () 7)
 
-
 (defun test-L-1 ()
-  (equal (L (o (q a b mk-7)) (mk-7)) '(A B mk-7 7)))
+  (equal (L (o (q a b mk-7)) (mk-7)) '(a b mk-7 7)))
 (test-hook test-L-1)
+
+
+(defun test-L-2 ()
+  (equal {(o [a b mk-7]) (mk-7)} '(a b mk-7 7)))
+(test-hook test-L-2)
+

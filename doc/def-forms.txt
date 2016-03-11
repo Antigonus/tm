@@ -1,4 +1,12 @@
 
+morphalogical changes mess up address spaces
+
+destructive operations send heads on shared devices into limbo
+
+objects such as tape tails can cause communication between otherwise
+apparently independent machines
+
+
 1. def-worker
 
   def-worker:  name state src dst conts  body
@@ -20,13 +28,82 @@
   then that field is left out of the call.  If the user defined
   src or dst directly, then the argument is taken directly.
 
+1.1
+
+  def-worker:  name src dst args conts  body
+
+  src: tm | tm-list | ()
+  dst: tm | tm-list | ()
+  args: atom | list | ()
+  const: cont-list | ()
+
+    (name &optional args conts)
+    (name src|[src] &optional args conts)
+    (name dst|[dst] &optional args conts)
+    (name src|[src] dst|[dst] &optional args conts)
+
+  connect and curry
+  worker is unique in only conts make it through curry
+
+2.1
+
+   defmc: name pot-tag-args &optional args conts
+
+
 
 2. seems the def-worker approach can be generalized, allow the
   user to use parens in the definition, to correspond to lists
-  to be unpacked on call.
+  to be unpacked on call. Perhaps?
+
+    defmc:  name ( (args) (state) (continuations) )
+
+  This form can't work because args won't key on type for
+  defmethod.  (We need this to work for defmethod also.)  In
+  addition is just isn't pretty for functions what have only
+  a couple of arguments (s {tm}).  .. not so bad actually.
+
+  Instead, we could put the required arguments first:
+
+    defmc: name ( required-args &optional (optional-args) (continuations))
+
+  If optional-args is nil, then no list is given for them in the call, so
+  a step call might look like this:
+
+    (s tm)  ; optionals and continutations take defaults
+
+    (s tm {cont-ok cont-rightmost})  ; passes in two continuation functions
+
+  If optional arguments are defined, and one list is present in the
+  call, which is it, the optional optional args?  or the optional continuation
+  args?  So a placeholder is needed, no optional args, though optional
+  args are possible:
+
+    (s tm {} {cont-ok cont-rightmost}) ; all optional args default
+
+    (s tm {a b}  {})  ; all continuations default
+
+  Suppose if any optional args are given, then the last one is the continuations list:
+
+    (s tm)
+
+    (s tm a b {})  
+  
+   Key the optional args and continuations
+
+    (s tm)
+    (s tm opt: {})
+    (s tm conts: {})
+    (s tm {a} {cont-ok})   ... (s tm opt: {} conts: {})
+    
+   Or a convention, if there is only one optional list, it is the
+   optional args list:
+
+     (d tm {spill})  ; optional args, continuations default
+     (d tm {} {cont-ok})  ; no optional args, but has specified continuations
+    
+
+   ...  by having a continuations list delineated, we can wrap continuations
+   into return calls, so that we can assure that they are continuations
 
 
-  defmc: name \( (list-arg | arg)* \)
-
-  list-arg: \( arg* \)
 
