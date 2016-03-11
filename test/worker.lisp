@@ -11,36 +11,35 @@ See LICENSE.txt
   (counter 0)
   )
 
-(def-worker count-three counter-box () tm-dst 
+(def-worker count-two counter-box () tm-dst 
   (&optional 
     (cont-ok (be 'ok)) 
     (cont-bound (be 'bound))
     (cont-no-alloc (be 'no-alloc))
     )
-  (if
-    (≥ (counter-box-struct-counter counter-box)  3)
-    (funcall cont-bound)
-    (progn
-      (as tm-dst (counter-box-struct-counter counter-box)
-        (λ() 
-          (incf (counter-box-struct-counter counter-box))
-          (funcall cont-ok)
-          )
-        cont-no-alloc
-        ))
-    ))
+  (progn
+    (as tm-dst (counter-box-struct-counter counter-box)
+      (λ() 
+        (if
+          (≥ (counter-box-struct-counter counter-box) 2)
+          (funcall cont-bound)
+          (progn
+            (incf (counter-box-struct-counter counter-box))
+            (funcall cont-ok)
+            )))
+      cont-no-alloc
+      )))
 
-(defun test-count-three-0 ()
+(defun test-count-two-0 ()
   (let(
         (tm (mk-tm-list))
         (counter-box (make-counter-box-struct))
         )
     (∧
-      (count-three counter-box tm)
-      (count-three counter-box tm)
-      (count-three counter-box tm)
-      (eq (count-three counter-box tm) 'bound)
+      (eq (count-two counter-box tm) 'ok)
+      (eq (count-two counter-box tm) 'ok)
+      (eq (count-two counter-box tm) 'bound)
       (equal (tape tm) '(list 0 1 2))
       )))
-(test-hook test-count-three-0)    
+(test-hook test-count-two-0)    
   

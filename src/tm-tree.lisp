@@ -61,9 +61,10 @@ See LICENSE.txt
   ;; should provide two versions for s-depth, one constant time but not as malable between
   ;; steps, the other more malable but has that recursive unwind.
   ;;
-    (defun s-depth-ru
+    (defun s-depth-ru ; ru = recursive unwind
       (
         tm
+        history
         &optional
         (cont-so (be 'so))
         (cont-si (be 'si))
@@ -74,7 +75,7 @@ See LICENSE.txt
         (
 
           (save-and-step-in() ; a saved traversal point is always one past a sublist
-            (enqueue (history tm) (dup tm)) ; for later traversal from
+            (enqueue history (dup tm)) ; for later traversal from
             (si tm 
               cont-si
               (λ()
@@ -84,7 +85,7 @@ See LICENSE.txt
               ))
 
           (dequeue-sublist()
-            (dequeue (history tm)
+            (dequeue history
               (λ(tm0) 
                 (so tm0 ; step past the sublist we just descended into
                   (λ()
@@ -113,6 +114,7 @@ See LICENSE.txt
                (step-depth()
                  (s-depth-ru
                    tm
+                   (history tm)
                    cont-ok
                    cont-ok
                    cont-rightmost
@@ -158,6 +160,7 @@ See LICENSE.txt
     (defun s-breadth 
       (
         tm
+        history
         &optional
         (cont-so (be 'so))
         (cont-si (be 'si))
@@ -167,11 +170,11 @@ See LICENSE.txt
         (
           
           (save-sublist ()
-            (enqueue (history tm) (dup tm))
+            (enqueue history (dup tm))
             )
           
           (dequeue-and-step-in ()
-            (dequeue (history tm) 
+            (dequeue history
               (λ(tm0)
                 (cue-to tm tm0)
                 (si 
@@ -201,6 +204,7 @@ See LICENSE.txt
         )
       (s-breadth
         tm
+        (history tm)
         cont-ok
         cont-ok
         cont-rightmost

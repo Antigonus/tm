@@ -7,21 +7,6 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-;;--------------------------------------------------------------------------------
-;; tree quantifiers
-;;
-;;
-  ;; these should work via virtue of having defined #'s on a depth first traversal
-  (defun test-tree-quantifiers-0 ()
-    (and
-       (not (∃ (mk-tm-depth-list-0 '(b c)))                   (λ(tm)(eq 'a (r tm)))))
-            (∃ (mk-tm-depth-list-0 '(a b c)))                 (λ(tm)(eq 'a (r tm))))
-            (∃ (mk-tm-depth-list-0 '(b c (1 (c (a 1)) 2) e))) (λ(tm)(eq 'a (r tm))))
-      (not (¬∃ (mk-tm-depth-list-0 '(b c (1 (c (a 1)) 2) e))) (λ(tm)(eq 'a (r tm)))))
-           (¬∃ (mk-tm-depth-list-0 '(b c (1 (c (q 1)) 2) e))) (λ(tm)(eq 'a (r tm))))
-      ))
-  (test-hook test-tree-quantifiers-0)
-
 
 ;;--------------------------------------------------------------------------------
 ;;  map-tree

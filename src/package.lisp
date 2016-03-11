@@ -198,6 +198,19 @@ See LICENSE.txt
       #:queue-list
       #:mk-queue-list
 
+    ;; tm-tree
+    ;;  
+      #:tm-tree
+
+      #:tm-depth ;class
+      #:tm-depth-list ;class
+      #:s-depth-ru
+      #:s-depth ; not yet written
+
+      #:tm-breadth ;class
+      #:tm-breadth-list ;class
+      #:s-breadth
+
     ;; list-0
     ;;
       #:bifurcate

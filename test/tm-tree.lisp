@@ -16,19 +16,19 @@ See LICENSE.txt
              )
         (∧
           (= (r tm) 1)
-          (eq (s-depth-ru tm) 'so)
+          (eq (s-depth-ru tm (history tm)) 'so)
           (equal (r tm) '(2 (3 4)))
-          (eq (s-depth-ru tm) 'si)
+          (eq (s-depth-ru tm (history tm)) 'si)
           (= (r tm) 2)
-          (eq (s-depth-ru tm) 'so)
+          (eq (s-depth-ru tm (history tm)) 'so)
           (equal (r tm) '(3 4))
-          (eq (s-depth-ru tm) 'si)
+          (eq (s-depth-ru tm (history tm)) 'si)
           (= (r tm) 3)
-          (eq (s-depth-ru tm) 'so)
+          (eq (s-depth-ru tm (history tm)) 'so)
           (= (r tm) 4)
-          (eq (s-depth-ru tm) 'dequeue)
+          (eq (s-depth-ru tm (history tm)) 'dequeue)
           (= (r tm) 5)
-          (eq (s-depth-ru tm) 'rightmost)
+          (eq (s-depth-ru tm (history tm)) 'rightmost)
           )))
     (test-hook test-s-depth)
 
@@ -84,3 +84,16 @@ See LICENSE.txt
          (not (s tm))
          )))
    (test-hook test-tm-breadth-s-1)
+
+  ;; Intersting twise with tree iteration, as we see elements in subnodes twice,
+  ;; First in a list returned as a value, then as a value in the list
+  ;;
+    (defun test-tree-quantifiers-0 ()
+      (and
+         (¬ (∃ (mk-tm-depth-list '(b c))                   (λ(tm)(eq 'a (r tm)))))
+            (∃ (mk-tm-depth-list '(a b c))                 (λ(tm)(eq 'a (r tm))))
+            (∃ (mk-tm-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
+        (¬ (¬∃ (mk-tm-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm)))))
+           (¬∃ (mk-tm-depth-list '(b c (1 (c (q 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
+        ))
+    (test-hook test-tree-quantifiers-0)

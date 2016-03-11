@@ -2,6 +2,12 @@
 Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
+
+Implemented with tape machines, but we want to use this when defining tape machines ..
+so this has been moved to scratch, and a new implementation has been placed
+in src.  It is instructive to compare the two, one using lists, the other using
+tape machines.
+
   
 |#
   (in-package #:tm)
@@ -97,69 +103,42 @@ See LICENSE.txt
 ;;
   (defun to-be-opened (i) (and (consp i) (eq 'o (car i))))
 
-  (defun meta-wrap (src)
+  (defun meta-wrap (src-list)
     (cond
-      ((null src) '(list))
-      ((atom src) `(list ,src))
+      ((null src-list) '(list))
+      ((atom src-list) `(list ,src-list))
       (t
         (let(
-              (dst (list 'list))
+              (dst (mk-tm-list))
               (gathered ∅)
+              (src (mk-tm-list src-list))
               )
-          (let(
-                (dst◨ dst)
-                (src◨ src)
-                (gathered◨ ∅)
-                )
-            (labels(
-                     (gather-object()
-                       (unless
-                         gathered 
-                         (setq gathered (list 'list))
-                         (setq gathered◨ gathered)
-                         )
-                       (let(
-                             (new-cell (cons (car src◨) ∅))
-                             )
-                         (rplacd gathered◨ new-cell)
-                         (setq gathered◨ new-cell)
-                         ))
-                     (append-gathered(); append current gathered list to dst, reset gathered
-                       (when gathered
-                         (let(
-                               (new-cell (cons gathered ∅))
-                               )
-                           (rplacd dst◨ new-cell)
-                           (setq dst◨ new-cell)
-                           )
-                         (setq gathered ∅)
-                         ))
-                     (append-opened-list()
-                       (rplacd dst◨ (cdar src◨)) ; d dropps the 'o
-                       (loop ; seek rightmost
-                         (unless (cdr dst◨) (return))
-                         (setq dst◨ (cdr dst◨))
-                         ))
-                     (work()
-                       (if
-                         (to-be-opened (car src◨))
-                         (progn
-                           (append-gathered)
-                           (append-opened-list)
-                           )
-                         (gather-object)
-                         ))
-                     (work-loop()
-                       (work)
-                       (setq src◨ (cdr src◨))
-                       (when src◨  (work-loop))
-                       )
+          (labels(
+                   (gather-object()
+                     (unless gathered (setq gathered (mk-tm-list)))
+                     (ah◨ gathered (r src))
                      )
+                   (append-gathered()
+                     (when gathered
+                       (ah◨ dst (tape gathered))
+                       (setq gathered ∅)
+                       ))
+                   (append-opened-list()
+                     (d* (mk-tm-list (r src)) dst) ; move the opened list directly to dst
+                     )
+                   (work()
+                     (if
+                       (to-be-opened (r src))
+                       (progn
+                         (append-gathered) ; close out the prior gathered objects (list a b ...)
+                         (append-opened-list)
+                         )
+                       (gather-object)
+                       )))
 
-              (work-loop)
-              (append-gathered)
-              dst
-              ))))))
+            (⟳ src #'s #'work #'append-gathered)
+            (tape dst)
+            )))))
 
 
 ;;--------------------------------------------------------------------------------
@@ -174,15 +153,15 @@ See LICENSE.txt
 ;;    (L 1 2 a-list 5)--> '(1 2 (3 4) 5)
 ;;    (L 1 2 (o a-list) 5) --> '(1 2 3 4 5)
 ;;
-;;  L differs from quote in two respects, firstly it does not allocate as a literal,
-;;  secondly the objects in the list are evaluated before the list is returned.  Because
-;;  the objects are evaluated they are forms, and because they are forms, we can have an
-;;  unambiguous iterpretation for our 'o operator.
+;;  L differs from quote in two respects, firstly it is not a literal, secondly
+;;  the objects in the list are evaluated before the list is returned.  Because
+;;  the objects are evaluated they are forms, and because they are forms, we can
+;;  have an unambiguous iterpretation for our 'o operator.
 ;;
   (defmacro L (&rest objects)
     (cond
       ((¬ objects) ∅)
-      ((¬ (member-if #'to-be-opened objects))
+      ((¬∃ (mk-tm-list objects) (λ(tm)(to-be-opened (r tm))))
         `(list ,@objects)
         )
       (t

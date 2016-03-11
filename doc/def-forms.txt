@@ -1,0 +1,32 @@
+
+1. def-worker
+
+  def-worker:  name state src dst conts  body
+
+  src: tm | tm-list | ()
+  dst: tm | tm-list | ()
+  const: cont-list | ()
+
+  on call, depending on definition:
+
+    (name state &optional conts)
+    (name state src|[src] &optional conts)
+    (name state dst|[dst] &optional conts)
+    (name state src|[src] dst|[dst] &optional conts)
+
+  If the user defined src or dst as a list in def-worker,
+  then it must be called as such, even if the list has only
+  one item.  If the user defined src or dst as an emtpy list
+  then that field is left out of the call.  If the user defined
+  src or dst directly, then the argument is taken directly.
+
+
+2. seems the def-worker approach can be generalized, allow the
+  user to use parens in the definition, to correspond to lists
+  to be unpacked on call.
+
+
+  defmc: name \( (list-arg | arg)* \)
+
+  list-arg: \( arg* \)
+

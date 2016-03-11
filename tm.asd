@@ -22,6 +22,7 @@ See LICENSE.txt
                               (:file "conditions")
 
                               (:file "fundamental")
+                              (:file "list-L")
                               (:file "functions")
 
                               (:file "mk-tm")
@@ -30,7 +31,6 @@ See LICENSE.txt
                               (:file "tm-si")
                               (:file "tm-quantifiers")
 
-                              (:file "list-L")
                               (:file "location")
                               (:file "length")
                               (:file "buffers")
