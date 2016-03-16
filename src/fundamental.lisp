@@ -7,7 +7,7 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-
+;;defsynonym from "Successful Lisp"
 (defmacro defsynonym (old-name new-name)
   "Define OLD-NAME to be equivalent to NEW-NAME when used in the first position of a Lisp form."
   `(defmacro ,new-name (&rest args) `(,',old-name ,@args))

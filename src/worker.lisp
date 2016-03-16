@@ -18,112 +18,31 @@ workers may make specific contracts.
 
 (in-package #:tm)
 
-;; this macro defines a worker function called 'name',  a connection
-;; function called 'connect-name', and a step function called s-name.
+;; this macro defines a worker function called 'name', a connection function called
+;; 'connect-name'. The connection function returns a step function.
 ;;
-(defmacro def-worker (name src dst args conts &body body)
+(defmacro def-worker (name src-def dst-def state-def conts-def &body body)
   (let(
         (name-str (symbol-name name))
         )
     (let(
           (connect-name (concatenate 'string "connect-" name-str))
-          (step-name (concatentate 'string "s-" name-str))
           )
       (let(
             (connect-symbol (intern connect-name))
-            (step-symbol (intern step-name))
             )
+
         `(progn
+           (defun ,name (src-arg dst-arg state-arg conts-arg)
+             (destructuring-bind ,src-def src-arg
+               (destructuring-bind ,dst-def dst-arg
+                 (destructuring-bind ,state-def state-arg
+                   (destructuring-bind ,conts-def conts-arg
+                     ,@body
+                     )))))
 
-           (defun ,name (,src ,dst &optional ,args ,conts)
-             ,@body
-             )
-
-           (defun ,connect-symbol (,src ,dst ,args ,conts)
-             (setf (symbol-function ,step-symbol) 
-               (λ()
-                 (funcall ,name ,src ,dst ,args ,conts)
-                 )))
-           )))))
-           
-
-
-
-
-
-(defmacro def-worker (name state src dst conts &body body)
-  (cond
-    ((∧ src dst)
-      (cond
-        ((∧ (consp src) (consp dst)) ; many-to-many
-          `(defun ,name (,state src-list dst-list &optional conts-list)
-             (destructuring-bind ,src src-list
-               (destructing-bind ,dst dst-list
-                 (destructuring-bind ,conts conts-list
-                   ,@body
-                   )))))
-
-        ((∧ (consp src)) ; many-to-one
-          `(defun ,name (,state src-list ,dst &optional conts-list)
-             (destructuring-bind ,src src-list
-               (destructuring-bind ,conts conts-list
-                 ,@body
-                 ))))
-
-        ((∧ (consp dst)) ; one-to-many
-          `(defun ,name (,state ,src dst-list &optional conts-list)
-             (destructuring-bind ,dst dst-list
-               (destructuring-bind ,conts conts-list
-                 ,@body
-                 ))))
-
-        (t ; we can infer one-to-one
-          `(defun ,name (,state ,src ,dst &optional conts-list)
-             (destructuring-bind ,conts conts-list
-               ,@body
-               )))
-        ))
-
-    (dst ; but no source, worker is a generator
-      (cond
-        ((∧ (consp dst)) ; generates to many machines
-          `(defun ,name (,state dst-list &optional conts-list)
-             (destructuring-bind ,dst dst-list
-               (destructuring-bind ,conts conts-list
-                 ,@body
-                 ))))
-
-        (t ; generates to one machine
-          `(defun ,name (,state ,dst &optional conts-list)
-             (destructuring-bind ,conts conts-list
-               ,@body
-               )))
-        ))
-    
-    (src ; but no destination, worker is a sink
-      (cond
-        ((∧ (consp src)) ; sinks from many machines
-          `(defun ,name (,state src-list &optional conts-list)
-             (destructuring-bind ,src src-list
-               (destructuring-bind ,conts conts-list
-                 ,@body
-                 ))))
-
-        (t ; sinks from one machine
-          `(defun ,name (,state ,src &optional conts-list)
-             (destructuring-bind ,conts conts-list
-               ,@body
-               )))
-        ))
-    
-    (t ; worker's purpose is to evolve state, step by step
-      `(defun ,name (,state &optional conts-list)
-         (destructuring-bind ,conts conts-list
-           ,@body
-           ))
-      )
-    ))
-
-
-
+           (defmacro ,connect-symbol (src-arg dst-arg state-arg conts-arg)
+             `(λ()
+                (,',name ,src-arg ,dst-arg ,state-arg ,conts-arg)
+                )))))))
 
