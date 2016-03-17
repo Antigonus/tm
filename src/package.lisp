@@ -83,7 +83,7 @@ See LICENSE.txt
 
       #:m  
 
-    ;;tm-si
+    ;;tm-subspace
     ;;
       #:si
       #:ai

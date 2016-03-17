@@ -28,12 +28,18 @@ See LICENSE.txt
   (defclass tm-depth-list (tm-depth tm-list)())
 
   ;; temporary, init needs a set-by-caller flag ...
-  (defun mk-tm-depth-list (&optional init buffer-tm)
-    (declare (ignore buffer-tm))
+  (defun mk-tm-depth-list
+    (
+      &optional 
+      init
+      (cont-ok #'echo) 
+      (cont-fail 
+        (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
+        ))
     (let(
           (i (make-instance 'tm-depth-list))
           )
-      (init-tm-list i init)
+      (init-tm-list i init cont-ok cont-fail)
       (setf (history i) (mk-stack-list))
       i
       ))

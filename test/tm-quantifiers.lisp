@@ -82,10 +82,9 @@ See LICENSE.txt
   (test-hook test-sn-1)
 
 
-#|
   (defun test-⟳-0 ()
     (let(
-          (tm (mk-tm-list '(a b c)))
+          (tm (mk-tm 'tm-list [a b c]))
           (n  3)
           )
       (⟳ tm #'s (λ()(incf n)))
@@ -93,4 +92,19 @@ See LICENSE.txt
       ))
   (test-hook test-⟳-0)
 
-|#
+  (defun test-as*-0 ()
+    (let(
+          (tm0 (mk-tm 'tm-list {1 2 3}))
+          (tm1 (mk-tm 'tm-list [a b c]))
+          )
+      (s* tm0)
+      (s* tm1)
+      (as* tm0 (mk-tm 'tm-list {4 5 6}))
+      (a*  tm1 (mk-tm 'tm-list [e f g]))
+      (and
+        (= (r tm0) 6)
+        (eq (r tm1) 'c)
+        (equal (tape tm0) {1 2 3 4 5 6})
+        (equal (tape tm1) [a b c e f g])
+        )))
+  (test-hook test-as*-0)

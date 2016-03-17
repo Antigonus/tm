@@ -1,0 +1,7 @@
+
+
+1. nix the current #'so in favor of keeping the list tm as the tape
+for the tree tm, thus it keeps its type, and #s can be called on it.
+#'so can then take the meaning of step out, the inverse operation to
+#'si.
+

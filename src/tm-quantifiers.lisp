@@ -24,13 +24,13 @@ See LICENSE.txt
      rightmost continuation. The work function is called, then step is called, and this
      repeats until step takes the rightmost continuation.
      "
-    (labels(
-             (do-work ()
-               (funcall work)
-               (funcall step tm #'do-work cont-rightmost)
-               ))
-      (do-work)
-      ))
+      (labels(
+               (do-work ()
+                 (funcall work)
+                 (funcall step tm #'do-work cont-rightmost)
+                 ))
+        (do-work)
+        ))
 
 ;;--------------------------------------------------------------------------------
 ;; quaternion relationship among quantifiers
@@ -265,15 +265,14 @@ See LICENSE.txt
     (
       tm 
       fill
-      &optional 
       cont-ok
       cont-no-alloc
       )
     (⟳ fill #'s
       (λ()
-        (a tm (r fill) 
+        (as tm (r fill) 
           #'do-nothing
-          (return-from as*-0 (funcall cont-no-alloc))
+          (λ()(return-from as*-0 (funcall cont-no-alloc)))
           ))
       cont-ok
       ))
@@ -300,7 +299,7 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (be ∅))
       )
-    (as*-0 tm0 cont-ok cont-no-alloc)
+    (as*-0 tm0 fill cont-ok cont-no-alloc)
     )
 
   (defgeneric d* (tm &optional spill cont-rightmost cont-no-alloc)

@@ -28,7 +28,7 @@ See LICENSE.txt
                               (:file "mk-tm")
                               (:file "tm-primitives")
                               (:file "tm-derived")
-                              (:file "tm-si")
+                              (:file "tm-subspace")
                               (:file "tm-quantifiers")
 
                               (:file "location")
@@ -40,14 +40,12 @@ See LICENSE.txt
                               (:file "tm-singular-projective")
                               (:file "tm-linear")
 
+                              (:file "tm-interval")
                               (:file "tm-transform")
                               (:file "tm-morph")
-                              (:file "tm-subspace")
 
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
-
-
                               (:file "tm-list-buffers")
 
                               (:file "tm-tree")
