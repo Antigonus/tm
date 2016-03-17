@@ -87,11 +87,20 @@ contracts.
             (as* bindings-at (mk-tm 'tm-list body))      
             (as the-defun (cadr (tape bindings)))
             )))
-
+      
       ;; `(tape ,the-defun)
       (tape the-defun)
       )))
         
+;; input a worker and the arguments to connect to, returns a step function
+;;
+  (defun connect (worker &rest args)
+    (λ(&rest more-args)
+      (if more-args
+        (apply worker (append args more-args))
+        (apply worker args)
+        )))
+
 
 #|
 with prints turned on:
@@ -113,7 +122,3 @@ with prints turned on:
           #:G530))))) 
 T
 |#
-
-;; in this implementation, connect will be a curry function
-;;
-  (defun connect ())

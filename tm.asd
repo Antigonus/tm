@@ -34,6 +34,7 @@ See LICENSE.txt
                               (:file "location")
                               (:file "length")
                               (:file "buffers")
+                              (:file "worker")
 
                               (:file "tm-void")
                               (:file "tm-singular-affine")
@@ -76,6 +77,7 @@ See LICENSE.txt
                               (:file "tm-derived")
                               (:file "tm-quantifiers")
                               (:file "tm-si")
+                              (:file "worker")
                               (:file "tm-void")
                               (:file "buffers")
                               (:file "tm-list-primitives")
