@@ -41,20 +41,21 @@ See LICENSE.txt
         (tm (mk-tm 'tm-list {0 1 2 3}))
         (cnt 0)
         )
-    (setf 
-      (symbol-function 'work) 
-      (connect #'counter tm (box cnt))
-      )
-    (∧
-      (= cnt 0)
-      (work)
-      (= cnt 1)
-      (work)
-      (= cnt 2)
-      (work)
-      (= cnt 3)
-      (¬ (work))
-      )
-    ))
+    (labels(
+          (worker () (counter tm (box cnt)))
+          )
+      (∧
+        (= cnt 0)
+        (worker)
+        (= cnt 1)
+        (worker)
+        (= cnt 2)
+        (worker)
+        (= cnt 3)
+        (¬ (worker))
+        )
+      )))
 (test-hook test-worker-1)    
   
+
+

@@ -32,6 +32,24 @@ See LICENSE.txt
         (do-work)
         ))
 
+  (defun ⟳-work
+    (
+      work
+      &optional
+      (cont◨ (be t))
+      )
+    "work has two operands, continue-ok and continue-rm
+     "
+    (labels(
+             (do-work ()
+               (funcall work
+                 #'do-work
+                 (λ() (return-from ⟳-work (funcall cont◨)))
+                 ))
+             )
+      (do-work)
+      ))
+
 ;;--------------------------------------------------------------------------------
 ;; quaternion relationship among quantifiers
 ;;   q00 is existential quantification

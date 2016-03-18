@@ -51,7 +51,8 @@ See LICENSE.txt
 
                               (:file "tm-tree")
 
-;;                              (:file "worker")
+                              (:file "worker-utilities")
+
 
                               #|
                               (:file "tm-array")
@@ -71,19 +72,19 @@ See LICENSE.txt
 
                (:module "test"
                 :components (
+                              (:file "list-L")
                               (:file "length")
                               (:file "location")
                               (:file "tm")
                               (:file "tm-derived")
                               (:file "tm-quantifiers")
-                              (:file "tm-si")
+                              (:file "tm-subspace")
                               (:file "worker")
                               (:file "tm-void")
                               (:file "buffers")
                               (:file "tm-list-primitives")
                               (:file "tm-tree")
-                              (:file "list-L")
-;;                              (:file "worker")
+                              (:file "worker-utilities")
                               ))
 
                ))

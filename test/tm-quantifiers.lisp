@@ -92,6 +92,24 @@ See LICENSE.txt
       ))
   (test-hook test-⟳-0)
 
+  (defun test-⟳-worker-0 ()
+    (let(
+          (tm-src (mk-tm 'tm-list [a b c]))
+          (tm-dst (mk-tm 'tm-list))
+          )
+      (labels(
+               (worker (cont-ok cont◨)
+                 (as tm-dst (r tm-src))
+                 (s tm-src
+                   cont-ok
+                   cont◨
+                   ))
+               )
+        (⟳-work #'worker)
+        (equal (tape tm-src) (cdr (tape tm-dst)))
+        )))
+  (test-hook test-⟳-worker-0)
+
   (defun test-as*-0 ()
     (let(
           (tm0 (mk-tm 'tm-list {1 2 3}))

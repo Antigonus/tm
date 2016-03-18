@@ -93,7 +93,7 @@ See LICENSE.txt
 
   ;; + means the test ran and passed
   ;; 'failed' means the test ran and failed
-  ;; returns true if all tests pass, otherwise false
+  ;; returns true if no test failed, otherwise false
   (defun test-all ()
     (let*(
           (results (map 'list #'test (reverse *test-routines*)))
@@ -103,7 +103,19 @@ See LICENSE.txt
           (all-passed (every (λ(e)e) result-flags))
           )
       (cond
-        (all-passed (princ "all ")(princ no-tests) (princ " passed")(nl))
+        (all-passed
+          (if
+            (= no-tests 0)
+            (progn
+              (princ "0 tests total. None passed, but also none failed. Returning t.")
+              (nl)
+              )
+            (progn
+              (princ "all ")
+              (princ no-tests)
+              (princ " passed")
+              (nl)
+              )))
         (t
           (princ "------")
           (nl)

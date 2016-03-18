@@ -26,6 +26,11 @@ Though we have a contract about writing the destination (one result per step), i
 no contracts are made about the source machines, though specific workers may make specific
 contracts.
 
+Need to add checks such that continuations are always in tail positions in the body
+(wrap them in 'return-from funcall ..').  srcs can be destroyed .. but not written?  but
+the write could be a mark that means 'read this'.. etc.  At least check that srcs dests
+are treated as tape machines in the body.
+
 |#
 
 (in-package #:tm)
@@ -57,24 +62,28 @@ contracts.
         )
     (let(
           (bindings-at (dup bindings)) ; the attach point is moved into subspaces
-          (tm-args (mk-tm 'tm-list {src dst state conts}))
           )
-      (⟳
-        tm-args
-        #'s
-        (λ()
-          (when 
-            (r tm-args) 
-            (def-worker-1 defun-args bindings-at (r tm-args))
-            )))
+
+      (when
+        (∧ (¬ src)(¬ dst))
+        (error 'worker-must-have-src-or-dst)
+        )
+
+      (when src (def-worker-1 defun-args bindings-at src))
+      (when dst (def-worker-1 defun-args bindings-at dst))
+
+      (when
+        (∨  state conts)
+        (as defun-args '&optional)
+        )
+      
+      (when state (def-worker-1 defun-args bindings-at state))
+      (when conts (def-worker-1 defun-args bindings-at conts))
       
       #|
-        `(progn
            (print {"the-defun" (tape ,the-defun)})
            (print {"defun-args" (tape ,defun-args)})
            (print {"bindings" (tape ,bindings)})
-           t
-           )
       |#
 
       (s* the-defun)
@@ -91,16 +100,6 @@ contracts.
       ;; `(tape ,the-defun)
       (tape the-defun)
       )))
-        
-;; input a worker and the arguments to connect to, returns a step function
-;;
-  (defun connect (worker &rest args)
-    (λ(&rest more-args)
-      (if more-args
-        (apply worker (append args more-args))
-        (apply worker args)
-        )))
-
 
 #|
 with prints turned on:

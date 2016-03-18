@@ -98,6 +98,13 @@ See LICENSE.txt
   (define-condition tm-no-such-location (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition binner-no-such-bin (error)
+    ((text :initarg :text :reader text)))
+
+
+  ;; nothing has been allocated at this location
+  (define-condition worker-must-have-src-or-dst (error)
+    ((text :initarg :text :reader text)))
 
 
 ;;--------------------------------------------------------------------------------
