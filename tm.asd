@@ -33,8 +33,8 @@ See LICENSE.txt
 
                               (:file "location")
                               (:file "length")
-                              (:file "buffers")
                               (:file "worker")
+                              (:file "buffers")
 
                               (:file "tm-void")
                               (:file "tm-singular-affine")
@@ -43,7 +43,6 @@ See LICENSE.txt
 
                               (:file "tm-interval")
                               (:file "tm-transform")
-                              (:file "tm-morph")
 
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
@@ -75,7 +74,6 @@ See LICENSE.txt
                               (:file "list-L")
                               (:file "length")
                               (:file "location")
-                              (:file "tm")
                               (:file "tm-derived")
                               (:file "tm-quantifiers")
                               (:file "tm-subspace")

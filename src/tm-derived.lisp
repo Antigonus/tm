@@ -359,27 +359,30 @@ of the primitives.
 ;; moving data
 ;;
 
-  (defgeneric m (tm fill &optional cont-ok cont-rightmost))
+  ;; In repeated move operations we probably throw the displaced objects away if the
+  ;; programmer wants to keep them zhe should copy them first, complications with
+  ;; implementing this more efficiently on lists due to head cell locations with shared
+  ;; tapes. In any case with repeated ops we can hop n places instead of shuffling.
+  ;;
+    (defgeneric m (tm fill)
+      (:documentation
+        "The object in rightmost is returned.
+         All other objects on the tape move right one cell.
+         Leftmost is written with the provided fill-object. 
+         "
+        ))
 
-  (defmethod m 
-    (
-      (tm tape-machine)
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅)) ; rightmost of fill
+    (defmethod m 
+      (
+        (tm tape-machine)
+        fill-object
+        )
+      (⟳ (λ(cont-ok cont◨)
+           (let((displaced-object (r tm)))
+             (w tm fill-object)
+             (setf fill-object displaced-object)
+             (s tm cont-ok cont◨)
+             )))
+      fill-object
       )
-    (let(
-          (fill-object (r fill))
-          displaced-object
-          )
-      (⟳ tm #'s
-        (λ()
-          (setf displaced-object (r tm))
-          (w tm fill-object)
-          (setf fill-object displaced-object)
-          )
-        (λ()
-          (s fill cont-ok cont-rightmost)
-          ))))
-  
+

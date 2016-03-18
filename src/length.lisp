@@ -63,17 +63,16 @@ See LICENSE.txt
       (cont-shorter (be 'shorter))
       )
     (let ((tm0-1 (dup tm0)))
-      (⟳ tm0-1 #'s
-        (λ() 
-          (when (≤ n 0) (return-from length-cmp (funcall cont-longer)))
-          (decf n)
-          )
-        (λ() 
-          (if 
-            (= n 0) 
-            (funcall cont-same)
-            (funcall cont-shorter)
-            )))))
+      (⟳ (λ(cont-ok cont◨) 
+           (when (≤ n 0) (return-from length-cmp (funcall cont-longer)))
+           (decf n)
+           (s tm0-1 cont-ok cont◨)
+           ))
+      (if 
+        (= n 0) 
+        (funcall cont-same)
+        (funcall cont-shorter)
+        )))
 
   ;; (length tm0) <?> (length tm1)
   (defmethod length-cmp
@@ -92,25 +91,24 @@ See LICENSE.txt
       (let(
             (tms (mk-tm (list tma-1 tmb-1)))
             )
-        (⟳ tms #'s-together
-          (λ() 
-            (let(
-                  (on-rm-a (on-rightmost tma-1))
-                  (on-rm-b (on-rightmost tmb-1))
-                  )
-              (cond
-                ((and on-rm-a on-rm-b)
-                  (return-from length-cmp (funcall cont-same)))
-                (on-rm-b
-                  (return-from length-cmp (funcall cont-longer)))
-                (on-rm-a
-                  (return-from length-cmp (funcall cont-shorter))
-                  )
-                )))
-          (λ()
-            (error 'tm-impossible-to-get-here :text "length-cmp should not be able to get here")
-            )))))
-
+        (⟳ (λ(cont-ok cont◨)
+             (let(
+                   (on-rm-a (on-rightmost tma-1))
+                   (on-rm-b (on-rightmost tmb-1))
+                   )
+               (cond
+                 ((and on-rm-a on-rm-b)
+                   (return-from length-cmp (funcall cont-same)))
+                 (on-rm-b
+                   (return-from length-cmp (funcall cont-longer)))
+                 (on-rm-a
+                   (return-from length-cmp (funcall cont-shorter))
+                   )
+                 ))
+             (s-together tms cont-ok cont◨)
+             ))
+        (error 'tm-impossible-to-get-here :text "length-cmp should not be able to get here")
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; all possible reduction to a Boolean operator, excluding constants true and false.

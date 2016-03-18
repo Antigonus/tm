@@ -103,7 +103,6 @@ See LICENSE.txt
     ;; quantifiers
     ;;
       #:⟳
-      #:⟳-work
 
       #:∃
       #:¬∀

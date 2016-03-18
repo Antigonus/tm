@@ -12,39 +12,18 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; looping, see also s-together⟳
 ;;
-  (defun ⟳ 
-    (
-      tm 
-      step 
-      &optional 
-      (work #'do-nothing) 
-      (cont-rightmost (be t))
-      )
-    "'do'.  Step is a function that accepts a tape machine, a work function, and a
-     rightmost continuation. The work function is called, then step is called, and this
-     repeats until step takes the rightmost continuation.
-     "
-      (labels(
-               (do-work ()
-                 (funcall work)
-                 (funcall step tm #'do-work cont-rightmost)
-                 ))
-        (do-work)
-        ))
-
-  (defun ⟳-work
-    (
-      work
-      &optional
-      (cont◨ (be t))
-      )
-    "work has two operands, continue-ok and continue-rm
+  (defun ⟳ (work)
+    "'do' takes one operand, and work function.
+      The work function has two operands, continue-ok and continue-rightmost (often
+      abreviated as cont◨).  When cont-ok is invoked, the loop takes another
+      iteration.  When cont-rightmost is invoked, the loop exits.  'do' 
+      functionalizes the tape structure, i.e. installs a concept of time.
      "
     (labels(
              (do-work ()
                (funcall work
                  #'do-work
-                 (λ() (return-from ⟳-work (funcall cont◨)))
+                 (λ() (return-from ⟳ t))
                  ))
              )
       (do-work)
@@ -79,11 +58,15 @@ See LICENSE.txt
       )
     "When returning true, tm head is on the first cell that has an object where pred is true.
     When returning false, tm head is on rightmost, and there was no cell where pred was true."
-    (⟳ tm #'s
-      (λ()(when (funcall pred tm) (return-from ∃ (funcall cont-true))))
-      cont-false
-      ))
-
+    (⟳ (λ(cont-ok cont◨)
+         (when 
+           (funcall pred tm) 
+           (return-from ∃ (funcall cont-true))
+           )
+         (s tm cont-ok cont◨)
+         ))
+    (funcall cont-false)
+    )
 
   ;; same as step-while
   ;; not all objects match pred, here we will show you the first one that doesn't
@@ -152,7 +135,7 @@ See LICENSE.txt
       (labels(
                (∃*-op () (when (funcall pred tm) (setq result t)))
                )
-        (⟳ tm #'s #'∃*-op)
+        (⟳ (λ(cont-ok cont◨)(∃*-op)(s tm cont-ok cont◨)))
         (if 
           result
           (funcall cont-true)
@@ -231,7 +214,10 @@ See LICENSE.txt
       (if
         (¬∃ tms0 #'on-rightmost)
         (progn
-          (⟳ tms1 #'s) ; #'s is the work function
+          (⟳ (λ(cont-ok cont◨)
+               (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
+               (s tms1 cont-ok cont◨)
+               ))
           (funcall cont-ok 'so)
           )
         (funcall cont-exists-on-rightmost)
@@ -243,31 +229,37 @@ See LICENSE.txt
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
 
-  (defgeneric w* (tm fill &optional cont-rightmost))
+  ;; if you want fill to be a single values, make it a singular-affine machine
+  ;; cont-rightmost is called when the fill machine hits rightmost
+  (defgeneric w* (tm fill &optional cont-ok cont-rightmost))
 
   (defmethod w* 
     (
       (tm tape-machine)
       (fill tape-machine)
       &optional 
+      (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (⟳ fill #'s 
-      (λ()
-        (w tm (r fill))
-        (s tm #'do-nothing (λ()(return-from w* (funcall cont-rightmost))))
-        )))
-
+    (⟳ (λ(cont-ok cont◨)
+         (w tm (r fill))
+         (s-together (mk-tm 'tm-list {tm fill})
+           cont-ok
+           (λ()
+             (if
+               (on-rightmost tm)
+               (funcall cont◨)
+               (funcall cont-rightmost) ; then fill is on rightmost
+               )))))
+    (funcall cont-ok)
+    )
 
   (defgeneric s* (tm)
     (:documentation 
       "Steps tm to rightmost. It is probably more efficient to cue-to-rightmost."
       ))
 
-  (defmethod s* ((tm tape-machine))
-    (⟳ tm #'s)
-    )
-
+  (defmethod s* ((tm tape-machine))(⟳(λ(cont-ok cont◨)(s tm cont-ok cont◨))))
 
   (defgeneric a* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
@@ -286,14 +278,15 @@ See LICENSE.txt
       cont-ok
       cont-no-alloc
       )
-    (⟳ fill #'s
-      (λ()
-        (as tm (r fill) 
-          #'do-nothing
-          (λ()(return-from as*-0 (funcall cont-no-alloc)))
-          ))
-      cont-ok
-      ))
+    (⟳ (λ(cont-ok cont◨)
+         (as tm (r fill) 
+           #'do-nothing
+           (λ()(return-from as*-0 (funcall cont-no-alloc)))
+           )
+         (s fill cont-ok cont◨)
+         ))
+    (funcall cont-ok)
+    )
 
   (defmethod a*
     (
@@ -383,7 +376,7 @@ See LICENSE.txt
                (s 
                  tm 
                  #'work
-                 (λ()(funcall (return-from sn (funcall cont-rightmost n))))
+                 (λ()(return-from sn (funcall cont-rightmost n)))
                  ))
              )
       (count-test)

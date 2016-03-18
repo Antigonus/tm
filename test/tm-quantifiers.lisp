@@ -81,18 +81,7 @@ See LICENSE.txt
         )))
   (test-hook test-sn-1)
 
-
   (defun test-⟳-0 ()
-    (let(
-          (tm (mk-tm 'tm-list [a b c]))
-          (n  3)
-          )
-      (⟳ tm #'s (λ()(incf n)))
-      (= n 6)
-      ))
-  (test-hook test-⟳-0)
-
-  (defun test-⟳-worker-0 ()
     (let(
           (tm-src (mk-tm 'tm-list [a b c]))
           (tm-dst (mk-tm 'tm-list))
@@ -105,10 +94,10 @@ See LICENSE.txt
                    cont◨
                    ))
                )
-        (⟳-work #'worker)
+        (⟳ #'worker)
         (equal (tape tm-src) (cdr (tape tm-dst)))
         )))
-  (test-hook test-⟳-worker-0)
+  (test-hook test-⟳-0)
 
   (defun test-as*-0 ()
     (let(
