@@ -44,7 +44,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-singular-affine #'mk-tm-singular-affine)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-singular-affine)) (HA tm))
 

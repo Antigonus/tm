@@ -60,7 +60,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-transform #'mk-tm-transform)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-transform)) 
     (funcall (transform-forward (tape tm)) tm)

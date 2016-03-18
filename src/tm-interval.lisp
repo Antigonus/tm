@@ -55,7 +55,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-interval #'mk-tm-interval)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-interval))
     (r (HA tm))

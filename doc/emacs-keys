@@ -1,3 +1,7 @@
+
+;; unicode
+;;
+
   (global-set-key (kbd "C-x g g SPC") [?γ])
   (global-set-key (kbd "C-x g G SPC") [?Γ])
 
@@ -27,3 +31,11 @@
   (global-set-key (kbd "C-x g rm SPC") [?◨])
   (global-set-key (kbd "C-x g lm SPC") [?◧])
 
+;; lisp mode
+;;
+  (setq lisp-indent-offset 2)
+
+  (modify-syntax-entry ?[ "(]" lisp-mode-syntax-table)
+  (modify-syntax-entry ?] ")[" lisp-mode-syntax-table)
+  (modify-syntax-entry ?{ "(}" lisp-mode-syntax-table)
+  (modify-syntax-entry ?} "){" lisp-mode-syntax-table)

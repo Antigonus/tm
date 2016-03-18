@@ -1,7 +1,11 @@
 
-
 1. nix the current #'so in favor of keeping the list tm as the tape
 for the tree tm, thus it keeps its type, and #s can be called on it.
 #'so can then take the meaning of step out, the inverse operation to
 #'si.
 
+2. define conversions from tapes to sequences.  Right now directly
+using tape accessor which is not, and probably should not be, exported
+on the package interface.
+
+3. ⟳ should be replaced with ⟳-work, then the -work can be dropped.

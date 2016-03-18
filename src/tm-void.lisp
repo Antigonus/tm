@@ -20,7 +20,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-void #'mk-tm-void)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-void)) ∅)
 

@@ -60,7 +60,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-line #'mk-tm-line)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-line)) (HA tm))
 

@@ -38,7 +38,7 @@ See LICENSE.txt
   (mk-tm-hook 'tm-singular-projective #'mk-tm-singular-projective)
 
 ;;--------------------------------------------------------------------------------
-;; essential methods
+;; primitive methods
 ;;
   (defmethod r ((tm tm-singular-projective)) (HA tm))
 

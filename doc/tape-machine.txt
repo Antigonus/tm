@@ -102,3 +102,6 @@ as  append and step
 -a-s  append to the left, step to the left
 
 
+---
+modification of AH changes state
+modifications of tape changes structure

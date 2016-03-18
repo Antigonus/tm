@@ -32,6 +32,14 @@ See LICENSE.txt
       #:nl
       #:defparam
 
+    ;;list-L
+    ;;  also defines reader macros for {} and []
+    ;;
+      #:o
+      #:q
+      #:unwrap
+      #:L
+
     ;;functions
     ;;
       #:boolify
@@ -39,6 +47,8 @@ See LICENSE.txt
       #:echo
       #:be
       #:notλ
+      #:box
+      #:unbox
 
     ;;mk-tm
     ;;
@@ -93,6 +103,7 @@ See LICENSE.txt
     ;; quantifiers
     ;;
       #:⟳
+      #:⟳-work
 
       #:∃
       #:¬∀
@@ -117,13 +128,6 @@ See LICENSE.txt
       #:asn
       #:dn
 
-    ;;list-L
-    ;;
-      #:o
-      #:q
-      #:unwrap
-      #:L
-
     ;; location
     ;;
       #:on+1
@@ -143,16 +147,6 @@ See LICENSE.txt
       #:location=
       #:location≠
 
-    ;; useful machines
-    ;;
-      #:mk-tm-void
-      #:mk-tm-singular-affine
-      #:mk-singular-projective
-
-      #:tm-void
-      #:tm-singular-affine
-      #:tm-singular-projective
-
     ;; number of allocated cells, i.e. length
     ;;
       #:singleton
@@ -165,10 +159,6 @@ See LICENSE.txt
       #:length≤
       #:length=
       #:length≠
-
-    ;; tm-linear
-    ;;
-      #:line
 
     ;; data-structures
     ;;
@@ -185,6 +175,26 @@ See LICENSE.txt
 
       #:stack
       #:queue
+
+    ;; worker
+    ;;  
+      #:def-worker
+
+    ;; useful machines
+    ;;
+      #:tm-void
+      #:tm-singular-affine
+      #:tm-singular-projective
+      #:tm-interval
+
+      #:mk-tm-void
+      #:mk-tm-singular-affine
+      #:mk-singular-projective
+      #:mk-tm-interval
+
+    ;; tm-linear
+    ;;
+      #:line
 
     ;; tm-list-primitives
     ;;
@@ -211,13 +221,9 @@ See LICENSE.txt
       #:tm-breadth-list ;class
       #:s-breadth
 
-    ;; list-0
+    ;; worker-utilities
     ;;
-      #:bifurcate
-
-    ;; tree-0
-    ;;
-      #:bifurcate-tree
+      #:binner  
 
     ;;string
     ;;
@@ -231,7 +237,6 @@ See LICENSE.txt
       #:is-prefix
       #:drop
 
-            
     ;; test framework
     ;;
       #:test-hook
