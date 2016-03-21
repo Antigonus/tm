@@ -22,7 +22,7 @@ See LICENSE.txt
     op
     (&optional 
       (cont-ok (be t)) 
-      (cont◨ (be ∅))
+      (cont-rightmost (be ∅))
       (cont-no-such-bin (λ(bin)(declare(ignore bin))(error 'binner-no-such-bin)))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
@@ -44,5 +44,5 @@ See LICENSE.txt
           (λ()(funcall cont-no-such-bin bin))
           )))
 
-    (s src cont-ok cont◨)
+    (s src cont-ok cont-rightmost)
     )

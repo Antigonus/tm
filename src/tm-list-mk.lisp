@@ -67,8 +67,6 @@ See LICENSE.txt
         )))
 
    (tm-mk-hook 'tm-list #'tm-mk-list)
-   (tm-mk-hook 'cons #'tm-mk-list)
-   (tm-mk-hook 'list #'tm-mk-list)
 
 
 ;;--------------------------------------------------------------------------------

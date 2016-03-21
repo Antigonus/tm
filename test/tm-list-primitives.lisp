@@ -33,7 +33,7 @@ See LICENSE.txt
     (∧
       (w k 7)
       (= (r k) 7)
-      (so k)
+      (s k)
       (= (r k) 2)
       (cue-leftmost k)
       (= (r k) 7)
@@ -109,7 +109,7 @@ See LICENSE.txt
       (as k 14)
       (equal (tape k) '(list 12 13 14))
       (cue-leftmost k)
-      (so k)
+      (s k)
       (d k)
       (equal (tape k) '(list 12 14))
       (d k)

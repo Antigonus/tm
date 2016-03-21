@@ -377,11 +377,11 @@ of the primitives.
         (tm tape-machine)
         fill-object
         )
-      (⟳ (λ(cont-ok cont◨)
+      (⟳ (λ(cont-loop cont-return)
            (let((displaced-object (r tm)))
              (w tm fill-object)
              (setf fill-object displaced-object)
-             (s tm cont-ok cont◨)
+             (s tm cont-loop cont-return)
              )))
       fill-object
       )

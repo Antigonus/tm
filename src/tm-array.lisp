@@ -193,19 +193,6 @@ See LICENSE.txt
     (s-work-array tm cont-ok cont-rightmost)
     )
 
-  ;; this does not get specialized by the tree methods, thus makes
-  ;; array stepping available to those implementations. An array step
-  ;; over an array object is step over a subtree.
-  (defmethod so
-    (
-      (tm tm-array)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      )
-    (s-work-array tm cont-ok cont-rightmost)
-    )
-
   (defun test-s-array-0 ()
     (let*(
            (y #(1 2 (3 4) 5))

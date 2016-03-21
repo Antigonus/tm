@@ -72,28 +72,88 @@ See LICENSE.txt
 
         (if (consp (r tm)) ; then it is a sublist
           (save-and-step-in) 
-          (so tm cont-so #'dequeue-sublist)
+          (s tm cont-s #'dequeue-sublist)
           )))
 
-    (defmethod s
-      (
-        (tm tm-depth)
-        &optional
-        (cont-ok (be t))
-        (cont-rightmost (be ∅))
-        )
-      (labels(
-               (step-depth()
-                 (s-depth-ru
-                   (tape tm)
-                   (HA tm)
-                   cont-ok
-                   cont-ok
-                   cont-rightmost
-                   cont-ok
-                   ))
-               )
-        (step-depth)
-        ))
 
+;;--------------------------------------------------------------------------------
+;; accessing data
+;;
+  (defmethod r ((tm tm-depth)) (r (tape tm)))
+  (defmethod w ((tm tm-depth) object) (w (tape tm) object))
 
+;;--------------------------------------------------------------------------------
+;; absolute head placement
+;;
+  ;; our tape is never nil, so this returns true
+  (defmethod cue-leftmost  ((tm tm-depth)) 
+    (cue-leftmost (tape tm))
+    )
+
+;;--------------------------------------------------------------------------------
+;;  head location predicates
+;;
+  (defmethod heads-on-same-cell 
+    (
+      (tm0 tm-depth) 
+      (tm1 tm-depth) 
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      ) 
+    (heads-on-same-cell tm0 tm1 cont-true cont-false)
+    )
+
+;;--------------------------------------------------------------------------------
+;; head stepping
+;;
+  (defmethod s
+    (
+      (tm tm-depth)
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      )
+    (labels(
+             (step-depth()
+               (s-depth-ru
+                 (tape tm)
+                 (HA tm)
+                 cont-ok
+                 cont-ok
+                 cont-rightmost
+                 cont-ok
+                 ))
+             )
+      (step-depth)
+      ))
+
+;;--------------------------------------------------------------------------------
+;; cell allocation
+;;
+  (defmethod a 
+    (
+      (tm tm-depth)
+      object 
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (a (tape tm) object cont-ok cont-no-alloc)
+    )
+
+;;--------------------------------------------------------------------------------
+;; deallocating cells
+;;
+  ;; deallocates the cell just to the right of the head
+  (defmethod d 
+    (
+      (tm tm-depth)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (d (tape tm) spill cont-ok cont-rightmost cont-no-alloc)
+    )

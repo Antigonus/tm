@@ -13,7 +13,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;  tape machine follows a depth first traversal of a tree
 ;;
-  (defclass tm-depth (tm-tape-machine)())
+  (defclass tm-depth (tape-machine)())
 
   (defun tm-mk-depth
     (
@@ -23,29 +23,31 @@ See LICENSE.txt
       (cont-fail 
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
         ))
+    (let(
+          (instance (make-instance 'tm-depth))
+          )
+      (cond
+        ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
+          (setf (tape instance) (tm-mk 'tm-list))
+          (setf (HA instance) (mk-stack-list))
+          (funcall cont-ok instance)
+          )
 
-    (cond
-      ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
-        (setf (tape instance) (tm-mk 'tm-list))
-        (setf (HA instance) (mk-stack-list))
-        (funcall cont-ok instance)
-        )
+        ((typep init 'tape-machine)
+          (setf (tape instance) init)
+          (setf (HA instance) (mk-stack-list))
+          (funcall cont-ok instance)
+          )
 
-      ((typep init 'tape-machine)
-        (setf (tape instance) init)
-        (setf (HA instance) (mk-stack-list))
-        (funcall cont-ok instance)
-        )
+        ((∧ (consp init) (cdr init) (¬ (cddr init)))
+          (setf (tape instance) (car init))
+          (setf (HA instance) (cadr init))
+          (funcall cont-ok instance)
+          )
 
-      ((∧ (consp init) (cdr init) (¬ (cddr init)))
-        (setf (tape instance) (car init))
-        (setf (HA instance) (cadr init))
-        (funcall cont-ok instance)
-        )
-
-      (t
-        (funcall cont-fail)
-        )))
+        (t
+          (funcall cont-fail)
+          ))))
 
   (tm-mk-hook 'tm-depth #'tm-mk-depth)
 

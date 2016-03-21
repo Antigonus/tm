@@ -66,19 +66,6 @@ See LICENSE.txt
     (s-work-list tm cont-ok cont-rightmost)
     )
 
-  ;; this does not get specialized by the tree methods, thus makes
-  ;; list stepping available to those implementations. A list step
-  ;; over a list object is step over a subtree.
-  (defmethod so
-    (
-      (tm tm-list)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      )
-    (s-work-list tm cont-ok cont-rightmost)
-    )
-
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;

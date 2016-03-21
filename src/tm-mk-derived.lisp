@@ -25,6 +25,6 @@ See LICENSE.txt
     (let(
           (tm1 (tm-mk 'tm-list))
           )
-      (⟳ (λ(cont-ok cont◨) (as tm1 (r tm0) cont-ok cont◨)))
+      (⟳ (λ(cont-loop cont-return) (as tm1 (r tm0) cont-loop cont-return)))
       (cdr (tape tm1))
       ))

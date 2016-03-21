@@ -53,15 +53,6 @@ See LICENSE.txt
 ;; tm-primitives
 ;;
 
-
-;;--------------------------------------------------------------------------------
-;; tm-derived
-;;
-
-  ;; used for #'a and #'d on spill when allocation fails
-  (define-condition tm-alloc-fail (error)
-    ((text :initarg :text :reader text)))
-
   ;; tape machine is read only, but someone tried to write to it..
   (define-condition tm-read-only (error)
     ((text :initarg :text :reader text)))
@@ -71,6 +62,19 @@ See LICENSE.txt
   (define-condition tm-write-only (error)
     ((text :initarg :text :reader text)))
 
+  ;; used for #'a and #'d on spill when allocation fails
+  (define-condition tm-alloc-fail (error)
+    ((text :initarg :text :reader text)))
+
+  ;; When the head is on rightmost, there are not cells further right that can be
+  ;; deallocated.
+  (define-condition tm-deallocation-request-at-rightmost (error)
+    ((text :initarg :text :reader text)))
+
+
+;;--------------------------------------------------------------------------------
+;; tm-derived
+;;
   ;; used with r-index and derivatives
   ;; the head can not be off the tape
   (define-condition tm-read-beyond-rightmost (error)
@@ -78,11 +82,6 @@ See LICENSE.txt
 
   ;; this is the default behavior for attempting to step into a non-sequence
   (define-condition tm-cant-si (error)
-    ((text :initarg :text :reader text)))
-
-  ;; When the head is on rightmost, there are not cells further right that can be
-  ;; deallocated.
-  (define-condition tm-deallocation-request-at-rightmost (error)
     ((text :initarg :text :reader text)))
 
   ;; nothing has been allocated at this location

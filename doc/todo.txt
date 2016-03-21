@@ -20,3 +20,6 @@ we are to make a machine from, or the type of machine to be made, but
 these are incompatible.  Multiple machines can be made from a given type.
 Make tag be type of machine only,  and when it is null, we look at the
 type of init and make a determination as to what type of machine to make.
+
+7. right now tm-difference-engine is only linear, need to finish implementation
+   tm-line -> tm-difference-engine

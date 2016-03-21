@@ -15,9 +15,9 @@ See LICENSE.txt
   (defun ⟳ (work)
     "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
      single step, whatever such a step may be.  The work function accepts two
-     continuations.  Typically these are called 'cont-ok', and 'cont-rightmost' (or
-     'cont◨').  When the work function continues with cont-ok, it is immediately called
-     again.  This is the loop.  When it continues with cont-rightmost, ⟳ returns.
+     continuations.  Typically these are called 'cont-loop', and 'cont-return'.  When the
+     work function continues with cont-loop, it is immediately called again.  When it
+     continues with cont-return, ⟳ returns.
      "
     (labels(
              (do-work ()
@@ -42,10 +42,10 @@ See LICENSE.txt
       )
     "⟳-work-step (pronounced \"do work step\") accepts a tape machine, a function to do
      work, and a step function.  The step function must accept as arguments the tape
-     machine, and two continuations.  Typically the continuations are called 'cont-ok' and
-     'cont-rightmost' (or 'cont◨').  For example #'s can be used for stepping.  First the
+     machine, and two continuations.  Typically the continuations are called 'cont-loop' and
+     'cont-return'.  For example #'s can be used for stepping.  First the
      work function is called, then the step function is called. If the step function
-     continues with cont-ok, ⟳-step repeats.  If it continues with continue-rightmost
+     continues with cont-loop, ⟳-step repeats.  If it continues with continue-return
      ⟳-step returns.
      "
       (labels(
@@ -87,12 +87,12 @@ See LICENSE.txt
       )
     "When returning true, tm head is on the first cell that has an object where pred is true.
     When returning false, tm head is on rightmost, and there was no cell where pred was true."
-    (⟳ (λ(cont-ok cont◨)
+    (⟳ (λ(cont-loop cont-return)
          (when 
            (funcall pred tm) 
            (return-from ∃ (funcall cont-true))
            )
-         (s tm cont-ok cont◨)
+         (s tm cont-loop cont-return)
          ))
     (funcall cont-false)
     )
@@ -164,7 +164,7 @@ See LICENSE.txt
       (labels(
                (∃*-op () (when (funcall pred tm) (setq result t)))
                )
-        (⟳ (λ(cont-ok cont◨)(∃*-op)(s tm cont-ok cont◨)))
+        (⟳ (λ(cont-loop cont-return)(∃*-op)(s tm cont-loop cont-return)))
         (if 
           result
           (funcall cont-true)
@@ -243,9 +243,9 @@ See LICENSE.txt
       (if
         (¬∃ tms0 #'on-rightmost)
         (progn
-          (⟳ (λ(cont-ok cont◨)
+          (⟳ (λ(cont-loop cont-return)
                (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
-               (s tms1 cont-ok cont◨)
+               (s tms1 cont-loop cont-return)
                ))
           (funcall cont-ok 'so)
           )
@@ -270,15 +270,15 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (⟳ (λ(cont-ok cont◨)
+    (⟳ (λ(cont-loop cont-return)
          (w tm (r fill))
          (s-together (tm-mk 'tm-list {tm fill})
-           cont-ok
+           cont-loop
            (λ()
              (if
                (on-rightmost tm)
-               (funcall cont◨)
-               (funcall cont-rightmost) ; then fill is on rightmost
+               (funcall cont-rightmost) ;then we hit the end of tape before finishing
+               (funcall cont-return) ;then fill is on rightmost, we are done
                )))))
     (funcall cont-ok)
     )
@@ -307,12 +307,12 @@ See LICENSE.txt
       cont-ok
       cont-no-alloc
       )
-    (⟳ (λ(cont-ok cont◨)
+    (⟳ (λ(cont-loop cont-return)
          (as tm (r fill) 
            #'do-nothing
            (λ()(return-from as*-0 (funcall cont-no-alloc)))
            )
-         (s fill cont-ok cont◨)
+         (s fill cont-loop cont-return)
          ))
     (funcall cont-ok)
     )

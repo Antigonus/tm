@@ -16,7 +16,13 @@ See LICENSE.txt
   :description "Formalized Iteration Library for Common LISP"
   :depends-on ("local-time")
   :serial t
-  :components((:module "src"
+  :components(
+               (:module "test-framework"
+                :components (
+                              (:file "framework")
+                              ))
+
+               (:module "src"
                 :components (
                               (:file "package")
                               (:file "conditions")
@@ -25,6 +31,7 @@ See LICENSE.txt
                               (:file "list-L")
                               (:file "functions")
 
+                              ;; interface definition
                               (:file "tm-mk")
                               (:file "tm-primitives")
                               (:file "tm-derived")
@@ -32,58 +39,63 @@ See LICENSE.txt
                               (:file "tm-quantifiers")
                               (:file "tm-mk-derived")
 
+                              ;; general properties
                               (:file "location")
                               (:file "length")
-                              (:file "worker")
-                              (:file "buffers")
 
+                              ;; macro for defining workers
+                              (:file "worker")
+
+                              ;; generic adapters
+                              (:file "buffers")  ; stack and queue
+                              (:file "tm-interval")
+                              (:file "tm-depth-mk")
+                              (:file "tm-depth-primitives")
+;                              (:file "tm-breadth")
+                              (:file "tm-transform")
+
+                              ;; simple generators 
                               (:file "tm-void")
                               (:file "tm-singular-affine")
                               (:file "tm-singular-projective")
                               (:file "tm-line")
 
-                              (:file "tm-interval")
-                              (:file "tm-transform")
-
+                              ;; list implementation
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               (:file "tm-list-buffers")
-
-;;                              (:file "tm-tree")
 
                               (:file "worker-utilities")
 
 
                               #|
                               (:file "tm-array")
-
-
-                              (:file "list-0")
-                              
-                              (:file "tree-0")
                               (:file "list-lang") ; accessor lang here delta-s etc.
                               |#
-                              ))
-
-               (:module "test-framework"
-                :components (
-                              (:file "framework")
                               ))
 
                (:module "test"
                 :components (
                               (:file "list-L")
+
+                              (:file "tm-derived")
+                              (:file "tm-subspace")
+                              (:file "tm-quantifiers")
+
                               (:file "length")
                               (:file "location")
-                              (:file "tm-derived")
-                              (:file "tm-quantifiers")
-                              (:file "tm-subspace")
+
                               (:file "worker")
-                              (:file "tm-void")
+
                               (:file "buffers")
+                              (:file "tm-depth")
+;;                              (:file "tm-breadth")
+
+                              (:file "tm-void")
+                              (:file "tm-line")
+
                               (:file "tm-list-primitives")
-;;                              (:file "tm-tree")
                               (:file "worker-utilities")
                               ))
 

@@ -63,10 +63,10 @@ See LICENSE.txt
       (cont-shorter (be 'shorter))
       )
     (let ((tm0-1 (dup tm0)))
-      (⟳ (λ(cont-ok cont◨) 
+      (⟳ (λ(cont-loop cont-return) 
            (when (≤ n 0) (return-from length-cmp (funcall cont-longer)))
            (decf n)
-           (s tm0-1 cont-ok cont◨)
+           (s tm0-1 cont-loop cont-return)
            ))
       (if 
         (= n 0) 
@@ -91,7 +91,7 @@ See LICENSE.txt
       (let(
             (tms (tm-mk (list tma-1 tmb-1)))
             )
-        (⟳ (λ(cont-ok cont◨)
+        (⟳ (λ(cont-loop cont-return)
              (let(
                    (on-rm-a (on-rightmost tma-1))
                    (on-rm-b (on-rightmost tmb-1))
@@ -105,7 +105,7 @@ See LICENSE.txt
                    (return-from length-cmp (funcall cont-shorter))
                    )
                  ))
-             (s-together tms cont-ok cont◨)
+             (s-together tms cont-loop cont-return)
              ))
         (error 'tm-impossible-to-get-here :text "length-cmp should not be able to get here")
         )))

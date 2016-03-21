@@ -81,9 +81,9 @@ are treated as tape machines in the body.
       (when conts (def-worker-1 defun-args bindings-at conts))
       
       #|
-           (print {"the-defun" (tape ,the-defun)})
-           (print {"defun-args" (tape ,defun-args)})
-           (print {"bindings" (tape ,bindings)})
+           (print {"the-defun" (tape the-defun)})
+           (print {"defun-args" (tape defun-args)})
+           (print {"bindings" (tape bindings)})
       |#
 
       (s* the-defun)
