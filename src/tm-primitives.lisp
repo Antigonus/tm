@@ -10,21 +10,6 @@ All tape machine implmentations must specialize these functions.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; the base type
-;;
-  (defclass tape-machine ()
-    (
-      (HA 
-        :initarg :HA 
-        :accessor HA
-        )
-      (tape
-        :initarg :tape
-        :accessor tape
-        )
-      ))
-
-;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
   (defgeneric r (tm) 

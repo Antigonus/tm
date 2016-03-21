@@ -8,6 +8,9 @@ for the tree tm, thus it keeps its type, and #s can be called on it.
 using tape accessor which is not, and probably should not be, exported
 on the package interface.
 
-3. ⟳ should be replaced with ⟳-work, then the -work can be dropped.
+
 
 4. need to write mn and m* as repeating m is very inefficient
+
+5. unicode defines both inc and delta,  we have used inc,  we need
+ to undo that and move everything to delta.

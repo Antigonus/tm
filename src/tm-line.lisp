@@ -40,20 +40,16 @@ See LICENSE.txt
     (let(
           (tm (make-instance 'tm-line))
           )
-      (if
+      (unless
         init
-        (progn
-          (Unless 
-            (typep init 'line) 
-            (funcall cont-fail)
-            )
-          (setf (HA tm) (line-infimum init))
-          (setf (tape tm) init)
-          )
-        (progn
-          (setf (HA tm) 0)
-          (setf (tape tm) (cons 0 ∅))
-          ))
+        (setf init (make-line))
+        )
+      (unless
+        (typep init 'line)
+        (funcall cont-fail)
+        )
+      (setf (HA tm) (line-infimum init))
+      (setf (tape tm) init)
       (funcall cont-ok tm)
       ))
 

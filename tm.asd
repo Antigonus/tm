@@ -25,7 +25,7 @@ See LICENSE.txt
                               (:file "list-L")
                               (:file "functions")
 
-                              (:file "mk-tm")
+                              (:file "tm-mk")
                               (:file "tm-primitives")
                               (:file "tm-derived")
                               (:file "tm-subspace")
@@ -39,16 +39,17 @@ See LICENSE.txt
                               (:file "tm-void")
                               (:file "tm-singular-affine")
                               (:file "tm-singular-projective")
-                              (:file "tm-linear")
+                              (:file "tm-line")
 
                               (:file "tm-interval")
                               (:file "tm-transform")
 
+                              (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               (:file "tm-list-buffers")
 
-                              (:file "tm-tree")
+;;                              (:file "tm-tree")
 
                               (:file "worker-utilities")
 
@@ -81,7 +82,7 @@ See LICENSE.txt
                               (:file "tm-void")
                               (:file "buffers")
                               (:file "tm-list-primitives")
-                              (:file "tm-tree")
+;;                              (:file "tm-tree")
                               (:file "worker-utilities")
                               ))
 

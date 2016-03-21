@@ -50,13 +50,18 @@ See LICENSE.txt
       #:box
       #:unbox
 
-    ;;mk-tm
+    ;;tm-mk
     ;;
+      #:tape-machine ; class
+      #:mk-hook
       #:mk-tm
+      #:to-sequence
+      #:to-list
+      #:to-extendable-array
+      #:to-array
 
     ;;tm-primitives
     ;;
-      #:tape-machine ; class
       #:r
       #:w
       #:heads-on-same-cell
@@ -103,6 +108,7 @@ See LICENSE.txt
     ;; quantifiers
     ;;
       #:⟳
+      #:⟳-work-step
 
       #:∃
       #:¬∀
@@ -179,7 +185,7 @@ See LICENSE.txt
     ;;  
       #:def-worker
 
-    ;; useful machines
+    ;; fundamental machines
     ;;
       #:tm-void
       #:tm-singular-affine
@@ -191,14 +197,19 @@ See LICENSE.txt
       #:mk-singular-projective
       #:mk-tm-interval
 
-    ;; tm-linear
+    ;; tm-line
     ;;
+      #:tm-line
       #:line
+      #:make-line
+      #:line-infimum
+      #:line-bound
+      #:∆
 
     ;; tm-list-primitives
     ;;
-      #:mk-tm-list
       #:tm-list
+      #:mk-tm-list
 
     ;; tm-list-buffer
     ;;
