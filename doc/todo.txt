@@ -1,16 +1,22 @@
 
-1. nix the current #'so in favor of keeping the list tm as the tape
-for the tree tm, thus it keeps its type, and #s can be called on it.
-#'so can then take the meaning of step out, the inverse operation to
-#'si.
+1. nix the current #'so in favor of keeping the list tm as the tape for the tree tm, thus
+it keeps its type, and #s can be called on it.  #'so can then take the meaning of step
+out, the inverse operation to #'si.
 
-2. define conversions from tapes to sequences.  Right now directly
-using tape accessor which is not, and probably should not be, exported
-on the package interface.
+2.
+it is now in the tm-mk file and list specialization, but more needs to be implemented
 
+    define conversions from tapes to sequences.  Right now directly using tape accessor
+    which is not, and probably should not be, exported on the package interface.
 
 
 4. need to write mn and m* as repeating m is very inefficient
 
 5. unicode defines both inc and delta,  we have used inc,  we need
  to undo that and move everything to delta.
+
+6. currently we have (tm-mk 'tag init)  where tag can be either a type
+we are to make a machine from, or the type of machine to be made, but
+these are incompatible.  Multiple machines can be made from a given type.
+Make tag be type of machine only,  and when it is null, we look at the
+type of init and make a determination as to what type of machine to make.

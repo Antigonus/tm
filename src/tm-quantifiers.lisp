@@ -13,11 +13,11 @@ See LICENSE.txt
 ;; looping, see also s-together⟳
 ;;
   (defun ⟳ (work)
-    "⟳ (pronounced \"do\")  accepts a work function.  This work function is to 
-     take a single step, whatever such a step may be.  The work function accepts
-     two continuations.  Typically these are cont-ok, and cont-rightmost.  When
-     the work function continues with cont-ok, it is immediately called again.
-     This is the loop.  When it continues with cont-rightmost, ⟳ returns.
+    "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
+     single step, whatever such a step may be.  The work function accepts two
+     continuations.  Typically these are called 'cont-ok', and 'cont-rightmost' (or
+     'cont◨').  When the work function continues with cont-ok, it is immediately called
+     again.  This is the loop.  When it continues with cont-rightmost, ⟳ returns.
      "
     (labels(
              (do-work ()
@@ -40,12 +40,13 @@ See LICENSE.txt
       (work #'do-nothing) 
       (step #'s)
       )
-    "⟳-step (pronounced \"do step\") accepts a tape machine, a step function, and a function
-     to do work.  The step function must accept as arguments the tape machine, and two
-     continuations.  Typically the continuations are cont-ok and cont-rightmost.  For
-     example #'s can be used for stepping.  First the work function is called, then the
-     step function is called. If the step function continues with cont-ok, ⟳-step repeats.
-     If it continues with continue-rightmost ⟳-step returns.
+    "⟳-work-step (pronounced \"do work step\") accepts a tape machine, a function to do
+     work, and a step function.  The step function must accept as arguments the tape
+     machine, and two continuations.  Typically the continuations are called 'cont-ok' and
+     'cont-rightmost' (or 'cont◨').  For example #'s can be used for stepping.  First the
+     work function is called, then the step function is called. If the step function
+     continues with cont-ok, ⟳-step repeats.  If it continues with continue-rightmost
+     ⟳-step returns.
      "
       (labels(
                (do-work ()

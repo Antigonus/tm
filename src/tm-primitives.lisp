@@ -43,24 +43,10 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-
-  ;; most machines will consider #'s primary rather than #'so
-  (defgeneric so (tm &optional cont-ok cont-rightmost)
-    (:documentation 
-      "Like #'s, but has a different specialization.
-       #'s will specialize into 'step according to traversal path', while #'so
-       specializes into 'step over'.  They are identical for lists.
-       "))
-
   (defgeneric s (tm &optional cont-ok cont-rightmost)
     (:documentation 
       "Step tm head to the neighbor cell on the right.
       "))
-
-  (defmethod s (tm &optional cont-ok cont-rightmost)
-    (so tm cont-ok cont-rightmost)
-    )
-
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation

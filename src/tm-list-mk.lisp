@@ -74,6 +74,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other objects from tm-list machines
 ;;
+  (defmethod to-sequence ((tm tm-list))(tape tm))
   (defmethod to-list ((tm tm-list))(tape tm))
   
     

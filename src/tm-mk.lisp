@@ -60,7 +60,8 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; converts a tape machine to another form
 ;;
-  (defgeneric to-sequence(tm))
+  (defgeneric to-sequence(tm)) ; picks the easiest conversion to make
+
   (defgeneric to-list (tm))
   (defgeneric to-extendable-array (tm))
   (defgeneric to-array (tm))

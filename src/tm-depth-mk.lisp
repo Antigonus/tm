@@ -52,7 +52,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other objects from tm-list machines
 ;;
-  ;; this returns list of the current subspace that the machine is in
-  ;; to convert the entire space, apply to-list to the original base tm instead
+  ;; This returns list of the current subspace that the machine is in.
+  ;; To convert the entire space, apply to-list to the original base tm.
   (defmethod to-list ((tm tm-depth)) (to-list (tape tm)))
   

@@ -30,6 +30,7 @@ See LICENSE.txt
                               (:file "tm-derived")
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
+                              (:file "tm-mk-derived")
 
                               (:file "location")
                               (:file "length")
