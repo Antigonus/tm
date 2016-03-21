@@ -89,7 +89,7 @@ See LICENSE.txt
           (tmb-1 (dup tmb))
           )
       (let(
-            (tms (mk-tm (list tma-1 tmb-1)))
+            (tms (tm-mk (list tma-1 tmb-1)))
             )
         (⟳ (λ(cont-ok cont◨)
              (let(

@@ -9,8 +9,8 @@ See LICENSE.txt
 
 (defun test-binner-0 ()
   (let(
-        (tm-src (mk-tm 'list [2 21 12 42 43 47]))
-        (tm-dsts (mk-tm 'list {(mk-tm 'list) (mk-tm 'list)}))
+        (tm-src (tm-mk 'list [2 21 12 42 43 47]))
+        (tm-dsts (tm-mk 'list {(tm-mk 'list) (tm-mk 'list)}))
         )
     (labels(
              (op (object) (if (evenp object) 0 1))
@@ -35,8 +35,8 @@ See LICENSE.txt
 
 (defun test-binner-1 ()
   (let(
-        (tm-src (mk-tm 'list [2 21 12 42 43 47]))
-        (tm-dsts (mk-tm 'list {(mk-tm 'list) (mk-tm 'list)}))
+        (tm-src (tm-mk 'list [2 21 12 42 43 47]))
+        (tm-dsts (tm-mk 'list {(tm-mk 'list) (tm-mk 'list)}))
         )
 
     (⟳ (λ(cont-ok cont◨)

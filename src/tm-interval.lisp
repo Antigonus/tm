@@ -29,7 +29,7 @@ See LICENSE.txt
     rightmost ; a tape machine *on the same tape* with head on the new rightmost
     )
 
-  (defun mk-tm-interval 
+  (defun tm-mk-interval 
     (
       &optional
       init
@@ -52,7 +52,7 @@ See LICENSE.txt
       (funcall cont-ok tm)
       ))
 
-  (mk-tm-hook 'tm-interval #'mk-tm-interval)
+  (tm-mk-hook 'tm-interval #'tm-mk-interval)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

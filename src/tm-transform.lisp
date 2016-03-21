@@ -36,7 +36,7 @@ See LICENSE.txt
     tm
     )
 
-  (defun mk-tm-transform
+  (defun tm-mk-transform
     (
       &optional
       init
@@ -57,7 +57,7 @@ See LICENSE.txt
       (funcall cont-ok tm)
       ))
 
-  (mk-tm-hook 'tm-transform #'mk-tm-transform)
+  (tm-mk-hook 'tm-transform #'tm-mk-transform)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

@@ -16,10 +16,10 @@ See LICENSE.txt
 ;;
   (defun test-ton-0 ()
     (let(
-          (a (mk-tm-list))
-          (b (mk-tm-list '(1)))
-          (c (mk-tm-list '(1 2)))
-          (d (mk-tm-list '(1 2 3)))
+          (a (tm-mk-list))
+          (b (tm-mk-list '(1)))
+          (c (tm-mk-list '(1 2)))
+          (d (tm-mk-list '(1 2 3)))
           )
       (∧
         (∧ (singleton a) (eq (r a) 'list))
@@ -37,7 +37,7 @@ See LICENSE.txt
 
   (defun test-length≥-0 () 
     (let(
-          (tm (mk-tm-list '(a b c)))
+          (tm (tm-mk-list '(a b c)))
           )
     (and
       (length≥ tm 2)
@@ -48,7 +48,7 @@ See LICENSE.txt
 
   (defun test-length=-0 () 
     (let(
-          (tm (mk-tm-list '(a b c)))
+          (tm (tm-mk-list '(a b c)))
           )
       (and
         (not (length= tm 2))

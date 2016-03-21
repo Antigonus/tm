@@ -31,7 +31,7 @@ See LICENSE.txt
       (init-stack-list instance)
     ))
 
-  (mk-tm-hook 'stack-list #'mk-stack-list)
+  (tm-mk-hook 'stack-list #'mk-stack-list)
 
 ;;--------------------------------------------------------------------------------
 ;; a more specific queue interface
@@ -58,5 +58,5 @@ See LICENSE.txt
       (init-queue-list instance)
     ))
 
-  (mk-tm-hook 'queue-list #'mk-queue-list)
+  (tm-mk-hook 'queue-list #'mk-queue-list)
 

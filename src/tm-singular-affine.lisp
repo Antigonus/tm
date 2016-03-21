@@ -28,7 +28,7 @@ See LICENSE.txt
 ;;
   (defclass tm-singular-affine (tape-machine)())
 
-  (defun mk-tm-singular-affine (&optional init (cont-ok #'echo) cont-fail)
+  (defun tm-mk-singular-affine (&optional init (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
           (tm (make-instance 'tm-singular-affine))
@@ -41,7 +41,7 @@ See LICENSE.txt
       (funcall cont-ok tm)
       ))
 
-  (mk-tm-hook 'tm-singular-affine #'mk-tm-singular-affine)
+  (tm-mk-hook 'tm-singular-affine #'tm-mk-singular-affine)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

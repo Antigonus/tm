@@ -43,7 +43,7 @@ See LICENSE.txt
 
   ;; This is used internally, it is forward reference friendly.
   ;; For the externally visible version, see tape-machine-mk.lisp
-  (defun mk-tm-array-0
+  (defun tm-mk-array-0
     (
       &optional 
       (init-value ∅) 
@@ -113,18 +113,18 @@ See LICENSE.txt
     t
     )
 
-  (defun test-mk-tm-array-0-0 ()
+  (defun test-tm-mk-array-0-0 ()
     (let*(
-          (tm0 (mk-tm-array-0))
-          (tm1 (mk-tm-array-0 #(7 2 -3)))
-          (tm2 (mk-tm-array-0 tm1))
+          (tm0 (tm-mk-array-0))
+          (tm1 (tm-mk-array-0 #(7 2 -3)))
+          (tm2 (tm-mk-array-0 tm1))
           )
       (and
         (eq (r tm0) 'array)
         (eql (r tm1) 7)
         (heads-on-same-cell tm1 tm2)
         )))
-  (test-hook test-mk-tm-array-0-0)
+  (test-hook test-tm-mk-array-0-0)
 
   (defmethod r-index
     (
@@ -154,8 +154,8 @@ See LICENSE.txt
 
   (defun test-cue-array-0 ()
     (let(
-          (x (mk-tm-array-0 #(a b c)))
-          (y (mk-tm-array-0))
+          (x (tm-mk-array-0 #(a b c)))
+          (y (tm-mk-array-0))
           )
       (and
         (eq (r x) 'a)
@@ -209,7 +209,7 @@ See LICENSE.txt
   (defun test-s-array-0 ()
     (let*(
            (y #(1 2 (3 4) 5))
-           (ytm (mk-tm-array-0 y))
+           (ytm (tm-mk-array-0 y))
           )
       (and
         (s ytm)

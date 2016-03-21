@@ -11,11 +11,11 @@ See LICENSE.txt
 |#
 (in-package :tm)
 
-(defun test-mk-tm-list-0 ()
+(defun test-tm-mk-list-0 ()
   (let*(
-         (tm0 (mk-tm 'tm-list))
-         (tm1 (mk-tm 'cons (list 7 2 -3)))
-         (tm2 (mk-tm 'tm-list tm1))
+         (tm0 (tm-mk 'tm-list))
+         (tm1 (tm-mk 'cons (list 7 2 -3)))
+         (tm2 (tm-mk 'tm-list tm1))
          )
     (∧
       (eq (r tm0) 'list)
@@ -23,12 +23,12 @@ See LICENSE.txt
       (eq (car (tape tm2)) 'list)
       (on-rightmost tm2)
       )))
-(test-hook test-mk-tm-list-0)
+(test-hook test-tm-mk-list-0)
 
 
 (defun test-tm-list-primitives-1 ()
   (let(
-        (k (mk-tm 'cons (list 1 2 3)))
+        (k (tm-mk 'cons (list 1 2 3)))
         )
     (∧
       (w k 7)
@@ -42,8 +42,8 @@ See LICENSE.txt
 
 (defun test-tm-list-cue-0 ()
   (let(
-        (x (mk-tm-list '(a b c)))
-        (y (mk-tm-list))
+        (x (tm-mk-list '(a b c)))
+        (y (tm-mk-list))
         )
     (and
       (eq (r x) 'a)
@@ -61,7 +61,7 @@ See LICENSE.txt
 (defun test-tm-list-s-0 ()
   (let*(
          (y '(1 2 (3 4) 5))
-         (ytm (mk-tm-list y))
+         (ytm (tm-mk-list y))
          )
     (and
       (s ytm)
@@ -74,7 +74,7 @@ See LICENSE.txt
 
 (defun test-tm-list-a-0 ()
   (let(
-        (k (mk-tm-list))
+        (k (tm-mk-list))
         )
     (∧
       (equal (tape k) '(list))
@@ -88,7 +88,7 @@ See LICENSE.txt
 (defun test-d-0 ()
   (let*(
          (a (list 1 2 3))
-         (tm1 (mk-tm-list a))
+         (tm1 (tm-mk-list a))
          )
     (d tm1)
     (equal
@@ -100,7 +100,7 @@ See LICENSE.txt
 
 (defun test-tm-list-d-1 ()
   (let(
-        (k (mk-tm-list))
+        (k (tm-mk-list))
         )
     (∧
       (equal (tape k) '(list))

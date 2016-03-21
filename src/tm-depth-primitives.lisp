@@ -14,7 +14,7 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tm-tape-machine)())
 
-  (defun mk-tm-depth
+  (defun tm-mk-depth
     (
       &optional 
       init
@@ -29,7 +29,7 @@ See LICENSE.txt
       (setf (history i) (mk-stack-list))
       i
       ))
-  (mk-tm-hook 'tm-depth-list #'mk-tm-depth-list)
+  (tm-mk-hook 'tm-depth-list #'tm-mk-depth-list)
 
 
   ;; When stepping from a sublist, we step into the sublist to its first object.  We stack
@@ -125,7 +125,7 @@ See LICENSE.txt
   (defclass tm-breadth-list (tm-breadth tm-list)())
 
   ;; temporary, init needs a set-by-caller flag ...
-  (defun mk-tm-breadth-list (&optional init buffer-tm)
+  (defun tm-mk-breadth-list (&optional init buffer-tm)
     (declare (ignore buffer-tm))
     (let(
           (i (make-instance 'tm-breadth-list))
@@ -134,7 +134,7 @@ See LICENSE.txt
       (setf (history i) (mk-queue-list))
       i
       ))
-  (mk-tm-hook 'tm-beadth-list #'mk-tm-breadth-list)
+  (tm-mk-hook 'tm-beadth-list #'tm-mk-breadth-list)
 
 
 

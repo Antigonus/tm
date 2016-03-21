@@ -30,7 +30,7 @@ See LICENSE.txt
     (∆ 1) ; a step increment
     )
 
-  (defun mk-tm-line 
+  (defun tm-mk-line 
     (
       &optional
       init
@@ -53,7 +53,7 @@ See LICENSE.txt
       (funcall cont-ok tm)
       ))
 
-  (mk-tm-hook 'tm-line #'mk-tm-line)
+  (tm-mk-hook 'tm-line #'tm-mk-line)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

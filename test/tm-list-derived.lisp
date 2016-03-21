@@ -7,8 +7,8 @@ See LICENSE.txt
 
 (defun test-as-0 ()
   (let*(
-         (tm0 (mk-tm-list (list 7 9 11)))
-         (tm1 (mk-tm-list tm0))
+         (tm0 (tm-mk-list (list 7 9 11)))
+         (tm1 (tm-mk-list tm0))
          )
     (as tm0 8)
     (s tm0)

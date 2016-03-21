@@ -12,7 +12,7 @@ See LICENSE.txt
     (defun test-s-depth ()
       (let*(
              (a-tree '(1 (2 (3 4)) 5))
-             (tm (mk-tm-depth-list a-tree))
+             (tm (tm-mk-depth-list a-tree))
              )
         (∧
           (= (r tm) 1)
@@ -35,7 +35,7 @@ See LICENSE.txt
   (defun test-tm-depth-s-1 ()
     (let*(
            (a-tree '(1 (2 (3 4)) 5))
-           (tm (mk-tm-depth-list a-tree))
+           (tm (tm-mk-depth-list a-tree))
            )
       (∧
         (= (r tm) 1)
@@ -58,7 +58,7 @@ See LICENSE.txt
    (defun test-tm-breadth-s-1 ()
      (let*(
             (a-tree '(1 (2 (3 4)) 5))
-            (tm (mk-tm-breadth-list a-tree))
+            (tm (tm-mk-breadth-list a-tree))
             )
        (and
          (= (r tm) 1)
@@ -90,10 +90,10 @@ See LICENSE.txt
   ;;
     (defun test-tree-quantifiers-0 ()
       (and
-         (¬ (∃ (mk-tm-depth-list '(b c))                   (λ(tm)(eq 'a (r tm)))))
-            (∃ (mk-tm-depth-list '(a b c))                 (λ(tm)(eq 'a (r tm))))
-            (∃ (mk-tm-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
-        (¬ (¬∃ (mk-tm-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm)))))
-           (¬∃ (mk-tm-depth-list '(b c (1 (c (q 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
+         (¬ (∃ (tm-mk-depth-list '(b c))                   (λ(tm)(eq 'a (r tm)))))
+            (∃ (tm-mk-depth-list '(a b c))                 (λ(tm)(eq 'a (r tm))))
+            (∃ (tm-mk-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
+        (¬ (¬∃ (tm-mk-depth-list '(b c (1 (c (a 1)) 2) e)) (λ(tm)(eq 'a (r tm)))))
+           (¬∃ (tm-mk-depth-list '(b c (1 (c (q 1)) 2) e)) (λ(tm)(eq 'a (r tm))))
         ))
     (test-hook test-tree-quantifiers-0)

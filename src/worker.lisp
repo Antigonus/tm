@@ -56,9 +56,9 @@ are treated as tape machines in the body.
 
 (defmacro def-worker (name src dst state conts &body body)
   (let(
-        (the-defun (mk-tm 'tm-list {'defun name}))
-        (defun-args (mk-tm 'tm-list))
-        (bindings (mk-tm 'tm-list))
+        (the-defun (tm-mk 'tm-list {'defun name}))
+        (defun-args (tm-mk 'tm-list))
+        (bindings (tm-mk 'tm-list))
         )
     (let(
           (bindings-at (dup bindings)) ; the attach point is moved into subspaces
@@ -91,9 +91,9 @@ are treated as tape machines in the body.
 
       (when body
         (if (singleton bindings)
-          (as* the-defun (mk-tm 'tm-list body))
+          (as* the-defun (tm-mk 'tm-list body))
           (progn
-            (as* bindings-at (mk-tm 'tm-list body))      
+            (as* bindings-at (tm-mk 'tm-list body))      
             (as the-defun (cadr (tape bindings)))
             )))
       

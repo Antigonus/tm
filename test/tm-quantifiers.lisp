@@ -17,7 +17,7 @@ See LICENSE.txt
   (defun test-∃-0 ()
     (let*(
            (y '(1 2 (3 4) 5))
-           (ytm (mk-tm-list y))
+           (ytm (tm-mk-list y))
            )
       (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
       (equal (r ytm) '(3 4))
@@ -27,7 +27,7 @@ See LICENSE.txt
   (defun test-¬∀-0 ()
     (let*(
            (y '(1 3 4 5))
-           (ytm (mk-tm-list y))
+           (ytm (tm-mk-list y))
            )
       (¬∀ ytm (λ(tm)(and (numberp (r tm)) (oddp (r tm)))))
       (= (r ytm) 4)
@@ -37,7 +37,7 @@ See LICENSE.txt
   (defun test-d*-0 ()
     (let*(
            (a (list 1 2 3))
-           (tm1 (mk-tm-list a))
+           (tm1 (tm-mk-list a))
            )
       (d* tm1)
       (equal
@@ -49,7 +49,7 @@ See LICENSE.txt
   (defun test-sn-0 ()
     (let*(
            (y '(1 3 6 5))
-           (tmy (mk-tm-list y))
+           (tmy (tm-mk-list y))
            )
       (and
         (sn tmy 2
@@ -65,8 +65,8 @@ See LICENSE.txt
 
   (defun test-sn-1 ()
     (let(
-          (k0 (mk-tm 'tm-list (list 10 11 12)))
-          (k1 (mk-tm 'tm-list (list 13 14 15)))
+          (k0 (tm-mk 'tm-list (list 10 11 12)))
+          (k1 (tm-mk 'tm-list (list 13 14 15)))
           )
       (∧
         (= (r k0) 10)
@@ -83,8 +83,8 @@ See LICENSE.txt
 
   (defun test-⟳-0 ()
     (let(
-          (tm-src (mk-tm 'tm-list [a b c]))
-          (tm-dst (mk-tm 'tm-list))
+          (tm-src (tm-mk 'tm-list [a b c]))
+          (tm-dst (tm-mk 'tm-list))
           )
       (labels(
                (worker (cont-ok cont◨)
@@ -101,13 +101,13 @@ See LICENSE.txt
 
   (defun test-as*-0 ()
     (let(
-          (tm0 (mk-tm 'tm-list {1 2 3}))
-          (tm1 (mk-tm 'tm-list [a b c]))
+          (tm0 (tm-mk 'tm-list {1 2 3}))
+          (tm1 (tm-mk 'tm-list [a b c]))
           )
       (s* tm0)
       (s* tm1)
-      (as* tm0 (mk-tm 'tm-list {4 5 6}))
-      (a*  tm1 (mk-tm 'tm-list [e f g]))
+      (as* tm0 (tm-mk 'tm-list {4 5 6}))
+      (a*  tm1 (tm-mk 'tm-list [e f g]))
       (and
         (= (r tm0) 6)
         (eq (r tm1) 'c)

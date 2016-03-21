@@ -19,7 +19,7 @@ See LICENSE.txt
 ;; other implementations may not allow such direct calls
 (defun test-worker-0 ()
   (let(
-        (tm (mk-tm 'tm-list {0 1 2 3}))
+        (tm (tm-mk 'tm-list {0 1 2 3}))
         (cnt 0)
         )
     (∧
@@ -38,7 +38,7 @@ See LICENSE.txt
 ;; this is the correct way to use a worker
 (defun test-worker-1 ()
   (let(
-        (tm (mk-tm 'tm-list {0 1 2 3}))
+        (tm (tm-mk 'tm-list {0 1 2 3}))
         (cnt 0)
         )
     (labels(

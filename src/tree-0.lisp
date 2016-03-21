@@ -43,8 +43,8 @@ See LICENSE.txt
 
   (defun test-map-step-2 ()
     (let*(
-           (tm0 (mk-tm-depth-list-0 '(1 (2 3) 4)))
-           (tm1 (mk-tm-depth-list-0))
+           (tm0 (tm-mk-depth-list-0 '(1 (2 3) 4)))
+           (tm1 (tm-mk-depth-list-0))
            )
       (∧
         (equal (tape tm1) '(list))

@@ -22,7 +22,7 @@ See LICENSE.txt
 ;;
   (defclass tm-singular-projective (tape-machine)())
 
-  (defun mk-tm-singular-projective (&optional init (cont-ok #'echo) cont-fail)
+  (defun tm-mk-singular-projective (&optional init (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
           (tm (make-instance 'tm-singular-projective))
@@ -35,7 +35,7 @@ See LICENSE.txt
       (funcall cont-ok tm)
       ))
 
-  (mk-tm-hook 'tm-singular-projective #'mk-tm-singular-projective)
+  (tm-mk-hook 'tm-singular-projective #'tm-mk-singular-projective)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

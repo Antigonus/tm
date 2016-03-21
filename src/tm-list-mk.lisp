@@ -47,9 +47,9 @@ See LICENSE.txt
 
   ;; This is used internally, it is forward reference friendly.
   ;; For the externally visible version, see tape-machine-mk.lisp
-  ;; init supports tm init vals, but mk-tm-list does not
+  ;; init supports tm init vals, but tm-mk-list does not
   ;; use cue-to to get a duplicate of another tm
-  (defun mk-tm-list
+  (defun tm-mk-list
     (
       &optional 
       init
@@ -66,9 +66,9 @@ See LICENSE.txt
         (init-tm-list instance init cont-ok cont-fail)
         )))
 
-   (mk-tm-hook 'tm-list #'mk-tm-list)
-   (mk-tm-hook 'cons #'mk-tm-list)
-   (mk-tm-hook 'list #'mk-tm-list)
+   (tm-mk-hook 'tm-list #'tm-mk-list)
+   (tm-mk-hook 'cons #'tm-mk-list)
+   (tm-mk-hook 'list #'tm-mk-list)
 
 
 ;;--------------------------------------------------------------------------------

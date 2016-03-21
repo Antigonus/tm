@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tm-tape-machine)())
 
-  (defun mk-tm-depth
+  (defun tm-mk-depth
     (
       &optional 
       init
@@ -26,7 +26,7 @@ See LICENSE.txt
 
     (cond
       ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
-        (setf (tape instance) (mk-tm 'tm-list))
+        (setf (tape instance) (tm-mk 'tm-list))
         (setf (HA instance) (mk-stack-list))
         (funcall cont-ok instance)
         )
@@ -47,7 +47,7 @@ See LICENSE.txt
         (funcall cont-fail)
         )))
 
-  (mk-tm-hook 'tm-depth #'mk-tm-depth)
+  (tm-mk-hook 'tm-depth #'tm-mk-depth)
 
 ;;--------------------------------------------------------------------------------
 ;; making other objects from tm-list machines

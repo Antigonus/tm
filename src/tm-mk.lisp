@@ -28,28 +28,28 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; make a tape machine from another form
 ;;
-  (defvar *mk-tm-hash* (make-hash-table :test 'eq))
+  (defvar *tm-mk-hash* (make-hash-table :test 'eq))
 
-  (defun mk-tm-hook (type mk-function)
+  (defun tm-mk-hook (type mk-function)
     "Function takes three arguments, init cont-ok cont-fail.  
      Late type will be used to lookup and call the function.
      "
-    (setf (gethash type *mk-tm-hash*) mk-function)
+    (setf (gethash type *tm-mk-hash*) mk-function)
     )
 
-  (defun mk-tm 
+  (defun tm-mk 
     (
       type
       &optional 
       init
       (cont-ok #'echo) 
       (cont-fail 
-        (λ() (error 'mk-tm-bad-init-type :text "unrecognized init type") ∅)
+        (λ() (error 'tm-mk-bad-init-type :text "unrecognized init type") ∅)
         )
       )
     (multiple-value-bind 
       (function lookup-success) 
-      (gethash type *mk-tm-hash*)
+      (gethash type *tm-mk-hash*)
       (if
         lookup-success
         (funcall function init cont-ok cont-fail)

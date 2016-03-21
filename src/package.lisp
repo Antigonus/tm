@@ -54,7 +54,7 @@ See LICENSE.txt
     ;;
       #:tape-machine ; class
       #:mk-hook
-      #:mk-tm
+      #:tm-mk
       #:to-sequence
       #:to-list
       #:to-extendable-array
@@ -192,10 +192,10 @@ See LICENSE.txt
       #:tm-singular-projective
       #:tm-interval
 
-      #:mk-tm-void
-      #:mk-tm-singular-affine
+      #:tm-mk-void
+      #:tm-mk-singular-affine
       #:mk-singular-projective
-      #:mk-tm-interval
+      #:tm-mk-interval
 
     ;; tm-line
     ;;
@@ -209,7 +209,7 @@ See LICENSE.txt
     ;; tm-list-primitives
     ;;
       #:tm-list
-      #:mk-tm-list
+      #:tm-mk-list
 
     ;; tm-list-buffer
     ;;

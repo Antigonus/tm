@@ -17,8 +17,8 @@ See LICENSE.txt
 ;;
   (defun test-heads-on-same-cell-void-0 ()
     (let(
-          (a (mk-tm-void))
-          (b (mk-tm-void))
+          (a (tm-mk-void))
+          (b (tm-mk-void))
           (c (make-instance 'tape-machine))
           )
       (setf (HA c) 1)

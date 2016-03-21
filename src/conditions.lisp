@@ -45,7 +45,7 @@ See LICENSE.txt
   (define-condition tm-mk-∅-init-type (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition mk-tm-bad-init-type (error)
+  (define-condition tm-mk-bad-init-type (error)
     ((text :initarg :text :reader text)))
 
 

@@ -271,7 +271,7 @@ See LICENSE.txt
       )
     (⟳ (λ(cont-ok cont◨)
          (w tm (r fill))
-         (s-together (mk-tm 'tm-list {tm fill})
+         (s-together (tm-mk 'tm-list {tm fill})
            cont-ok
            (λ()
              (if

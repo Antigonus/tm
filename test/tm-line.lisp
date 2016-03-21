@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-tm-line-0 ()
   (let(
-        (tm-src (mk-tm 'tm-line (make-line :bound 5)))
-        (tm-dst (mk-tm 'tm-list))
+        (tm-src (tm-mk 'tm-line (make-line :bound 5)))
+        (tm-dst (tm-mk 'tm-list))
         )
     (⟳ (λ(cont-ok cont◨)
          (as tm-dst (r tm-src))
@@ -28,8 +28,8 @@ See LICENSE.txt
 (defun test-tm-line-1 ()
   (let(
         (m 9)
-        (tm-src (mk-tm 'tm-line (make-line :infimum 1 :bound 20 :∆ 2)))
-        (tm-dst (mk-tm 'tm-list))
+        (tm-src (tm-mk 'tm-line (make-line :infimum 1 :bound 20 :∆ 2)))
+        (tm-dst (tm-mk 'tm-list))
         )
     (⟳ (λ(cont-ok cont◨)
          (let((x (r tm-src)))
