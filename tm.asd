@@ -81,8 +81,6 @@ See LICENSE.txt
                               (:file "length")
                               (:file "location")
 
-                              (:file "worker")
-
                               (:file "buffers")
                               (:file "tm-depth")
 ;;                              (:file "tm-breadth")
@@ -90,13 +88,16 @@ See LICENSE.txt
                               (:file "tm-void")
                               (:file "tm-line")
 
+                              (:file "tm-list-mk")
                               (:file "tm-list-primitives")
+                              (:file "tm-list-derived")
                               ))
 
                (:module "utilities"
                 :components (
-;;                              (:file "worker")
-;;                              (:file "worker-utilities")
+                              (:file "worker")
+                              (:file "test-worker")
+                              (:file "worker-utilities")
                               ))
 
                ))

@@ -16,7 +16,7 @@ See LICENSE.txt
 ;;
   (defun test-on+1-0 ()
     (let(
-          (k (tm-mk 'cons (list 1 2 3)))
+          (k (tm-mk ∅ (list 1 2 3)))
           )
       (s k)
       (on+1 k)
@@ -25,7 +25,7 @@ See LICENSE.txt
                          
   (defun test-location-0 ()
     (let(
-          (k (tm-mk 'cons (list 1 2 3 4 5)))
+          (k (tm-mk ∅ (list 1 2 3 4 5)))
           )
       (∧
         (= (address k) 0)
@@ -55,7 +55,7 @@ See LICENSE.txt
 ;;
   (defun test-distance-1 ()
     (let*(
-           (k0 (tm-mk 'cons (list 1 2 3 4 5)))
+           (k0 (tm-mk ∅ (list 1 2 3 4 5)))
            (k1 (dup k0))
            )
       (∧
@@ -76,7 +76,7 @@ See LICENSE.txt
   
   (defun test-location-cmp-0 ()
     (let*(
-           (k0 (tm-mk 'cons (list 1 2 3 4 5)))
+           (k0 (tm-mk ∅ (list 1 2 3 4 5)))
            (k1 (dup k0))
            )
       (∧

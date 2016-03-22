@@ -65,7 +65,7 @@ See LICENSE.txt
           )
         )
       (cond
-        ((eq (type-of init) 'cons) (tm-mk 'tm-list init))
+        ((eq (type-of init) 'cons) (tm-mk 'tm-list init cont-ok cont-fail))
         (t
           (funcall cont-fail)
           ))))

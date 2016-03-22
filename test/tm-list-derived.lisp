@@ -5,6 +5,8 @@ See LICENSE.txt
 
 |#
 
+(in-package :tm)
+
 (defun test-as-0 ()
   (let*(
          (tm0 (tm-mk-list (list 7 9 11)))
