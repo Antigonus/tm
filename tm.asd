@@ -17,11 +17,6 @@ See LICENSE.txt
   :depends-on ("local-time")
   :serial t
   :components(
-               (:module "test-framework"
-                :components (
-                              (:file "framework")
-                              ))
-
                (:module "src"
                 :components (
                               (:file "package")
@@ -43,9 +38,6 @@ See LICENSE.txt
                               (:file "location")
                               (:file "length")
 
-                              ;; macro for defining workers
-                              (:file "worker")
-
                               ;; generic adapters
                               (:file "buffers")  ; stack and queue
                               (:file "tm-interval")
@@ -66,13 +58,16 @@ See LICENSE.txt
                               (:file "tm-list-derived")
                               (:file "tm-list-buffers")
 
-                              (:file "worker-utilities")
-
 
                               #|
                               (:file "tm-array")
                               (:file "list-lang") ; accessor lang here delta-s etc.
                               |#
+                              ))
+
+               (:module "test-framework"
+                :components (
+                              (:file "framework")
                               ))
 
                (:module "test"
@@ -96,7 +91,12 @@ See LICENSE.txt
                               (:file "tm-line")
 
                               (:file "tm-list-primitives")
-                              (:file "worker-utilities")
+                              ))
+
+               (:module "utilities"
+                :components (
+;;                              (:file "worker")
+;;                              (:file "worker-utilities")
                               ))
 
                ))

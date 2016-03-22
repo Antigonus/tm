@@ -27,6 +27,8 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; make a tape machine from another form
+;;   We implement tm-mk the old fashioned way, because the signature matching
+;;   mechanism used in defgeneric doesn't quite work here.
 ;;
   (defvar *tm-mk-hash* (make-hash-table :test 'eq))
 
@@ -47,15 +49,26 @@ See LICENSE.txt
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized init type") ∅)
         )
       )
-    (multiple-value-bind 
-      (function lookup-success) 
-      (gethash type *tm-mk-hash*)
-      (if
-        lookup-success
-        (funcall function init cont-ok cont-fail)
-        (funcall cont-fail)
+    "If type is specified, it should be the type of a tape machine that has been hooked
+     into tm-mk.  If type is null, then the tape machine type is derived from the init
+     type, according to the rules hard coded into this routine.
+     "
+    (if 
+      type
+      (multiple-value-bind 
+        (function lookup-success) 
+        (gethash type *tm-mk-hash*)
+        (if
+          lookup-success
+          (funcall function init cont-ok cont-fail)
+          (funcall cont-fail)
+          )
         )
-      ))
+      (cond
+        ((eq (type-of init) 'cons) (tm-mk 'tm-list init))
+        (t
+          (funcall cont-fail)
+          ))))
 
 ;;--------------------------------------------------------------------------------
 ;; converts a tape machine to another form
