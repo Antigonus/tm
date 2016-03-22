@@ -10,7 +10,7 @@ See LICENSE.txt
 
   Given any two neighboring cells, the integer in the right hand neighbor, minus the
   integer in the left hand neighbor, yeilds a number we call the 'first-difference',
-  represented by ∆.  For tm-line, the first difference is a constant.
+  represented by Δ.  For tm-line, the first difference is a constant.
 
   The rightmost cell holds an integer we call the bound.  If the supemum
   is set to ∅, then the there is no rightmost cell.
@@ -27,7 +27,7 @@ See LICENSE.txt
   (defstruct line
     (infimum 0) ; the value for the leftmost cell, our integration constant
     (bound ∅) ; either ∅, or a boundary that we may not pass
-    (∆ 1) ; a step increment
+    (Δ 1) ; a step increment
     )
 
   (defun tm-mk-line 
@@ -117,19 +117,19 @@ See LICENSE.txt
       )
     (let(
           (sup (line-bound (tape tm)))
-          (∆   (line-∆ (tape tm)))
+          (Δ   (line-Δ (tape tm)))
           )
       (if
         (∧
           sup
           (> 
-            (+ (HA tm) ∆)
+            (+ (HA tm) Δ)
             sup
             )
           )
         (funcall cont-rightmost)
         (progn
-          (setf (HA tm) (+ (HA tm) ∆))
+          (setf (HA tm) (+ (HA tm) Δ))
           (funcall cont-ok)
           ))))
 

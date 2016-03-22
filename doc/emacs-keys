@@ -1,6 +1,8 @@
 
 ;; unicode
 ;;
+  (global-set-key (kbd "C-x g d SPC") [?δ])
+  (global-set-key (kbd "C-x g D SPC") [?Δ]) ; this 'delta' is not 'increment'!
 
   (global-set-key (kbd "C-x g g SPC") [?γ])
   (global-set-key (kbd "C-x g G SPC") [?Γ])
