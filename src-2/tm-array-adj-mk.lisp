@@ -42,14 +42,19 @@ See LICENSE.txt
         (let(
               (i (make-instance 'tm-array-adj))
               )
-          (vector-push-extend 'array (tape i))
+          (vector-push-extend 'array-adj (tape i))
           (funcall cont-ok i)
           ))
 
-      ((∧ (typep init 'array) (adjustable-array-p init))
+      ((∧ (typep init 'array) (typep init 'sequence))
         (funcall cont-ok
-          (make-instance 'tm-array-adj :tape init)
-          ))
+          (make-instance 'tm-array-adj 
+            :tape (make-array 
+                    (length init) 
+                    :fill-pointer (length init)
+                    :adjustable t
+                    :initial-contents init
+                    ))))
       (t
         (funcall cont-fail)
         )))
