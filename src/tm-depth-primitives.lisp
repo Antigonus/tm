@@ -12,7 +12,14 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; a specialization
+;;
+  (defclass tm-depth (tape-machine)())
 
+;;--------------------------------------------------------------------------------
+;; helpers
+;;
   ;; When stepping from a sublist, we step into the sublist to its first object.  We stack
   ;; the tm of the sublist so that we can return to the sublist and step over it later.
   ;;

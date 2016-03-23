@@ -32,7 +32,7 @@ See LICENSE.txt
                               (:file "tm-derived")
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
-                              (:file "tm-mk-derived")
+                              (:file "tm-convert")
 
                               ;; general properties
                               (:file "location")
@@ -41,10 +41,13 @@ See LICENSE.txt
                               ;; generic adapters
                               (:file "buffers")  ; stack and queue
                               (:file "tm-interval")
+
                               (:file "tm-depth-mk")
                               (:file "tm-depth-primitives")
-;                              (:file "tm-breadth")
                               (:file "tm-transform")
+                              (:file "tm-depth-convert")
+
+;                              (:file "tm-breadth")
 
                               ;; simple generators 
                               (:file "tm-void")
@@ -57,6 +60,12 @@ See LICENSE.txt
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               (:file "tm-list-buffers")
+                              (:file "tm-list-convert")
+
+                              (:file "tm-array-adj-mk")
+                              (:file "tm-array-adj-primitives")
+                              (:file "tm-array-adj-derived")
+                              (:file "tm-array-adj-convert")
 
 
                               #|
@@ -91,6 +100,8 @@ See LICENSE.txt
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
+
+                              (:file "tm-array-adj")
                               ))
 
                (:module "utilities"

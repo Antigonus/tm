@@ -2,8 +2,15 @@
 
 4. need to write mn and m* as repeating m is very inefficient
 
-5. unicode defines both inc and delta,  we have used inc,  we need
- to undo that and move everything to delta.
-
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine
+
+8. for tm-mk we should key an array (or list) of functions, then upon each hook of the
+   same key, we push another function on the array.  Upon call we pull the array, call the
+   first function, if it fails the second, etc. only failing when there are no more
+   functions in the array.
+
+   This way code can add to the make functions for a given type.  This is important
+   as new init types, including user defined init types, will need to be added later.
+
+

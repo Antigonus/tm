@@ -3,21 +3,21 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Generic implementations for making sequence objects
-
-  Some interface routines need to use tm-mk.
-  Some tm-mk routines need to use the interface.
-  So I have split tm-mk.lisp into two files.
-  In this file the generic tape machine interface may be used.
+  Make machines from other objects.
+  Make other objects from machines.
 
 |#
 
 (in-package #:tm)
 
-
 ;;--------------------------------------------------------------------------------
 ;; converts a tape machine to another form
 ;;
+  (defgeneric to-sequence(tm)) ; picks the easiest conversion to make
+
+  (defgeneric to-list (tm))
+  (defgeneric to-array-adj (tm))
+  (defgeneric to-array (tm))
 
   ;; generic list maker, some specializations, particularly the tm-list specialization,
   ;; will be more efficient.

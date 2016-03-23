@@ -13,8 +13,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;  tape machine follows a depth first traversal of a tree
 ;;
-  (defclass tm-depth (tape-machine)())
-
   (defun tm-mk-depth
     (
       &optional 
@@ -51,10 +49,3 @@ See LICENSE.txt
 
   (tm-mk-hook 'tm-depth #'tm-mk-depth)
 
-;;--------------------------------------------------------------------------------
-;; making other objects from tm-list machines
-;;
-  ;; This returns list of the current subspace that the machine is in.
-  ;; To convert the entire space, apply to-list to the original base tm.
-  (defmethod to-list ((tm tm-depth)) (to-list (tape tm)))
-  

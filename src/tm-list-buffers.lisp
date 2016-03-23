@@ -12,51 +12,40 @@ See LICENSE.txt
 ;;
   (defclass stack-list (stack tm-list)())
 
-  (defun init-stack-list
+  (defun mk-stack-list
     (
-      instance
       &optional
       init
       (cont-ok #'echo)
       (cont-fail
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized stack list tape type"))
         ))
-    (init-tm-list instance init cont-ok cont-fail)
-    )
 
-  (defun mk-stack-list ()
-    (let(
-          (instance (make-instance 'stack-list))
-          )
-      (init-stack-list instance)
-    ))
+    (tm-mk-list init 
+      (λ(instance) (funcall cont-ok (change-class instance 'stack-list)))
+      cont-fail
+      ))
 
   (tm-mk-hook 'stack-list #'mk-stack-list)
 
 ;;--------------------------------------------------------------------------------
 ;; a more specific queue interface
 ;;
-
   (defclass queue-list (queue tm-list)())
 
-  (defun init-queue-list
+  (defun mk-queue-list
     (
-      instance
       &optional
       init
       (cont-ok #'echo)
       (cont-fail
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized queue list tape type"))
         ))
-    (init-tm-list instance init cont-ok cont-fail)
-    )
 
-  (defun mk-queue-list ()
-    (let(
-          (instance (make-instance 'queue-list))
-          )
-      (init-queue-list instance)
-    ))
+    (tm-mk-list init 
+      (λ(instance) (funcall cont-ok (change-class instance 'queue-list)))
+      cont-fail
+      ))
 
   (tm-mk-hook 'queue-list #'mk-queue-list)
 

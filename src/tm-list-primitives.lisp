@@ -46,16 +46,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmacro s-work-list (tm cont-ok cont-rightmost)
-    `(if
-       (and
-         (cdr (HA ,tm))
-         (setf (HA ,tm) (cdr (HA ,tm)))
-         )
-       (funcall ,cont-ok)
-       (funcall ,cont-rightmost)
-       ))
-
   (defmethod s
     (
       (tm tm-list)
@@ -63,12 +53,20 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (s-work-list tm cont-ok cont-rightmost)
-    )
+    (if
+      (and
+        (cdr (HA tm))
+        (setf (HA tm) (cdr (HA tm)))
+        )
+      (funcall cont-ok)
+      (funcall cont-rightmost)
+      ))
+
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
+  ;; allocates a cell just to the right of the head an initializes it with object
   (defmethod a 
     (
       (tm tm-list)
