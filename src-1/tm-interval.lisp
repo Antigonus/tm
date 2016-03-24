@@ -29,30 +29,26 @@ See LICENSE.txt
     rightmost ; a tape machine *on the same tape* with head on the new rightmost
     )
 
-  (defun tm-mk-interval 
+  (defmethod tm-init 
     (
+      (tm 'tm-interval)
       &optional
       init
       (cont-ok #'echo) 
       (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected interval struct")))
       )
-    (let(
-          (tm (make-instance 'tm-interval))
-          )
-      (unless
-        (∧
-          init
-          (typep init 'interval)
-          )
-        (funcall cont-fail)
+    (unless
+      (∧
+        init
+        (typep init 'interval)
         )
+      (funcall cont-fail)
+      )
 
-      (setf (HA tm) (dup (interval-leftmost init))) ; HA is a dup of the leftmost machine
-      (setf (tape tm) init)
-      (funcall cont-ok tm)
-      ))
-
-  (tm-mk-hook 'tm-interval #'tm-mk-interval)
+    (setf (HA tm) (dup (interval-leftmost init))) ; HA is a dup of the leftmost machine
+    (setf (tape tm) init)
+    (funcall cont-ok tm)
+    ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

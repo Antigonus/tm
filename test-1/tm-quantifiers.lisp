@@ -16,8 +16,8 @@ See LICENSE.txt
 ;;
   (defun test-∃-0 ()
     (let*(
-           (y '(1 2 (3 4) 5))
-           (ytm (tm-mk-list y))
+           (y {1 2 {3 4} 5})
+           (ytm (mount y))
            )
       (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
       (equal (r ytm) '(3 4))
@@ -27,7 +27,7 @@ See LICENSE.txt
   (defun test-¬∀-0 ()
     (let*(
            (y '(1 3 4 5))
-           (ytm (tm-mk-list y))
+           (ytm (mount y))
            )
       (¬∀ ytm (λ(tm)(and (numberp (r tm)) (oddp (r tm)))))
       (= (r ytm) 4)
@@ -37,7 +37,7 @@ See LICENSE.txt
   (defun test-d*-0 ()
     (let*(
            (a (list 1 2 3))
-           (tm1 (tm-mk-list a))
+           (tm1 (mount a))
            )
       (d* tm1)
       (equal
@@ -49,7 +49,7 @@ See LICENSE.txt
   (defun test-sn-0 ()
     (let*(
            (y '(1 3 6 5))
-           (tmy (tm-mk-list y))
+           (tmy (mount y))
            )
       (and
         (sn tmy 2

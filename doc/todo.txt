@@ -5,12 +5,12 @@
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine
 
-8. for tm-mk we should key an array (or list) of functions, then upon each hook of the
-   same key, we push another function on the array.  Upon call we pull the array, call the
-   first function, if it fails the second, etc. only failing when there are no more
-   functions in the array.
+10. should modify #'L, i.e. {},  to recognize repeated symbols and only evaluate
+    them once.  This could be done by wrapping the current #'L with a let.
 
-   This way code can add to the make functions for a given type.  This is important
-   as new init types, including user defined init types, will need to be added later.
+    also nested brackets should return a nested list instead of quoting the
+    bracket operator
+       currently->  [1 2 [3 4]] ->  (1 2 (q 3 4))
+         want-> [1 2 [3 4]]  -> (1 2 (3 4))
 
-
+     braces will do this  {1 2 {3 4}} -> {1 2 {3 4}}, but they evaluate

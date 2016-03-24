@@ -13,7 +13,8 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; converts a tape machine to another form
 ;;
-  (defgeneric to-sequence(tm)) ; picks the easiest conversion to make
+  ;; typically returns the tape, whatever sequence type that may be
+  (defgeneric unmount(tm)) 
 
   (defgeneric to-list (tm))
   (defgeneric to-array-adj (tm))

@@ -13,11 +13,18 @@ See LICENSE.txt
 ;; a specialization
 ;;
   (defclass tm-void (tape-machine)())
-  (defun tm-mk-void (&optional init (cont-ok #'echo) cont-fail)
+
+  (defmethod tm-init
+    (
+      (instance 'tm-void)
+      &optional
+      init 
+      (cont-ok #'echo) 
+      cont-fail
+      )
     (declare (ignore init cont-fail))
-    (funcall cont-ok (make-instance 'tm-void))
+    (funcall cont-ok instance)
     )
-  (tm-mk-hook 'tm-void #'tm-mk-void)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

@@ -41,11 +41,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-mk
 ;;
-  ;; some tape machines might require initialization
-  (define-condition tm-mk-∅-init-type (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition tm-mk-bad-init-type (error)
+  (define-condition tm-mk-init-failed (error)
     ((text :initarg :text :reader text)))
 
 

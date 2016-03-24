@@ -12,7 +12,7 @@ See LICENSE.txt
 (defun test-tm-mk-list-0 ()
   (let*(
          (tm0 (tm-mk 'tm-list))
-         (tm1 (tm-mk ∅ (list 7 2 -3)))
+         (tm1 (mount [7 2 -3]))
          (tm2 (tm-mk 'tm-list tm1))
          )
     (∧

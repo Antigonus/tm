@@ -30,7 +30,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (cue-to tm object)
           (funcall cont-ok)
           )
-        (tm-mk ∅ object
+        (mount object
           (λ(new-tm) 
             (cue-to tm new-tm)
             (funcall cont-ok)
@@ -64,7 +64,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (cue-leftmost sublist)
           (-a sublist object cont-ok cont-no-alloc)
           )
-        (tm-mk ∅ object
+        (mount object
           (λ()
             (-a sublist object cont-ok cont-no-alloc)
             )
@@ -90,7 +90,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (cue-leftmost sublist)
           (-a-s sublist object cont-ok cont-no-alloc)
           )
-        (tm-mk ∅ object
+        (mount object
           (λ()
             (-a-s sublist object cont-ok cont-no-alloc)
             )
@@ -123,7 +123,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       (if
         (typep object 'tape-machine)
         (d object spill cont-ok cont-rightmost)
-        (tm-mk ∅ object
+        (mount object
           (λ(new-tm) 
             (d new-tm spill cont-ok cont-rightmost)
             )

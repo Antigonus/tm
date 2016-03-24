@@ -13,11 +13,11 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-depth (tape-machine)())
+  (defclass tm-breadth (tape-machine)())
 
   (defun tm-init
     (
-      (instance 'tm-depth)
+      (instance 'tm-breadth)
       &optional 
       init
       (cont-ok #'echo) 
@@ -27,13 +27,13 @@ See LICENSE.txt
     (cond
       ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
         (setf (tape instance) (tm-mk 'tm-list))
-        (setf (HA instance) (mk-stack-list))
+        (setf (HA instance) (mk-queue-list))
         (funcall cont-ok instance)
         )
 
       ((typep init 'tape-machine)
         (setf (tape instance) init)
-        (setf (HA instance) (mk-stack-list))
+        (setf (HA instance) (mk-queue-list))
         (funcall cont-ok instance)
         )
 
@@ -46,3 +46,4 @@ See LICENSE.txt
       (t
         (funcall cont-fail)
         )))
+

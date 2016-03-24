@@ -3,8 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Make machines from other objects.
-  Make other objects from machines.
+  A new tape machine may be made by calling tm-mk.
 
 |#
 
@@ -26,47 +25,45 @@ See LICENSE.txt
       ))
 
 ;;--------------------------------------------------------------------------------
-;; make a tape machine from another form
-;;   We implement tm-mk the old fashioned way, because the signature matching
-;;   mechanism used in defgeneric doesn't quite work here.
+;; make a tape machine of the specified type and init value
 ;;
-  (defvar *tm-mk-hash* (make-hash-table :test 'eq))
 
-  (defun tm-mk-hook (type mk-function)
-    "Function takes three arguments, init cont-ok cont-fail.  
-     Late type will be used to lookup and call the function.
-     "
-    (setf (gethash type *tm-mk-hash*) mk-function)
-    )
+  ;; all tape machines should provide an implementation for this:
+  ;; (then tm-mk will work)
+  ;;
+    (defgeneric tm-init (instance &optional init-value cont-ok cont-fail))
 
-  (defun tm-mk 
-    (
-      type
-      &optional 
-      init
-      (cont-ok #'echo) 
-      (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized init type") ∅)
-        )
+    ;; if no specialization on instance is found, then:
+    (defmethod tm-init (instance init-value &optional cont-ok cont-fail)
+      (declare (ignore instance init-value cont-ok))
+      (funcall cont-fail)
       )
-    "If type is specified, it should be the type of a tape machine that has been hooked
-     into tm-mk.  If type is null, then the tape machine type is derived from the init
-     type, according to the rules hard coded into this routine.
-     "
-    (if 
-      type
-      (multiple-value-bind 
-        (function lookup-success) 
-        (gethash type *tm-mk-hash*)
-        (if
-          lookup-success
-          (funcall function init cont-ok cont-fail)
-          (funcall cont-fail)
-          )
-        )
-      (cond
-        ((eq (type-of init) 'cons) (tm-mk 'tm-list init cont-ok cont-fail))
-        (t
-          (funcall cont-fail)
-          ))))
+
+  (defmacro tm-mk 
+    (
+      tm-type ; this must be valid, if not, make-instance will fail (no continuation)
+      &optional 
+      init-value 
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'tm-mk-init-failed)))
+      )
+    `(let(
+           (i (make-instance ,tm-type))
+           )
+       (tm-mk-init i ,init-value ,cont-ok ,cont-fail)
+       ))
+
+;;--------------------------------------------------------------------------------
+;;  given a sequence return a tape machine over that sequence
+;;
+;;  differs from tm-mk in that tm-mk may take non-sequence init values, and may
+;;  convert the init value into other types of sequences.
+;;
+   (defgeneric mount (sequence &optional cont-ok cont-fail))
+
+   (defmethod mount (sequence &optional cont-ok cont-fail)
+     (declare (ignore object cont-ok))
+     (funcall cont-fail)
+     )
+
 

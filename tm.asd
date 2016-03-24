@@ -56,14 +56,16 @@ See LICENSE.txt
                              ;; generic adapters
                                (:file "buffers")  ; stack and queue
                                (:file "tm-interval")
+                               (:file "tm-transform")
 
                              ;; interpretting another tm as a tree
                                (:file "tm-depth-mk")
                                (:file "tm-depth-primitives")
-                               (:file "tm-transform")
                                (:file "tm-depth-convert")
 
-;                              (:file "tm-breadth")
+;                              (:file "tm-breadth-mk")
+                               (:file "tm-breadth-primitives")
+                               (:file "tm-breadth-convert")
 
                              ;; simple generators 
                                (:file "tm-void")

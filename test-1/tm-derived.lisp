@@ -19,7 +19,7 @@ See LICENSE.txt
 ;;
   (defun test-r-index-0 ()
     (let(
-          (k (tm-mk 'tm-list (list 6 7 8)))
+          (k (tm-mk 'tm-list [6 7 8]))
           )
       (∧
         (= 6 (r-index k 0))
@@ -34,7 +34,7 @@ See LICENSE.txt
   (defun test-d◧-0 ()
     (let*(
            (a (list 1 2 3))
-           (tm1 (tm-mk-list a))
+           (tm1 (tm-mk 'tm-list a))
            )
       (d◧ tm1)
       (equal
@@ -45,7 +45,7 @@ See LICENSE.txt
 
   (defun test-d◧-1 ()
     (let*(
-           (tm1 (tm-mk-list))
+           (tm1 (tm-mk 'tm-list))
            )
       (d◧ tm1 'd (be ∅) (be t))
       ))

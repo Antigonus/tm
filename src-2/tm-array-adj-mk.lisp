@@ -10,6 +10,10 @@ See LICENSE.txt
   (array dimension d 0) returns allocation length for 0 dimension of array d, while
   (length d) returns the fill pointer for vector d, as does (fill-pointer d).
 
+.. the new tm-mk approach makes the tm-init initialized from sequence code look a bit
+funny .. also probably should remove the initialization of tm-array-adj so as not to
+duplicate computation when tape is set explicitly.
+
 |#
 
 (in-package #:tm)
@@ -29,24 +33,22 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defun tm-mk-array-adj
+  (defmethod tm-init
     (
+      (i 'tm-mk-array-adj)
       &optional 
-      (init ∅) 
+      init
       (cont-ok #'echo) 
       (cont-fail 
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized array tape type") ∅)
         ))
     (cond
       ((∨ (¬ init) (eq (type-of init) 'tm-array-adj))
-        (let(
-              (i (make-instance 'tm-array-adj))
-              )
           (vector-push-extend 'array-adj (tape i))
           (funcall cont-ok i)
-          ))
+          )
 
-      ((∧ (typep init 'array) (typep init 'sequence))
+      ((typep init 'sequence)
         (funcall cont-ok
           (make-instance 'tm-array-adj 
             :tape (make-array 
@@ -58,3 +60,25 @@ See LICENSE.txt
       (t
         (funcall cont-fail)
         )))
+
+  ;; need to share this between adjustable and fixed arrays,
+  ;; as both will come through (sequence 'array)
+  ;;
+    (defmethod mount
+      (
+        (sequence 'array) 
+        &optional
+        (cont-ok #'echo)
+        (cont-fail 
+          (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
+          ))
+      (unless (adjustable-array-p sequence) ; temporary until the fixed array is implemented
+        (funcall cont-fail)
+        )
+      (let(
+            (instance (make-instance 'tm-array-adj))
+            )
+        (tm-init instance sequence cont-ok cont-fail)
+        ))
+ 
+  

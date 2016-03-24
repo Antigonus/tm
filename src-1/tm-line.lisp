@@ -30,30 +30,26 @@ See LICENSE.txt
     (Δ 1) ; a step increment
     )
 
-  (defun tm-mk-line 
+  (defmethod tm-init
     (
+      (instance 'tm-line)
       &optional
       init
       (cont-ok #'echo) 
       (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected a line struct")))
       )
-    (let(
-          (tm (make-instance 'tm-line))
-          )
-      (unless
-        init
-        (setf init (make-line))
-        )
-      (unless
-        (typep init 'line)
-        (funcall cont-fail)
-        )
-      (setf (HA tm) (line-infimum init))
-      (setf (tape tm) init)
-      (funcall cont-ok tm)
-      ))
-
-  (tm-mk-hook 'tm-line #'tm-mk-line)
+    (unless
+      init
+      (setf init (make-line))
+      )
+    (unless
+      (typep init 'line)
+      (funcall cont-fail)
+      )
+    (setf (HA tm) (line-infimum init))
+    (setf (tape tm) init)
+    (funcall cont-ok tm)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

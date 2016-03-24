@@ -22,20 +22,23 @@ See LICENSE.txt
 ;;
   (defclass tm-singular-projective (tape-machine)())
 
-  (defun tm-mk-singular-projective (&optional init (cont-ok #'echo) cont-fail)
+  (defmethod tm-init
+    (
+      (instance 'tm-singular-projective)
+      &optional
+      init 
+      (cont-ok #'echo) 
+      cont-fail
+      )
     (declare (ignore cont-fail))
-    (let(
-          (tm (make-instance 'tm-singular-projective))
-          )
-      (if
-        init
-        (setf (HA tm) init)
-        (setf (HA tm) 'tm-singular-projective)
-        )
-      (funcall cont-ok tm)
-      ))
+    (if
+      init
+      (setf (HA tm) init)
+      (setf (HA tm) 'tm-singular-projective)
+      )
+    (funcall cont-ok tm)
+    )
 
-  (tm-mk-hook 'tm-singular-projective #'tm-mk-singular-projective)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

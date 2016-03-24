@@ -18,5 +18,5 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other objects from tm-array-adj machines
 ;;
-  (defmethod to-sequence ((tm tm-array-adj))(tape tm))
+  (defmethod unmount ((tm tm-array-adj))(tape tm))
   (defmethod to-array-adj ((tm tm-array-adj))(tape tm))

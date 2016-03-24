@@ -28,20 +28,23 @@ See LICENSE.txt
 ;;
   (defclass tm-singular-affine (tape-machine)())
 
-  (defun tm-mk-singular-affine (&optional init (cont-ok #'echo) cont-fail)
+  (defmethod tm-init
+    (
+      (instance 'tm-singular-affine)
+      &optional
+      init 
+      (cont-ok #'echo) 
+      cont-fail
+      )
     (declare (ignore cont-fail))
-    (let(
-          (tm (make-instance 'tm-singular-affine))
-          )
-      (if
-        init
-        (setf (HA tm) init)
-        (setf (HA tm) 'tm-singular-affine)
-        )
-      (funcall cont-ok tm)
-      ))
+    (if
+      init
+      (setf (HA tm) init)
+      (setf (HA tm) 'tm-singular-affine)
+      )
+    (funcall cont-ok tm)
+    )
 
-  (tm-mk-hook 'tm-singular-affine #'tm-mk-singular-affine)
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
