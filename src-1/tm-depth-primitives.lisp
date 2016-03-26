@@ -103,7 +103,7 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell (tape tm0) (tape tm1) cont-true cont-false)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -116,18 +116,13 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (labels(
-             (step-depth()
-               (s-depth-ru
-                 (tape tm)
-                 (HA tm)
-                 cont-ok
-                 cont-ok
-                 cont-rightmost
-                 cont-ok
-                 ))
-             )
-      (step-depth)
+    (s-depth-ru
+      (tape tm)
+      (HA tm)
+      cont-ok
+      cont-ok
+      cont-rightmost
+      cont-ok
       ))
 
 ;;--------------------------------------------------------------------------------

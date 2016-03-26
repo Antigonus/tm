@@ -15,5 +15,5 @@ See LICENSE.txt
 ;;
   ;; This returns list of the current subspace that the machine is in.
   ;; To convert the entire space, apply to-list to the original base tm.
-  (defmethod to-list ((tm tm-depth)) (to-list (tape tm)))
+  (defmethod to-list ((tm tm-breadth)) (to-list (tape tm)))
   

@@ -24,7 +24,7 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance tm-singular-projective)
+      (tm tm-singular-projective)
       &optional
       init 
       (cont-ok #'echo) 

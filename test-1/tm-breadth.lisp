@@ -7,13 +7,13 @@ See LICENSE.txt
 
 |#
 
-(in-package :tm)
+(in-package #:tm)
 
 
 (defun test-tm-breadth-s-1 ()
   (let*(
          (a-tree '(1 (2 (3 4)) 5))
-         (tm (tm-mk 'tm-breadth a-tree))
+         (tm (tm-mk 'tm-breadth (mount a-tree)))
          )
     (and
       (= (r tm) 1)

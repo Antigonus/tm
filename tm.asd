@@ -63,9 +63,9 @@ See LICENSE.txt
                                (:file "tm-depth-primitives")
                                (:file "tm-depth-convert")
 
-;;                              (:file "tm-breadth-mk")
-;;                               (:file "tm-breadth-primitives")
-;;                               (:file "tm-breadth-convert")
+                               (:file "tm-breadth-mk")
+                               (:file "tm-breadth-primitives")
+                               (:file "tm-breadth-convert")
 
                              ;; simple generators 
                                (:file "tm-void")
@@ -92,7 +92,7 @@ See LICENSE.txt
 
                               (:file "buffers")
                               (:file "tm-depth")
-;;                              (:file "tm-breadth")
+                              (:file "tm-breadth")
 
                               (:file "tm-void")
                               (:file "tm-line")

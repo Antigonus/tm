@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;
   (defclass tm-breadth (tape-machine)())
 
-  (defun tm-init
+  (defmethod tm-init
     (
       (instance tm-breadth)
       &optional 
@@ -27,13 +27,13 @@ See LICENSE.txt
     (cond
       ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
         (setf (tape instance) (tm-mk 'tm-list))
-        (setf (HA instance) (mk-queue-list))
+        (setf (HA instance) (tm-mk 'queue-list))
         (funcall cont-ok instance)
         )
 
       ((typep init 'tape-machine)
         (setf (tape instance) init)
-        (setf (HA instance) (mk-queue-list))
+        (setf (HA instance) (tm-mk 'queue-list))
         (funcall cont-ok instance)
         )
 

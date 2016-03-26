@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-depth (tape-machine)())
+  (defclass tm-breadth (tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;; helpers
@@ -72,14 +72,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-depth)) (r (tape tm)))
-  (defmethod w ((tm tm-depth) object) (w (tape tm) object))
+  (defmethod r ((tm tm-breadth)) (r (tape tm)))
+  (defmethod w ((tm tm-breadth) object) (w (tape tm) object))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
   ;; our tape is never nil, so this returns true
-  (defmethod cue-leftmost  ((tm tm-depth)) 
+  (defmethod cue-leftmost  ((tm tm-breadth)) 
     (cue-leftmost (tape tm))
     )
 
@@ -88,13 +88,13 @@ See LICENSE.txt
 ;;
   (defmethod heads-on-same-cell 
     (
-      (tm0 tm-depth) 
-      (tm1 tm-depth) 
+      (tm0 tm-breadth) 
+      (tm1 tm-breadth) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell (tape tm0) (tape tm1) cont-true cont-false)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -102,23 +102,17 @@ See LICENSE.txt
 ;;
   (defmethod s
     (
-      (tm tm-depth)
+      (tm tm-breadth)
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (labels(
-             (step-depth()
-               (s-depth-ru
-                 (tape tm)
-                 (HA tm)
-                 cont-ok
-                 cont-ok
-                 cont-rightmost
-                 cont-ok
-                 ))
-             )
-      (step-depth)
+    (s-breadth
+      (tape tm)
+      (HA tm)
+      cont-ok
+      cont-ok
+      cont-rightmost
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -126,7 +120,7 @@ See LICENSE.txt
 ;;
   (defmethod a 
     (
-      (tm tm-depth)
+      (tm tm-breadth)
       object 
       &optional
       (cont-ok (be t))
@@ -141,7 +135,7 @@ See LICENSE.txt
   ;; deallocates the cell just to the right of the head
   (defmethod d 
     (
-      (tm tm-depth)
+      (tm tm-breadth)
       &optional 
       spill
       (cont-ok #'echo)
