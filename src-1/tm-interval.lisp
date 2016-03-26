@@ -24,6 +24,8 @@ See LICENSE.txt
 ;;
   (defclass tm-interval (tape-machine)())
 
+  ;; would be interesting to use the line definition struct for the interval
+  ;; that way we could comb out such things as odd or even cells..
   (defstruct interval
     leftmost ; a tape machine with head on the interval leftmost
     rightmost ; a tape machine *on the same tape* with head on the new rightmost
@@ -114,20 +116,42 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (s (HA tm) cont-ok cont-rightmost)
-    )
+    (if
+      (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
+      (funcall cont-rightmost)
+      (s (HA tm) 
+        cont-ok 
+        (λ()(error 'tm-impossible-to-get-here :text "we just filtered out the rightmost case"))
+        )
+      ))
 
   ;; allocate a cell
-  (defmethod a
-    (
-      (tm tm-interval)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (error 'tm-alloc-fail))
-      )
-    (a (HA tm) cont-ok cont-no-alloc)
-    )
+  ;;
+  ;; All allocations within the interval space are part of the interval space, thus
+  ;;  when allocation is made from rightmost, the rightmost bound is pushed out to 
+  ;;  be on the newly allocated cell.
+  ;;
+  ;; Note, tm-interval uses multiple heads on the same tape (that of HA, intervale-lefmost
+  ;; and interval-rightmost, so if array, say, were to emulate allocation by moving data,
+  ;; interval would have incorrect behavior, which is one of the reasons we don't do such
+  ;; emulation.
+  ;;
+    (defmethod a
+      (
+        (tm tm-interval)
+        object
+        &optional
+        (cont-ok (be t))
+        (cont-no-alloc (error 'tm-alloc-fail))
+        )
+      (if
+        (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
+        (progn
+          (a (HA tm) cont-ok cont-no-alloc)
+          (s (interval-rightmost (tape tm)))
+          )
+        (a (HA tm) cont-ok cont-no-alloc)
+        ))
 
   (defmethod d 
     (

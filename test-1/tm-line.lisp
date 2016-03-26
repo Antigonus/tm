@@ -7,7 +7,7 @@ See LICENSE.txt
 
 |#
 
-(in-package :tm)
+(in-package #:tm)
 
 (defun test-tm-line-0 ()
   (let(

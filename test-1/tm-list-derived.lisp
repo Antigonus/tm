@@ -5,7 +5,7 @@ See LICENSE.txt
 
 |#
 
-(in-package :tm)
+(in-package #:tm)
 
 (defun test-as-0 ()
   (let*(

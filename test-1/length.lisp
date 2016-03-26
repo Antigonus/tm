@@ -9,7 +9,7 @@ See LICENSE.txt
   or logical concept being tested.
 
 |#
-  (in-package :tm)
+  (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; length.lisp

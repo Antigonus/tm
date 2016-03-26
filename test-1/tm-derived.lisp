@@ -12,7 +12,7 @@ See LICENSE.txt
   methods that are specialized for list, see the tests in tm-list-derived.
 
 |#
-  (in-package :tm)
+  (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; tm-derived

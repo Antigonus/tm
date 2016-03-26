@@ -7,7 +7,7 @@ See LICENSE.txt
   or logical concept being tested.
 
 |#
-(in-package :tm)
+(in-package #:tm)
 
 (defun test-tm-mk-list-0 ()
   (let*(

@@ -14,3 +14,7 @@
          want-> [1 2 [3 4]]  -> (1 2 (3 4))
 
      braces will do this  {1 2 {3 4}} -> {1 2 {3 4}}, but they evaluate
+
+11. need to add name spaces for test-hook, and then have (test-all) run everything
+independent of the names space, and (test-all 'space) to run only the given name
+space

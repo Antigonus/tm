@@ -194,7 +194,9 @@ See LICENSE.txt
       #:tm-void
       #:tm-singular-affine
       #:tm-singular-projective
+
       #:tm-interval
+      #:interval
 
       #:tm-mk-void
       #:tm-mk-singular-affine
