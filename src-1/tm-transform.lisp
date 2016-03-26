@@ -31,8 +31,8 @@ See LICENSE.txt
   (defclass tm-transform (tape-machine)())
 
   (defstruct transform
-    forward
-    reverse
+    read
+    write
     tm
     )
 
@@ -58,12 +58,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
+  ;; we pass the base tape to the user's read function
   (defmethod r ((tm tm-transform)) 
-    (funcall (transform-forward (tape tm)) tm)
+    (funcall (transform-read (tape tm)) (HA tm))
     )
 
+  ;; we pass the base tape and the object to be writen to the user's write function
   (defmethod w ((tm tm-transform) object)
-    (funcall (transform-reverse (tape tm)) tm object)
+    (funcall (transform-write (tape tm)) (HA tm) tm object)
     )
  
   (defmethod cue-leftmost  ((tm tm-transform)) 
