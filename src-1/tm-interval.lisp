@@ -31,11 +31,11 @@ See LICENSE.txt
 
   (defmethod tm-init 
     (
-      (tm 'tm-interval)
+      (tm tm-interval)
       &optional
       init
       (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected interval struct")))
+      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected interval struct")))
       )
     (unless
       (∧
@@ -48,7 +48,7 @@ See LICENSE.txt
     (setf (HA tm) (dup (interval-leftmost init))) ; HA is a dup of the leftmost machine
     (setf (tape tm) init)
     (funcall cont-ok tm)
-    ))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

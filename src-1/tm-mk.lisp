@@ -34,12 +34,12 @@ See LICENSE.txt
     (defgeneric tm-init (instance &optional init-value cont-ok cont-fail))
 
     ;; if no specialization on instance is found, then:
-    (defmethod tm-init (instance init-value &optional cont-ok cont-fail)
+    (defmethod tm-init (instance &optional init-value cont-ok cont-fail)
       (declare (ignore instance init-value cont-ok))
       (funcall cont-fail)
       )
 
-  (defmacro tm-mk 
+  (defun tm-mk 
     (
       tm-type ; this must be valid, if not, make-instance will fail (no continuation)
       &optional 
@@ -47,10 +47,10 @@ See LICENSE.txt
       (cont-ok #'echo)
       (cont-fail (λ()(error 'tm-mk-init-failed)))
       )
-    `(let(
-           (i (make-instance ,tm-type))
-           )
-       (tm-mk-init i ,init-value ,cont-ok ,cont-fail)
+    (let(
+          (i (make-instance tm-type))
+          )
+       (tm-init i init-value cont-ok cont-fail)
        ))
 
 ;;--------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ See LICENSE.txt
    (defgeneric mount (sequence &optional cont-ok cont-fail))
 
    (defmethod mount (sequence &optional cont-ok cont-fail)
-     (declare (ignore object cont-ok))
+     (declare (ignore sequence cont-ok))
      (funcall cont-fail)
      )
 

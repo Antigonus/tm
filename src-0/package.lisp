@@ -53,12 +53,9 @@ See LICENSE.txt
     ;;tm-mk
     ;;
       #:tape-machine ; class
-      #:mk-hook
+      #:tm-init
       #:tm-mk
-      #:to-sequence
-      #:to-list
-      #:to-extendable-array
-      #:to-array
+      #:mount
 
     ;;tm-primitives
     ;;
@@ -98,13 +95,6 @@ See LICENSE.txt
 
       #:m  
 
-    ;;tm-subspace
-    ;;
-      #:si
-      #:ai
-      #:ais
-      #:di
-
     ;; quantifiers
     ;;
       #:⟳
@@ -132,6 +122,20 @@ See LICENSE.txt
       #:an
       #:asn
       #:dn
+
+    ;;tm-subspace
+    ;;
+      #:si
+      #:ai
+      #:ais
+      #:di
+
+    ;;tm-convert
+    ;;
+      #:unmount
+      #:to-list
+      #:to-array-adj
+      #:to-array
 
     ;; location
     ;;

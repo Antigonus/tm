@@ -333,11 +333,11 @@ of the primitives.
       (cont-rightmost (be ∅))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (when (singleton tm) (return-from d◧ (funcall cont-rightmost)))
     (let(
           (tm0 (dup tm))
           )
       (cue-leftmost tm0)
+      (when (on-rightmost tm0) (return-from d◧ (funcall cont-rightmost)))
       (let(
             (tm1 (dup tm0))
             )

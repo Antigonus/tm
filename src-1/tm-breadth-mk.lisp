@@ -17,12 +17,12 @@ See LICENSE.txt
 
   (defun tm-init
     (
-      (instance 'tm-breadth)
+      (instance tm-breadth)
       &optional 
       init
       (cont-ok #'echo) 
       (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
+        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
         ))
     (cond
       ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell

@@ -20,13 +20,13 @@ See LICENSE.txt
       init
       (cont-ok #'echo) 
       (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
+        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
         ))
     (let(
           (i (make-instance 'tm-depth-list))
           )
       (init-tm-list i init cont-ok cont-fail)
-      (setf (history i) (mk-stack-list))
+      (setf (history i) (tm-mk 'stack-list))
       i
       ))
   (tm-mk-hook 'tm-depth-list #'tm-mk-depth-list)

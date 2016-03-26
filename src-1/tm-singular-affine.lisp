@@ -30,7 +30,7 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'tm-singular-affine)
+      (instance tm-singular-affine)
       &optional
       init 
       (cont-ok #'echo) 

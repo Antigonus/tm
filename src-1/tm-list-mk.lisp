@@ -22,12 +22,12 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'tm-mk-list)
+      (instance tm-list)
       &optional 
       init
       (cont-ok #'echo) 
       (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
+        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
         ))
     (cond
       ((∨ (¬ init) (eq (type-of init) 'tm-list)); user ∅ or default, goes to a meta list first cell
@@ -51,7 +51,7 @@ See LICENSE.txt
 
   (defmethod mount
     (
-      (sequence 'cons) 
+      (sequence cons) 
       &optional
       (cont-ok #'echo)
       (cont-fail 

@@ -16,7 +16,7 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'tm-void)
+      (instance tm-void)
       &optional
       init 
       (cont-ok #'echo) 

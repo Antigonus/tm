@@ -32,11 +32,11 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'tm-line)
+      (tm tm-line)
       &optional
       init
       (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected a line struct")))
+      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected a line struct")))
       )
     (unless
       init

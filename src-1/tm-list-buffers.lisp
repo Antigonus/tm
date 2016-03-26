@@ -14,7 +14,7 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'mk-stack-list)
+      (instance stack-list)
       &optional
       init
       (cont-ok #'echo)
@@ -23,7 +23,9 @@ See LICENSE.txt
         ))
 
     (change-class instance 'tm-list)
-    (tm-init instance
+    (tm-init 
+      instance
+      init
       (λ(instance) (funcall cont-ok (change-class instance 'stack-list)))
       cont-fail
       ))
@@ -35,16 +37,18 @@ See LICENSE.txt
 
   (defmethod tm-init
     (
-      (instance 'mk-queue-list)
+      (instance queue-list)
       &optional
       init
       (cont-ok #'echo)
       (cont-fail
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized queue list tape type"))
+        (λ() (error 'tm-mk-init-failed :text "unrecognized queue list tape type"))
         ))
 
     (change-class instance 'tm-list)
-    (tm-mk-list init 
+    (tm-init
+      instance
+      init 
       (λ(instance) (funcall cont-ok (change-class instance 'queue-list)))
       cont-fail
       ))

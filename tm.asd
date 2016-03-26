@@ -45,8 +45,8 @@ See LICENSE.txt
                                (:file "tm-mk")
                                (:file "tm-primitives")
                                (:file "tm-derived")
-                               (:file "tm-subspace")
                                (:file "tm-quantifiers")
+                               (:file "tm-subspace")
                                (:file "tm-convert")
 
                              ;; general properties
@@ -63,9 +63,9 @@ See LICENSE.txt
                                (:file "tm-depth-primitives")
                                (:file "tm-depth-convert")
 
-;                              (:file "tm-breadth-mk")
-                               (:file "tm-breadth-primitives")
-                               (:file "tm-breadth-convert")
+;;                              (:file "tm-breadth-mk")
+;;                               (:file "tm-breadth-primitives")
+;;                               (:file "tm-breadth-convert")
 
                              ;; simple generators 
                                (:file "tm-void")
@@ -122,7 +122,7 @@ See LICENSE.txt
                                (:file "worker")
                                (:file "tm-array-adj")
                                ))
-               
+             
                ))
   
   

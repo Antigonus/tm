@@ -36,28 +36,24 @@ See LICENSE.txt
     tm
     )
 
-  (defun tm-mk-transform
+  (defmethod tm-init
     (
+      (tm tm-transform)
       &optional
       init
       (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-bad-init-type :text "expected a transform struct")))
+      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected a transform struct")))
       )
-    (let(
-          (tm (make-instance 'tm-transform))
-          )
-      (unless
-        (∧
-          init
-          (typep init 'transform)
-          )
-        (funcall cont-fail)
+    (unless
+      (∧
+        init
+        (typep init 'transform)
         )
-      (setf (tape tm) init)
-      (funcall cont-ok tm)
-      ))
-
-  (tm-mk-hook 'tm-transform #'tm-mk-transform)
+      (funcall cont-fail)
+      )
+    (setf (tape tm) init)
+    (funcall cont-ok tm)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

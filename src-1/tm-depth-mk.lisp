@@ -15,25 +15,25 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tape-machine)())
 
-  (defun tm-init
+  (defmethod tm-init
     (
-      (instance 'tm-depth)
+      (instance tm-depth)
       &optional 
       init
       (cont-ok #'echo) 
       (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized list tape type"))
+        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
         ))
     (cond
       ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
         (setf (tape instance) (tm-mk 'tm-list))
-        (setf (HA instance) (mk-stack-list))
+        (setf (HA instance) (tm-mk 'stack-list))
         (funcall cont-ok instance)
         )
 
       ((typep init 'tape-machine)
         (setf (tape instance) init)
-        (setf (HA instance) (mk-stack-list))
+        (setf (HA instance) (tm-mk 'stack-list))
         (funcall cont-ok instance)
         )
 

@@ -247,7 +247,7 @@ See LICENSE.txt
                (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
                (s tms1 cont-loop cont-return)
                ))
-          (funcall cont-ok 'so)
+          (funcall cont-ok 's)
           )
         (funcall cont-exists-on-rightmost)
         )))

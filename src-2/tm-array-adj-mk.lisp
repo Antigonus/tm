@@ -35,7 +35,7 @@ duplicate computation when tape is set explicitly.
 ;;
   (defmethod tm-init
     (
-      (i 'tm-mk-array-adj)
+      (i tm-array-adj)
       &optional 
       init
       (cont-ok #'echo) 
@@ -66,7 +66,7 @@ duplicate computation when tape is set explicitly.
   ;;
     (defmethod mount
       (
-        (sequence 'array) 
+        (sequence array) 
         &optional
         (cont-ok #'echo)
         (cont-fail 
