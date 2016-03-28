@@ -32,6 +32,14 @@ See LICENSE.txt
       #:nl
       #:defparam
 
+    ;; test framework
+    ;;
+      #:test-hook
+      #:test-remove
+      #:test-all
+      #:*log-default-file-name*
+      #:print-to-log
+
     ;;list-L
     ;;  also defines reader macros for {} and []
     ;;
@@ -242,25 +250,9 @@ See LICENSE.txt
     ;;
       #:binner  
 
-    ;;string
+    ;; list-lang
     ;;
-      #:newline
-      #:add-quotes
-      #:add-escaped-quotes
-      #:add-squotes
-      #:add-escaped-squotes
-      #:drop-ends
-      #:string-∅
-      #:is-prefix
-      #:drop
-
-    ;; test framework
-    ;;
-      #:test-hook
-      #:test-remove
-      #:test-all
-      #:*log-default-file-name*
-      #:print-to-log
+      #:Δ
 
       ))
 
