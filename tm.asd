@@ -113,15 +113,14 @@ See LICENSE.txt
                               (:file "tm-array-adj-derived")
                               (:file "tm-array-adj-convert")
 
-                              #|
-                              (:file "list-lang") ; accessor lang here delta-s etc.
-                              |#
+                              (:file "access-lang")
                               ))
 
                (:module "test-2"
                  :components (
                                (:file "worker")
                                (:file "tm-array-adj")
+                               (:file "access-lang")
                                ))
              
                ))

@@ -114,6 +114,7 @@ See LICENSE.txt
       
       #:w*
       #:s*
+      #:-s*
       #:a*
       #:as*
       #:d*

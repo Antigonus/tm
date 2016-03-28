@@ -50,12 +50,10 @@ See LICENSE.txt
     (setf (HA tm) object)
     t
     )
-
  
   ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-singular-projective)) 
-    (declare (ignore tm))
-    t
+    tm
     )
 
   (defun heads-on-same-cell-singular-projective-0 (tm0 tm1 cont-true cont-false)

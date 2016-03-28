@@ -104,4 +104,15 @@ See LICENSE.txt
   (define-condition binner-no-such-bin (error)
     ((text :initarg :text :reader text)))
 
+;;--------------------------------------------------------------------------------
+;; access lang
+;;
+  (define-condition Δ-malformed-access-program (error)
+    ((text :initarg :text :reader text)))
 
+  (define-condition Δ-unrecognized-command (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition Δ-required-arg-missing (error)
+    ((text :initarg :text :reader text)))
+  

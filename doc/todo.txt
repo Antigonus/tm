@@ -1,4 +1,8 @@
+1. fixed array implementation needs to be finished
 
+2. def of tm-mk and mount seem to be reversed.  mount should take a machine
+   and an init type.  tm-mk should make a machine from an init value (or just
+   make one).  Need to reverse these.  unmount remains correct.
 
 4. need to write mn and m* as repeating m is very inefficient
 
@@ -18,3 +22,18 @@
 11. need to add name spaces for test-hook, and then have (test-all) run everything
 independent of the names space, and (test-all 'space) to run only the given name
 space
+
+12. return values for some of the tape ops needs to be thought through and made
+consistent.  E.g. cue-leftmost in the doc string says it returns the original
+tape machine, yet most functions return true when they successfully operate
+on state.  And, in addition, currently some of the cue-leftmost implementations
+return t, rather than tm.  
+
+.. if we return true from cue-leftmost, that implies
+that there might be an implementation that returns false, which means that
+we should be testing the return value - which means that we should instead
+of continuations to be consistent with the rest of our lambda calculus style
+approach to conditions.  I.e. cue-leftmost should be taking continuations
+and returning nothing (to be consistent with access to state variables),
+.. return tm for convenience?
+

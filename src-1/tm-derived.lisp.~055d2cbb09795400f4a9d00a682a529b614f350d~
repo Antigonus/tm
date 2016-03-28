@@ -51,24 +51,8 @@ of the primitives.
     (let(
           (tm-dup (make-instance (type-of tm-orig)))
           )
-      (setf (tape tm-dup) (tape tm-orig))
-      (setf (HA tm-dup) (HA tm-orig))
-      tm-dup
+      (cue-to tm-dup tm-orig)
       ))
-
-  ;; mount the same tape that another machine has mounted
-  ;; unlike dup, upon exit the head is at leftmost
-  ;; tm-mk with an init of another tape machine often has the same behaivor, but
-  ;;   this is not guaranteeed
-  (defmethod mount ((tm tape-machine) &optional (cont-ok #'echo) cont-fail)
-    (declare (ignore cont-fail))
-    (let(
-          (tm-dup (dup tm))
-          )
-      (cue-leftmost tm-dup)
-      (funcall cont-ok tm-dup)
-      ))
-
 
 ;;--------------------------------------------------------------------------------
 ;; accessing data
@@ -349,11 +333,11 @@ of the primitives.
       (cont-rightmost (be ∅))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
+    (when (singleton tm) (return-from d◧ (funcall cont-rightmost)))
     (let(
           (tm0 (dup tm))
           )
       (cue-leftmost tm0)
-      (when (on-rightmost tm0) (return-from d◧ (funcall cont-rightmost)))
       (let(
             (tm1 (dup tm0))
             )

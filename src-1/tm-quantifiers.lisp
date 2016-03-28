@@ -285,10 +285,19 @@ See LICENSE.txt
 
   (defgeneric s* (tm)
     (:documentation 
-      "Steps tm to rightmost. It is probably more efficient to cue-to-rightmost."
+      "This is a synonym for cue-to-rightmost. There is no guarantee that intermediate
+       cells will be visited."
       ))
 
-  (defmethod s* ((tm tape-machine))(⟳-work-step tm))
+  (defmethod s* ((tm tape-machine)) (cue-rightmost tm))
+
+  (defgeneric -s* (tm)
+    (:documentation 
+      "This is a synonym for cue-to-leftmost. There is no guarantee that intermediate
+       cells will be visited."
+      ))
+
+  (defmethod -s*((tm tape-machine))(cue-leftmost tm))
 
   (defgeneric a* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 

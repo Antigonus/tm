@@ -21,6 +21,7 @@ See LICENSE.txt
   ;; our tape is never nil, so this returns true
   (defmethod cue-leftmost  ((tm tm-list)) 
     (setf (HA tm) (tape tm))
+    tm
     )
   
 ;;--------------------------------------------------------------------------------

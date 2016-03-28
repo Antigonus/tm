@@ -37,8 +37,7 @@ See LICENSE.txt
     )
 
   (defmethod cue-leftmost  ((tm tm-void)) 
-    (declare (ignore tm))
-    t
+    tm
     )
 
   (defun heads-on-same-cell-void-0 (tm0 tm1 cont-true cont-false)

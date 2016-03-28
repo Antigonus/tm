@@ -11,7 +11,7 @@ See LICENSE.txt
   (length d) returns the fill pointer for vector d, as does (fill-pointer d).
 
 .. the new tm-mk approach makes the tm-init initialized from sequence code look a bit
-funny .. also probably should remove the initialization of tm-array-adj so as not to
+funny .. also probably should remove the initialization of tm-array so as not to
 duplicate computation when tape is set explicitly.
 
 |#
@@ -21,21 +21,15 @@ duplicate computation when tape is set explicitly.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-array-adj (tape-machine)
-    (
-      (HA 
-        :initform 0
-        )
-      (tape
-        :initform (make-array 0 :fill-pointer 0 :adjustable t)
-        )
-      ))
+  ;; head will be the index, tape the array proper
+  (defclass tm-array (tape-machine))
+
 
 ;;--------------------------------------------------------------------------------
 ;;
   (defmethod tm-init
     (
-      (i tm-array-adj)
+      (i tm-array)
       &optional 
       init
       (cont-ok #'echo) 
@@ -43,18 +37,11 @@ duplicate computation when tape is set explicitly.
         (λ() (error 'tm-mk-bad-init-type :text "unrecognized array tape type") ∅)
         ))
     (cond
-      ((∨ (¬ init) (eq (type-of init) 'tm-array-adj))
-          (vector-push-extend 'array-adj (tape i))
-          (funcall cont-ok i)
-          )
-
       ((typep init 'sequence)
         (funcall cont-ok
-          (make-instance 'tm-array-adj 
+          (make-instance 'tm-array 
             :tape (make-array 
                     (length init) 
-                    :fill-pointer (length init)
-                    :adjustable t
                     :initial-contents init
                     ))))
       (t
@@ -70,13 +57,13 @@ duplicate computation when tape is set explicitly.
         &optional
         (cont-ok #'echo)
         (cont-fail 
-          (λ() (error 'tm-mk-init-failed :text "unrecognized adjustable array tape type"))
+          (λ() (error 'tm-mk-init-failed :text "unrecognized array tape type"))
           ))
       (unless (adjustable-array-p sequence) ; temporary until the fixed array is implemented
         (funcall cont-fail)
         )
       (let(
-            (instance (make-instance 'tm-array-adj))
+            (instance (make-instance 'tm-array))
             )
         (tm-init instance sequence cont-ok cont-fail)
         ))

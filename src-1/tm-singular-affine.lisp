@@ -59,8 +59,7 @@ See LICENSE.txt
 
 
   (defmethod cue-leftmost  ((tm tm-singular-affine)) 
-    (declare (ignore tm))
-    t
+    tm
     )
 
   (defun heads-on-same-cell-singular-affine-0 (tm0 tm1 cont-true cont-false)
