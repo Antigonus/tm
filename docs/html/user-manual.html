@@ -1,0 +1,193 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title>TM - Introduction</title>
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta lang="en-US"/>
+	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
+
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="#home">Top</a></li>
+      <li class="nav"><a href="#home">Table of Contents</a></li>
+      <li class="nav"><a href="#about">Next</a></li>
+      <li class="nav"><a href="#about">Previous</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+        <li><a href="#">4</a></li>
+        <li><a href="#">5</a></li>
+        <li><a href="#">6</a></li>
+        <li><a href="#">7</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <article>
+    <section>
+      <h1>Introduction</h1>
+
+      <p>
+        In Pascal's calculator and Babbage's computer the alignment between one of the
+        imprinted numbers on a gear and an index needle was said to indicate the value of
+        a digit.  Then an array of such gears and index pointers were said to indicate the
+        values of the multiple digits that made up a number.  Contemporary computers
+        create an abstraction in an analogous manner, where a more than threshold amount
+        charge existing in a memory cell is said to indicate a <i>one</i> and a less than
+        threshold amount is said to indicate a <i>zero</i>, thus indicating the value of a
+        single binary digit, or bit.  Bits are then arrayed to create words, which
+        typically represent integers.  Words are then arrayed within memories.  An address
+        decoder on a memory is a circuit that creates a correspondence between an array of
+        charges, such as those found in words, and thus gives memory a location concept,
+        and thus a neihbor relationship, and a discrete distance metric.
+
+
+      <p>
+        The "Memory Book" found on my website begins in this manner and progresses into
+        the abstract to define address spaces and datatype.  The take away here is that
+        the interface between computation and information is the <i>container</i>, so
+        containers are of fundamental importance.  As examples allocation, deallocation,
+        and finding a location (addressing) are operations that are unique to containers.
+
+      <p>
+        In the C language, all pointers can be interpreted as arrays of objects that have
+        a given type (a given layout in memory, a given format) simply by applying the []
+        operator.  Lisp is also built upon a fundamental container type, the <i>list</i>,
+        and <i>car</i> and <i>cdr</i>.  An association between symbols and values held in
+        a container defines an address space.  Hash tables, and data structures both do
+        this, and hence all of these containers have address spaces, and thus a concept
+        of location.
+
+      <p>
+        Lisp programmers came to realize that containers of differing implementations have
+        similar properties, and thus could be used through a common interface.  They now
+        speak of <i>sequences</i> instead of lists.  A sequence could be either an array
+        or a list.  C++ programmers came to a similar realization, and with the advent of
+        the Standard Template Library, pointers evolved to general iterators.  Once
+        incremented, a pointer points to the next element in an array, and once
+        incremented, an iterator points to the next member of the STL container.
+
+      <p>
+        However, the distillation of computing to that of the processing of data in
+        sequence predates C, Lisp, and Fortran for that matter.  The Turing Machine is an
+        abstration of a computing machine built from a state controller, a read write
+        head, and a tape.  The tape is a memory constructed of a array of cells.  The head
+        can be moved to a neighbor cell, no differently than moving a pointer or an
+        iterator using the '++' and '--' operator.  (Iteration in Lisp is analogously
+        achieved with <i>car</i> and <i>cdr</i>.)
+
+      <p>
+        In <i>Elements of the Theory of Computation</i> Christos Papdimitriou builds
+        computation theory up from founding assuptions, finding limitations successively
+        more complex computing paradigms arriving finally at the Turing Machine, but not
+        being able to identify a more powerful paradigm.  In a dual approach Lambda
+        Calculus can be used to establish the same theorems.  What we know from these
+        formalisms is that all Turing Complete computing approaches must be capable of
+        serial computation makeing use of exernal storage, as all computers have limited
+        amount of memory.  The world may be able to provide and absorb an endless amount
+        of data, but our computer, rather our process running among the many, only
+        interacts with this world one step at a time.
+
+      <p>
+        What is presented in this library is a container type that is a variation on the
+        sequence and iteration model combined, while at every boundary triggering, not an
+        exception, but a call to a continuation function.  We call our container a <i>tape
+        machine</i>.
+
+      <p>
+        For example, to step an
+        iterator, one calls the function #'s and passes it a <i>tape
+        machine</i>,<i>tm</i>, and two functions.  Here the two functions are
+        called <i>cont-ok</i> and <i>cont-rightmost</i>.
+
+      <p>
+        <code>
+          (s tm cont-ok cont-rightmost)
+        </code>
+
+      <p>
+        The function name, #'s, stands for 'step'.  The tape machine is a combination of
+        iterator and container, and #'s causes the internal iterator to step.  This is
+        analogous to the container being a Turing Machine, and the internal iterator a
+        tape head, so we call the object a <i>tape machine</i>.  Though the analogy is
+        not perfect, the program itself is the state controller for said tape machine,
+        and it is not encapsulated, which is why we call it a <i>tape machine</i> rather
+        than a <i>Turing Machine</i>.
+
+      <p>
+        <i>cont-ok</i> Stands for "continue OK", while <i>cont-rightmost</i> stands for
+        "continue from rightmost".  Hence we might write:
+
+      <p>
+        <code>
+          (s tm <br>
+            (λ()(print "everything went well"))<br>
+            (λ()(print "go get more data!"))<br>
+          )
+        </code>
+
+      <p>
+        Functions with continuations are guaranteed never to exit directly, but instead to
+        follow at least one of the continuations.  Currently there are no multithreaded
+        exits, so each library function will follow exactly one continuation.  This may
+        change in the future.
+
+      <p>
+        For convenience we provide some general purpose continuation functions.  One of
+        these is the function #'be, which returns a function that returns a given
+        value. Hence,
+
+      <p>
+        <code>
+          (s tm (be t) (be nil))
+        </code>
+
+      <p>
+        Would return 't should the step succeed, and return nil should it not.
+        However note, that when used in this manner, step will almost surely be
+        followed by a test of the return value, and that this test will almost
+        surely be doing the same work that was done inside test in order to
+        to detect the end condition.  So one of the things we hope to accomplish
+        with this library, is the elimination of this sort of redundant testing.
+
+      <p>
+        Continuations work well with errors and conditions.  Tape machines can
+        also be functions.  So for example, we could have a tape machine that
+        represents the natual numbers.  Each time it is stepped it just goes
+        to the next integer.  In which case there would be no upper bound, so
+        we might have:
+
+      <p>
+        <code>
+          (s natural-number-generator #'do-nothing (λ()(error 'this-cant-happen)))
+        </code>
+
+        Here #'do-nothing is a void function.  If we ever hit a bound, then there is a bug
+        in the <i>natural-number-generator</i>, so we signal an error.  Note that
+        continuations are functions, and this continuation takes no arguments, so the
+        error call must be wrapped in a lambda.  It is a common mistake for beginning
+        users of the library to put values in place of continuations, when they instead
+        mean to have a function that returns the value.
+
+      <p>
+        It is one of our objectives that code written using tape machines will be
+        more ammenable to formal analysis.  We discuss this further in another
+        chapter.  We believe we have achieved this quality without sacrifcing
+        performance.
+
+      <p>
+        Another attribute of the tape machine library is that all end cases
+        are explicitly identified, typically be a continuation argument.  We
+        suspect that programmers will appreciate this feature.
+
+    </section>
+  </article>
+
+</body>
+</html>

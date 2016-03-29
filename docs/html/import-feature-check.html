@@ -1,0 +1,11 @@
+
+        <script>
+          function supportsImports() {
+          return 'import' in document.createElement('link');
+          }
+          if (supportsImports()) {
+          window.alert("supports import")
+          } else {
+          window.alert("no import support!")
+          }
+        </script>

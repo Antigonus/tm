@@ -78,7 +78,6 @@ See LICENSE.txt
     (cond
       ((¬ (stringp acc-prog-string))
         (error 'Δ-malformed-prog-symbol :text "access program must be a string")
-        '(progn)
         )
       (t
         (let(
