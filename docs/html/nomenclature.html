@@ -1,0 +1,137 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title>TM - Nomenclature</title>
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta lang="en-US"/>
+	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
+
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="#home">Top</a></li>
+      <li class="nav"><a href="#home">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#">1</a></li>
+        <li><a href="#" class="active">2</a></li>
+        <li><a href="#">3</a></li>
+        <li><a href="#">4</a></li>
+        <li><a href="#">5</a></li>
+        <li><a href="#">6</a></li>
+        <li><a href="#">7</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <article>
+    <section>
+      <h1>Nomenclature</h1>
+
+        <p>
+          A myriad of terms now exist in computer science for talking about memory and end
+          cases, but still some things have no conventional terms.  Hence, I feel it is
+          important to provide a consistent nomenclature for use when talking about the
+          tape machine library.
+
+        <p>
+          In the abstract a tape machine has a <i>tape</i>, an indicator <i>head</i>, and a
+          <i>function interface</i>.  
+
+        <p>
+          The tape consists of a linear series of at least one <i>cell</i>. Each cell
+          contains exactly one <i>object</i>. Here by object we mean some data, and do not
+          imply anything more. With the exception of 'subspaces', the structure of this
+          object is externally imposed.
+
+          Because cell allocation requires an initialization object, it is not possible to
+          have an uninitialized cell. If a machine can not be initialized, it might be
+          replaced by ∅. In some cases we provide a meta initialization value as a stub to
+          build from, such as a first cell with a symbol indicating the type of sequence
+          being used as a tape. Ironically we have found that such tapes are convenient to
+          be returned from macros, in other cases we simply call cdr at the end to drop
+          the extraneous cell.
+
+          When a tape machine tape has two or more cells, all cells, potentially except for
+          two, have two neighbors.  A <i>left neighbor</i> and a <i>right neighbor</i>.  The
+          two potentially special cells are called
+          <i>leftmost</i>, which has only a right neighbor, and <i>rightmost</i>, which has
+          only a left neighbor. The tape may be an abstraction that is maintained through
+          function calls, in which case the tape might not have a leftmost or rightmost.
+
+          The <i>leftmost object</i> is the object in the leftmost cell, etc.
+
+          When a tape has one cell, that one cell is both leftmost and rightmost, and it
+          has no neighbors.
+
+        <p>
+          At any given time the indicator head is <i>on</i> exactly one cell. We say
+          <i>indicator</i> head, rather than the more conventional
+          <i>read-write</i> head, because reading and writing are part of the function
+          interface.  The purpose of the indicator head is to locate a cell.  The object
+          in the indicated cell is called the <i>indicated object</i>, the <i>object
+            indicated by the head</i>.  
+
+        <p>
+          Putting the head on a specific cell is to <i>cue</i> the head.  Three cue
+          functions are defined in the library: cue-leftmost, cue-to, and cue-rightmost.
+          Cue-to cues the head to the same location that another tape machine that mounts
+          the same tape is located at, though having multiple heads on one tape leads to
+          hazards when combined with structual operations.  This is discussed in the
+          chapter, "Multiple Heads".
+
+        <p>
+          The function interface consists of <i>primitive</i> and <i>derived</i>
+          functions.  Primitive functions are those with no generic implementation.  A new
+          tape machine may be defined by providing an implementation for the primitive
+          functions.  In contrast the derived functions have implementations in terms of
+          the primitive functions.  In this library we use CLOS, so the 'functions' we
+          refer to here are generally methods. For efficiency purposes a specialization
+          may be provided for a derived method. The primitive functions are: r (read), w
+          (write), cue-leftmost, heads-on-same-cell, s (step), a (allocate), and d
+          (deallocate).  Though we are at version 0.1, and this list might be tweaked.
+          There are many derived functions including those for handling subspaces, for
+          quantification and repetition, and for compound operations.
+
+        <p>
+          In this implementation, tape-machine is a class with two slots.  One slot is
+          called, <i>HA</i> which stands for head address, and the other slot is
+          called <i>tape</i>.  Should the tape machine be mounted on a sequence, the tape
+          slot is set to the sequence, and HA holds the location in the sequence.  For an
+          array HA will be the index for the current cell.  For a list HA will be the
+          current cons cell. Derived classes make due with just these two slots, which
+          assures that we can consistently convert between tape-machine types.
+
+        <p>
+          We have two functions for making tape machines, one is <i>tm-mk</i> and the
+          other is <i>mount</i>.  <i>tm-mk</i> takes only a sequence and then tries to
+          match that up with the best tape machine implementation for the type of
+          sequence. Where as <i>mount</i> accepts a tape machine class and an
+          initialization value, and then tries to produce an initialized tape machine of
+          that class type.  The function <i>unmount</i> accepts a tape machine and
+          returns the mounted tape.
+
+        <p>
+          Modifications to head location or to the tape contents are said to
+          be <i>stateful</i>.  Modifications that add or remove cells from the tape are
+          said to be <i>structural</i>.  (Adding cells to the tape is
+          called <i>allocation</i>.  Removing cells from the tape is
+          called <i>deallocation</i>.)  We know from experience that programs that only
+          modify state tend to be simpler than those that modify structure. Yet there
+          always seem to be cases, such as gathering results, where structural changes
+          are the most convenient type.  Even Scheme allows one to use a cons cell
+          to lengthen a list, albeit only from one end.
+
+        <p>
+          We use inclusive bounds so we don't need to represent addresses that are outside
+          of our address space.  The typical mode is to do some work, and then to step. If
+          the machine head is on rightmost, then we do something appropriate.
+
+    </section>
+  </article>
+
+</body>
+</html>

@@ -1,36 +1,6 @@
 ﻿
 /* general ----------------------------------------*/
 
-  div.center {
-    max-width:510pt;
-    text-align: center;
-    }
-
-  html, input, textarea, select, button{
-          color:#000000;
-          /*          font-family:Arial, Helvetica, sans-serif;*/
-          font-family:Impact, Charcoal, sans-serif;
-          font-size:11pt;
-          margin:0;	
-  }
-
-  body{
-      background-color:#0f0f2f;
-  }
-
-
-  p{
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-size: 11pt;
-	font-style: normal;
-	font-variant: normal;
-	font-weight: 500;
-	line-height: 12.1pt;
-
-      padding-bottom:8pt;
-      margin-bottom:normal;
-      text-align:justify;
-  }
 
   .clear{
           clear:both;
@@ -60,20 +30,59 @@
 
 /* document structure ----------------------------------------*/
 
+  html, input, textarea, select, button{
+      color:#000000;
+      margin:0;	
+  }
+
   article{
       position:relative;
       margin:20pt;
       padding:20pt;
-      max-width: 450pt;
-      min-height: 500pt;
+      max-width: 340pt;
+/*      min-height: 500pt; */
       background-color:#f5f5dc;
+
+      font-family: "Comic Sans MS", Helvetica, cursive, sans-serif;
+      font-style: normal;
+      font-variant: normal;
+      font-size:11pt;
   }
 
+  pre{
+      font-size: 8pt;
+  }
+  code{
+      font-size: 8pt;
+  }
+
+  p{
+      font-size: 10pt;
+      text-align:justify;
+  }
+
+
   h1{
+      font-size: 14pt;
+      color:darkred;
+  }
+  h2{
+      font-size: 12pt;
       color:darkred;
   }
                  
+
+  body{
+      background-color:#0f0f2f;
+  }
+
+
 /* header  ----------------------------------------*/
+
+  div.center {
+    max-width:510pt;
+    text-align: center;
+    }
 
   header {
       padding:20pt
