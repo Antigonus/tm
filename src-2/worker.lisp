@@ -90,14 +90,17 @@ are treated as tape machines in the body.
       (as the-defun (cdr (tape defun-args)))
 
       (when body
-        (if (singleton bindings)
-          (as* the-defun (tm-mk 'tm-list body))
-          (progn
-            (as* bindings-at (tm-mk 'tm-list body))      
-            (as the-defun (cadr (tape bindings)))
-            )))
+        (let(
+              (the-lambda {'lambda  ∅ (o body)})
+              )
+          (if (singleton bindings) ; if singleton then we have no specified bindings
+            (as the-defun the-lambda)
+            (progn
+              (as bindings-at the-lambda)
+              (as the-defun (cadr (tape bindings)))
+              ))))
       
-      ;; `(tape ,the-defun)
+      ;;`(tape ,the-defun)
       (tape the-defun)
       )))
 

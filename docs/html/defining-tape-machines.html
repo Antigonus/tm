@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE HTML>
 <html>
 <head>
-	<title>TM - Stepping</title>
+	<title>TM - Work</title>
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta lang="en-US"/>
 	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
@@ -29,16 +29,32 @@
 
   <article>
       <section>
-        <h1> Stepping </h1>
+        <h1> Doing Work </h1>
 
         
 
         <p>
-          Here is a simple program that makes use of a tape machine.
+          Here is a simple program that creates a fresh list by squaring
+          the items in a source list.
 
           <pre><code>
-              
+             (let(
+                  (source (mount {1 2 3}))
+                  (destination (tm-mk 'tm-list))
+                  )
+               (⟳ (λ(cont-loop cont-return)
+                    (as destination (expt (r source) 2))
+                    (s source cont-loop cont-return)
+                    ))
+               (unmount destination)
+             )
+          </code></pre>
 
+          When running this it produces:
+
+          <pre><sample>
+              (LIST 1 4 9)              
+          </sample></pre>
 
         <p>
           Even when following a regime of non-destructive programming, it still makes
