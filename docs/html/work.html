@@ -129,7 +129,7 @@
           function does not have a src parameter, it is skipped.  The other parameters are
           handled in an analogous way.  See src-2/worker.lisp for the macro definition.
 
-          Here is an example of defining a worker.
+          Here is a simple example of defining a worker.
 
           <pre><code>
             (def-worker counter tm-src () boxed-counter ()
@@ -142,55 +142,84 @@
         <p>
           Here the connection function is called <i>counter</i>.  The connection
           function will take a single source tape machine, it does not accept
-          any destination tape machines.  It accepts a single state variable.
+          any destination tape machines.  It accepts a single state variable.  As
+          this function does not write to a destination machine, its purpose is
+          soley to evolve the state.
 
         <p>
-          The purpose of counter is to increment a count each time it is called.  We might
-          use this to get the length of the source tape, though, we already provide a
-          length function in the library. Albeit, it is a simple example.  The count is
-          passed in as a state variable.  We require that all variables be passed by
-          reference, which is the default in Lisp for complex objects, but alas, not
-          for integers.  Hence we are going to pass the counter "in a box".  Box is
-          defined in src-0/functions.lisp.
+          Each unit of work here evolves the state by incrementing the counter.  We
+          require that all variables be passed by reference, which is the default in Lisp
+          for complex objects, but alas, not for integers.  Hence we pass the counter "in
+          a box".  Box is defined in src-0/functions.lisp.
 
-
+        <p>
+          This function returns true when called:
 
           <pre><code>
             (defun test-worker-1 ()
-              (let(
+              (let*(
                     (tm (mount {0 1 2 3}))
                     (cnt 0)
+                    (worker (counter tm (box cnt)))
                     )
-                (labels(
-                      (worker () (counter tm (box cnt)))
-                      )
                   (∧
                     (= cnt 0)
-                    (worker)
+                    (funcall worker)
                     (= cnt 1)
-                    (worker)
+                    (funcall worker)
                     (= cnt 2)
-                    (worker)
+                    (funcall worker)
                     (= cnt 3)
-                    (¬ (worker))
+                    (¬ (funcall worker))
                     )
-                  )))
-
+                  ))
           </pre></code>
 
         <p>
-          The function test-worker-1 will return true.  Note the use of the
-          unicode synonym for not, ¬, in the last line of the conjunction.
-          State variables must be passed by reference.  Lisp passes tape
-          machines by reference, but integers are passed by value, hence
-          we put the count "in a box", and pass the box.  Box is defined
-          in src-o/functions.lisp.
-         
-        <p>
-          So in this example we 
+          We call #'counter to connect the worker.  After this each call to the
+          worker does one unit of work.  In the last term of the conjunction
+          the worker refuses to do anymore work, and returns false.  We use
+          not, ¬, to cause the term to be true.
 
-  <i>dst</i> has
-          the same form.
+        <p>
+          The worker in this example does not conform to our convention of using
+          continuations to carry decisions.  Also it would be better to produce a result
+          so as to simplify the test.  Here is a conforming implementation:
+
+          <pre><code>
+            (def-worker counter-2 tm-src tm-dst boxed-counter (cont-ok cont-◨)
+              (as tm-dst (unbox boxed-counter))
+              (s tm-src 
+                (λ()
+                  (incf (unbox boxed-counter)) 
+                  (funcall cont-ok)
+                  )
+                cont-◨
+                ))
+          </pre></code>
+
+        <p>
+          The symbol ◨  stands for 'rightmost',  so cont-◨ is read as
+          "continue rightmost".  The following function returns true:
+          
+          <pre><code>
+            (defun test-worker-2 ()
+              (let*(
+                    (tm-src (mount {0 1 2 3}))
+                    (tm-dst (tm-mk 'tm-list))
+                    (cnt 0)
+                    (worker (counter-2 tm-src tm-dst (box cnt)))
+                    )
+                 (⟳ (λ(cont-loop cont-return)
+                      (funcall worker cont-loop cont-return)
+                      ))
+                  (∧
+                    (= cnt 3)
+                    (equal
+                       (unmount tm-src)
+                       (cdr (unmount tm-dst))
+                       ))))
+          </pre></code>
 
 
     </section>

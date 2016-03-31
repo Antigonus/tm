@@ -78,7 +78,6 @@ are treated as tape machines in the body.
         )
       
       (when state (def-worker-1 defun-args bindings-at state))
-      (when conts (def-worker-1 defun-args bindings-at conts))
       
       #|
            (print {"the-defun" (tape the-defun)})
@@ -91,7 +90,7 @@ are treated as tape machines in the body.
 
       (when body
         (let(
-              (the-lambda {'lambda  ∅ (o body)})
+              (the-lambda {'lambda conts (o body)})
               )
           (if (singleton bindings) ; if singleton then we have no specified bindings
             (as the-defun the-lambda)
@@ -104,26 +103,6 @@ are treated as tape machines in the body.
       (tape the-defun)
       )))
 
-#|
-with prints turned on:
-
-(def-worker alice a (b c) (e) (&optional (cont-ok (be t)) (cont-rightmost (be ∅))))
-
-("the-defun" (DEFUN ALICE)) 
-("defun-args" (LIST A #:G528 #:G529 #:G530)) 
-("bindings"
- (LIST
-  (DESTRUCTURING-BIND
-      (B C)
-      #:G528
-    (DESTRUCTURING-BIND
-        (E)
-        #:G529
-      (DESTRUCTURING-BIND
-          (&OPTIONAL (CONT-OK (BE T)) (CONT-RIGHTMOST (BE ∅)))
-          #:G530))))) 
-T
-|#
 
 
   
