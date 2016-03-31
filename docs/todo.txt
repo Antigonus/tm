@@ -1,13 +1,15 @@
 1. fixed array implementation needs to be finished
 
-2. def of tm-mk and mount seem to be reversed.  mount should take a machine
-   and an init type.  tm-mk should make a machine from an init value (or just
-   make one).  Need to reverse these.  unmount remains correct.
+2. access lang needs to be finished, also chapter needs to be added
+to the manual.
+
+3. expand access lang
 
 4. need to write mn and m* as repeating m is very inefficient
 
 7. right now tm-difference-engine is only linear, need to finish implementation
-   tm-line -> tm-difference-engine
+   tm-line -> tm-difference-engine .. will rename it tm-sums
+   (really it sums a finite difference to recover the original sequence)
 
 10. should modify #'L, i.e. {},  to recognize repeated symbols and only evaluate
     them once.  This could be done by wrapping the current #'L with a let.

@@ -1,4 +1,65 @@
 
+  tape machine primitive functions (access lang statments)
+
+      r read cell under the head
+      w write cell under the head
+   
+      s step 
+      a allocate/add/append a new cell, place it just to the right of head cell, requires fill
+      d deallocate/drop/delete cell - optional spill (i.e. realloc)
+
+      ;; move derived, not primitive
+      m move data, no allocation or deallocation of cells, requires fill
+
+
+
+
+syntax of derived functions:
+
+    tape-side command tape-end-specifier head-contract quantification 
+
+
+𝝐 = not present
+tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
+command: [rwsadm]   ;pick one letter
+head-contract: [h◧ h◨ 𝝐]     ;head on leftmost, head on rightmost, or no contract
+tape-end-specifier:  [◧ ◨ 𝝐] ; operates on, ◧ leftmost, ◨ rightmost, 𝝐 on head
+quantification: [n*𝝐]  ; count, repeat to end, or do once
+
+if there is to be a step after the command runs, add an s to the end of
+the command.
+
+as  append and step
+
+-a-s  append to the left, step to the left
+
+
+=== the rest of this file should probably be ignored.  The above will go into
+the access lange chapter in the manual
+
+
+----
+
+gather, g, accepts a cell and puts it on to the tape just to the right of the head cell.
+Somewhat similar to alloc, a, but the initialization data is a cell rather than
+an object.
+
+allocation on an fixed array requires moving data out of the way, but the
+data move causes data to be knocked off the end.  The function move,m, behaves
+this way.  In contrast the function alloc, a, does not spill data, rather
+the container must become more capacious.  Both m and a require fill data
+be provided for inializing the newly allocated or newly vacated cells.
+
+copy copies objects, there is no allocation or deallocation.  If both
+tape machines are on the same tape, then there can be overlaps, currently
+this is not contemplated, it is a todo item.
+
+
+
+---
+modification of AH changes state
+modifications of tape changes structure
+
   In deterministic computing a state variable has a single value at any given
   step during computation.  This is the definition of deterministic computing,
   and the implications of determinism, and its complement, non-determinism, have
@@ -58,50 +119,3 @@
   Two tape machines working on the same tape form an interval.  We say that the 
   interval has a left and a right tape machine.
 
-  tape machine commands
-
-      r read cell under the head
-      w write cell under the head
-   
-      s step 
-      a allocate/add/append a new cell, place it just to the right of head cell, requires fill
-      d deallocate/drop/delete cell - optional spill (i.e. realloc)
-      m move data, no allocation or deallocation of cells, requires fill
-
-gather, g, accepts a cell and puts it on to the tape just to the right of the head cell.
-Somewhat similar to alloc, a, but the initialization data is a cell rather than
-an object.
-
-allocation on an fixed array requires moving data out of the way, but the
-data move causes data to be knocked off the end.  The function move,m, behaves
-this way.  In contrast the function alloc, a, does not spill data, rather
-the container must become more capacious.  Both m and a require fill data
-be provided for inializing the newly allocated or newly vacated cells.
-
-copy copies objects, there is no allocation or deallocation.  If both
-tape machines are on the same tape, then there can be overlaps, currently
-this is not contemplated, it is a todo item.
-
-syntax of a command
-
-    tape-side command tape-end-specifier head-contract quantification 
-
-
-𝝐 = not present
-tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
-command: [rwsadm]   ;one letter
-head-contract: [h◧ h◨ 𝝐]     ;head on leftmost, head on rightmost, or no contract
-tape-end-specifier:  [◧ ◨ 𝝐] ; operates on, ◧ leftmost, ◨ rightmost, 𝝐 on head
-quantification: [n*𝝐]  ; count, repeat to end, or do once
-
-if there is to be a step after the command runs, add an s to the end of
-the command.
-
-as  append and step
-
--a-s  append to the left, step to the left
-
-
----
-modification of AH changes state
-modifications of tape changes structure

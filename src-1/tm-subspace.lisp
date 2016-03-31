@@ -16,10 +16,10 @@ and rightmost, etc. apply to the subspace (not the original tape).
       tm
       &optional
       (cont-ok (be t))
-      (cont-tm-mk-fail (be ∅))
+      (cont-mount-failed (be ∅))
       )
     "If either object is a tm, or #'tm-mk succeeds on the object, steps in.
-     Otherwise cont-tm-mk-fail.
+     Otherwise cont-mount-failed.
      "
     (let(
           (object (r tm))
@@ -35,7 +35,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
             (cue-to tm new-tm)
             (funcall cont-ok)
             )
-          cont-tm-mk-fail
+          cont-mount-failed
           ))))
 
   ;; when a sublist is empty, it should be represented with ∅, then ai

@@ -1,0 +1,249 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title>TM - Working</title>
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta lang="en-US"/>
+	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
+
+</head>
+
+<body>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="introduction.html">1</a></li>
+        <li><a href="unicode.html">2</a></li>
+        <li><a href="nomenclature.html">3</a></li>
+        <li><a href="list-making.html">4</a></li>
+        <li><a href="stepping.html">5</a></li>
+        <li><a href="working.html" class="active">6</a></li>
+        <li><a href="spaces.html">7</a></li>
+        <li><a href="generators.html">8</a></li>
+        <li><a href="transforms.html">9</a></li>
+        <li><a href="issues.html">10</a></li>
+        <li><a href="dictionary">11</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <article>
+      <section>
+        <h1> Working</h1>
+
+        <p>
+          Here is a simple program that creates a fresh list by squaring
+          the items in a source list.
+
+          <pre><code>
+             (let(
+                  (source (mount {1 2 3}))
+                  (destination (tm-mk 'tm-list))
+                  )
+               (⟳ (λ(cont-loop cont-return)
+                    (as destination (expt (r source) 2))
+                    (s source cont-loop cont-return)
+                    ))
+               (unmount destination)
+             )
+          </code></pre>
+
+          <p>
+          When run it produces:
+
+          <pre><sample>
+              (LIST 1 4 9)              
+          </sample></pre>
+
+        <p>
+          The function #'tm-mk is a more primitive form of #'mount.  Where as
+          mount accepts a sequence, and returns the most appropriate type of
+          tape machine, #'tm-mk requires the user to specify the tape machine
+          type.  It takes an optional initialization parameter.  The initialization
+          parameter can be of any type that is supported by the #'tm-mk
+          methods.  If no initialization parameter is supplied, as is the case
+          here, a single cell tape machine is created, and that cell is initialized
+          with the the type of the type.  Here we make a tape machine that that
+          uses a list as a tape, so the initial cell is set to 'list.
+
+        <p>
+          The function #'a allocates a new cell just to the right of the head, and
+          it initializes that cell with the object specified in the call. In this
+          example this is the square of the number specified on the source.  #'as
+          is a compound command.  The compound contains allocate and step.  So in
+          our example here, after the call to #'as the head will be on the newly
+          allocated cell. We can repeat the call to #'as and grow the length of the
+          tape. The nice part about this approach, as unlike using the conventional
+          cons cell at the front, the element order in the destination list will be
+          the same as the element order in the source list.
+          
+        <p>
+          #'unmount does is the inverse of #'mount.  It returns the tape, and as
+          it is the last statement in our code, it provides the return value.
+          Should this output then be evaluated, we will have a list.  Alternatively
+          we could have returned  <code>(cdr (unmount destination))</code> and
+          the head of the returned list would be the number 1.
+
+        <p>
+          We call a program that accepts input from a source tape machine,
+          and then produces output on a destination tape machine, and does so
+          one step at a time, a <i>worker</i>.  The worker in this example is
+          <i>(as destination (expt (r source) 2))</i>.  The amount of work
+          done upon each call to the worker is "one unit of work".
+
+        <p>
+          Notice, that each time we call a worker its source and destination
+          machine arguments are the same.  These can be curried away.  Or
+          put another way, we might think of a worker as being connected into
+          the program rather than as accepting arguments that evaluate to values
+          upon each call.  We provide a macro for that returns a worker
+          function.  This macro does the currying, or the connecting, whichever
+          way you want to think about it.
+
+          <pre><code>
+              (defmacro def-worker (name src dst state conts &body body) ...)
+
+              src := tape-machine-name | (tape-machine-name ..) | ()
+              dst := tape-machine-name | (tape-machine-name ..) | ()
+              state := symbol | (symbol ..) | ()
+              conts := contination-name | (continuation-name ..) | ()
+
+              tape-machine-name := symbol (evaluates to a tape machine)
+              contination-name := symbol  (evaluates to a continuation function)
+
+          </code></pre>
+
+          <i>name</i> is a symbol, and is the name of the resulting connection
+          function.  The connection funciton will be used to get a worker
+          function, and the worker function takes no arguments.
+
+          <i>src</i> is either a symbol that will evaluate to a
+          source tape machine, a list of such symbols, or an empty set of
+          parentheses, ie. an empty list.  When <i>src</i> is a symbol, the connection
+          function will accept a single tape machine as a first argument.  When
+          <i>src</i> is specified as a list, then the connector expects a list of tape
+          machines as a first argument.  The list will be deconstructed, so the programmer
+          may use &optional, &rest, and other such parameter keywords when specifying the
+          list of symbols.  When <i>src</i> is an empty set of parentheses, the connection
+          function does not have a src parameter, it is skipped.  The other parameters are
+          handled in an analogous way.  See src-2/worker.lisp for the macro definition.
+
+          Here is a simple example of defining a worker.
+
+          <pre><code>
+            (def-worker counter tm-src () boxed-counter ()
+              (s tm-src
+                (λ()(incf (unbox boxed-counter)) t)
+                (be ∅)
+                ))
+          </pre></code>
+
+        <p>
+          Here the connection function is called <i>counter</i>.  The connection
+          function will take a single source tape machine, it does not accept
+          any destination tape machines.  It accepts a single state variable.  As
+          this function does not write to a destination machine, its purpose is
+          soley to evolve the state.
+
+        <p>
+          Each unit of work here evolves the state by incrementing the counter.  We
+          require that all variables be passed by reference, which is the default in Lisp
+          for complex objects, but alas, not for integers.  Hence we pass the counter "in
+          a box".  Box is defined in src-0/functions.lisp.
+
+        <p>
+          This function returns true when called:
+
+          <pre><code>
+            (defun test-worker-1 ()
+              (let*(
+                    (tm (mount {0 1 2 3}))
+                    (cnt 0)
+                    (worker (counter tm (box cnt)))
+                    )
+                  (∧
+                    (= cnt 0)
+                    (funcall worker)
+                    (= cnt 1)
+                    (funcall worker)
+                    (= cnt 2)
+                    (funcall worker)
+                    (= cnt 3)
+                    (¬ (funcall worker))
+                    )
+                  ))
+          </pre></code>
+
+        <p>
+          We call #'counter to connect the worker.  After this each call to the
+          worker does one unit of work.  In the last term of the conjunction
+          the worker refuses to do anymore work, and returns false.  We use
+          not, ¬, to cause the term to be true.
+
+        <p>
+          The worker in this example does not conform to our convention of
+          continuing end cases. Also it would be better to produce a result
+          so as to simplify the test.  Here is a conforming implementation:
+
+          <pre><code>
+            (def-worker counter-2 tm-src tm-dst boxed-counter (cont-ok cont-◨)
+              (as tm-dst (unbox boxed-counter))
+              (s tm-src 
+                (λ()
+                  (incf (unbox boxed-counter)) 
+                  (funcall cont-ok)
+                  )
+                cont-◨
+                ))
+          </pre></code>
+
+        <p>
+          Here we have used our abbrevations of ◨ to stands for 'rightmost', so cont-◨ is
+          read as "continue rightmost".  Each time the worker is called there is
+          a new unprocessed value on the source tape machine waiting.  In this case
+          we just push it to the destination machine.  Then we step, if we find that
+          stepping is not possible, then we call cont-◨. Once the worker has called
+          cont-◨ either it will not be called again, because the work is done, or
+          new data will be placed on the tape machine.  
+
+        <p>
+          Note that we applied the #'incf inside the ok continuation of the step.  This is
+          a demonstration of our convention of using inclusive bounds.  In this manner no
+          false step is taken at the end, so the counter will never exceed in size the
+          maximum index that would be needed to index the input tape. However,
+          if it were the case that the tape was to be loaded with more data and the
+          operation continued, we would need to adjust the count to keep it in
+          synch, before continuing our operation.
+
+        <p>
+          The following function returns true:
+          
+          <pre><code>
+            (defun test-worker-2 ()
+              (let*(
+                    (tm-src (mount {0 1 2 3}))
+                    (tm-dst (tm-mk 'tm-list))
+                    (cnt 0)
+                    (worker (counter-2 tm-src tm-dst (box cnt)))
+                    )
+                 (⟳ (λ(cont-loop cont-return)
+                      (funcall worker cont-loop cont-return)
+                      ))
+                  (∧
+                    (= cnt 3)
+                    (equal
+                       (unmount tm-src)
+                       (cdr (unmount tm-dst))
+                       ))))
+          </pre></code>
+
+
+    </section>
+  </article>
+
+</body>
+</html>

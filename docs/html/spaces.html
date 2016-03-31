@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE HTML>
 <html>
 <head>
-	<title>TM - Stepping</title>
+	<title>TM - Spaces</title>
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta lang="en-US"/>
 	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
@@ -11,44 +11,174 @@
 <body>
   <header>
     <ul class="nav">
-      <li class="nav"><a href="#home">Top</a></li>
-      <li class="nav"><a href="#home">Table of Contents</a></li>
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#">1</a></li>
-        <li><a href="#" class="active">2</a></li>
-        <li><a href="#">3</a></li>
-        <li><a href="#">4</a></li>
-        <li><a href="#">5</a></li>
-        <li><a href="#">6</a></li>
-        <li><a href="#">7</a></li>
+        <li><a href="introduction.html">1</a></li>
+        <li><a href="unicode.html">2</a></li>
+        <li><a href="nomenclature.html">3</a></li>
+        <li><a href="list-making.html">4</a></li>
+        <li><a href="stepping.html">5</a></li>
+        <li><a href="working.html">6</a></li>
+        <li><a href="spaces.html" class="active">7</a></li>
+        <li><a href="generators.html">8</a></li>
+        <li><a href="transforms.html">9</a></li>
+        <li><a href="issues.html">10</a></li>
+        <li><a href="dictionary">11</a></li>
       </ul>
     </div>
   </header>
 
   <article>
       <section>
-        <h1> Stepping </h1>
-
-        
+        <h1> Spaces </h1>
 
         <p>
-          Here is a simple program that makes use of a tape machine.
+        A space is a place to put one or more objects.  It has two components, that of the
+        container for the object(s), and that of an addresing mechanism.  The addressing
+        mechanism allows us to associate a symbol with a cell in the space. If the symbols
+        have topological properties, then those properties then apply to the space.  For
+        example, if we use natural numbers as the symbols associated to cells as a
+        defintiion for addressing, then because natural numbers have an order
+        relationship, the cells have neighbors.  It follows that each tape machine defines
+        a space, and each tape machine type defines a type of space.
+
+        <h2> Void </h2> 
+
+        <p>
+        Void space is something that shares some of the properties of
+        other spaces, but lacks the property being able to recall that which has been
+        written.  In the colloquial void is the <i>bit bucket</i>.  We
+        define <i>tm-void</i> in the library.  One can step a tm-void machine, write to
+        it, and do anything defined on the machine interface, but reading always returns
+        ∅.
+
+        <h2> Singular Projective </h2>
+
+        <p>
+        The projective singular space, <i>tm-singular-projective</i>, has only one cell on
+        its tape. It shares the property of other spaces in being finite and having
+        boundaries, but it lacks expansiveness.  The one cell is both the leftmost and
+        rightmost cell, so any attempt to step from it results in a continuation call. Any
+        attempts to expand the space using an allocation operation, results in
+        a <i>cont-no-alloc</i> call.  In fact it behaves just like a tape machine mounted
+        on a one element fixed array.
+
+        <p>
+        Using a singular projective space is a good way to assert that a tape has
+        exactly one value.
+
+        <h2> Singular Affine </h2>
+
+        <p>
+        The affine singular space, <i>tm-singular-affine</i> has one cell, and the right
+        neighbor of that cell is the cell itself.  The left neighbor of this one cell, is
+        also the cell itself.  This is the same as saying the tape is unbounded in both
+        directions, and that all cells are simply a window into a single value, or that
+        all cells hold a reference to the same value.  Stepping, allocating, and
+        deallocating from singular affine will always be <i>cont-ok</i>.
+
+        <p>
+        Using a singular affine space is useful for defining a constant.
+
+        <h2>Interval Space </h2>
+
+        <p>
+        <i>tm-interval</i> is a tape machine with a finite tape, i.e. one that has a
+        defined lefmost and rightmost cell, and this finite tape is a portion of another
+        machine's tape.  <i>tm-interval</i> is initialized from two other tape machines.
+        One with its head on the interval leftmost, and one with its head on the interval
+        rightmost.
+
+        <p>
+        The following function returns true:
+
+        <pre><code>
+          (defun test-tm-interval-0 ()
+            (let*(
+                  (base-tm (mount [0 1 2 3 4 5 6 7]))
+                  (left-machine (dup base-tm))
+                  (right-machine (dup base-tm))
+                  )
+              (sn left-machine 3)
+              (sn right-machine 5)
+              (let*(
+                     (an-interval 
+                       (make-interval 
+                         :leftmost left-machine 
+                         :rightmost right-machine
+                         ))
+                     (tm-interval (tm-mk 'tm-interval an-interval))
+                     )
+                (∧
+                  (on-leftmost tm-interval)
+                  (= (r tm-interval) 3)
+                  (s tm-interval)
+                  (= (r tm-interval) 4)
+                  (s tm-interval)
+                  (= (r tm-interval) 5)
+                  (on-rightmost tm-interval)
+                  (¬ (s tm-interval))
+                  )
+                  )))
+        </code></pre>
+
+        <p>
+          The function <i>dup</i> accepts a tape machine and returns another tape machine
+          that shares the same tape and has a head on the same cell.  It is useful
+          for setting check points to come back to.  In this context it is used to
+          create markers for the leftmost and rightmost of the interval. The function
+          #'sn steps <i>n</i> times.  The interval tape machine is initialized from
+          a structure that has two fields (two slots in Lisp argo) one for each bound
+          of the interval space.
+          
+        <p>
+          The function #'a allocates a new cell is to the right of the cell that the head
+          is on.  When the head is on the rightmost cell of the interval, the allocated
+          cell remains in the interval. An interval is a self contained space, and given
+          an interval machine there is no way to detect that the interval is part of a
+          larger space. If that information is needed it should be saved when the interval
+          is created, or derived from the space that contains the interval.
+
+        <h2>Subspace </h2>
+
+        <p>
+          A subspace is a tape machine created from an object that is found in the cell of
+          an other space. We provide a number of functions in the library
+          for making use of subspaces.  The base function is "step into", #'si.
+          #'si takes as an argument a tape machine and it has two continuations,
+          <i>cont-ok</i> and <i>cont-mount-failed</i>.  #'si will continue with
+          <i>cont-ok</i> if the object in the cell that the tape is on, i.e. the indicated
+          object, can be mounted.  #'mount is a generic interface, and so this is the same
+          to say that #'si will succeed if an corresponding method for the object type has
+          been defined for #'mount.
+
+        <p>
+          This function returns true:
 
           <pre><code>
-              
-
+           (defun test-si-0 ()
+             (let*(
+                    (y '(1 2 (3 4) 5))
+                    (ytm (tm-mk 'tm-list y))
+                    )
+               (s ytm)
+               (s ytm)
+               (si ytm)
+               (eql (r ytm) 3)
+               ))
+          </code></pre>
 
         <p>
-          Even when following a regime of non-destructive programming, it still makes
-          sense to reuse state counters, such as the counter in a do loop.  A tape
-          machine should be treated as such a state variable.
-
-        <p>
-          Tape machines are passed by reference.  Hence they
-
-
+          Once in a subspace, the leftmost cell is the leftmost of the subspace, the
+          rightmost the rightmost of the subspace, etc.  As for interval spaces there is
+          no way from within the subspace to detect the existence of the superspace. Hence
+          in order to step back out of the subspace one first uses #'dup to get a copy of
+          the tape machine before stepping in, and then steps in while using either copy,
+          and resumes later in the superspace with the other copy.  See src-1/tm-depth and
+          src-1/tm-breadth, the tree traversal transforms, for examples.
 
 
     </section>

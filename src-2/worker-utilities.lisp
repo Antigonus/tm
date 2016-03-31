@@ -7,6 +7,11 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+#|
+
+  need to get tm released, this has been effected by putting worker
+back to a lambda, and needs to be updated.
+
 ;;--------------------------------------------------------------------------------
 ;; bins objects
 ;;
@@ -95,3 +100,4 @@ See LICENSE.txt
           ))))
 
   (test-hook test-binner-1)
+|#

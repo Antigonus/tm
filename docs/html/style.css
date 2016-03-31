@@ -1,6 +1,11 @@
 ﻿
 /* general ----------------------------------------*/
 
+  html, input, textarea, select, button{
+      color:#000000;
+      margin:0;	
+  }
+
 
   .clear{
           clear:both;
@@ -27,13 +32,50 @@
   }
 
 
+/* Title  ----------------------------------------*/
 
-/* document structure ----------------------------------------*/
+  div.title-page{
+      position:relative;
+      margin:20pt;
+      padding:20pt;
+      max-width: 340pt;
+      background-color:#f5f5dc;
 
-  html, input, textarea, select, button{
-      color:#000000;
-      margin:0;	
+      font-family: "Comic Sans MS", Helvetica, cursive, sans-serif;
+      font-style: normal;
+      font-variant: normal;
+
   }
+
+  div.title{
+      font-size:18pt;
+  }
+
+  div.author{
+      font-size:14pt;
+  }
+
+  div.license{
+      margin-left:20pt;
+      margin-right:20pt;
+      font-size:10pt;
+  }
+
+
+
+
+/* Table of Contents ----------------------------------------*/
+
+  div.toc{
+      position:relative;
+      margin:20pt;
+      padding:20pt;
+      max-width: 340pt;
+      background-color:#f5f5dc;
+  }
+
+
+/* article structure ----------------------------------------*/
 
   article{
       position:relative;
@@ -80,7 +122,7 @@
 /* header  ----------------------------------------*/
 
   div.center {
-    max-width:510pt;
+    max-width:420pt;
     text-align: center;
     }
 
