@@ -26,15 +26,14 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html" class="active">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
 
   <article>
       <section>
-        <h1> Multiple Heads and Structure Change Hazard</h1>                  
-
+        <h1> Issues </h1>
 
         <p>
           Changes to the head location or the contents of cell on the tape are said to
@@ -43,48 +42,52 @@
           allocation and deallocation.  Some tape machines can not go through structural
           changes, for example those that mount fixed arrays.
 
-
         <p>
           When there are no structural changes, then, in theory it is not possible to
           break a tape machine.  What we mean by break, is that it is not possible when
-          using calls to the interface to get a tape machine into an unrecoverable state,
-          or to make it such that a tape machine does not respond in the manner defined by
-          the interface functions. I say in theory, because this is the intention of the
-          architectural design.  It is possible that this intention has not been
-          translated into a perfect design or perfect implementation.
-
-
+          using calls to the interface to make it such that a tape machine does not
+          respond in the manner defined by the interface functions. I say in theory,
+          because this is the intention of the architectural design.  It is possible that
+          this intention has not been translated into a perfect design or perfect
+          implementation.
 
         <p>
-          Also, with a single head on a tape, i.e. when the function #'dup has never been
-          called, in theory it is still not possible to break a tape machine even in the
-          presence of structure changing operations.  Allocate and Deallocate have been
-          carefully specified so as to achive this attribute.
+          In a second scenario, one with a single head on a tape, i.e. when the function
+          #'dup has never been called, in theory it is also not possible to break a tape
+          machine - even in the presence of structure changing operations.  Allocate and
+          Deallocate have been carefully designed so as to achieve this property.
 
         <p>
-          So now we have the case where #'dup has been called, and structural changes
-          are allowed.  Then there are hazards, i.e. things a programmer could do to
-          break a tape machine.  For example, one tape machine could be used to deallocate
-          a cell that the head is on in duplicated tape machine.  This is very easy
-          to set up.  Just dup a tape machine, step one of the duplicates, and call
-          deallocate on the other.  The behavior of a tape machine with an indicated
-          cell that has been deallocated is undefined, for good reason, as we are
-          not sure what will happen if that machine is used, but it might be very bad.
+          Even in the presence of multiple heads and structural changes, tape machines still
+          can not be broken if those operations are used while checking for and avoiding
+          hazards.  One example of this is the implementation of <i>tm-interval</i>.  So
+          what are the hazards?
+
+        <h2> Deletion of the Cell the Head is on Hazard</h2>                  
 
         <p>
-          We rely on the programmer to maintain a contract with us that he will
-          never write code that leaves a tape machine head dangling.  We did consider
-          a programmed solution, but it does not seem right for Lisp, it is discussed
-          in the next section.
+          So now we have the case where #'dup has been called, and structural changes are
+          allowed.  One of the duplicates could be used used to deallocate a cell
+          indicated by the head of the other duplicate.  This is very easy to set up.
+          Just dup a tape machine, step one of the duplicates, and call deallocate on the
+          other.  The behavior of a tape machine with an indicated cell that has been
+          deallocated is undefined, for good reason, as we are not sure what will happen,
+          but are fairly sure it will often be bad.
 
-          <h1> Fix for Multiple Heads and Structure Change Hazard <br>
-            ... and why it was not implemented
-          </h1>
+        <p>
+          We rely on the programmer to maintain a contract with us that he will never
+          write code that leaves a tape machine head dangling in such a manner.  We did
+          consider a programmed solution, but it does not seem right for Lisp, it is
+          discussed in the next section.
+
+        <h2> Fix for Multiple Heads and Structure Change Hazard <br>
+          ... and why it was not implemented
+        </h2>
 
 
         <p>
           The fix is to add a third slot to the tape machine class. In this third
-          slot we have list or refeences to tape machines that have a head on the
+          slot we have list or references to tape machines that have a head on the
           tape.  Then upon applying a destructive change to the tape, we check the
           head locations for all the listeners, and if there is a conflict we
           take a conflict continuation path.
@@ -94,14 +97,18 @@
           of the manner in which memory allocation is done in Lisp.  In Lisp when
           we are done using something, the garbage collector sees that, and the unused
           stuff goes away.  So, if we put a tape machine on a listener list, it
-          always looks used, and it never goes away.  We could introduce a destructor
-          that must be called to explicitly release a tape machine, but that would
-          go against conventional programming practices in Lisp.  There appear to
-          be some tricky ways around all this, but those are too involved to
-          implement at the current level of developer engagement ;-) .. i.e. it
-          looks like too much work for me at this time.
+          always looks used, and it never goes away. 
+          
+        <p>
+          We can introduce a destructor that must be called to explicitly release a tape
+          machine, but that would go against conventional programming practices in Lisp.
 
-      <h1> Allocation on Arrays </h1>
+        <p>
+          There appears to be some tricky ways around all this, but those are too involved
+          to implement at the current level of developer engagement ;-) .. i.e. it looks
+          like too much work for me at this time.
+
+      <h2> Allocation on Arrays </h2>
 
         <p>
           In Lisp we have two types of arrays to think about, the extendable array
@@ -115,8 +122,8 @@
           pointer back. 
           
         <p>
-          For a fixed array, we do not have a fill pointer, so no such allocation
-          is possible.  So we will instantly just take <i>cont-no-alloc</i>.
+          For a fixed array, we do not have a fill pointer, so we will instantly just
+          take <i>cont-no-alloc</i>.
 
         <p>
           When the head is in the middle of the array, allocation can be accomplished
@@ -133,52 +140,49 @@
         <p>
           The problem with emulating allocation on arrays when there are multiple
           tape heads can also be fixed with a listener list, as discussed above.
-          However, we are using a different approach with the Common Lisp library
-          We have an explicit move instruction.  Its expected behavior is that
-          objects move, hence we use move and get the expected (expected = part
-          of the architecture specification) behavior.
 
-        <p> 
-          The move function is #'m.  It has quantified version also, including
-          #'mn, to move by m places.  By definition when objects are moved right,
-          those that fall off the end are thrown away.  If the programmer wants
-          to keep them, he or she can copy them first.  We do not need an explicit
-          copy function, as write, #'w, already accepts an initialization object,
-          and thus is a copy function.
+        <p> But why perform emulated allocation when there is a move function, #'m that is
+          more suited for manipulating data in arrays?  By definition when objects are
+          moved right with the move function, the object in a particular cell to the right
+          will change.  Also by definition, objects that fall off the end are just thrown
+          away, so #'m even works on fixed length arrays. (If the programmer wants to keep
+          objects that would fall of the end, he or she can copy them first.  We do not
+          need an explicit copy function, as write, #'w, already accepts an initialization
+          object, and #'w* accepts an initialization machine, and thus is a copy
+          function.)
 
-      <h1> Data Movement Over Lists </h1>
+      <h2> Data Movement Over Lists </h2>
 
         <p>
           When only one tape head is involved, data movement can be efficiently
           emulated over a list by allocating a new cell to the right, and deallocating
-          rightmost.  However, when there are mulitple heads involved, we run
+          rightmost.  However, when there are multiple heads involved, we run
           into the problem that the objects in the cells under those heads does
-          not change, which is an unexpected behavior.
+          not change, which is an specified behavior for #'m.
 
         <p>
-          Employing a listener list will not help when the a singly linked list is
-          mounted, as to make it look like data moved right, the other machine heads would
-          have to step left, which is not implemented for tape machines mounted on singly
-          linked lists.
+          When the mounted list is singly linked, employing a listener list will not help
+          with the problem of multiple heads, because to make it look like data moved
+          right, the other machine heads would have to step left, which is not implemented.
 
-      <h1> Design Decision about the Listener List </h1>
+      <h2> Design Decision about the Listener List </h2>
 
         <p>
           Due to the considerations explained above, for this version of the tape machine
-          library it seems to make most sense to use tape machine type specific functions,
-          that of allocation and deallocation with those mounte on lists, and that of
-          object movement for those mounted on arrays.  With the exception of allowing
-          rightmost allocation on extentable arrays.  The type of the tape can be checked
-          by unmounting and then using typeof or typep.
+          library it seems to make most sense to use tape machine type specific functions
+          for making cells available for use, and analogous operations, with the exception
+          of allowing rightmost allocation on extendable arrays.  The type of the tape can
+          be checked by unmounting and then using typeof or typep.
 
         <p>
-          As for the deallocation hazards, formal analysis of code, and manual analysis
-          for that matter, when in the presence of multiple tape heads it is recommended
-          to use non-structive programming, with the only exception of growth from
-          rightmost.  Exceptions should be accompanied with a clear explanation as to why
-          it is not hazardous.
+          In the presence of multiple tape heads and destructive operations, we suggest
+          that the programmer provide at least a sketch of a proof as to why hazards will
+          not occur, or that that a tool is used to attempt to check this automatically
+          (it may not be possible in general).  Also note, the tape machine library did
+          not create container use hazards, rather it is only formalizing their
+          description.
 
-      <h1> Multithreaded, Multiple Heads, and Structural Changes </h1>
+      <h2> Multithreaded, Multiple Heads, and Structural Changes </h2>
 
         <p>
           The above remarks apply.  In addition structural changes typically will have

@@ -26,14 +26,14 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
 
   <article>
     <section>
-      <h1>Nomenclature</h1>
+      <h1>Nomenclature and Conventions</h1>
 
         <p>
           A myriad of terms now exist in computer science for talking about memory and end
@@ -42,23 +42,26 @@
           tape machine library.
 
         <p>
-          In the abstract a tape machine has a <i>tape</i>, an indicator <i>head</i>, and a
-          <i>function interface</i>.  
+          A tape machine has a <i>tape</i>, an <i>indicator head</i> (or
+          just <i>head</i>), and a <i>function interface</i>.  
 
         <p>
-          The tape consists of a linear series of at least one <i>cell</i>. Each cell
-          contains exactly one <i>object</i>. Here by object we mean some data, and do not
-          imply anything more. With the exception of 'subspaces', the structure of this
-          object is externally imposed.
-
+          The tape consists of an array of one or more <i>cell</i>(s). Each cell contains
+          exactly one <i>object</i>. An object is either a) a <i>subspace</i> or b) a data
+          blob that one hopes has some meaning for the tape machine user. Spaces are
+          discussed in the chapter "Spaces".
+     
+        <p>
           Because cell allocation requires an initialization object, it is not possible to
-          have an uninitialized cell. If a machine can not be initialized, it might be
-          replaced by ∅. In some cases we provide a meta initialization value as a stub to
-          build from, such as a first cell with a symbol indicating the type of sequence
-          being used as a tape. Ironically we have found that such tapes are convenient to
-          be returned from macros, in other cases we simply call cdr at the end to drop
-          the extraneous cell.
+          have an uninitialized cell. If a machine can not be initialized, or it must
+          become empty, the machine in its entirety may be replaced by ∅ (nil). When no
+          initialization value is provided for making a tape, we build a one cell machine,
+          where the object in that cell is a symbol representing the type of the tape.
+          When building macros this is actually what is needed. For other cases there is a
+          library function, d◧ (deallocate leftmost), which will drop the first cell from
+          a tape.
 
+        <p>
           When a tape machine tape has two or more cells, all cells, potentially except for
           two, have two neighbors.  A <i>left neighbor</i> and a <i>right neighbor</i>.  The
           two potentially special cells are called
@@ -66,45 +69,53 @@
           only a left neighbor. The tape may be an abstraction that is maintained through
           function calls, in which case the tape might not have a leftmost or rightmost.
 
+        <p>
           The <i>leftmost object</i> is the object in the leftmost cell, etc.
 
-          When a tape has one cell, that one cell is both leftmost and rightmost, and it
-          has no neighbors.
+        <p>
+          A one cell macchine represents a singularity in our system, as the one cell
+          might be defined to be any combination of being its own left neighbor, being its
+          own right neighbor, being leftmost and/or being rightmost. We provide
+          two such examples in the library, <i>tm-singular-affine</i>, where a one cell
+          machine tape has no leftmost or rightmost, and the one cell is both its own left
+          neighbor and right neighbor,  and <i>tm-singular-projective</i> where the
+          one cell is both rightmost and leftmost.
 
         <p>
-          At any given time the indicator head is <i>on</i> exactly one cell. We say
+          At any given time the indicator head is <i>on</i> exactly one cell.  We say
           <i>indicator</i> head, rather than the more conventional
           <i>read-write</i> head, because reading and writing are part of the function
           interface.  The purpose of the indicator head is to locate a cell.  The object
-          in the indicated cell is called the <i>indicated object</i>, the <i>object
+          in the indicated cell is called the <i>indicated object</i>, or the <i>object
             indicated by the head</i>.  
 
         <p>
           Putting the head on a specific cell is to <i>cue</i> the head.  Three cue
-          functions are defined in the library: cue-leftmost, cue-to, and cue-rightmost.
-          Cue-to cues the head to the same location that another tape machine that mounts
-          the same tape is located at, though having multiple heads on one tape leads to
-          hazards when combined with structual operations.  This is discussed in the
-          chapter, "Multiple Heads".
+          functions are defined in the library: <i>cue-leftmost</i>, <i>cue-to</i>, and
+          <i>cue-rightmost</i>.  <i>Cue-to</i> cues the head to the same tape and location
+          as for another tape machine.  A related function <i>dup</i> both makes a new
+          tape machine and cues it to another machine.  With these functions it is
+          possible to put more than one head on the same tape.  Having multiple heads on
+          one tape leads to potential hazards when combined with structural operations.
+          This is discussed in the chapter, "Issues".
 
         <p>
-          Heads either <i>step</i> or are <i>cued</i>.  In contrast objects are said
-          to <i>move</i>.  If one says that "a tape machine <i>moved</i>", that means the
-          tape machine is an object and it was moved to another cell. This distinction
-          becomes particularly important after the introduction of "spaces".
+          Heads are either <i>stepped</i> or <i>cued</i>. We do not apply other motion
+          verbs to heads.  In contrast, objects are said to be <i>moved</i>.  A head is
+          not a tape machine, but it is unambiguous to say "step a tape machine". This
+          actually means to step the tape machine's head. However, if one says that "a
+          tape machine <i>moved</i>", that means the tape machine is an object and it was
+          moved to another cell. This distinction between the connotations of stepping and
+          moving becomes particularly important after the introduction of "spaces".
 
         <p>
           The function interface consists of <i>primitive</i> and <i>derived</i>
           functions.  Primitive functions are those with no generic implementation.  A new
           tape machine may be defined by providing an implementation for the primitive
-          functions.  In contrast the derived functions have implementations in terms of
-          the primitive functions.  In this library we use CLOS, so the 'functions' we
-          refer to here are generally methods. For efficiency purposes a specialization
-          may be provided for a derived method. The primitive functions are: r (read), w
-          (write), cue-leftmost, heads-on-same-cell, s (step), a (allocate), and d
-          (deallocate).  Though we are at version 0.1, and this list might be tweaked.
-          There are many derived functions including those for handling subspaces, for
-          quantification and repetition, and for compound operations.
+          functions, and that would be sufficient as the derived functions have generic
+          implementations in terms of the primitive functions. There are many derived
+          functions including those for handling subspaces, for quantification and
+          repetition, and for compound operations.
 
         <p>
           In this implementation, tape-machine is a class with two slots.  One slot is
@@ -112,17 +123,18 @@
           called <i>tape</i>.  Should the tape machine be mounted on a sequence, the tape
           slot is set to the sequence, and HA holds the location in the sequence.  For an
           array HA will be the index for the current cell.  For a list HA will be the
-          current cons cell. Derived classes make due with just these two slots, which
-          assures that we can consistently convert between tape-machine types.
+          current cons cell. Derived classes make do with just these two slots, which
+          assures that we can consistently <i>cue-to</i> back and forth between
+          tape-machine types.
 
         <p>
           We have two functions for making tape machines, one is <i>tm-mk</i> and the
-          other is <i>mount</i>.  <i>tm-mk</i> takes only a sequence and then tries to
-          match that up with the best tape machine implementation for the type of
-          sequence. Where as <i>mount</i> accepts a tape machine class and an
+          other is <i>mount</i>. The function <i>mount</i> takes only a sequence and then
+          tries to match that up with the best tape machine implementation for the type of
+          sequence. Where as <i>tm-mk</i> accepts a tape machine class and an
           initialization value, and then tries to produce an initialized tape machine of
-          that class type.  The function <i>unmount</i> accepts a tape machine and
-          returns the mounted tape.
+          the specified class type.  The function <i>unmount</i> accepts a tape machine
+          and returns the mounted tape.
 
         <p>
           Modifications to head location or to the tape contents are said to

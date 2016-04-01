@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -37,18 +37,18 @@
 
         <p>
           Because of our method of continuations, and our adoption of workers, we have
-          ended up with some extented argument lists. Also because of our allocate and
+          ended up with some extended argument lists. Also because of our allocate and
           deallocate options on the tape machine, we end up with some clean, but
           destructive operations.  In order to reduce these burdens to some extent,
           in the TM library we provide two macros to make list creation a little bit
-          easier.  We call them 'q' and 'L'.
+          easier.  We call them 'q' or [...], and 'L' or {...}.
 
           <h2>q or [...]</h2>
 
         <p>
           In Lisp a quoted list is taken as being literal.  However the result of
-          modifying a literal is undefined, and often leads to bad results.  Hence provide
-          the macro <i>q</i> which returns a quoted list which is not a literal.
+          modifying a literal is undefined, and often leads to bad results.  Hence we
+          provide the macro <i>q</i> which returns a quoted list which is not a literal.
 
           <pre><sample>
               * (q a b c)
@@ -69,7 +69,7 @@
         <h2>L or {...}</h2>
 
         <p>
-        When a form enclosed in parens, ( ... ), is evaluated the head is taken as the
+        When a form enclosed in parentheses, ( ... ), is evaluated the head is taken as the
         name of a function, looked up and called.  The list members are also evaluated,
         and then passed as operands to said function.  If we don't want the head treated
         specially, but rather just want to define a list, we can trick the evaluator into
@@ -102,9 +102,8 @@
         </sample></pre>
 
         <p>
-        If the apparent function #'o appears inside of a call to #'L, then
-        the arguments of the #'o function are included directly in the resulting
-        list:
+        If the apparent function open, #'o, appears inside of a call to L, then the
+        arguments of the #'o function are included directly in the resulting list:
 
         <pre><sample>
             * (defvar a {1 2 3})

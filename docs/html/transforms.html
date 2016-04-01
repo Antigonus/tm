@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html" class="active">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -54,15 +54,15 @@
           possible to provide read and write functions that mask information.
 
         <p>
-          <i>tm-depth</i> is intialized with another tape machine.  When step, #'s, is
+          <i>tm-depth</i> is initialized with another tape machine.  When step, #'s, is
           called on <i>tm-depth</i>, follows a depth first traversal of the base machine.
-          I.e. whenever it encouters an object that can be mounted, it pushes a duplicate,
+          I.e. whenever it encounters an object that can be mounted, it pushes a duplicate,
           mounts the object, and steps into it.  When it reaches the end of a subspace it
           pops off the prior check point and continues from there.  The user just sees
           the depth first traversal as through it were linear.
 
         <p>
-          <i>tm-breadth</i> is intialized with another tape machine. #'s follows a
+          <i>tm-breadth</i> is initialized with another tape machine. #'s follows a
           breadth first traversal through the base machine.
 
         <p>

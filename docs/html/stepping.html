@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -76,10 +76,10 @@
         <p>
           #'s moves the tape head to the right neighbor cell, so the second <code>(print
             (r a-tape-machine))</code> will print the number 2. Etc.  Note we do not
-          provide any continuation function arguments to #'s.  They are optional,
-          and the defaults are <code>(be t)</code>  and <code>(be ∅)</code>.  That
-          is why at the final step, when stepping fails, the program returns NIL.
-          (The printer is not area of alias for NIL, ∅.)
+            provide any continuation function arguments to #'s.  They are optional, and
+            the defaults are <code>(be t)</code> and <code>(be ∅)</code>.  That is why at
+            the final step, when stepping fails, the program returns NIL.  (The printer is
+            not aware of our alias ∅, so it prints NIL.)
 
         <p>
           Now it would be more convenient to use a loop to implement this logic.
@@ -106,24 +106,25 @@
 
         <p>
           In this case the return value comes from loop, and the loop returns T.  In fact
-          the default function for the final step never runs, instead the function
-          cont-return runs.
+          the default function for the cont-rightmost parameter never runs, instead the
+          provided function for <i>cont-return</i> runs.
 
         <p>
           In general we follow this paradigm, first doing some work, then stepping.  In
           the loop these two operations are performed repeatedly until stepping fails.  Be
           careful when writing TM programs to not be anxious to apply loop operators.
           Instead, prefer to implement functions that do one unit of work, and move the
-          looping to a higher level.
+          looping to a higher level. If you are concerned about the function call overhead
+          then declare it as an inline function. 
 
         <p>
           Notice that unlike the standard loops in Lisp where the location information
-          used in iteration is gone after we exit from the loop, we still have the
-          tape machine after the loop exits.  We could, for example, cue-leftmost,
-          and process the same data again.  When multiple tape machines are involved in
-          a loop, we will know where each left off when the loop terminates.  We
-          have a special form for looping multiple machines in a transactional manner
-          (i.e they all step or none do), it is called ⟳-together.
+          used in iteration is gone after we exit from the loop, we still have the tape
+          machine after the loop exits.  We could, for example, cue-leftmost, and process
+          the same data again.  When multiple tape machines are involved in a loop, we
+          will know where each left off when the loop terminates.  We have a special form
+          for looping multiple machines in a transactional manner (i.e they all step or
+          none do), it is called <i>⟳-together</i>.
 
         <p>
           Another kind of loop is the quantifier.  All the looping forms are
@@ -146,19 +147,17 @@
         <p>
           When called this function will return true:
 
-          <pre><code>
-            (defun test-∃-0 ()
-              (let*(
-                     (y {1 2 {3 4} 5})
-                     (ytm (mount y))
-                     )
-                (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
-                (equal (r ytm) '(3 4))
-                ))
-          </code></pre>
+<pre><code>
+  (defun test-∃-0 ()
+    (let*(
+           (y {1 2 {3 4} 5})
+           (ytm (mount y))
+           )
+      (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
+      (equal (r ytm) '(3 4))
+      ))
+</code></pre>
 
-        <p>
-          
     </section>
   </article>
 

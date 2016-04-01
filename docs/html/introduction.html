@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -180,13 +180,15 @@
       </pre>
 
       <p>
-        Here #'do-nothing is a void function.  If we ever hit a bound, then there is a bug
-        in the <i>natural-number-generator</i>, so we signal an error.  Note that
-        continuations are functions, and this continuation takes no arguments, so the
-        error call must be wrapped in a lambda.  (It is a common mistake for beginning
-        users of the library to put as a continuation argument a function that is
-        evaluated to a value due to being an argument, rather than providing an argument
-        that evaluates to a function.)
+        Here #'do-nothing is a void function.  Though the continuation does nothing, the
+        step function has done something, because it stepped
+        the <i>natural-number-generator</i>. As for the rightmost continuation, if we ever
+        hit a bound, then there is a bug in the <i>natural-number-generator</i>, so we
+        signal an error.  Note that continuations are functions, and this continuation
+        takes no arguments, so the error call must be wrapped in a lambda.  (It is a
+        common mistake for beginning users of the library to put as a continuation
+        argument a function that is evaluated to a value due to being an argument, rather
+        than providing an argument that evaluates to a function.)
 
       <p>
         Tape machine library functions make all end cases explicitly, typically with a
@@ -204,16 +206,16 @@
         "Towards a Better Understanding of CAR, CDR, CADR and the Others".  The access
         language is then extended into a general out of band signaling pattern matching
         language that works on arbitrarily long data types. See the chapter on that
-        subject.
+        subject [better to look at the source code, the doc is still being ginned up].
 
       <p>
         In 2003 I designed a configurable high performance processor for Quickturn
-        Technologies (one of the multiple processor designs being done by the company).
-        The processor had a unique two dimensional microcode.  Instead of having a fixed
-        pipeline that ran instructions, the first dimension of the microcode configured
-        the available ALUs into a pipe appropriate for the given task, be it a correlation
-        filter, matrix processing, etc.  The second dimension of the microcode implemented
-        the instruction set over the configured ALUs.
+        Technologies (which was only one of the multiple processor designs being done by
+        the company).  The processor had a unique two dimensional microcode.  Instead of
+        having a fixed pipeline that ran instructions, the first dimension of the
+        microcode configured the available ALUs into a pipe appropriate for the given
+        task, be it a correlation filter, matrix processing, etc.  The second dimension of
+        the microcode implemented the instruction set over the configured ALUs.
 
       <p>
         I wrote an assembler for the processor, but what was missing was a high level
@@ -221,11 +223,11 @@
         called a <i>worker</i> provides this paradigm in this library.  A worker function
         is defined to accept one or more tape machines, and to produce values for one or
         more tape machines.  Then each call of the worker takes few or no arguments,
-        rather it pulls data as needed from the configured source tape machines. Per call
-        it does one unit of work. It then writes the result to the configured in result
-        tape machines. In the absence of dedicated hardware, a worker appears much like a
-        function that has curried away its constant tape machine arguments, and is then
-        called much like a step function. See the chapter on workers for more information.
+        rather it pulls data as needed from the configured source tape machine(s). Per
+        call it does one unit of work. It then writes the result(s) to the destination
+        tape machine(s). In the absence of dedicated hardware, a worker appears much like
+        a function that was derived by currying away its constant tape machine arguments.
+        See the chapter on workers for more information.
         
     </section>
   </article>

@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -53,11 +53,10 @@
         <p>
           I've limited the use of Unicode to things that 'probably would have been this
           way had Unicode been around before', are conventional notation, and to a couple
-          of symbol extensions that were needed to facilitate the access language and
-          looping.
+          of symbol extensions that were needed to facilitate the access language.
 
         <p> In the file src-1/fundamental.lisp find synonym bindings for the usual
-          operators ∧, ∨, ≥, ≤, λ, ∅, etc.  
+          operators and common symbols such as ∧, ∨, ≥, ≤, λ, ∅, etc.  
 
         <p>
           There are three characters used in the library for which there are currently no
@@ -65,11 +64,15 @@
           because it looks like a little tape with the inked over cell being the leftmost
           cell. In the same manner the character '◨' is shorthand for rightmost. 
 
-          These symbols are used on the single name access langauge functions as
+        <p>
+          These symbols are used on the single name access language functions as
           modifiers meaning to operate on rightmost or leftmost rather than the cell
           the head is on, or, to specify contracts with the programmer of the sort: "this
-          function is only called when the cell is on rightmost."
+          function is only called when the cell is on rightmost."  (Note, operators
+          on cells are such things as allocation and deallocation, and these are distinct
+          from operators on objects, such as addition and subtraction.)
 
+        <p>
           As we had symbols for leftmost and rightmost I also started using them generally
           to mean leftmost or rightmost wherever that was convenient.  For example,
           to shorten up the names of continuations so that argument lists would fit

@@ -27,7 +27,7 @@
         <li><a href="generators.html" class="active">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -48,13 +48,16 @@
 
           <h2> tm-line </h2>
 
+        <p>
           This is soon to be replaced with a more flexible generator.
 
+        <p>
           <i>tm-line</i> is a tape machine that takes as an initialization an initial
-          value, an bounding value - or nil, and an increment.  It then sums the increment
-          into the intiial value upon each step to the right.  Thus when read and
-          stepped successively it produces a sequence of numbers.
+          value, an inclusive bounding value - or nil, and an increment.  It then sums the
+          increment into the initial value upon each step to the right.  Thus it
+          successively produces a sequence of numbers.
 
+        <p>
           The following function returns true:
 
           <pre><code>

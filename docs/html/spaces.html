@@ -26,7 +26,7 @@
         <li><a href="generators.html">8</a></li>
         <li><a href="transforms.html">9</a></li>
         <li><a href="issues.html">10</a></li>
-        <li><a href="dictionary">11</a></li>
+        <li><a href="dictionary/Package-TM-list.html">11</a></li>
       </ul>
     </div>
   </header>
@@ -37,11 +37,11 @@
 
         <p>
         A space is a place to put one or more objects.  It has two components, that of the
-        container for the object(s), and that of an addresing mechanism.  The addressing
-        mechanism allows us to associate a symbol with a cell in the space. If the symbols
-        have topological properties, then those properties then apply to the space.  For
-        example, if we use natural numbers as the symbols associated to cells as a
-        defintiion for addressing, then because natural numbers have an order
+        container for the object(s), and that of an addressing mechanism.  The addressing
+        mechanism allows us to associate a symbol with a cell in the space. If the set of
+        addressing symbols have topological properties, then those properties then apply
+        to the space.  For example, if we use natural numbers as the symbols associated to
+        cells as a definition for addressing, then because natural numbers have an order
         relationship, the cells have neighbors.  It follows that each tape machine defines
         a space, and each tape machine type defines a type of space.
 
@@ -81,13 +81,14 @@
         deallocating from singular affine will always be <i>cont-ok</i>.
 
         <p>
-        Using a singular affine space is useful for defining a constant.
+          The singular affine space collapses the tape machine type into a regular
+          variable.
 
         <h2>Interval Space </h2>
 
         <p>
         <i>tm-interval</i> is a tape machine with a finite tape, i.e. one that has a
-        defined lefmost and rightmost cell, and this finite tape is a portion of another
+        defined leftmost and rightmost cell, and this finite tape is a portion of another
         machine's tape.  <i>tm-interval</i> is initialized from two other tape machines.
         One with its head on the interval leftmost, and one with its head on the interval
         rightmost.
@@ -127,28 +128,28 @@
 
         <p>
           The function <i>dup</i> accepts a tape machine and returns another tape machine
-          that shares the same tape and has a head on the same cell.  It is useful
-          for setting check points to come back to.  In this context it is used to
-          create markers for the leftmost and rightmost of the interval. The function
-          #'sn steps <i>n</i> times.  The interval tape machine is initialized from
-          a structure that has two fields (two slots in Lisp argo) one for each bound
-          of the interval space.
+          that shares the same tape and has a head on the same cell.  It is useful for
+          setting check points to come back to.  In this context it is used to create
+          markers for the leftmost and rightmost of the interval. The function #'sn
+          steps <i>n</i> times.  The interval tape machine is initialized from a structure
+          that has two fields (two slots in Lisp argot) one for each inclusive bound of the
+          interval space.
           
         <p>
-          The function #'a allocates a new cell is to the right of the cell that the head
-          is on.  When the head is on the rightmost cell of the interval, the allocated
-          cell remains in the interval. An interval is a self contained space, and given
-          an interval machine there is no way to detect that the interval is part of a
-          larger space. If that information is needed it should be saved when the interval
-          is created, or derived from the space that contains the interval.
+          The function #'a allocates a new cell to the right of the cell that the head is
+          on.  When the head is on the rightmost of the interval, the allocated cell
+          remains in the interval. An interval is a self contained space, and given an
+          interval machine there is no way to detect that the interval is part of a larger
+          space. If that information is needed it should be saved when the interval is
+          created, or derived from the space that contains the interval.
 
         <h2>Subspace </h2>
 
         <p>
           A subspace is a tape machine created from an object that is found in the cell of
-          an other space. We provide a number of functions in the library
-          for making use of subspaces.  The base function is "step into", #'si.
-          #'si takes as an argument a tape machine and it has two continuations,
+          another space. We provide a number of functions in the library for making use of
+          subspaces.  The base function is "step into", #'si.  #'si takes as an argument a
+          tape machine and it has two continuations,
           <i>cont-ok</i> and <i>cont-mount-failed</i>.  #'si will continue with
           <i>cont-ok</i> if the object in the cell that the tape is on, i.e. the indicated
           object, can be mounted.  #'mount is a generic interface, and so this is the same
