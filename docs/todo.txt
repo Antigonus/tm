@@ -10,19 +10,17 @@ to the manual.
 5. need to rename the error and continuation cont-rightmost on delloc
 to be cont-no-dealloc or such.  There are two reasons that dealloc might fail.
 
+6. binner is commented out in worker-utilities, due to a change before
+the last release
+
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine .. will rename it tm-sums
    (really it sums a finite difference to recover the original sequence)
 
+
 10. should modify #'L, i.e. {},  to recognize repeated symbols and only evaluate
     them once.  This could be done by wrapping the current #'L with a let.
 
-    also nested brackets should return a nested list instead of quoting the
-    bracket operator
-       currently->  [1 2 [3 4]] ->  (1 2 (q 3 4))
-         want-> [1 2 [3 4]]  -> (1 2 (3 4))
-
-     braces will do this  {1 2 {3 4}} -> {1 2 {3 4}}, but they evaluate
 
 11. need to add name spaces for test-hook, and then have (test-all) run everything
 independent of the names space, and (test-all 'space) to run only the given name

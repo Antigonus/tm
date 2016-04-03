@@ -13,7 +13,7 @@ See LICENSE.txt
   (let*(
          (tm0 (tm-mk 'tm-list))
          (tm1 (mount [7 2 -3]))
-         (tm2 (tm-mk 'tm-list tm1))
+         (tm2 (tm-mk (type-of tm0)))
          )
     (∧
       (eq (r tm0) 'list)

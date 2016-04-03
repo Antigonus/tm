@@ -3,8 +3,6 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Quantification
-
 |#
 
 (in-package #:tm)
@@ -17,14 +15,9 @@ See LICENSE.txt
         )
     (sn left-machine 3)
     (sn right-machine 5)
-    (let*(
-           (an-interval 
-             (make-interval 
-               :leftmost left-machine 
-               :rightmost right-machine
-               ))
-           (tm-interval (tm-mk 'tm-interval an-interval))
-           )
+    (let(
+          (tm-interval (tm-mk 'tm-interval left-machine right-machine))
+          )
       (∧
         (on-leftmost tm-interval)
         (= (r tm-interval) 3)

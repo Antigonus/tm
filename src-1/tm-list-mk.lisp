@@ -13,52 +13,36 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-
   (defclass tm-list (tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;; making tm-list machines from other objects
 ;;
-
-  (defmethod tm-init
-    (
-      (instance tm-list)
-      &optional 
-      init
-      (cont-ok #'echo) 
-      (cont-fail 
-        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
-        ))
+  (defmethod tm-init ((instance tm-list) init-list)
     (cond
-      ((∨ (¬ init) (eq (type-of init) 'tm-list)); user ∅ or default, goes to a meta list first cell
+      ((¬ init-list) 
         (let(
               (first-cell (cons 'list ∅))
               )
           (setf (tape instance) first-cell)
           (setf (HA instance) first-cell)
-          (funcall cont-ok instance)
+          instance
           ))
 
-      ((typep init 'cons)
-        (setf (tape instance) init)
-        (setf (HA instance) init)
-        (funcall cont-ok instance)
+      ;; only one element, and that element is a list, then it is our list to bind to
+      ((∧ (¬ (cdr init-list)) (consp (car init-list))) 
+        (setf (tape instance) (car init-list))
+        (setf (HA instance) (car init-list))
+        instance
         )
 
-      (t
-        (funcall cont-fail)
-        )))
+      (t 
+        (error 'tm-mk-bad-init-type)
+        )
+      ))
 
-  (defmethod mount
-    (
-      (sequence cons) 
-      &optional
-      (cont-ok #'echo)
-      (cont-fail 
-        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
-        ))
-    (let(
-          (instance (make-instance 'tm-list))
-          )
-      (tm-init instance sequence cont-ok cont-fail)
+  (defmethod mount ((sequence cons) &optional (cont-ok #'echo) cont-fail)
+    (declare (ignore cont-fail))
+    (funcall cont-ok
+      (make-instance 'tm-list :tape sequence :HA sequence)
       ))

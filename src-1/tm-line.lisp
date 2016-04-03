@@ -25,31 +25,18 @@ See LICENSE.txt
   (defclass tm-line (tape-machine)())
 
   (defstruct line
-    (infimum 0) ; the value for the leftmost cell, our integration constant
-    (bound ∅) ; either ∅, or a boundary that we may not pass
-    (Δ 1) ; a step increment
+    infimum ; the value for the leftmost cell, our integration constant
+      bound ; either ∅, or a boundary that we may not pass
+          Δ ; a step increment
     )
 
-  (defmethod tm-init
-    (
-      (tm tm-line)
-      &optional
-      init
-      (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected a line struct")))
-      )
-    (unless
-      init
-      (setf init (make-line))
-      )
-    (unless
-      (typep init 'line)
-      (funcall cont-fail)
-      )
-    (setf (HA tm) (line-infimum init))
-    (setf (tape tm) init)
-    (funcall cont-ok tm)
-    )
+  (defmethod tm-init ((tm tm-line) init-list)
+    (destructuring-bind
+      (&optional (infimum 0) (bound ∅) (Δ 1)) init-list
+      (setf (HA tm) infimum)
+      (setf (tape tm) (make-line :infimum infimum :bound bound :Δ Δ))
+      tm
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

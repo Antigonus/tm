@@ -31,29 +31,17 @@ See LICENSE.txt
   (defclass tm-transform (tape-machine)())
 
   (defstruct transform
+    tm
     read
     write
-    tm
     )
 
-  (defmethod tm-init
-    (
-      (tm tm-transform)
-      &optional
-      init
-      (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected a transform struct")))
-      )
-    (unless
-      (∧
-        init
-        (typep init 'transform)
-        )
-      (funcall cont-fail)
-      )
-    (setf (tape tm) init)
-    (funcall cont-ok tm)
-    )
+  (defmethod tm-init ((tm tm-transform) init-list)
+    (destructuring-bind
+      (tm &optional (read #'echo) (write #'echo)) init-list
+      (setf (tape tm) (make-transform :tm tm :read read :write write))
+      tm
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

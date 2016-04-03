@@ -14,16 +14,9 @@ See LICENSE.txt
 ;;
   (defclass tm-void (tape-machine)())
 
-  (defmethod tm-init
-    (
-      (instance tm-void)
-      &optional
-      init 
-      (cont-ok #'echo) 
-      cont-fail
-      )
-    (declare (ignore init cont-fail))
-    (funcall cont-ok instance)
+  (defmethod tm-init ((instance tm-void) init-list)
+    (declare (ignore init-list))
+    instance
     )
 
 ;;--------------------------------------------------------------------------------

@@ -24,33 +24,18 @@ See LICENSE.txt
 ;;
   (defclass tm-interval (tape-machine)())
 
-  ;; would be interesting to use the line definition struct for the interval
-  ;; that way we could comb out such things as odd or even cells..
   (defstruct interval
     leftmost ; a tape machine with head on the interval leftmost
     rightmost ; a tape machine *on the same tape* with head on the new rightmost
     )
 
-  (defmethod tm-init 
-    (
-      (tm tm-interval)
-      &optional
-      init
-      (cont-ok #'echo) 
-      (cont-fail (λ() (error 'tm-mk-init-failed :text "expected interval struct")))
-      )
-    (unless
-      (∧
-        init
-        (typep init 'interval)
-        )
-      (funcall cont-fail)
-      )
-
-    (setf (HA tm) (dup (interval-leftmost init))) ; HA is a dup of the leftmost machine
-    (setf (tape tm) init)
-    (funcall cont-ok tm)
-    )
+  ;; initialized to two tape machines
+  (defmethod tm-init ((tm tm-interval) init-list)
+    (destructuring-bind (leftmost rightmost) init-list
+      (setf (HA tm) (dup leftmost))
+      (setf (tape tm) (make-interval :leftmost leftmost :rightmost rightmost))
+      tm
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

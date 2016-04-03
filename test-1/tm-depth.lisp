@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-s-depth-0 ()
   (let*(
-         (a-tree (tm-mk 'tm-list '(1 (2 (3 4)) 5)))
+         (a-tree (mount {1 {2 {3 4}} 5}))
          (tm (tm-mk 'tm-depth a-tree))
          )
     (∧
@@ -34,7 +34,7 @@ See LICENSE.txt
 
 (defun test-tm-depth-s-1 ()
   (let*(
-         (a-tree (tm-mk 'tm-list '(1 (2 (3 4)) 5)))
+         (a-tree (mount {1 {2 {3 4}} 5}))
          (tm (tm-mk 'tm-depth a-tree))
          )
     (∧
@@ -60,11 +60,11 @@ See LICENSE.txt
 ;;
 (defun test-tree-quantifiers-0 ()
   (let(
-        (a0 (tm-mk 'tm-depth (tm-mk 'tm-list '(b c))))
-        (a1 (tm-mk 'tm-depth (tm-mk 'tm-list '(a b c))))
-        (a2 (tm-mk 'tm-depth (tm-mk 'tm-list '(b c (1 (c (a 1)) 2) e))))
-        (a3 (tm-mk 'tm-depth (tm-mk 'tm-list '(b c (1 (c (a 1)) 2) e))))
-        (a4 (tm-mk 'tm-depth (tm-mk 'tm-list '(b c (1 (c (q 1)) 2) e))))
+        (a0 (tm-mk 'tm-depth (mount [b c])))
+        (a1 (tm-mk 'tm-depth (mount [a b c])))
+        (a2 (tm-mk 'tm-depth (mount [b c (1 (c (a 1)) 2) e])))
+        (a3 (tm-mk 'tm-depth (mount [b c (1 (c (a 1)) 2) e])))
+        (a4 (tm-mk 'tm-depth (mount [b c (1 (c (q 1)) 2) e])))
         )
 
   (and

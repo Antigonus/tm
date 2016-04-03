@@ -81,8 +81,8 @@ See LICENSE.txt
         )
       (t
         (let(
-              (acc-prog (tm-mk 'tm-array-adj acc-prog-string))
-              (tm-commands (tm-mk 'tm-list [progn]))
+              (acc-prog (mount acc-prog-string))
+              (tm-commands (mount [progn]))
               (tm-args (if args (mount args) ∅))
               )
           (⟳(λ(cont-loop cont-return)

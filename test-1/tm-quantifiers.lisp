@@ -65,8 +65,8 @@ See LICENSE.txt
 
   (defun test-sn-1 ()
     (let(
-          (k0 (tm-mk 'tm-list (list 10 11 12)))
-          (k1 (tm-mk 'tm-list (list 13 14 15)))
+          (k0 (mount (list 10 11 12)))
+          (k1 (mount (list 13 14 15)))
           )
       (∧
         (= (r k0) 10)
@@ -83,7 +83,7 @@ See LICENSE.txt
 
   (defun test-⟳-0 ()
     (let(
-          (tm-src (tm-mk 'tm-list [a b c]))
+          (tm-src (mount [a b c]))
           (tm-dst (tm-mk 'tm-list))
           )
       (labels(
@@ -101,13 +101,13 @@ See LICENSE.txt
 
   (defun test-as*-0 ()
     (let(
-          (tm0 (tm-mk 'tm-list {1 2 3}))
-          (tm1 (tm-mk 'tm-list [a b c]))
+          (tm0 (mount {1 2 3}))
+          (tm1 (mount [a b c]))
           )
       (s* tm0)
       (s* tm1)
-      (as* tm0 (tm-mk 'tm-list {4 5 6}))
-      (a*  tm1 (tm-mk 'tm-list [e f g]))
+      (as* tm0 (mount {4 5 6}))
+      (a*  tm1 (mount [e f g]))
       (and
         (= (r tm0) 6)
         (eq (r tm1) 'c)

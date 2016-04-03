@@ -54,8 +54,8 @@ back to a lambda, and needs to be updated.
 
   (defun test-binner-0 ()
     (let(
-          (tm-src (tm-mk 'tm-list [2 21 12 42 43 47]))
-          (tm-dsts (tm-mk 'tm-list {(tm-mk 'tm-list) (tm-mk 'tm-list)}))
+          (tm-src (mount [2 21 12 42 43 47]))
+          (tm-dsts (mount {(tm-mk 'tm-list) (tm-mk 'tm-list)}))
           )
       (labels(
                (op (object) (if (evenp object) 0 1))
@@ -80,8 +80,8 @@ back to a lambda, and needs to be updated.
 
   (defun test-binner-1 ()
     (let(
-          (tm-src (tm-mk 'tm-list [2 21 12 42 43 47]))
-          (tm-dsts (tm-mk 'tm-list {(tm-mk 'tm-list) (tm-mk 'tm-list)}))
+          (tm-src (mount [2 21 12 42 43 47]))
+          (tm-dsts (mount {(tm-mk 'tm-list) (tm-mk 'tm-list)}))
           )
 
       (⟳ (λ(cont-loop cont-return)

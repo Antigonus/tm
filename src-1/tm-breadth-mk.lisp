@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  This machine's tape is woven in a depth first pattern through
+  This machine's tape is woven in a breadth first pattern through
   the base tm interpreted as a tree.
 
 |#
@@ -15,35 +15,23 @@ See LICENSE.txt
 ;;
   (defclass tm-breadth (tape-machine)())
 
-  (defmethod tm-init
-    (
-      (instance tm-breadth)
-      &optional 
-      init
-      (cont-ok #'echo) 
-      (cont-fail 
-        (λ() (error 'tm-mk-init-failed :text "unrecognized list tape type"))
-        ))
+  ;; initialized with another tape machine, and a history queue
+  (defmethod tm-init ((instance tm-breadth) init-list)
     (cond
-      ((¬ init) ; user ∅ or default, will be based on an 'tm-list of one cell
+      ((¬ init-list) ; user ∅ or default, will be based on an 'tm-list of one cell
         (setf (tape instance) (tm-mk 'tm-list))
         (setf (HA instance) (tm-mk 'queue-list))
-        (funcall cont-ok instance)
+        instance
         )
 
-      ((typep init 'tape-machine)
-        (setf (tape instance) init)
+      ;; only one item, and that item is a tm, then it is our tm to bind to
+      ((∧ (¬ (cdr init-list)) (typep (car init-list) 'tape-machine))
+        (setf (tape instance) (car init-list))
         (setf (HA instance) (tm-mk 'queue-list))
-        (funcall cont-ok instance)
-        )
-
-      ((∧ (consp init) (cdr init) (¬ (cddr init)))
-        (setf (tape instance) (car init))
-        (setf (HA instance) (cadr init))
-        (funcall cont-ok instance)
+        instance
         )
 
       (t
-        (funcall cont-fail)
+        (error 'tm-mk-bad-init-type)
         )))
 

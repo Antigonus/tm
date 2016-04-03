@@ -18,7 +18,7 @@ See LICENSE.txt
   (defun test-si-0 ()
     (let*(
            (y '(1 2 (3 4) 5))
-           (ytm (tm-mk 'tm-list y))
+           (ytm (mount y))
            )
       (s ytm)
       (s ytm)
@@ -29,8 +29,8 @@ See LICENSE.txt
 
   (defun test-si-1 ()
     (let*(
-           (y0 (tm-mk 'tm-list '(1 2 3)))
-           (y1 (tm-mk 'tm-list `(11 12 ,y0 13)))
+           (y0 (mount {1 2 3}))
+           (y1 (mount {11 12 y0 13}))
            )
       (∧
         (= (r y1) 11)

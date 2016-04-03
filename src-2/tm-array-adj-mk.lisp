@@ -21,45 +21,56 @@ duplicate computation when tape is set explicitly.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-array-adj (tape-machine)
-    (
-      (HA 
-        :initform 0
-        )
-      (tape
-        :initform (make-array 0 :fill-pointer 0 :adjustable t)
-        )
-      ))
+  (defclass tm-array-adj (tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defmethod tm-init
-    (
-      (i tm-array-adj)
-      &optional 
-      init
-      (cont-ok #'echo) 
-      (cont-fail 
-        (λ() (error 'tm-mk-bad-init-type :text "unrecognized array tape type") ∅)
-        ))
-    (cond
-      ((∨ (¬ init) (eq (type-of init) 'tm-array-adj))
-          (vector-push-extend 'array-adj (tape i))
-          (funcall cont-ok i)
-          )
+  (defmethod tm-init ((instance tm-array-adj) init-list)
+    (if (¬ init-list) 
 
-      ((typep init 'sequence)
-        (funcall cont-ok
-          (make-instance 'tm-array-adj 
-            :tape (make-array 
-                    (length init) 
-                    :fill-pointer (length init)
-                    :adjustable t
-                    :initial-contents init
-                    ))))
-      (t
-        (funcall cont-fail)
-        )))
+      (let(
+            (an-array (make-array 1 :fill-pointer 1 :adjustable t))
+            )
+        (setf (aref an-array 0) 'array)
+        (setf (tape instance) an-array)
+        (setf (HA instance) 0)
+        instance
+        )
+
+      (let(
+            (init (car init-list))
+            )
+        (cond
+          ((∧ 
+             (¬ (cdr init-list)) 
+             (arrayp init)
+             (adjustable-array-p init)
+             )
+            (setf (tape instance) init)
+            (setf (HA instance) 0)
+            instance
+            )
+
+          ((∧ 
+             (¬ (cdr init-list)) 
+             (arrayp init)
+             (¬ (adjustable-array-p init))
+             )
+            (setf (tape instance)
+              (make-array 
+                (length init)
+                :fill-pointer (length init)
+                :adjustable t
+                :initial-contents init
+                ))
+            (setf (HA instance) 0)
+            instance
+            )
+
+          (t 
+            (error 'tm-mk-bad-init-type)
+            )))))
+
 
   ;; need to share this between adjustable and fixed arrays,
   ;; as both will come through (sequence 'array)
@@ -72,20 +83,12 @@ duplicate computation when tape is set explicitly.
         (cont-fail 
           (λ() (error 'tm-mk-init-failed :text "unrecognized adjustable array tape type"))
           ))
-      (if 
-        (adjustable-array-p sequence) 
-
-        (let(
-              (instance (make-instance 'tm-array))
-              )
-          (tm-init instance sequence cont-ok cont-fail)
-          )
-
-        (let(
-              (instance (make-instance 'tm-array-adj))
-              )
-          (tm-init instance sequence cont-ok cont-fail)
-          )
-        ))
+      (declare (ignore cont-fail))
+      (funcall cont-ok 
+        (if 
+          (adjustable-array-p sequence) 
+          (make-instance 'tm-array-adj :tape sequence :HA 0)
+          (make-instance 'tm-array :tape sequence :HA 0)
+          )))
 
   

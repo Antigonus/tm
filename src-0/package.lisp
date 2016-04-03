@@ -205,7 +205,6 @@ See LICENSE.txt
       #:tm-singular-projective
 
       #:tm-interval
-      #:interval
 
       #:tm-mk-void
       #:tm-mk-singular-affine
@@ -215,11 +214,6 @@ See LICENSE.txt
     ;; tm-line
     ;;
       #:tm-line
-      #:line
-      #:make-line
-      #:line-infimum
-      #:line-bound
-      #:∆
 
     ;; tm-list-primitives
     ;;
@@ -245,6 +239,8 @@ See LICENSE.txt
       #:tm-breadth ;class
       #:tm-breadth-list ;class
       #:s-breadth
+
+      #:tm-transform
 
     ;; arrays
       #:tm-array

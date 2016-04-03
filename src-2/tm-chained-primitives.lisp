@@ -10,7 +10,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;  helpers
 ;;
-  ;; rightmost-index defined in tm-array-adj
+  ;; for local use
+  ;; we use inclusive bounds, Lisp provides an exclusive bound
+  (defun rightmost-index (tm) (1- (length (tape tm))))
 
 ;;--------------------------------------------------------------------------------
 ;; accessing data

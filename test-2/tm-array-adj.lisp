@@ -10,12 +10,12 @@ See LICENSE.txt
 (defun test-tm-mk-array-0 ()
   (let*(
          (tm0 (tm-mk 'tm-array-adj))
-         (tm1 (tm-mk 'tm-array-adj #(7 2 -3)))
+         (tm1 (tm-mk 'tm-array-adj #(7 2 -3) ))
          (tm2 (tm-mk 'tm-array-adj))
          )
     (cue-to tm2 tm1)
     (and
-      (eq (r tm0) 'array-adj)
+      (eq (r tm0) 'array)
       (eql (r tm1) 7)
       (heads-on-same-cell tm1 tm2)
       )))
@@ -28,7 +28,7 @@ See LICENSE.txt
         )
     (and
       (eq (r x) 'a)
-      (eq (r y) 'array-adj)
+      (eq (r y) 'array)
       (s x)
       (cue-to y x)
       (eq (r x) 'b)

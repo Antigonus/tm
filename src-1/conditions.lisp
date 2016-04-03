@@ -41,9 +41,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-mk
 ;;
-  (define-condition tm-mk-init-failed (error)
+  (define-condition tm-mk-bad-init-type (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition tm-mk-unrecognized-instance-type (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition mount-unrecognized-sequence-type (error)
+    ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
 ;; tm-primitives

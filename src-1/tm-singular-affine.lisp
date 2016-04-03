@@ -28,22 +28,23 @@ See LICENSE.txt
 ;;
   (defclass tm-singular-affine (tape-machine)())
 
-  (defmethod tm-init
-    (
-      (tm tm-singular-affine)
-      &optional
-      init 
-      (cont-ok #'echo) 
-      cont-fail
-      )
-    (declare (ignore cont-fail))
-    (if
-      init
-      (setf (HA tm) init)
-      (setf (HA tm) 'tm-singular-affine)
-      )
-    (funcall cont-ok tm)
-    )
+  (defmethod tm-init ((tm tm-singular-affine) init-list)
+    (cond
+      ((¬ init) 
+        (setf (HA tm) 'tm-singular-affine)
+        tm
+        )
+
+      ;; only one element, then bind to that
+      ((¬ (cdr init-list))
+        (setf (HA tm) (car init-list))
+        tm
+        )
+
+      (t 
+        (error 'tm-mk-bad-init-type)
+        )
+      ))
 
 
 ;;--------------------------------------------------------------------------------

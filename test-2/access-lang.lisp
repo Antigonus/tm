@@ -9,7 +9,7 @@ See LICENSE.txt
 
   (defun test-Δ-0 ()
     (let(
-          (tm (tm-mk 'tm-list {1 2 3}))
+          (tm (mount {1 2 3}))
           )
       (Δ "ssw" tm 7)
       (equal

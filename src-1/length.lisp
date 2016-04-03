@@ -89,7 +89,7 @@ See LICENSE.txt
           (tmb-1 (dup tmb))
           )
       (let(
-            (tms (tm-mk 'tm-list {tma-1 tmb-1}))
+            (tms (mount {tma-1 tmb-1}))
             )
         (⟳ (λ(cont-loop cont-return)
              (let(

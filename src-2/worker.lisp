@@ -56,7 +56,7 @@ are treated as tape machines in the body.
 
 (defmacro def-worker (name src dst state conts &body body)
   (let(
-        (the-defun (tm-mk 'tm-list {'defun name}))
+        (the-defun (mount {'defun name}))
         (defun-args (tm-mk 'tm-list))
         (bindings (tm-mk 'tm-list))
         )
