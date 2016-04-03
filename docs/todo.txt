@@ -7,6 +7,9 @@ to the manual.
 
 4. need to write mn and m* as repeating m is very inefficient
 
+5. need to rename the error and continuation cont-rightmost on delloc
+to be cont-no-dealloc or such.  There are two reasons that dealloc might fail.
+
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine .. will rename it tm-sums
    (really it sums a finite difference to recover the original sequence)

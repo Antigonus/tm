@@ -6,7 +6,7 @@
 |#
 
 (require "asdf")
-(pushnew (truename ".") asdf:*central-registry* :test #'equal)
+(pushnew (truename "/home/tm") asdf:*central-registry* :test #'equal)
 (asdf:load-system "tm")
 (require "tm")
 (use-package 'tm)

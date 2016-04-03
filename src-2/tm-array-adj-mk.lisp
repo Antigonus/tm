@@ -72,13 +72,20 @@ duplicate computation when tape is set explicitly.
         (cont-fail 
           (λ() (error 'tm-mk-init-failed :text "unrecognized adjustable array tape type"))
           ))
-      (unless (adjustable-array-p sequence) ; temporary until the fixed array is implemented
-        (funcall cont-fail)
-        )
-      (let(
-            (instance (make-instance 'tm-array-adj))
-            )
-        (tm-init instance sequence cont-ok cont-fail)
+      (if 
+        (adjustable-array-p sequence) 
+
+        (let(
+              (instance (make-instance 'tm-array))
+              )
+          (tm-init instance sequence cont-ok cont-fail)
+          )
+
+        (let(
+              (instance (make-instance 'tm-array-adj))
+              )
+          (tm-init instance sequence cont-ok cont-fail)
+          )
         ))
- 
+
   

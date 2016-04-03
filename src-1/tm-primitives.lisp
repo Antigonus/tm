@@ -51,6 +51,8 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
+;;   so there are two reasons allocation might fail, a) because memory has
+;;   been exhausted, b) because the tape does not support structural changes
 
   ;; Relative.
   (defgeneric a (tm object &optional cont-ok cont-no-alloc)
@@ -84,8 +86,15 @@ All tape machine implmentations must specialize these functions.
 ;; then tm must remain uneffected.  I.e. the cell can't just be dropped, as then
 ;; continuation might not be possible.
 ;;
-
-  (defgeneric d (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
+;; there are two reasons deallocation might fail a) because there is nothing
+;; two deallocate,  b) because the tape does not support structural changes.
+;;
+;; need to rename cont-rightmost as cont-no-dealloc in other parts of the code
+;;
+;; both deallocation and allocation are really the same thing, moving cells from
+;; one space to another
+;;
+  (defgeneric d (tm &optional spill cont-ok cont-no-dealloc cont-no-alloc)
     (:documentation 
       "Deallocates one cell to the right of the head.
        If spill exists, #'d tries to put the deallocated cell on spill.

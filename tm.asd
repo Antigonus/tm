@@ -113,6 +113,11 @@ See LICENSE.txt
                               (:file "tm-array-adj-derived")
                               (:file "tm-array-adj-convert")
 
+                              (:file "tm-array-mk")
+                              (:file "tm-array-primitives")
+                              (:file "tm-array-derived")
+                              (:file "tm-array-convert")
+
                               (:file "access-lang")
                               ))
 

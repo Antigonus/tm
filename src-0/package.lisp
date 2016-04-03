@@ -226,14 +226,14 @@ See LICENSE.txt
       #:tm-list
       #:tm-mk-list
 
-    ;; tm-list-buffer
+    ;; buffer
     ;;
       #:stack-list
       #:mk-stack-list
       #:queue-list
       #:mk-queue-list
 
-    ;; tm-tree
+    ;; tree
     ;;  
       #:tm-tree
 
@@ -245,6 +245,10 @@ See LICENSE.txt
       #:tm-breadth ;class
       #:tm-breadth-list ;class
       #:s-breadth
+
+    ;; arrays
+      #:tm-array
+      #:tm-array-adj
 
     ;; worker-utilities
     ;;
