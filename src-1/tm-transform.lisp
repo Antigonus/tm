@@ -6,11 +6,11 @@ See LICENSE.txt
   This machine takes as initial values a tape machine and two functions, a forward
   transform and a reverse transform.
 
-  When #'r is called, the init tape is read, the returned object is given to the forward
-  transform, and the result is returned as the object read.
+  When #'r is called, the base tape and the HA slot value are given to the read function,
+  and the return value is returned as the machine value.
 
-  When #'w is called, the object provided is given to the reverse-transform, and the result
-  is written to the init tape.
+  When #'w is called, the base tape, the HA slot value, and the object that was passed
+  to write are given to the write function.
 
   Provided that implementations are well behaved and use read and write to read from fill,
   and to write to spill, the transforms work when spilling and filling also.
@@ -38,23 +38,40 @@ See LICENSE.txt
 
   (defmethod tm-init ((tm tm-transform) init-list)
     (destructuring-bind
-      (tm &optional (read #'echo) (write #'echo)) init-list
-      (setf (tape tm) (make-transform :tm tm :read read :write write))
+      (
+        base-tm
+        &optional 
+        initial-state
+        (read (λ(tm state)(declare (ignore state))(r tm))) ; identity function
+        (write (λ(tm state object)(declare (ignore state))(w tm object)))
+        ) 
+      init-list
+      (setf (tape tm) 
+        (make-transform :tm (dup base-tm) :read read :write write)
+        )
+      (setf (HA tm) initial-state)
       tm
       ))
-
+          
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
   ;; we pass the base tape to the user's read function
   (defmethod r ((tm tm-transform)) 
-    (funcall (transform-read (tape tm)) (HA tm))
-    )
+    (funcall
+      (transform-read (tape tm))
+      (transform-tm (tape tm))
+      (HA tm)
+      ))
 
   ;; we pass the base tape and the object to be writen to the user's write function
   (defmethod w ((tm tm-transform) object)
-    (funcall (transform-write (tape tm)) (HA tm) tm object)
-    )
+    (funcall 
+      (transform-write (tape tm))
+      (transform-tm (tape tm)) 
+      (HA tm) 
+      object
+      ))
  
   (defmethod cue-leftmost  ((tm tm-transform)) 
     (cue-leftmost (transform-tm (tape tm)))

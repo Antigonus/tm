@@ -92,6 +92,7 @@ See LICENSE.txt
 
                               (:file "buffers")
                               (:file "tm-interval")
+                              (:file "tm-transform")
                               (:file "tm-depth")
                               (:file "tm-breadth")
 
