@@ -110,6 +110,15 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
+;; tm-aggregate
+;;
+  ;; nothing has been allocated at this location
+  (define-condition object-not-tape-machine (error)
+    ((text :initarg :text :reader text)))
+
+
+
+;;--------------------------------------------------------------------------------
 ;; access lang
 ;;
   (define-condition Δ-malformed-access-program (error)

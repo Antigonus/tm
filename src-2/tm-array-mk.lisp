@@ -17,7 +17,7 @@ See LICENSE.txt
   (defmethod tm-init ((instance tm-array) init-list)
     (when 
       (¬ init-list) 
-      (error 'tm-mk-bad-init-type :text "tm fixed array requires initializer")
+      (error 'tm-mk-bad-init-type :text "tm-array requires an initializer")
       )
     (let(
           (init (car init-list))

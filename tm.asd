@@ -118,6 +118,9 @@ See LICENSE.txt
                               (:file "tm-array-derived")
                               (:file "tm-array-convert")
 
+                              (:file "tm-aggregate-mk")
+                              (:file "tm-aggregate-primitives")
+
                               (:file "access-lang")
                               ))
 
@@ -125,6 +128,7 @@ See LICENSE.txt
                  :components (
                                (:file "worker")
                                (:file "tm-array-adj")
+                               (:file "tm-aggregate")
                                (:file "access-lang")
                                ))
              

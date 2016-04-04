@@ -3,31 +3,37 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+see notes in tm-smooth header
+
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;;  helpers
-;;
-  ;; for local use
-  ;; we use inclusive bounds, Lisp provides an exclusive bound
-  (defun rightmost-index (tm) (1- (length (tape tm))))
-
-;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-array)) (aref (tape tm) (HA tm) ))
-  (defmethod w ((tm tm-array) object)
-    (setf (aref (tape tm) (HA tm)) object)
+  (defmethod r ((tm tm-smooth))
+    (r (r (tape tm)))
+    )
+
+  (defmethod w ((tm tm-aggregate) object)
+    (if 
+      (typep object 'tape-machine)
+      (call-next-method tm object)
+      (error 'object-not-tape-machine)
+      ))
+
+  (defmethod w ((tm tm-smooth) object)
+    (w (r (tape tm)))
     t
     )
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost  ((tm tm-array)) 
-    (setf (HA tm) 0)
+  (defmethod cue-leftmost  ((tm tm-smooth)) 
+    (cue-leftmost (tape tm))
+    (cue-leftmost (r (tape tm)))
     )
 
 ;;--------------------------------------------------------------------------------
@@ -35,49 +41,56 @@ See LICENSE.txt
 ;;
   (defmethod heads-on-same-cell 
     (
-      (tm0 tm-array) 
-      (tm1 tm-array) 
+      (tm0 tm-smooth) 
+      (tm1 tm-smooth) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (if
-      (= (HA tm0) (HA tm1))
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
-
+    (heads-on-same-cell (r tm0) (r tm1) cont-true cont-false)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
   (defmethod s
     (
-      (tm tm-array)
+      (tm tm-smooth)
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (if
-       (< (HA tm) (rightmost-index tm))
-       (progn
-         (incf (HA tm))
-         (funcall cont-ok)
-         )
-      (funcall cont-rightmost)
-      ))
-
+    (s (r (tape tm))
+      cont-ok
+      (λ() (s (tape tm)
+             (λ() (cue-leftmost (r (tape tm))) (funcall cont-ok))
+             cont-rightmost
+             ))))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
   (defmethod a 
     (
-      (tm tm-array)
+      (tm tm-aggregate)
       object 
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail :text "alloc called in the middle of an array")))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (if 
+      (typep object 'tape-machine)
+      (call-next-method tm object cont-ok cont-no-alloc)
+      (error 'object-not-tape-machine)
+      ))
+
+  (defmethod a 
+    (
+      (tm tm-smooth)
+      object 
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (declare (ignore tm object cont-ok))
     (funcall cont-no-alloc)
@@ -88,7 +101,7 @@ See LICENSE.txt
 ;;
   (defmethod d 
     (
-      (tm tm-array)
+      (tm tm-smooth)
       &optional 
       spill
       (cont-ok #'echo)

@@ -56,7 +56,7 @@ See LICENSE.txt
        cont-ok 
        (cont-fail (error 'mount-unrecognized-sequence-type))
        )
-     (declare (ignore sequence))
+     (declare (ignore sequence cont-ok))
      (funcall cont-fail)
      )
 
