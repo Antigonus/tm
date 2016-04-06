@@ -24,7 +24,7 @@ See LICENSE.txt
     (let(
           (the-length 1)
           )
-      (⟳(λ(cont-loop,cont-return)
+      (⟳(λ(cont-loop cont-return)
           (s tm0 
             (λ()(incf the-length) (funcall cont-loop))
             cont-return

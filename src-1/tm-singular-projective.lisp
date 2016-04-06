@@ -24,7 +24,7 @@ See LICENSE.txt
 
   (defmethod tm-init ((tm tm-singular-projective) init-list)
     (cond
-      ((¬ init) 
+      ((¬ init-list) 
         (setf (HA tm) 'tm-singular-projective)
         tm
         )

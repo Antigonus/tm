@@ -3,14 +3,21 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+...wanted to declare package entries in each module, but SBC spit out
+errors when I made a second defpackage file with some new exports
+in it.  So, I'be put exports here in sections based on the module
+they belong to.
+
 |#
 
-;;--------------------------------------------------------------------------------
-;;
   (defpackage #:tm
     (:use common-lisp)
     (:use local-time)
     (:export 
+
+;;;--------------------------------------------------------------------------------
+;;; src-0
+;;;     
 
     ;; fundamental
     ;;
@@ -32,14 +39,6 @@ See LICENSE.txt
       #:nl
       #:defparam
 
-    ;; test framework
-    ;;
-      #:test-hook
-      #:test-remove
-      #:test-all
-      #:*log-default-file-name*
-      #:print-to-log
-
     ;;list-L
     ;;  also defines reader macros for {} and []
     ;;
@@ -58,6 +57,20 @@ See LICENSE.txt
       #:box
       #:unbox
 
+;;;--------------------------------------------------------------------------------
+;;; src-test
+;;;     
+    ;; test framework
+    ;;
+      #:test-hook
+      #:test-remove
+      #:test-all
+      #:*log-default-file-name*
+      #:print-to-log
+
+;;;--------------------------------------------------------------------------------
+;;; src-1
+;;;     
     ;;tm-mk
     ;;
       #:tape-machine ; class
@@ -196,10 +209,6 @@ See LICENSE.txt
       #:stack
       #:queue
 
-    ;; worker
-    ;;  
-      #:def-worker
-
     ;; fundamental machines
     ;;
       #:tm-void
@@ -244,9 +253,17 @@ See LICENSE.txt
 
       #:tm-transform
 
+;;;--------------------------------------------------------------------------------
+;;; src-2     
+;;
+
     ;; arrays
       #:tm-array
       #:tm-array-adj
+
+    ;; worker
+    ;;  
+      #:def-worker
 
     ;; worker-utilities
     ;;

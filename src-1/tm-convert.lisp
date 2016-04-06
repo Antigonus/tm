@@ -18,6 +18,10 @@ See LICENSE.txt
 
   (defgeneric to-list (tm))
   (defgeneric to-array-adj (tm))
+
+  ;; We purposely leave to-array without a generic implementation due to element
+  ;; type conversion issues.  Typically a program will use a worker to copy to an
+  ;; array machine, and then the prorgram will call to-array on the array machine.
   (defgeneric to-array (tm))
 
   ;; generic list maker, some specializations, particularly the tm-list specialization,

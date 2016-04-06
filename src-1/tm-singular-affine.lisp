@@ -30,7 +30,7 @@ See LICENSE.txt
 
   (defmethod tm-init ((tm tm-singular-affine) init-list)
     (cond
-      ((¬ init) 
+      ((¬ init-list) 
         (setf (HA tm) 'tm-singular-affine)
         tm
         )
