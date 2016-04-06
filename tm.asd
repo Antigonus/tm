@@ -17,9 +17,13 @@ See LICENSE.txt
   :depends-on ("local-time")
   :serial t
   :components(
+               (:module "package-def"
+                 :components (
+                               (:file "package")
+                               ))
+
                (:module "src-0"
                  :components (
-                              (:file "package")
                               (:file "fundamental")
                               (:file "list-L")
                               (:file "functions")
