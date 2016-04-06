@@ -178,6 +178,8 @@ See LICENSE.txt
       #:length=
       #:length≠
 
+      #:length-of
+
     ;; data-structures
     ;;
       #:stack-enqueue
