@@ -260,6 +260,7 @@ they belong to.
     ;; arrays
       #:tm-array
       #:tm-array-adj
+      #:tm-aggregate
 
     ;; worker
     ;;  

@@ -39,27 +39,30 @@ the smooth view level.
 ;;--------------------------------------------------------------------------------
 ;;
   (defmethod tm-init ((instance tm-aggregate) init-list)
-    (when 
-      (¬ init-list) 
-      (error 'tm-mk-bad-init-type :text "tm-aggregate requires an initializer")
-      )
-    (let(
-          (init (car init-list))
-          )
-      (cond
-        ((every (λ(i)(typep i 'tape-machine)) init-list)   
-          (call-next-method instance {init-list})
-          )
-        ((∧ 
-           (¬ (cdr init-list)) 
-           (consp init)
-           (every (λ(i)(typep i 'tape-machine)) init)
-           )
-          (call-next-method instance init-list)
-          )
-        (t
-          (error 'tm-mk-bad-init-type)
-          ))))
+    (if 
+      (¬ init-list)
+      (let(
+            (attach-point (tm-mk 'tm-singular-projective 'tm-aggregate))
+            )
+        (call-next-method instance {{attach-point}})
+        )
+      (let(
+            (init (car init-list))
+            )
+        (cond
+          ((every (λ(i)(typep i 'tape-machine)) init-list)   
+            (call-next-method instance {init-list})
+            )
+          ((∧ 
+             (¬ (cdr init-list)) 
+             (consp init)
+             (every (λ(i)(typep i 'tape-machine)) init)
+             )
+            (call-next-method instance init-list)
+            )
+          (t
+            (error 'tm-mk-bad-init-type)
+            )))))
 
   (defmethod tm-init ((instance tm-smooth) init-list)
     (when 

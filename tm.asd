@@ -14,6 +14,7 @@ See LICENSE.txt
   :version "0.2"
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
+  :license "MIT License"
   :depends-on ("local-time")
   :serial t
   :components(
