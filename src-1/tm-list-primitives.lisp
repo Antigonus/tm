@@ -53,29 +53,56 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
+      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (if
-      (and
-        (cdr (HA tm))
+    (cond
+      ((eq (HA tm) 'parked)  
+        (if (tape tm)
+          (setf (HA tm) (tape tm))
+          (funcall cont-mount-failed)
+          ))
+      ((cdr (HA tm))
         (setf (HA tm) (cdr (HA tm)))
+        (funcall cont-ok)
         )
-      (funcall cont-ok)
-      (funcall cont-rightmost)
-      ))
+      (t
+        (funcall cont-rightmost)
+        )))
 
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  ;; allocates a cell just to the right of the head an initializes it with object
+  ;; If the machine is empty, allocates a first cell,
+  ;; otherwise allocates a cell just to the right of the head
+  ;; The new cell initialized with the provided object.
   (defmethod a 
     (
       (tm tm-list)
       object 
-      &optional
+      &optional 
       (cont-ok (be t))
-      cont-no-alloc
+      (cont-no-alloc (be ∅))
       )
+    (if
+      (has-tape tm)
+      (if 
+        (is-parked tm)
+        (tm-list-a◧&hp&t tm object cont-ok cont-no-alloc)
+        (tm-list-a&h¬p tm object cont-ok cont-no-alloc)
+        )
+      (progn
+        (tm-list-init-w-first-object tm object)
+        (funcall cont-ok)
+        )))
+
+  (defun tm-list-a◧&hp&t (tm object cont-ok cont-no-alloc)
+    (declare (ignore cont-no-alloc)) ;; should do something with this ..
+    (setf (tape tm) (cons object (cdr (tape tm))))
+    (funcall cont-ok)
+    )
+
+  (defun tm-list-a&h¬p (tm object cont-ok cont-no-alloc)
     (declare (ignore cont-no-alloc)) ;; should do something with this ..
     (let(
           (new-cell (cons object (cdr (HA tm))))
@@ -83,6 +110,15 @@ See LICENSE.txt
       (rplacd (HA tm) new-cell)
       (funcall cont-ok)
       ))
+
+  (defun tm-list-init-w-first-object (tm object)  
+    (let(
+          (new-cell (cons object ∅))
+          )
+      (setf (HA tm) new-cell)
+      (setf (tape tm) new-cell)
+      ))
+          
 
 ;;--------------------------------------------------------------------------------
 ;; gather

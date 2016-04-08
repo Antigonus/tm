@@ -21,6 +21,7 @@ See LICENSE.txt
                (:module "package-def"
                  :components (
                                (:file "package")
+                               (:file "conditions")
                                ))
 
                (:module "src-0"
@@ -42,11 +43,9 @@ See LICENSE.txt
 
                (:module "src-1"
                  :components (
-                             ;; conditions
-                               (:file "conditions")
-
                              ;; interface definition
                                (:file "tm-mk")
+                               (:file "parking")
                                (:file "tm-primitives")
                                (:file "tm-derived")
                                (:file "tm-quantifiers")
@@ -60,7 +59,6 @@ See LICENSE.txt
                              ;; generic adapters
                                (:file "buffers")  ; stack and queue
                                (:file "tm-interval")
-                               (:file "tm-transform")
 
                              ;; interpretting another tm as a tree
                                (:file "tm-depth-mk")
@@ -96,7 +94,6 @@ See LICENSE.txt
 
                               (:file "buffers")
                               (:file "tm-interval")
-                              (:file "tm-transform")
                               (:file "tm-depth")
                               (:file "tm-breadth")
 
@@ -107,6 +104,8 @@ See LICENSE.txt
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               ))
+
+#|
 
                (:module "src-2"
                 :components (
@@ -137,7 +136,7 @@ See LICENSE.txt
                                (:file "tm-aggregate")
                                (:file "access-lang")
                                ))
-
+|#
                ))
   
   

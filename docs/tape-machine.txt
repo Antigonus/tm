@@ -6,15 +6,60 @@
    
       s step 
       a allocate/add/append a new cell, place it just to the right of head cell, requires fill
-      d deallocate/drop/delete cell - optional spill (i.e. realloc)
+      d deallocate/drop/delete cell - optional spill (i.e. realloc), affects cell to the right of the head
 
       ;; move derived, not primitive
       m move data, no allocation or deallocation of cells, requires fill
 
 
-
-
 syntax of derived functions:
+
+---
+
+  [tape-side] command [modifier]
+
+  tape-side: -
+
+  command:  r | w | s | a | d | m
+
+  modifier:  [affects] (& contract)*
+
+  affects: ◧ ◨ 
+
+  when tape-side is not specified, it is right
+  when affects is not specified, it is the head
+
+
+ contracts:
+    h◧    head is at leftmost
+    h◨    head is at rightmost
+    hp    head is parked
+    h¬p   head is not parked
+    t     tape is not nil
+
+examples:
+
+   -s     ; step left
+   s*     ; cue rightmost
+   -s*    ; cue leftmost
+   sch¬p  ; step with a contract that the head is not parked
+   a◧     ; creates a new leftmost cell
+   a◨     ; append to rightmost
+   sn     ; step n times, n is provided as an argument
+
+to derive a longer command, combine:
+
+   as    ;  append then step
+   -a-s  ; append to the left, step to the left
+   
+
+
+
+
+
+=== the rest of this file should probably be ignored.  The above will go into
+the access lange chapter in the manual
+
 
     tape-side command tape-end-specifier head-contract quantification 
 
@@ -22,7 +67,7 @@ syntax of derived functions:
 𝝐 = not present
 tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
 command: [rwsadm]   ;pick one letter
-head-contract: [h◧ h◨ 𝝐]     ;head on leftmost, head on rightmost, or no contract
+head-contract: [h◧ h◨ h¬p 𝝐]     ;head on leftmost, head on rightmost, head not parked or no contract
 tape-end-specifier:  [◧ ◨ 𝝐] ; operates on, ◧ leftmost, ◨ rightmost, 𝝐 on head
 quantification: [n*𝝐]  ; count, repeat to end, or do once
 
@@ -34,8 +79,6 @@ as  append and step
 -a-s  append to the left, step to the left
 
 
-=== the rest of this file should probably be ignored.  The above will go into
-the access lange chapter in the manual
 
 
 ----

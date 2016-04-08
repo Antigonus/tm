@@ -5,9 +5,11 @@ See LICENSE.txt
 
   The machine's tape has been weaved through a tree.
 
+  This machine must be initialized to another tape before being used.  It
+  can not be parked.
+
   We include the base tm as a slot, rather than inheriting it, because we need the
   specialized behavior of the tm methods inside the implementation of tm-depth methods.
-
 |#
 
 (in-package #:tm)
@@ -106,7 +108,9 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
+      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
+    (declare (ignore cont-mount-failed))
     (s-breadth
       (tape tm)
       (HA tm)

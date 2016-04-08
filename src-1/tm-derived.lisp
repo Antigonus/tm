@@ -74,11 +74,11 @@ of the primitives.
 ;; accessing data
 ;;
 
-  (defgeneric ws (tm object &optional index cont-ok cont-rightmost)
+  (defgeneric wsn (tm object &optional index cont-ok cont-rightmost)
     (:documentation "Writes object into the cell under the tape head, and steps tm.")
     )
 
-  (defmethod ws
+  (defmethod wsn
     (
       (tm tape-machine)
       object
@@ -260,8 +260,15 @@ of the primitives.
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
-    )
+    (a tm object 
+      (λ()
+        (s tm
+          cont-ok
+          (λ()(error 'tm-impossible-to-get-here))
+          (λ()(error 'tm-impossible-to-get-here))
+          ))
+      cont-no-alloc
+      ))
 
   (defgeneric ah◨ (tm object &optional cont-ok cont-no-alloc)
     (:documentation 

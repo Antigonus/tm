@@ -31,6 +31,6 @@ See LICENSE.txt
           (tm1 (tm-mk 'tm-list))
           )
       (⟳ (λ(cont-loop cont-return) (as tm1 (r tm0) cont-loop cont-return)))
-      (cdr (tape tm1))
+      (tape tm1)
       ))
 

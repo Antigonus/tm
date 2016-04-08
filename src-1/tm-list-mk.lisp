@@ -20,14 +20,7 @@ See LICENSE.txt
 ;;
   (defmethod tm-init ((instance tm-list) init-list)
     (cond
-      ((¬ init-list) 
-        (let(
-              (first-cell (cons 'list ∅))
-              )
-          (setf (tape instance) first-cell)
-          (setf (HA instance) first-cell)
-          instance
-          ))
+      ((¬ init-list) instance); HA initial form is 'empty
 
       ;; only one element, and that element is a list, then it is our list to bind to
       ((∧ (¬ (cdr init-list)) (consp (car init-list))) 

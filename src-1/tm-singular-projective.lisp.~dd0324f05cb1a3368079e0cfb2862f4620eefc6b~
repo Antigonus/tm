@@ -96,9 +96,8 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (declare (ignore cont-ok cont-mount-failed))
+    (declare (ignore cont-ok))
     (funcall cont-rightmost)
     )
 

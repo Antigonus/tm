@@ -71,6 +71,12 @@ they belong to.
 ;;;--------------------------------------------------------------------------------
 ;;; src-1
 ;;;     
+    ;; parking
+    ;;
+      #:is-parked
+      #:has-tape
+      #:park
+
     ;;tm-mk
     ;;
       #:tape-machine ; class
@@ -183,6 +189,7 @@ they belong to.
       #:singleton
       #:doubleton
       #:tripleton
+      #:length-cmp
 
       #:length≥
       #:length>
@@ -253,6 +260,10 @@ they belong to.
 
       #:tm-transform
 
+    ;; dataflow
+    ;;
+      #:synch
+      
 ;;;--------------------------------------------------------------------------------
 ;;; src-2     
 ;;

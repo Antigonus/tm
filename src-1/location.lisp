@@ -5,6 +5,8 @@ See LICENSE.txt
   
   Info about where the head is located within the tape's address space.
 
+  See tm-derived.lisp for on-leftmost and on-rigthmost
+
   Array specializations will have more efficient implementation than these
   generic ones.
 
@@ -117,35 +119,29 @@ See LICENSE.txt
       "address of head.  Address is zero when the head is on leftmost."
       ))
 
-  (defmethod address ( (tm0 tape-machine) )
+  ;; specialized version might be a lot faster
+  (defmethod address ((tm0 tape-machine))
     (let(
-          (n 0)
-          (tm1 (dup tm0))
+          (tm1 (mount tm0))
+          (address 0)
           )
-      (cue-leftmost tm1)
-      (labels(
-               (scan-right()
-                 (s≠ 
-                   tm1
-                   tm0 
-                   (λ()(incf n)(scan-right))
-                   (λ()
-                     (on-rightmost tm0
-                       (λ() n)
-                       (error 'tm-impossible-to-get-here)
-                       ))
-                   (λ() n)
-                   ))
-               )
-        (heads-on-same-cell tm1 tm0
-          (be 0)
-          (λ() (scan-right))
-          ))))
+      (⟳(λ(cont-loop cont-return)
+          (heads-on-same-cell tm1 tm0
+            cont-return
+            (s tm1
+              (λ()(incf address) (funcall cont-loop))
+              (λ()(error 'tm-ipossible-to-get-here))
+              ))))
+      address
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; relative location
 ;;
-  (defgeneric distance+1 (tm0 tm1 &optional cont-true cont-false))
+  (defgeneric distance+1 (tm0 tm1 &optional cont-true cont-false)
+    (:documentation
+      "The tm1 is one step to the right of tm0."
+      ))
 
   (defmethod distance+1
     ( 
@@ -163,7 +159,10 @@ See LICENSE.txt
         cont-false
         )))
 
-  (defgeneric distance+n (tm0 tm1 n &optional cont-true cont-false))
+  (defgeneric distance+n (tm0 tm1 n &optional cont-true cont-false)
+    (:documentation
+      "tm1 is n steps to the right of tm0."
+      ))
 
   (defmethod distance+n
     ( 
@@ -191,7 +190,10 @@ See LICENSE.txt
             )))))
 
   ;; distance from tm0 on the left, to tm1 on the right
-  (defgeneric distance (tm0 tm1))
+  (defgeneric distance (tm0 tm1)
+    (:documentation
+      "Returns the number of steps needed by tm0 to reach tm1, might be negative."
+      ))
 
   ;; not a good implementation ..
   ;; this should calc steps from one to the other as address is open ended

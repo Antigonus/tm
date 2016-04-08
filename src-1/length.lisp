@@ -16,22 +16,6 @@ See LICENSE.txt
 ;; (length tm0) <?> ( (length tm1) | n )
 (defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
-(defgeneric length-of (tm))
-
-;; specialized version might be a lot faster
-;;
-  (defmethod length-of ((tm0 tape-machine))
-    (let(
-          (the-length 1)
-          )
-      (⟳(λ(cont-loop cont-return)
-          (s tm0 
-            (λ()(incf the-length) (funcall cont-loop))
-            cont-return
-            )))
-      the-length
-      ))
-
 ;; specialized versions might be faster, otherwise would have made these functions.
 ;;
   (defmethod singleton ((tm0 tape-machine))

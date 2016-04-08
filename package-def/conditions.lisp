@@ -30,6 +30,11 @@ See LICENSE.txt
   (define-condition tm-computationally-impossible (error)
     ((text :initarg :text :reader text)))
 
+  ;; request to step into subspace, but no subsace was present
+  (define-condition tm-mount-failed (error)
+    ((text :initarg :text :reader text)))
+
+
 
 ;;--------------------------------------------------------------------------------
 ;; list-L
@@ -44,7 +49,7 @@ See LICENSE.txt
   (define-condition tm-mk-bad-init-type (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition tm-mk-unrecognized-instance-type (error)
+  (define-condition tm-init-unrecognized-instance-type (error)
     ((text :initarg :text :reader text)))
 
   (define-condition mount-unrecognized-sequence-type (error)
@@ -94,6 +99,12 @@ See LICENSE.txt
   (define-condition tm-no-such-location (error)
     ((text :initarg :text :reader text)))
 
+
+;;--------------------------------------------------------------------------------
+;; dataflow
+;;
+  (define-condition not-ready (error)
+    ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
 ;; buffers

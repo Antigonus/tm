@@ -12,7 +12,7 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defgeneric r (tm) 
+  (defgeneric r (tm)
     (:documentation 
       "Given a tape machine, returns the object from the cell under the tape head.")
     )
@@ -27,11 +27,8 @@ All tape machine implmentations must specialize these functions.
   (defgeneric cue-leftmost (tm)
     (:documentation 
       "Cue tm's head to the leftmost cell.
-       Returns tm.
-       This method might not be available for all implementations.
        "
       ))
-
 
 ;;--------------------------------------------------------------------------------
 ;; head location predicate
@@ -43,26 +40,28 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defgeneric s (tm &optional cont-ok cont-rightmost)
+  (defgeneric s (tm &optional cont-ok cont-rightmost cont-mount-failed)
     (:documentation 
-      "Step tm head to the neighbor cell on the right.
+      "If the head is parked and there is no leftmost, cont-mount-failed.
+       If the head is parked and there is a leftmost, puts the head on leftmost, and
+       cont-ok.  If the head is on a cell, and there is a right neighbor, puts the head on
+       the right neighbor and cont-ok.  If there is no right neighbor, then
+       cont-rightmost.
       "))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-;;   so there are two reasons allocation might fail, a) because memory has
-;;   been exhausted, b) because the tape does not support structural changes
-
-  ;; Relative.
+;;   
+;;
   (defgeneric a (tm object &optional cont-ok cont-no-alloc)
     (:documentation
-      "If no cells are available to be allocated then #'a takes the cont-no-alloc
-       continuation.  Otherwise, it allocates a new cell and places it to the right of
-       the cell the head is currently on.  The newly allocated cell is initialized with
-       the given object.  Allocation failures are quite possible for fixed length
-       implementations such as arrays.  The current implementation throws a system
-       error if the problem is that the system ran out of memory.
+      "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
+       it to the right of the cell the head is currently on.  The newly allocated cell
+       initialized with the given object.  There are two reasons allocation might fail, a)
+       because memory has been exhausted, b) because the tape does not support structural
+       changes. (The current implementation throws a system error when the heap is
+       depleted.)
        "
       ))
 

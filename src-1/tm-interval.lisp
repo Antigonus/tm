@@ -100,7 +100,9 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
+      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
+    (declare (ignore cont-mount-failed))
     (if
       (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
       (funcall cont-rightmost)
