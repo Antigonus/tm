@@ -128,10 +128,11 @@ See LICENSE.txt
       (⟳(λ(cont-loop cont-return)
           (heads-on-same-cell tm1 tm0
             cont-return
-            (s tm1
-              (λ()(incf address) (funcall cont-loop))
-              (λ()(error 'tm-ipossible-to-get-here))
-              ))))
+            (λ() 
+              (s tm1
+                (λ()(incf address) (funcall cont-loop))
+                (λ()(error 'tm-impossible-to-get-here))
+                )))))
       address
       ))
 

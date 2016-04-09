@@ -1,11 +1,7 @@
 #|
-
 Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
-
-Removing the 'embedded' stack/queue, because the same thing can be 
-achieved using a subspace.
 
 
           the attachment point for adding to a queue
@@ -20,20 +16,17 @@ achieved using a subspace.
      the attachment point for the stack/queue
      also the dequue point
 
-In this diagram of a tape, A is the attachment cell for the stack. It is signfied as tm-h◧
-- a tape machine with a contract that the head is at rightmost. The stack or queue does
-not read or write this cell, rather it treats it purely has an attachment point.
+In this diagram of a tape, A is the attachment cell for the stack. The stack or queue
+does not read or write this cell, rather it builds the buffer to the right of this cell.
 
-X is the rightmost of the tape. For queues it is the allocation point for new data.  For
-a stack it is the 'bottom' of the stack.  It is signified as tm-h◨ - a tape machine with
-a contract that the head is at rightmost.  When a new object is placed on the
-queue, the cell for that new object is allocated just to the right of X.
+Here, X is the rightmost of the tape. For queues it is the allocation point for new data.
+For a stack it is the 'bottom' of the stack.
 
 When the stack has multiple values, i.e. like this,
 
     A Y W ... X
 
-Then using #'d to pull or dequeue a value works well, and after the operation, the
+Then using #'d from A in or to dequeue Y works well, and after the operation, the
 stack/queue looks like this:
 
    A W ... X
@@ -42,9 +35,8 @@ However if the queue has only one value, i.e. like this,
 
      A X
 
-Then calling #'d to dequeue a value would remove our enqueue attachment point!  That would
-be bad.  tm-h◨ would be pointing into the mysterious land of deallocated cells. It is to
-avoid that eventuality that we treat the case of removing the last item from the queue
+Then calling #'d to dequeue a value would remove, X, our allocation point for a queue.
+That would be bad. Hence we treat the case of removing the last item from the queue
 specially.
 
 |#
@@ -56,26 +48,26 @@ specially.
 ;;
 ;; Leftmost is an attachment point for the stack.
 ;;
-  (defun stack-enqueue (tm-h◧ object)
+  (defun stack-enqueue (tm-stack object)
     "Pushes an object on to the stack"
-    (a tm-h◧ object)
+    (a tm-stack object)
     )
 
   ;; in the English language, dequeue means to remove something from a queue
   ;; it is pronounced d-q
   (defun stack-dequeue
     (
-      tm-h◧
+      tm-stack
       &optional 
       (cont-ok #'echo) 
       (cont-empty (error 'dequeue-from-empty :text "stack is empty"))
       )
     "Pulls an object off of the stack"
-    (d tm-h◧ ∅ cont-ok cont-empty)
+    (d tm-stack ∅ cont-ok cont-empty)
     )
 
-  (defun stack-empty (tm-h◧ &optional (cont-true (be t)) (cont-false (be ∅)))
-    (on-rightmost tm-h◧ cont-true cont-false)
+  (defun stack-empty (tm-stack &optional (cont-true (be t)) (cont-false (be ∅)))
+    (on-rightmost tm-stack cont-true cont-false)
     )
 
 ;;--------------------------------------------------------------------------------

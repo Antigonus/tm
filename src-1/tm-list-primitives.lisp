@@ -87,12 +87,12 @@ See LICENSE.txt
     (if
       (has-tape tm)
       (if 
-        (is-parked tm)
+        (parked tm)
         (tm-list-a◧&hp&t tm object cont-ok cont-no-alloc)
         (tm-list-a&h¬p tm object cont-ok cont-no-alloc)
         )
       (progn
-        (tm-list-init-w-first-object tm object)
+        (tm-list-a&hp&¬t tm object)
         (funcall cont-ok)
         )))
 
@@ -111,13 +111,9 @@ See LICENSE.txt
       (funcall cont-ok)
       ))
 
-  (defun tm-list-init-w-first-object (tm object)  
-    (let(
-          (new-cell (cons object ∅))
-          )
-      (setf (HA tm) new-cell)
-      (setf (tape tm) new-cell)
-      ))
+  (defun tm-list-a&hp&¬t (tm object)  
+    (setf (tape tm) (cons object ∅))
+    )
           
 
 ;;--------------------------------------------------------------------------------

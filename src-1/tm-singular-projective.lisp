@@ -4,14 +4,13 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
   The cell type for this machine is unique. It is a singular-projective cell type.
-  There are no generators for cells of this type.
+  There are no allocators for cells of this type.
 
   The tape on this machine is intialized with exactly one such cell, a single cell.  Hence
   it has a single cell of a unique type. 
 
-  It is illegal to deallocate the cell under the head, and as this machine has one cell,
-  and the head is always on top of it, no cell can ever be deallocated.  As it can not
-  be deallocated it can not be shared or gathered.
+  In general it is illegal to deallocate the cell under the head, and as this machine has
+  one cell, and the head is always on top of it, no cell can ever be deallocated.
 
 |#
 
@@ -54,7 +53,7 @@ See LICENSE.txt
  
   ;; already on leftmost
   (defmethod cue-leftmost  ((tm tm-singular-projective)) 
-    tm
+    t
     )
 
   (defun heads-on-same-cell-singular-projective-0 (tm0 tm1 cont-true cont-false)

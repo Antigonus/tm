@@ -5,6 +5,7 @@ See LICENSE.txt
 
 |#
 
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; synchronizing inputs
@@ -15,11 +16,14 @@ See LICENSE.txt
       tms 
       &optional 
       (cont-ready (be t))
-      (cont-not-ready (λ(retry tms)(declare (ignore retry tms))(error 'not-ready)))
-      )
+      (cont-not-ready 
+        (λ(retry tms)
+          (declare (ignore retry tms))
+          (error 'not-ready)
+          )))
     (labels(
              (retry ()
-               (∀ (mount tms) pred
+               (∀ (mount tms) (λ(tm)(funcall pred (r tm)))
                  cont-ready
                  (λ()(funcall cont-not-ready #'retry tms))
                  ))

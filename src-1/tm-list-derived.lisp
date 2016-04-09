@@ -56,26 +56,6 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; cell allocation
-;;
-  (defmethod as
-    (
-      (tm tm-list)
-      object 
-      &optional
-      (cont-ok (be t))
-      cont-no-alloc
-      )
-    (declare (ignore cont-no-alloc)) ;; should do something with this ..
-    (let(
-          (new-cell (cons object (cdr (HA tm))))
-          )
-      (rplacd (HA tm) new-cell)
-      (setf (HA tm) (cdr (HA tm)))
-      (funcall cont-ok)
-      ))
-
-;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
 
