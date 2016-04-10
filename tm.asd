@@ -70,10 +70,11 @@ See LICENSE.txt
                                (:file "tm-breadth-convert")
 
                              ;; simple generators 
-                               (:file "tm-void")
+                               (:file "tm-line")
                                (:file "tm-singular-affine")
                                (:file "tm-singular-projective")
-                               (:file "tm-line")
+                               (:file "tm-void-affine")
+                               (:file "tm-void-projective")
 
                              ;; list implementation
                                (:file "tm-list-mk")
@@ -81,6 +82,10 @@ See LICENSE.txt
                                (:file "tm-list-derived")
                                (:file "tm-list-buffers")
                                (:file "tm-list-convert")
+
+                             ;; dataflow
+                               (:file "dataflow")
+
                               ))
 
                (:module "test-1"

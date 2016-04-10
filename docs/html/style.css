@@ -77,6 +77,13 @@
 
 /* article structure ----------------------------------------*/
 
+  div.page{
+      display: flex;
+      padding: 0;
+      margin: 0;
+  }
+
+
   article{
       position:relative;
       margin:20pt;
@@ -127,7 +134,7 @@
     }
 
   header {
-      padding:20pt
+      padding:5pt
       background-color: #3f3f7f;
   }
 
@@ -146,7 +153,7 @@
       display: block;
       color: #f5f5dc;
       text-align: center;
-      padding: 14px 16px;
+      padding: 7px 8px;
       text-decoration: none;
   }
 
@@ -166,7 +173,7 @@
 
   ul.pagination li a {
       float: left;
-      padding: 8px 16px;
+      padding: 2px 5px;
       color: #f5f5dc;
       text-decoration: none;
       transition: background-color .3s;

@@ -73,7 +73,8 @@ they belong to.
 ;;;     
     ;; parking
     ;;
-      #:is-parked
+      #:parked
+      #:not-parked
       #:has-tape
       #:park
 

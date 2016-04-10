@@ -56,7 +56,7 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
   ;; sometimes the type of the tm matters
-  (define-condition wront-tm-type (error)
+  (define-condition wrong-tm-type (error)
     ((text :initarg :text :reader text)))
   
 
@@ -72,6 +72,11 @@ See LICENSE.txt
   ;; (for example for the front end of a pipe)
   (define-condition tm-write-only (error)
     ((text :initarg :text :reader text)))
+
+  ;; can't read or write to this machine
+  (define-condition tm-void-projective (error)
+    ((text :initarg :text :reader text)))
+
 
   ;; used for #'a and #'d on spill when allocation fails
   (define-condition tm-alloc-fail (error)

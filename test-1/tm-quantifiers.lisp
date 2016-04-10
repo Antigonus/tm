@@ -24,6 +24,13 @@ See LICENSE.txt
       ))
   (test-hook test-∃-0) 
 
+  (defun test-∀-0 ()
+    (∧
+      (∀ (mount {1 3 5}) (λ(tm)(oddp (r tm))))
+      (¬ (∀ (mount {4})  (λ(tm)(oddp (r tm)))))
+      ))
+  (test-hook test-∀-0)
+
   (defun test-¬∀-0 ()
     (let*(
            (y '(1 3 4 5))
@@ -95,7 +102,7 @@ See LICENSE.txt
                    ))
                )
         (⟳ #'worker)
-        (equal (tape tm-src) (cdr (tape tm-dst)))
+        (equal (tape tm-src) (tape tm-dst))
         )))
   (test-hook test-⟳-0)
 
