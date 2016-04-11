@@ -16,7 +16,7 @@ Calling dealloc, #'d transitions to 'tm-void.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-singular (tm-parked-singular)())
+  (defclass tm-singular (tm-void)())
 
   (defmethod init 
     (
@@ -24,7 +24,7 @@ Calling dealloc, #'d transitions to 'tm-void.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (error 'bad-init-value))
+      (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
       (&key tape-space mount &allow-other-keys) init-list
@@ -55,7 +55,7 @@ Calling dealloc, #'d transitions to 'tm-void.
       object-1
       &optional
       cont-ok
-      (cont-no-alloc (error 'tm-alloc-fail))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
           (tm1 (dup tm))
@@ -70,3 +70,20 @@ Calling dealloc, #'d transitions to 'tm-void.
         cont-no-alloc
         )))
 
+  (defmethod d 
+    (
+      (tm tm-singular)
+      &optional 
+      spill
+      cont-ok
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore cont-no-dealloc))
+    (when spill 
+      (as spill (tape tm) #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
+      )
+    (setf (tape tm) ∅)
+    (change-class tm 'tm-void)
+    (funcall cont-ok)
+    )

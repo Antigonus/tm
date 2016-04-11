@@ -114,8 +114,8 @@ they belong to.
 
       #:a◧
       #:as
-      #:ah◨
-      #:ah◨s
+      #:a&h◨
+      #:a&h◨s
       #:-a
       #:-a-s
 

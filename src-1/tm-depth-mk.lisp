@@ -15,22 +15,23 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tape-machine)())
 
-  (defmethod tm-init ((instance tm-depth) init-list)
-    (cond
-      ((¬ init-list) ; user ∅ or default, will be based on an 'tm-list of one cell
-        (setf (tape instance) (tm-mk 'tm-list))
-        (setf (HA instance) (tm-mk 'stack-list))
-        instance
-        )
-
-      ;; only one item, and that item is a tm, then it is our tm to bind to
-      ((∧ (¬ (cdr init-list)) (typep (car init-list) 'tape-machine))
-        (setf (tape instance) (car init-list))
-        (setf (HA instance) (tm-mk 'stack-list))
-        instance
-        )
-
-      (t
-        (error 'tm-mk-bad-init-type)
+  ;; base is another tape machine
+  (defmethod init 
+    (
+      (instance tm-depth)
+      init-list
+      &optional 
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
+    (destructuring-bind
+      (&key base &allow-other-keys) init-list
+      (if 
+        base
+        (progn
+          (setf (HA instance) (mk 'stack-list))
+          (setf (tape instance) base)
+          (funcall cont-ok)
+          )
+        (funcall cont-fail)
         )))
-

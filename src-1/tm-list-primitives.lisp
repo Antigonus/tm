@@ -5,6 +5,14 @@ See LICENSE.txt
 
   Tape is implemented with a singly linked list.
 
+  A machine is born as void projective,  with the addition of the first
+  cell it becomes singular projective, and then, upon this branch of
+  development it arrives at the tm-list.  And thus a tm-list will
+  have at least two cells.
+
+  Deallocation, #'d may cause this machine to collapse into a singular
+  projective machine.
+
 |#
 
 (in-package #:tm)
@@ -67,9 +75,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  ;; If the machine is empty, allocates a first cell,
-  ;; otherwise allocates a cell just to the right of the head
-  ;; The new cell initialized with the provided object.
+  ;; Allocates a cell to the right of the head.
   (defmethod a 
     (
       (tm tm-list)
@@ -78,41 +84,20 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc (be ∅))
       )
-    (if
-      (tape tm)
-      (if 
-        (parked tm)
-        (tm-list-a◧&hp&t tm object cont-ok cont-no-alloc)
-        (tm-list-a&h¬p tm object cont-ok cont-no-alloc)
-        )
-      (progn
-        (tm-list-a&hp&¬t tm object)
-        (funcall cont-ok)
-        )))
-
-  (defun tm-list-a◧&hp&t (tm object cont-ok cont-no-alloc)
     (declare (ignore cont-no-alloc)) ;; should do something with this ..
-    (setf (tape tm) (cons object (tape tm)))
-    (funcall cont-ok)
-    )
-
-  (defun tm-list-a&h¬p (tm object cont-ok cont-no-alloc)
-    (declare (ignore cont-no-alloc)) ;; should do something with this ..
-    (let(
-          (new-cell (cons object (cdr (HA tm))))
-          )
+    (let*(
+           (connection-point (cdr (HA tm)))
+           (new-cell (cons object connection-point))
+           )
       (rplacd (HA tm) new-cell)
       (funcall cont-ok)
       ))
-
-  (defun tm-list-a&hp&¬t (tm object)  
-    (setf (tape tm) (cons object ∅))
-    )
           
 
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
+  ;; a tm-list has at least two cells (or it would have collapsed to singular or void)
   ;; deallocates the cell just to the right of the head
   (defmethod d 
     (
@@ -120,52 +105,46 @@ See LICENSE.txt
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (if
-      (tape tm)
-      (if
-        (parked tm)
-        (tm-list-d◧&hp&t tm spill cont-ok cont-rightmost cont-no-alloc)
-        (tm-list-d&h¬p tm spill cont-ok cont-rightmost cont-no-alloc)
-        )
-      (funcall cont-rightmost)
-      ))
 
-   ;; tm-list-d◧ - delete leftmost
-   ;; Contract says tape exists, so we can't get a cont-rightmost (which would signify
-   ;; nothing to the right of the attachment point).
-   ;; Contract says the head is parked, so we can't delete the cell the head is on.
-   ;; Spill is a tm, but we don't know if it is a tm-list.
-   ;; We allow that spill has been set to ∅ to turn off spilling
-   (defun tm-list-d◧&hp&t (tm spill cont-ok cont-rightmost cont-no-alloc)
-     (declare (ignore cont-rightmost)) ; as there is a tape, there is a leftmost to dealloc
-     (let(
-           (leftmost-object (car (tape tm)))
-           )
-       (setf (tape tm) (cdr (tape tm)))
-       (if 
-         spill 
-         (as spill leftmost-object (λ()(funcall cont-ok leftmost-object)) cont-no-alloc)
-         (funcall cont-ok leftmost-object)
-         )))
+    (tm-list-on-rightmost tm
+      (λ() (funcall cont-no-dealloc) )
+      (λ()
+        (if (tm-list-doubleton tm) 
 
-   ;; This is d for the tape space.
-   ;; Contract says the head is not parked, so this is our normal case, i.e. we
-   ;; want to delete the cell to the right of the cell the head is on.
-   (defun tm-list-d&h¬p (tm spill cont-ok cont-rightmost cont-no-alloc)
-       (if
-         (cdr (HA tm))
-         (let*(
-                (deallocation-cell (cdr (HA tm)))
-                (affected-object (car deallocation-cell))
-                (reconnect-point (cdr deallocation-cell))
-                )
-           (rplacd (HA tm) reconnect-point)
-           (if spill
-             (as spill affected-object (λ()(funcall cont-ok affected-object)) cont-no-alloc)
-             (funcall cont-ok affected-object)
-             ))
-         (funcall cont-rightmost)
-         ))
+          ;; doubleton, then collapses to singular
+          ;; as we eliminated the rightmost case, head is on leftmost
+          (let*(
+                 (keep-object (car (tape tm)))
+                 (dealloc-cell (cdr (tape tm)))
+                 (dealloc-object (car dealloc-cell))
+                 )
+            (when spill
+              (as spill dealloc-object 
+                #'do-nothing 
+                (λ()(return-from d (funcall cont-no-alloc)))
+                ))
+            (change-class tm 'tm-singular)
+            (init tm :mount {keep-object})
+            (funcall cont-ok dealloc-object)
+            )
+          
+          ;; normal case, tape is longer than doubleton
+          ;; as we elimated the rightost case, dealloc-cell will exist
+          (let*(
+                 (dealloc-cell (cdr (HA tm)))
+                 (dealloc-object (car dealloc-cell))
+                 (connection-point (cdr dealloc-cell))
+                 )
+            (when spill
+              (as spill dealloc-object 
+                #'do-nothing 
+                (λ()(return-from d (funcall cont-no-alloc)))
+                ))
+            (rplacd (HA tm) connection-point)
+            (funcall cont-ok dealloc-object)
+            )))))
+     
+

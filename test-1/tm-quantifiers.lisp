@@ -91,7 +91,7 @@ See LICENSE.txt
   (defun test-⟳-0 ()
     (let(
           (tm-src (mount [a b c]))
-          (tm-dst (tm-mk 'tm-list))
+          (tm-dst (mk 'tm-list))
           )
       (labels(
                (worker (cont-ok cont◨)

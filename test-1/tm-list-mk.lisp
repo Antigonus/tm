@@ -11,9 +11,9 @@ See LICENSE.txt
 
 (defun test-tm-mk-list-0 ()
   (let*(
-         (tm0 (tm-mk 'tm-list))
+         (tm0 (mk 'tm-list))
          (tm1 (mount [7 2 -3]))
-         (tm2 (tm-mk (type-of tm0)))
+         (tm2 (mk (type-of tm0)))
          )
     (∧
       (eq (r tm0) 'list)

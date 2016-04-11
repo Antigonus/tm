@@ -45,8 +45,8 @@ See LICENSE.txt
 
   (defun test-d◧-1 ()
     (let(
-          (tm1 (tm-mk 'tm-list))
+          (tm1 (mk 'tm-list))
           )
-      (d◧ tm1 'd (be ∅) (be t))
+      (d◧ tm1 ∅ (be ∅) (be t))
       ))
   (test-hook test-d◧-1)

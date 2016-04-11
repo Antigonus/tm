@@ -31,7 +31,7 @@ See LICENSE.txt
 
   (defmethod init 
     (
-      (tm tm-void)
+      (tm tm-interval)
       init-list 
       &optional
       (cont-ok (be t))
@@ -39,17 +39,17 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key seed &allow-other-keys) init-list
-      (unless 
-        (∧ seed (= (length seed 2)))
+      (if
+        (∧ seed (= (length seed) 2))
         (funcall cont-fail)
-        )
-      (let(
-            (leftmost-tm (first seed)) ; wonder if I should dup these
-            (rightmost-tm (right seed))
-            )
-        (setf (HA tm) (dup leftmost-tm))
-        (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
-        )))
+        (let(
+              (leftmost-tm (first seed)) ; wonder if I should dup these
+              (rightmost-tm (second seed))
+              )
+          (setf (HA tm) (dup leftmost-tm))
+          (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
+          (funcall cont-ok)
+          ))))
 
 
 ;;--------------------------------------------------------------------------------

@@ -56,10 +56,8 @@ of the primitives.
       tm-dup
       ))
 
-  ;; mount the same tape that another machine has mounted
-  ;; unlike dup, upon exit the head is at leftmost
-  ;; tm-mk with an init of another tape machine often has the same behaivor, but
-  ;;   this is not guaranteeed
+  ;; Mounts the same tape that another machine has mounted.
+  ;; Unlike dup, upon exit the head is at leftmost.
   (defmethod mount ((tm tape-machine) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
@@ -265,18 +263,17 @@ of the primitives.
         (s tm
           cont-ok
           (λ()(error 'tm-impossible-to-get-here))
-          (λ()(error 'tm-impossible-to-get-here))
           ))
       cont-no-alloc
       ))
 
-  (defgeneric ah◨ (tm object &optional cont-ok cont-no-alloc)
+  (defgeneric a&h◨ (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
       "#'a with a contract that the head is on rightmost.
        Some implementatons will be able to specialize this and make it more efficient.
       "))
 
-  (defmethod ah◨
+  (defmethod a&h◨
     (
       (tm tape-machine)
       object
@@ -287,13 +284,13 @@ of the primitives.
     (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
     )
 
-  (defgeneric ah◨s (tm object &optional cont-ok cont-no-alloc)
+  (defgeneric a&h◨s (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
       "#'as with a contract that the head is on rightmost.
        Some implementatons will be able to specialize this and make it more efficient.
       "))
 
-  (defmethod ah◨s
+  (defmethod a&h◨s
     (
       (tm tape-machine)
       object

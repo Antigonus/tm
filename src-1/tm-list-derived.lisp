@@ -12,6 +12,24 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+
+;;--------------------------------------------------------------------------------
+;; length
+  (defun tm-list-singleton (tm0)
+    (¬ (cdr (tape tm0)))
+    )
+
+  (defmethod singleton ((tm0 tm-list)) (tm-list-singleton tm0))
+
+  (defun tm-list-doubleton (tm0)
+    (∧
+      (cdr (tape tm0))
+      (¬ (cddr (tape tm0)))
+    ))
+
+  (defmethod doubleton ((tm0 tm-list))(tm-list-doubleton tm0))
+
+
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
@@ -24,6 +42,13 @@ See LICENSE.txt
 ;;  head location predicates
 ;;
 
+  (defun tm-list-on-rightmost (tm0 cont-true cont-false) 
+    (if
+      (cdr (HA tm0))
+      (funcall cont-false)
+      (funcall cont-true)
+      ))
+
   (defmethod on-rightmost
     (
       (tm0 tm-list)
@@ -31,10 +56,14 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
+    (tm-list-on-rightmost tm0 cont-true cont-false)
+    )
+
+  (defun tm-list-on-leftmost (tm0 cont-true cont-false)
     (if
-      (cdr (HA tm0))
-      (funcall cont-false)
+      (eq (cdr (tape tm0)) (cdr (HA tm0)))
       (funcall cont-true)
+      (funcall cont-false)
       ))
 
   (defmethod on-leftmost
@@ -44,11 +73,9 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    (if
-      (eq (cdr (tape tm0)) (cdr (HA tm0)))
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    (tm-list-on-leftmost tm0 cont-true cont-false)
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping

@@ -37,10 +37,12 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
         (mount (funcall cont-fail))
         (tape-space
           (setf (HA tm) tape-space)
+          (setf (tape tm) ∅)
           (funcall cont-ok)
           )
         (t
           (setf (HA tm) 'tm-void)
+          (setf (tape tm) ∅)
           (funcall cont-ok)
           ))))
 
@@ -107,8 +109,8 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
       (tm tm-void)
       object
       &optional
-      cont-ok
-      (cont-no-alloc (error 'tm-alloc-fail))
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (declare (ignore cont-no-alloc))
     (setf (tape tm) object)

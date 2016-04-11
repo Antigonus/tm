@@ -16,7 +16,7 @@ See LICENSE.txt
     (sn left-machine 3)
     (sn right-machine 5)
     (let(
-          (tm-interval (tm-mk 'tm-interval left-machine right-machine))
+          (tm-interval (mk 'tm-interval left-machine right-machine))
           )
       (∧
         (on-leftmost tm-interval)

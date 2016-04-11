@@ -18,7 +18,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       (cont-ok (be t))
       (cont-mount-failed (be ∅))
       )
-    "If either object is a tm, or #'tm-mk succeeds on the object, steps in.
+    "If either: object is a tm, or #'mk succeeds on the object, steps in.
      Otherwise cont-mount-failed.
      "
     (let(
@@ -47,12 +47,12 @@ and rightmost, etc. apply to the subspace (not the original tape).
       object
       &optional
       (cont-ok (be t))
-      (cont-tm-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
+      (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     "Head is on a given cell.  That cell has an object.  The object should be either
-     tm-mk-able or be ∅.  If it is ∅, we exit with cont-mk-fail where the programmer
-     can then build the singleton sublist of the desired type.  If it is tm-mk-able
+     mk-able or be ∅.  If it is ∅, we exit with cont-mk-fail where the programmer
+     can then build the singleton sublist of the desired type.  If it is mk-able
      then a new cell is prepended and initialized to object.
      "
     (let(
@@ -68,7 +68,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (λ()
             (-a sublist object cont-ok cont-no-alloc)
             )
-          cont-tm-mk-fail
+          cont-mk-fail
           ))))
 
   (defun ais
@@ -77,7 +77,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       object
       &optional
       (cont-ok (be t))
-      (cont-tm-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
+      (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     "like ai, but the tape-machine is stepped into the new cell"
@@ -94,13 +94,13 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (λ()
             (-a-s sublist object cont-ok cont-no-alloc)
             )
-          cont-tm-mk-fail
+          cont-mk-fail
           ))))
 
-  (defgeneric di (tm &optional spill cont-ok cont-rightmost cont-tm-mk-fail)
+  (defgeneric di (tm &optional spill cont-ok cont-rightmost cont-mk-fail)
     (:documentation 
       "(r tm) is an object.  This object should be a tape machine, or an object that can
-       be passed to tm-mk to get a tape machine.  This function deallocates the leftmost
+       be passed to mk to get a tape machine.  This function deallocates the leftmost
        cell from that machine's tape. The deallocated cell is #'a onto spill. Should the
        user attempt to deallocate the last cell of the tape machine, then this routine
        exits via cont-rightmost, where the user can (w tm) replace the object with
@@ -115,7 +115,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       spill
       cont-ok
       cont-rightmost
-      cont-tm-mk-fail
+      cont-mk-fail
       )
     (let(
           (object (r tm))
@@ -127,6 +127,6 @@ and rightmost, etc. apply to the subspace (not the original tape).
           (λ(new-tm) 
             (d new-tm spill cont-ok cont-rightmost)
             )
-          cont-tm-mk-fail
+          cont-mk-fail
           ))))
     

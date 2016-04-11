@@ -20,7 +20,7 @@ See LICENSE.txt
 ;;
   (defmethod init 
     (
-      (instance tm-list)
+      (tm tm-list)
       init-list 
       &optional
       (cont-ok (be t))
@@ -36,15 +36,15 @@ See LICENSE.txt
         (return-from init (funcall cont-fail))
         )
       (unless mount
-        (change-class instance 'tm-void)
+        (change-class tm 'tm-void)
         (return-from init (init tm init-list cont-ok cont-fail))
         )
       (unless (cdr mount)
-        (change-class instance 'tm-singular)
+        (change-class tm 'tm-singular)
         (return-from init (init tm init-list cont-ok cont-fail))
         )
-      (setf (tape instance) mount)
-      (setf (HA instance) mount)
+      (setf (tape tm) mount)
+      (setf (HA tm) mount)
       (funcall cont-ok)
       ))
 
@@ -53,6 +53,7 @@ See LICENSE.txt
     (let(
           (instance (make-instance 'tm-list))
           )
-      (init 'tm-list :mount sequence)
-      (funcall cont-ok instance)
-      ))
+      (init instance {:mount sequence}
+        (λ()(funcall cont-ok instance))
+        (be ∅)
+        )))

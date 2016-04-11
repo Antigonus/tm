@@ -29,22 +29,25 @@ Calling deallocate, #'d, transition to 'tm-void.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (error 'bad-init-value))
+      (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
       (&key tape-space mount &allow-other-keys) init-list
-      (when (∧ mount (cdr mount)) 
-        (return-from init (funcall cont-fail))
-        )
-      (when mount 
-        (setf (tape tm) (car mount))
-        )
-      (if tape-space
-        (setf (HA tm) tape-space)
-        (setf (HA tm) 'tm-parked-singular)
-        )
-      (funcall cont-ok)
-      ))
+      (if
+        (∧
+          mount
+          (¬ (cdr mount))
+          )
+        (progn
+          (setf (tape tm) (car mount))
+          (if tape-space
+            (setf (HA tm) tape-space)
+            (setf (HA tm) 'tm-parked-singular)
+            )
+          (funcall cont-ok)
+          )
+        (funcall cont-fail)
+        )))
 
 
 ;;--------------------------------------------------------------------------------
@@ -69,7 +72,7 @@ Calling deallocate, #'d, transition to 'tm-void.
       object-1
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (error 'tm-alloc-fail))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
           (tm1 (dup tm))

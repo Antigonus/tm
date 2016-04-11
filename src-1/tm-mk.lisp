@@ -28,7 +28,7 @@ See LICENSE.txt
 ;; initialize a tape machine of the specified type to hold the specified objects
 ;;
 ;;  init-list is a keyword list.  Basic keys are:  
-;;  :tape-space, :mount, :seed, :base
+;;  :tape-space, :mount, :seed, :base, :state
 ;;
 ;;  :tape-space is used by void and singular machines to know the tape space
 ;;  should the tape be expanded.  
@@ -39,6 +39,8 @@ See LICENSE.txt
 ;;  :seed is used to give seed parameters for generators.
 ;;
 ;;  :base provides the base machine for a transform
+;;
+;;  :state external storage for a tape machine. 
 ;;
 ;;  Other keywords should not override these, as they are used in the init
 ;;  routines to detect valid initialization expressions.

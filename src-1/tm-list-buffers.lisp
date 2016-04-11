@@ -12,22 +12,42 @@ See LICENSE.txt
 ;;
   (defclass stack-list (stack tm-list)())
 
-  (defmethod tm-init ((instance stack-list) init-list)
+  (defmethod init 
+    (
+      (instance stack-list)
+      init-list
+      &optional 
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
     (change-class instance 'tm-list)
-    (tm-init instance init-list)
-    (change-class instance 'stack-list)
-    instance
-    )
+    (init instance init-list 
+      (λ()
+        (change-class instance 'stack-list)
+        (funcall cont-ok)
+        )
+      (funcall cont-fail)
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; a more specific queue interface
 ;;
   (defclass queue-list (queue tm-list)())
 
-  (defmethod tm-init ((instance queue-list) init-list)
+  (defmethod init 
+    (
+      (instance queue-list)
+      init-list
+      &optional 
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
     (change-class instance 'tm-list)
-    (tm-init instance init-list)
-    (change-class instance 'queue-list)
-    instance
-    )
+    (init instance init-list 
+      (λ()
+        (change-class instance 'stack-list)
+        (funcall cont-ok)
+        )
+      (funcall cont-fail)
+      ))
 

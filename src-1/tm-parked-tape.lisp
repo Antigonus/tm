@@ -27,22 +27,24 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (error 'bad-init-value))
+      (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
       (&key tape-space mount &allow-other-keys) init-list
-      (unless 
+      (if
         (∧
           tape-space
           mount
           (≥ (length mount) 2)
           )
-        (return-from init (funcall cont-fail))
-        )
-      (setf (HA tm) tape-space)
-      (setf (tape tm) (mk tape-space init-list))
-      (funcall cont-ok)
-      ))
+        (progn
+          (setf (HA tm) tape-space)
+          (setf (tape tm) (mk tape-space init-list))
+          (funcall cont-ok)
+          )
+        (funcall cont-fail)
+        )))
+
 
 
 ;;--------------------------------------------------------------------------------
@@ -67,7 +69,7 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       object
       &optional
       cont-ok
-      (cont-no-alloc (error 'tm-alloc-fail))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (a◧ (tape tm) object cont-ok cont-no-alloc)
     )

@@ -26,7 +26,7 @@ See LICENSE.txt
 (defun test-tm-list-cue-0 ()
   (let(
         (x (mount [a b c]))
-        (y (tm-mk 'tm-list))
+        (y (mk 'tm-list))
         )
     (and
       (eq (r x) 'a)
@@ -44,7 +44,7 @@ See LICENSE.txt
 (defun test-tm-list-s-0 ()
   (let*(
          (y '(1 2 (3 4) 5))
-         (ytm (tm-mk 'tm-list y))
+         (ytm (mk 'tm-list y))
          )
     (and
       (s ytm)
@@ -57,7 +57,7 @@ See LICENSE.txt
 
 (defun test-tm-list-a-0 ()
   (let(
-        (k (tm-mk 'tm-list))
+        (k (mk 'tm-list))
         )
     (∧
       (equal (tape k) '(list))
@@ -83,7 +83,7 @@ See LICENSE.txt
 
 (defun test-tm-list-d-1 ()
   (let(
-        (k (tm-mk 'tm-list))
+        (k (mk 'tm-list))
         )
     (∧
       (equal (tape k) '(list))

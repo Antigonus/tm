@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-tm-line-0 ()
   (let(
-        (tm-src (tm-mk 'tm-line 0 5))
-        (tm-dst (tm-mk 'tm-list))
+        (tm-src (mk 'tm-line 0 5))
+        (tm-dst (mk 'tm-list))
         )
     (⟳ (λ(cont-loop cont-return)
          (as tm-dst (r tm-src))
@@ -28,8 +28,8 @@ See LICENSE.txt
 (defun test-tm-line-1 ()
   (let(
         (m 9)
-        (tm-src (tm-mk 'tm-line 1 20 2))
-        (tm-dst (tm-mk 'tm-list))
+        (tm-src (mk 'tm-line 1 20 2))
+        (tm-dst (mk 'tm-list))
         )
     (⟳ (λ(cont-loop cont-return)
          (let((x (r tm-src)))

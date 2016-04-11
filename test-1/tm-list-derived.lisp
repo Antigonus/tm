@@ -17,5 +17,5 @@ See LICENSE.txt
     (as tm0 10)
     (and
       (= (r tm0) 10)
-      (equal (tape tm1) '(7 8 9 10 11)) ; head is not for public use
+      (equal (tape tm1) '(7 8 9 10 11)) 
       )))

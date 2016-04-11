@@ -63,7 +63,6 @@ See LICENSE.txt
                                (:file "tm-parked-tape")
                                (:file "tm-singular")
 
-#|
                              ;; generic adapters
                                (:file "buffers")  ; stack and queue
                                (:file "tm-interval")
@@ -77,9 +76,9 @@ See LICENSE.txt
                                (:file "tm-breadth-primitives")
                                (:file "tm-breadth-convert")
 
+
+
                              ;; simple generators 
-                               (:file "tm-void")
-                               (:file "tm-singular")
                                (:file "tm-line")
 
                              ;; list implementation
@@ -88,6 +87,8 @@ See LICENSE.txt
                                (:file "tm-list-derived")
                                (:file "tm-list-buffers")
                                (:file "tm-list-convert")
+#|
+
 
                              ;; dataflow
                                (:file "dataflow")
@@ -99,8 +100,9 @@ See LICENSE.txt
                 :components (
                               (:file "tm-void")
 
-#|
                               (:file "tm-derived")
+#|
+
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
 
