@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-stack-0 ()
   (let(
-        (a-stack (tm-mk 'stack-list))
+        (a-stack (mk 'stack-list))
         )
     (enqueue a-stack 1)
     (enqueue a-stack 2)
@@ -28,7 +28,7 @@ See LICENSE.txt
 
 (defun test-stack-1 ()
   (let*(
-         (a (tm-mk 'stack-list))
+         (a (mk 'stack-list))
          (a1  (progn (enqueue a 1) (dequeue a)))
          (a2  (progn (enqueue a 2) (dequeue a)))
          )
@@ -40,7 +40,7 @@ See LICENSE.txt
 
 (defun test-queue-0 ()
   (let(
-        (a-queue (tm-mk 'queue-list))
+        (a-queue (mk 'queue-list))
         )
     (enqueue a-queue 1)
     (enqueue a-queue 2)
@@ -57,7 +57,7 @@ See LICENSE.txt
 
 (defun test-queue-1 ()
   (let*(
-         (a (tm-mk 'queue-list))
+         (a (mk 'queue-list))
          (a1  (progn (enqueue a 1) (dequeue a)))
          (a2  (progn (enqueue a 2) (dequeue a)))
          )

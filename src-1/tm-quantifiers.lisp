@@ -354,10 +354,8 @@ See LICENSE.txt
   (defgeneric d* (tm &optional spill cont-rightmost cont-no-alloc)
     (:documentation 
       "Deallocates all cells right of the head up to and including rightmost.
-       If spill is not ∅, then the deallocated right hand side is moved to it.
-       If spill is not ∅, and cells can not be moved to it, the objects are
-       moved to spill via #'a.  It is only in this last case that we might
-       end up taking the cont-no-alloc exit.
+       If spill is not ∅, then the deallocated right side is moved to it.  Preferably the
+       cells are moved, but often the objects are reallocated to spill using #'as.
       "
       ))
 

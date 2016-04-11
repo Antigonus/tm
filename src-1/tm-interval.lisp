@@ -29,13 +29,28 @@ See LICENSE.txt
     rightmost ; a tape machine *on the same tape* with head on the new rightmost
     )
 
-  ;; initialized to two tape machines
-  (defmethod tm-init ((tm tm-interval) init-list)
-    (destructuring-bind (leftmost rightmost) init-list
-      (setf (HA tm) (dup leftmost))
-      (setf (tape tm) (make-interval :leftmost leftmost :rightmost rightmost))
-      tm
-      ))
+  (defmethod init 
+    (
+      (tm tm-void)
+      init-list 
+      &optional
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
+    (destructuring-bind
+      (&key seed &allow-other-keys) init-list
+      (unless 
+        (∧ seed (= (length seed 2)))
+        (funcall cont-fail)
+        )
+      (let(
+            (leftmost-tm (first seed)) ; wonder if I should dup these
+            (rightmost-tm (right seed))
+            )
+        (setf (HA tm) (dup leftmost-tm))
+        (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
+        )))
+
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
@@ -100,15 +115,13 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (declare (ignore cont-mount-failed))
     (if
       (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
       (funcall cont-rightmost)
       (s (HA tm) 
         cont-ok 
-        (λ()(error 'tm-impossible-to-get-here :text "we just filtered out the rightmost case"))
+        (λ()(error 'impossible-to-get-here :text "we just filtered out the rightmost case"))
         )
       ))
 
@@ -129,7 +142,7 @@ See LICENSE.txt
         object
         &optional
         (cont-ok (be t))
-        (cont-no-alloc (error 'tm-alloc-fail))
+        (cont-no-alloc (λ()(error 'alloc-fail)))
         )
       (if
         (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
@@ -146,8 +159,8 @@ See LICENSE.txt
       &optional 
       spill
       (cont-ok (be t))
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      (cont-no-alloc (error 'tm-alloc-fail))
+      (cont-rightmost (λ()(error 'deallocation-request-at-rightmost)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (if
       (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))

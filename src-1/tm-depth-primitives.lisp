@@ -118,9 +118,7 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (declare (ignore cont-mount-failed))
     (s-depth-ru
       (tape tm)
       (HA tm)

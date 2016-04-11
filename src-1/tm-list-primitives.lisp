@@ -53,21 +53,15 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (cond
-      ((eq (HA tm) 'parked)  
-        (if (tape tm)
-          (setf (HA tm) (tape tm))
-          (funcall cont-mount-failed)
-          ))
-      ((cdr (HA tm))
+    (if 
+      (cdr (HA tm))
+      (progn
         (setf (HA tm) (cdr (HA tm)))
         (funcall cont-ok)
         )
-      (t
-        (funcall cont-rightmost)
-        )))
+      (funcall cont-rightmost)
+      ))
 
 
 ;;--------------------------------------------------------------------------------
@@ -85,7 +79,7 @@ See LICENSE.txt
       (cont-no-alloc (be ∅))
       )
     (if
-      (has-tape tm)
+      (tape tm)
       (if 
         (parked tm)
         (tm-list-a◧&hp&t tm object cont-ok cont-no-alloc)
@@ -98,7 +92,7 @@ See LICENSE.txt
 
   (defun tm-list-a◧&hp&t (tm object cont-ok cont-no-alloc)
     (declare (ignore cont-no-alloc)) ;; should do something with this ..
-    (setf (tape tm) (cons object (cdr (tape tm))))
+    (setf (tape tm) (cons object (tape tm)))
     (funcall cont-ok)
     )
 
@@ -117,22 +111,6 @@ See LICENSE.txt
           
 
 ;;--------------------------------------------------------------------------------
-;; gather
-;;
-  ;; prepends cell to spill, steps spill making the end of spill the new attachment point
-  (defun gs-list (spill cell)
-    (rplacd cell (cdr (HA spill)))
-    (rplacd (HA spill) cell)
-    (setf (HA spill) cell)
-    )
-
-  ;; prepends cell to spill, no step
-  (defun g-list (spill cell)
-    (rplacd cell (cdr (HA spill)))
-    (rplacd (HA spill) cell)
-    )
-
-;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
   ;; deallocates the cell just to the right of the head
@@ -145,23 +123,49 @@ See LICENSE.txt
       (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
       cont-no-alloc
       )
-    (declare (ignore cont-no-alloc))
-    (let(
-          (cell-1 (cdr (HA tm))) ; cell-1 is the cell to be deallocated
-          )
+    (if
+      (tape tm)
       (if
-        cell-1
-        (progn
-          (rplacd (HA tm) (cdr cell-1)) ; re-route around cell-1
-          (when
-            spill
-            (gs-list spill cell-1)
-            )
-          (funcall cont-ok (car cell-1))
-          )
-        ;;else there is no cell-1 to cut, no cell-2 to route to
-        (funcall cont-rightmost)
-        )))
+        (parked tm)
+        (tm-list-d◧&hp&t tm spill cont-ok cont-rightmost cont-no-alloc)
+        (tm-list-d&h¬p tm spill cont-ok cont-rightmost cont-no-alloc)
+        )
+      (funcall cont-rightmost)
+      ))
 
+   ;; tm-list-d◧ - delete leftmost
+   ;; Contract says tape exists, so we can't get a cont-rightmost (which would signify
+   ;; nothing to the right of the attachment point).
+   ;; Contract says the head is parked, so we can't delete the cell the head is on.
+   ;; Spill is a tm, but we don't know if it is a tm-list.
+   ;; We allow that spill has been set to ∅ to turn off spilling
+   (defun tm-list-d◧&hp&t (tm spill cont-ok cont-rightmost cont-no-alloc)
+     (declare (ignore cont-rightmost)) ; as there is a tape, there is a leftmost to dealloc
+     (let(
+           (leftmost-object (car (tape tm)))
+           )
+       (setf (tape tm) (cdr (tape tm)))
+       (if 
+         spill 
+         (as spill leftmost-object (λ()(funcall cont-ok leftmost-object)) cont-no-alloc)
+         (funcall cont-ok leftmost-object)
+         )))
 
-        
+   ;; This is d for the tape space.
+   ;; Contract says the head is not parked, so this is our normal case, i.e. we
+   ;; want to delete the cell to the right of the cell the head is on.
+   (defun tm-list-d&h¬p (tm spill cont-ok cont-rightmost cont-no-alloc)
+       (if
+         (cdr (HA tm))
+         (let*(
+                (deallocation-cell (cdr (HA tm)))
+                (affected-object (car deallocation-cell))
+                (reconnect-point (cdr deallocation-cell))
+                )
+           (rplacd (HA tm) reconnect-point)
+           (if spill
+             (as spill affected-object (λ()(funcall cont-ok affected-object)) cont-no-alloc)
+             (funcall cont-ok affected-object)
+             ))
+         (funcall cont-rightmost)
+         ))

@@ -18,24 +18,41 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making tm-list machines from other objects
 ;;
-  (defmethod tm-init ((instance tm-list) init-list)
-    (cond
-      ((¬ init-list) instance); HA initial form is 'empty
+  (defmethod init 
+    (
+      (instance tm-list)
+      init-list 
+      &optional
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
+    (destructuring-bind
+      (&key tape-space mount &allow-other-keys) init-list
 
-      ;; only one element, and that element is a list, then it is our list to bind to
-      ((∧ (¬ (cdr init-list)) (consp (car init-list))) 
-        (setf (tape instance) (car init-list))
-        (setf (HA instance) (car init-list))
-        instance
+      ;; tape-space shouldn't be defined for tm-list, but we let it slide if the 
+      ;; value it is set to is set tm-list.  tape-space is for tm-void and tm-singular.
+      (when
+        (∧ tape-space (¬ (eq tape-space 'tm-list)))
+        (return-from init (funcall cont-fail))
         )
-
-      (t 
-        (error 'tm-mk-bad-init-type)
+      (unless mount
+        (change-class instance 'tm-void)
+        (return-from init (init tm init-list cont-ok cont-fail))
         )
+      (unless (cdr mount)
+        (change-class instance 'tm-singular)
+        (return-from init (init tm init-list cont-ok cont-fail))
+        )
+      (setf (tape instance) mount)
+      (setf (HA instance) mount)
+      (funcall cont-ok)
       ))
 
   (defmethod mount ((sequence cons) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
-    (funcall cont-ok
-      (make-instance 'tm-list :tape sequence :HA sequence)
+    (let(
+          (instance (make-instance 'tm-list))
+          )
+      (init 'tm-list :mount sequence)
+      (funcall cont-ok instance)
       ))

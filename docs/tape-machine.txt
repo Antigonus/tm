@@ -35,7 +35,8 @@ syntax of derived functions:
     h◨    head is at rightmost
     hp    head is parked
     h¬p   head is not parked
-    t     tape is not nil
+    t     has tape space
+    ¬t    has no tape space
 
 examples:
 

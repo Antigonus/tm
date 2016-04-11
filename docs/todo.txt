@@ -1,99 +1,4 @@
 
-1. proposal: add a parked cell .. need to move this discussion to the doc
-
-   (s parked)  goes to leftmost
-   (-s parked) goes to rightmost
-
-   the current approach is to use ∅ for a tape machine arg until a initial value, but if
-   one passes ∅ into a function as an argument, there is no way to turn that into a tape
-   machine in the caller.  We could use a special first call versions of functions to
-   create such a machine, but this gets complicated quickly when there is more than one tm
-   argument, and/or when we don't know when the first value will appear.
-   
-   If we add a padding cell to a tape machine, then call a function that would be a first
-   call function, then we have to drop the padding cell before using the machine.
-   Sometimes this is pretty easy, but potentially the padding cell that would be required
-   might be large or itself require initialization - when we don't have anything to
-   intialize it from.  With this approach we end up with two versions of machines, those
-   with padding cells and those without, but they are indistinguishable.  This approach
-   turns the programmer into a padding cell accountant.
-
-   .. and empty machine is one where (s parked) takes cont-rightmost.
-
-   Having a parked state causes special cases to exist for read and write, something we
-   bragged about not having before.  Though really we did have these special cases, but
-   were pushing them off into the programmers padding cell accounting problem.  So we make
-   the programmers life harder so as to make the library coders life easier ;-)
-
-   If we add parked then r and w gain continutations, which they currently do not
-   have.
-
-   Currently, when we pass a tape machine to a work function, we assume that the tape
-   machine is on the cell that holds the data to work on.  This is good as it makes a tape
-   machine into an extension of a variable.  The variable that keeps on giving.  You can
-   read it and write it like a variable.  If we add 'parked as a tape machine tape, then
-   someone may pass a parked machine to a work function, and our 'like a variable that
-   extents' model is broken.  Every user of a tape machine will first have to check that
-   the machine head is on a valid cell, otherwise 'error machine parked' will become
-   common.
-
-   So we seem to have two contradictory problems, one of machines that are extended
-   variables, and one of machines that are use to capture results.
-
-   Tape machines replace streams, and streams can be empty.  Users of streams
-   expect to read them, even when they are passed in to provide data, and they
-   expect that the stream might become closed.  Are we changing the model?
-
-   Tape machines are not variables that might happen to have more data when
-   stepped, rather they are streams, that might or might not have data when
-   they are read. hmm this violates the dataflow model.
-
-   In the dataflow model we wait until having a complete token set, and then fire the
-   function.  Each token represents that data is ready.  We don't call a function if we
-   don't have all of its arguments.  To do otherwise pushes the problem of token
-   gathering into the funciton, and thus to make every function the solution to
-   at least two problems, one being that of synchronizing inputs, and the other
-   that of solving the problem the function is intended to solve.
-
-   Note, our current solution is thus dataflow friendly, in that all presented
-   machines have data to be processed.  However, we have a problem of the first
-   generation of new data.
-
-   The functional programming model is a solution to data generation, that is
-   that the arguments are inputs only.  The function then returns the data.
-   We said we were still doing this, though with the exception of 'state'
-   variables.
-
-   Suppose we have a function that checks inputs are not parked - this would be analogous
-   to our token gathering step.  The continue-ok portion would then call the function that
-   uses the inputs.  The continue-some-parked would then do what?  In a single thread our
-   input checker can not wait, as no more data will be arriving.  Though we might
-   in the continue-some-parked continuation call another function that would
-   perhaps fetch data.
-
-   I considered having an empty state for the machine instead of a parked head
-   option.  However this runs into problems with allocate, #'a.  Allocate is
-   defined to create a new cell to the right of the head location.  It does
-   not step to that new cell.  Hence, and empty machine would become non-empty,
-   but the head would have no where to be placed.
-
-   soooo... how about ...
-
-   object accessing functions have undefined behavior when the head is parked.
-
-   stepping is legal on a machine with a parked head, though step followed
-   by -step does not park the head, but rather takes an end of tape continuation.
-
-   allocation and deallocation work on a machine with a parked head
-
-   We provide a guard function for checking that a group of tms do not have
-   parked heads, and the cont-ok is then the place to call a function that
-   uses such machines as inputs.  (or accepts a #'valid predicate) This is
-   our dataflow machine token gathering function.
-    
-   This comes at the cost that step must always check if a machine is
-   parked so that it knows to step into the tape machine space, or if
-   the head is in the space and just needs to go to a neighboring cell.
 
 2. access lang needs to be finished, also chapter needs to be added
 to the manual.
@@ -135,3 +40,6 @@ approach to conditions.  I.e. cue-leftmost should be taking continuations
 and returning nothing (to be consistent with access to state variables),
 .. return tm for convenience?
 
+13. removed the affine versions, need to add an affine transform, when
+passed a projective machine, turns it into an affine one.  .. the old
+affine machine are sitting in scratch

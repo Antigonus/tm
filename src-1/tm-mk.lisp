@@ -15,12 +15,10 @@ See LICENSE.txt
   (defclass tape-machine ()
     (
       (HA 
-        :initform 'parked
         :initarg :HA 
         :accessor HA
         )
       (tape
-        :initform ∅
         :initarg :tape
         :accessor tape
         )
@@ -29,19 +27,41 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified type to hold the specified objects
 ;;
+;;  init-list is a keyword list.  Basic keys are:  
+;;  :tape-space, :mount, :seed, :base
 ;;
-  (defgeneric tm-init (instance init-list))
+;;  :tape-space is used by void and singular machines to know the tape space
+;;  should the tape be expanded.  
+;;
+;;  :mount is used to specify initial objects for
+;;  a tape machine.  
+;;
+;;  :seed is used to give seed parameters for generators.
+;;
+;;  :base provides the base machine for a transform
+;;
+;;  Other keywords should not override these, as they are used in the init
+;;  routines to detect valid initialization expressions.
+;;
+  (defgeneric init (instance init-list &optional cont-ok cont-fail))
 
-  (defmethod tm-init (instance init-list)
-    (declare (ignore instance init-list))
-    (error 'tm-init-unrecognized-instance-type)
+  (defmethod init 
+    (
+      instance 
+      init-list
+      &optional 
+      (cont-ok (be t))
+      (cont-fail (λ() (error 'unrecognized-instance-type)))
+      )
+    (declare (ignore instance init-list cont-ok))
+    (funcall cont-fail)
     )
 
-  (defun tm-mk (tm-type &rest init-list)
+  (defun mk (tm-type &rest init-list)
     (let(
           (instance (make-instance tm-type))
           )
-      (tm-init instance init-list)
+      (init instance init-list)
       instance
       ))
 
@@ -61,7 +81,7 @@ See LICENSE.txt
        sequence 
        &optional 
        cont-ok 
-       (cont-fail (error 'mount-unrecognized-sequence-type))
+       (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
        )
      (declare (ignore sequence cont-ok))
      (funcall cont-fail)

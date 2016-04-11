@@ -40,13 +40,10 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defgeneric s (tm &optional cont-ok cont-rightmost cont-mount-failed)
+  (defgeneric s (tm &optional cont-ok cont-rightmost)
     (:documentation 
-      "If the head is parked and there is no leftmost, cont-mount-failed.
-       If the head is parked and there is a leftmost, puts the head on leftmost, and
-       cont-ok.  If the head is on a cell, and there is a right neighbor, puts the head on
-       the right neighbor and cont-ok.  If there is no right neighbor, then
-       cont-rightmost.
+      "If the head is on a cell, and there is a right neighbor, puts the head on the
+       right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
       "))
 
 ;;--------------------------------------------------------------------------------
@@ -69,24 +66,16 @@ All tape machine implmentations must specialize these functions.
 ;; cell deallocation
 ;;
 ;; Spill can be ∅, in which case we just drop the deallocated cell.  When spill is not ∅,
-;; then the deallocated cell is moved to spill.  In this situation we can not have a
-;; allocation problem, because tm is providing the allocation.  We may use the function
-;; #'g to carry the cell over.  However, sometimes cells can not be moved between
-;; different machines.  For example, if spill is an fixed length array, and tm is a linked
-;; list.  The cons cell won't help the array much, and in any case, we can't create new
-;; array slots.
-;;
-;; Hence, if spill exists, then d attempts to move the allocation cell, with its object,
-;; to spill, but if it can not do this, it moves the object to a new allocation on spill.
-;; If we get to this point and it is not possible to create a new allocation, then we
-;; take the cont-no-alloc exit.
+;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
+;; the object from the deallocated cell is moved to it, preferably the former. 
 ;;
 ;; d must have transactional behavior, so if the cont-no-alloc exit is to be taken,
 ;; then tm must remain uneffected.  I.e. the cell can't just be dropped, as then
 ;; continuation might not be possible.
 ;;
-;; there are two reasons deallocation might fail a) because there is nothing
-;; two deallocate,  b) because the tape does not support structural changes.
+;; There are two reasons deallocation might fail a) because there is nothing
+;; to deallocate,  b) because the tape does not support structural changes.  As
+;; a third problem, the reallocation to spill might fail.
 ;;
 ;; need to rename cont-rightmost as cont-no-dealloc in other parts of the code
 ;;
@@ -95,11 +84,13 @@ All tape machine implmentations must specialize these functions.
 ;;
   (defgeneric d (tm &optional spill cont-ok cont-no-dealloc cont-no-alloc)
     (:documentation 
-      "Deallocates one cell to the right of the head.
-       If spill exists, #'d tries to put the deallocated cell on spill.
-       If spill can not take such cells, then it calls (as spill (r tm)),
-       to move the object of the deallocated cell. Cont-ok is called with 
-       the object from the deallocated cell.
+      "Deallocates one cell to the right of the head. If there is no such cell,
+       #'d takes cont-no-dealloc. Otherise if spill does not exist, the cell is dropped,
+       and #d takes cont-ok, passing it the object from the deallocated cell.  If spill
+       does exist then either the deallocated cell is moved to spill, or the object from
+       the deallocated cell is moved to a new allocation on spill. In the latter
+       case, if the allocation fails #'d takes cont-no-alloc.  Otherwise 
+       cont-ok is called with the object from the deallocated cell.
        "
       ))
 

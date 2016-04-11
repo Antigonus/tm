@@ -81,8 +81,8 @@ they belong to.
     ;;tm-mk
     ;;
       #:tape-machine ; class
-      #:tm-init
-      #:tm-mk
+      #:init
+      #:mk
       #:mount
 
     ;;tm-primitives

@@ -56,6 +56,14 @@ See LICENSE.txt
                                (:file "location")
                                (:file "length")
 
+
+                             ;; trivial machines
+                               (:file "tm-void")
+                               (:file "tm-parked-singular")
+                               (:file "tm-parked-tape")
+                               (:file "tm-singular")
+
+#|
                              ;; generic adapters
                                (:file "buffers")  ; stack and queue
                                (:file "tm-interval")
@@ -70,11 +78,9 @@ See LICENSE.txt
                                (:file "tm-breadth-convert")
 
                              ;; simple generators 
+                               (:file "tm-void")
+                               (:file "tm-singular")
                                (:file "tm-line")
-                               (:file "tm-singular-affine")
-                               (:file "tm-singular-projective")
-                               (:file "tm-void-affine")
-                               (:file "tm-void-projective")
 
                              ;; list implementation
                                (:file "tm-list-mk")
@@ -85,11 +91,15 @@ See LICENSE.txt
 
                              ;; dataflow
                                (:file "dataflow")
-
+|#
                               ))
+
 
                (:module "test-1"
                 :components (
+                              (:file "tm-void")
+
+#|
                               (:file "tm-derived")
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
@@ -102,15 +112,16 @@ See LICENSE.txt
                               (:file "tm-depth")
                               (:file "tm-breadth")
 
-                              (:file "tm-void")
                               (:file "tm-line")
 
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
+|#
                               ))
 
 #|
+
 
                (:module "src-2"
                 :components (

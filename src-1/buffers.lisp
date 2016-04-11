@@ -60,7 +60,7 @@ specially.
       tm-stack
       &optional 
       (cont-ok #'echo) 
-      (cont-empty (error 'dequeue-from-empty :text "stack is empty"))
+      (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
       )
     "Pulls an object off of the stack"
     (d tm-stack ∅ cont-ok cont-empty)

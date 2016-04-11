@@ -28,7 +28,7 @@ See LICENSE.txt
   ;; will be more efficient.
   (defmethod to-list ((tm0 tape-machine))
     (let(
-          (tm1 (tm-mk 'tm-list))
+          (tm1 (mk 'tm-list))
           )
       (⟳ (λ(cont-loop cont-return) (as tm1 (r tm0) cont-loop cont-return)))
       (tape tm1)

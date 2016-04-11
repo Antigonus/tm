@@ -97,9 +97,7 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-mount-failed (λ()(error 'tm-mount-failed)))
       )
-    (declare (ignore cont-mount-failed))
     (let(
           (sup (line-bound (tape tm)))
           (Δ   (line-Δ (tape tm)))

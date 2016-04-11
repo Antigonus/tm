@@ -16,7 +16,7 @@ See LICENSE.txt
 ;;
   (defun test-ton-0 ()
     (let(
-          (a (tm-mk 'tm-list))
+          (a (mk 'tm-list))
           (b (mount {1}))
           (c (mount {1 2}))
           (d (mount {1 2 3}))
