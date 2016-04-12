@@ -48,7 +48,7 @@ See LICENSE.txt
            )
       (d* tm1)
       (equal
-        (tape tm1)
+        (unmount tm1)
         '(1)
         )))
   (test-hook test-d*-0)

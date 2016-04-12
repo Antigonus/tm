@@ -24,23 +24,25 @@ Calling dealloc, #'d transitions to 'tm-void.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-fail (λ()(error 'bad-init-value :text "A mount value must be given.")))
       )
     (destructuring-bind
-      (&key tape-space mount &allow-other-keys) init-list
-      (unless 
-        (∧
-          tape-space
-          mount
-          (= (length mount) 1)
-          )
-        (return-from init (funcall cont-fail))
+      (&key tm-type (mount ∅ mountp) &allow-other-keys) init-list
+      (unless mountp (funcall cont-fail))
+      (if tm-type
+        (setf (HA tm) tm-type)
+        (setf (HA tm) 'tm-singular)
         )
-      (setf (HA tm) tape-space)
-      (setf (tape tm) (car mount))
+      (setf (tape tm) mount)
       (funcall cont-ok)
       ))
 
+  (defmethod unmount ((tm tm-singular))
+    (case (HA tm)
+      (tm-list {(tape tm)})
+      (tm-array #((tape tm)))
+      (t (error 'can-not-unmount))
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
@@ -54,36 +56,49 @@ Calling dealloc, #'d transitions to 'tm-void.
       (tm tm-singular)
       object-1
       &optional
-      cont-ok
+      (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
-          (tm1 (dup tm))
+          (tm-type (HA tm))
           (object-0 (tape tm))
           )
-      (change-class tm1 (HA tm))
-      (init tm1 :mount {object-0 object-1}
-        (λ()
-          (cue-to tm tm1)
-          (funcall cont-ok)
-          )
-        cont-no-alloc
-        )))
+      (change-class tm tm-type)
+      (init tm {:tm-type tm-type :mount {object-0 object-1}} cont-ok cont-no-alloc)
+      ))
 
   (defmethod d 
     (
       (tm tm-singular)
       &optional 
       spill
-      cont-ok
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore tm spill cont-ok cont-no-alloc))
+    (funcall cont-no-dealloc) ; because the head is on rightmost
+    )
+
+  (defmethod d◧
+    (
+      (tm tm-singular)
+      &optional 
+      spill
+      (cont-ok #'echo)
       (cont-no-dealloc (λ()(error 'dealloc-fail)))
       (cont-no-alloc  (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-no-dealloc))
-    (when spill 
-      (as spill (tape tm) #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
-      )
-    (setf (tape tm) ∅)
-    (change-class tm 'tm-void)
-    (funcall cont-ok)
-    )
+    (let(
+          (tm-type (HA tm))
+          (dealloc-object (tape tm))
+          )
+      (when spill 
+        (as spill dealloc-object #'do-nothing (λ()(return-from d◧ (funcall cont-no-alloc))))
+        )
+      (change-class tm 'tm-void)
+      (init tm {:tm-type tm-type})
+      (funcall cont-ok dealloc-object)
+      ))
+

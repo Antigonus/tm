@@ -13,7 +13,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; converts a tape machine to another form
 ;;
-  ;; typically returns the tape, whatever sequence type that may be
+  ;; return's whatever sequence type represents the space in Lisp
   (defgeneric unmount(tm)) 
 
   (defgeneric to-list (tm))

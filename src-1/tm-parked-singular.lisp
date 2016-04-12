@@ -29,26 +29,18 @@ Calling deallocate, #'d, transition to 'tm-void.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-fail (λ()(error 'bad-init-value :text "A mount value must be given.")))
       )
     (destructuring-bind
-      (&key tape-space mount &allow-other-keys) init-list
-      (if
-        (∧
-          mount
-          (¬ (cdr mount))
-          )
-        (progn
-          (setf (tape tm) (car mount))
-          (if tape-space
-            (setf (HA tm) tape-space)
-            (setf (HA tm) 'tm-parked-singular)
-            )
-          (funcall cont-ok)
-          )
-        (funcall cont-fail)
-        )))
-
+      (&key tm-type (mount ∅ mountp) &allow-other-keys) init-list
+      (unless mountp (funcall cont-fail))
+      (if tm-type
+        (setf (HA tm) tm-type)
+        (setf (HA tm) 'tm-parked-singular)
+        )
+      (setf (tape tm) mount)
+      (funcall cont-ok)
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
@@ -63,8 +55,10 @@ Calling deallocate, #'d, transition to 'tm-void.
       )
     (declare (ignore cont-rightmost))
     (change-class tm 'tm-singular)
-    (funcall cont-ok)
-    )
+    (init tm {:tm-type (HA tm) :mount (tape tm)}
+      cont-ok
+      (λ()(error 'unrecognized-instance-type))
+      ))
 
   (defmethod a
     (
@@ -75,34 +69,33 @@ Calling deallocate, #'d, transition to 'tm-void.
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
-          (tm1 (dup tm))
+          (tm-type (HA tm))
           (object-0 (tape tm))
           )
-      (change-class tm1 (HA tm))
-      (init tm1 :mount {object-0 object-1}
-        (λ()
-          (change-class tm 'tm-parked-tape)
-          (setf (tape tm) (tape tm1))
-          (funcall cont-ok)
-          )
-        cont-no-alloc
-        )))
+      (change-class tm 'tm-parked-tape)
+      (init tm {:tm-type tm-type :mount {object-1 object-0}} cont-ok cont-no-alloc)
+      ))
 
   (defmethod d 
     (
       (tm tm-parked-singular)
       &optional 
       spill
-      cont-ok
+      (cont-ok #'echo)
       (cont-no-dealloc (λ()(error 'dealloc-fail)))
       (cont-no-alloc  (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-no-dealloc))
-    (when spill 
-      (as spill (tape tm) #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
-      )
-    (setf (tape tm) ∅)
-    (change-class tm 'tm-void)
-    (funcall cont-ok)
-    )
+    (let(
+          (tm-type (HA tm))
+          (dealloc-object (tape tm))
+          )
+      (when spill 
+        (as spill dealloc-object #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
+        )
+      (change-class tm 'tm-void)
+      (init tm {:tm-type tm-type}
+        (λ()(funcall cont-ok dealloc-object))
+        (λ()(error 'impossible-to-get-here))
+        )))
 

@@ -82,7 +82,7 @@ See LICENSE.txt
       object 
       &optional 
       (cont-ok (be t))
-      (cont-no-alloc (be ∅))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-no-alloc)) ;; should do something with this ..
     (let*(
@@ -127,7 +127,7 @@ See LICENSE.txt
                 (λ()(return-from d (funcall cont-no-alloc)))
                 ))
             (change-class tm 'tm-singular)
-            (init tm :mount {keep-object})
+            (init tm {:tm-type 'tm-list :mount keep-object})
             (funcall cont-ok dealloc-object)
             )
           

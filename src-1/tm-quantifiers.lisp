@@ -313,8 +313,9 @@ See LICENSE.txt
     (
       tm 
       fill
-      cont-ok
-      cont-no-alloc
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (⟳ (λ(cont-loop cont-return)
          (as tm (r fill) 
@@ -332,7 +333,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (be ∅))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
           (tm1 (dup tm0))
@@ -346,7 +347,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (be ∅))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (as*-0 tm0 fill cont-ok cont-no-alloc)
     )

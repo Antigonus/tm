@@ -44,7 +44,7 @@ See LICENSE.txt
                (:module "src-1"
                  :components (
                              ;; interface definition
-                               (:file "tm-mk")
+                               (:file "mk")
                                (:file "parking")
                                (:file "tm-primitives")
                                (:file "tm-derived")
@@ -87,24 +87,23 @@ See LICENSE.txt
                                (:file "tm-list-derived")
                                (:file "tm-list-buffers")
                                (:file "tm-list-convert")
-#|
-
 
                              ;; dataflow
                                (:file "dataflow")
-|#
                               ))
 
 
                (:module "test-1"
                 :components (
                               (:file "tm-void")
-
+                              (:file "tm-singular")
+                              
                               (:file "tm-derived")
-#|
 
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
+
+#|
 
                               (:file "length")
                               (:file "location")

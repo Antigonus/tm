@@ -14,6 +14,7 @@ cell are not.
 ;;--------------------------------------------------------------------------------
 ;; head parking - moving the head into and out of the address space
 ;;
+#|
   (defun parked (tm)
     "true if tape machine head is parked"
     (eq (HA tm) 'parked)
@@ -24,7 +25,6 @@ cell are not.
     "true if tape machine head is not parked"
     (¬ (parked tm))
     )
-
 
   (defun has-tape (tm)
     "true if the tape machine tape is not ∅"
@@ -39,3 +39,4 @@ cell are not.
   (defmethod park ((tm tape-machine))
     (setf (HA tm) 'parked)
     )
+|#

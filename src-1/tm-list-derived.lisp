@@ -42,7 +42,7 @@ See LICENSE.txt
 ;;  head location predicates
 ;;
 
-  (defun tm-list-on-rightmost (tm0 cont-true cont-false) 
+  (defun tm-list-on-rightmost (tm0 &optional (cont-true (be t)) (cont-false (be ∅)))
     (if
       (cdr (HA tm0))
       (funcall cont-false)
@@ -59,7 +59,7 @@ See LICENSE.txt
     (tm-list-on-rightmost tm0 cont-true cont-false)
     )
 
-  (defun tm-list-on-leftmost (tm0 cont-true cont-false)
+  (defun tm-list-on-leftmost (tm0  &optional (cont-true (be t)) (cont-false (be ∅)))
     (if
       (eq (cdr (tape tm0)) (cdr (HA tm0)))
       (funcall cont-true)

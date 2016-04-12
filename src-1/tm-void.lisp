@@ -20,7 +20,6 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-
   (defclass tm-void (tape-machine)())
 
   (defmethod init 
@@ -32,11 +31,11 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key tape-space mount &allow-other-keys) init-list
+      (&key tm-type mount &allow-other-keys) init-list
       (cond
         (mount (funcall cont-fail))
-        (tape-space
-          (setf (HA tm) tape-space)
+        (tm-type
+          (setf (HA tm) tm-type)
           (setf (tape tm) ∅)
           (funcall cont-ok)
           )
@@ -51,11 +50,11 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 ;;
   (defmethod r ((tm tm-void))
     (declare (ignore tm))
-    (error 'tm-void-access)
+    (error 'oid-access)
     )
   (defmethod w ((tm tm-void) object)
     (declare (ignore tm object))
-    (error 'tm-void-access)
+    (error 'void-access)
     )
 
   (defmethod cue-leftmost (tm) t)
@@ -110,24 +109,51 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore cont-no-alloc))
-    (setf (tape tm) object)
-    (change-class tm 'tm-parked-singular)
-    (funcall cont-ok)
-    )
+    (let(
+          (tm-type (HA tm))
+          )
+      (if
+        (eq tm-type 'tm-void)
+        (funcall cont-no-alloc)
+        (progn
+          (change-class tm 'tm-parked-singular)
+          (init tm {:tm-type tm-type :mount object} 
+            (λ()(funcall cont-ok)) 
+            (λ()(error 'impossible-to-get-here))
+            )))))
 
   (defmethod d 
     (
       (tm tm-void)
       &optional 
       spill
-      cont-ok
-      (cont-no-dealloc (λ()(error 'tm-dealloc-fail)))
-      cont-no-alloc
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore tm spill cont-ok cont-no-alloc))
     (funcall cont-no-dealloc)
     )
 
+  (defmethod d◧
+    (
+      (tm tm-void)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore tm spill cont-ok cont-no-alloc))
+    (funcall cont-no-dealloc)
+    )
+
+  (defmethod unmount ((tm tm-void))
+    (case (HA tm)
+      (tm-list '())
+      (tm-array #())
+      (t (error 'can-not-unmount))
+      ))
+      

@@ -59,6 +59,12 @@ See LICENSE.txt
   (define-condition wrong-tm-type (error)
     ((text :initarg :text :reader text)))
   
+  (define-condition can-not-unmount (error)
+    ((text :initarg :text :reader text)))
+  
+  (define-condition missing-tm-type (error)
+    ((text :initarg :text :reader text)))
+
 
 ;;--------------------------------------------------------------------------------
 ;; tm-primitives
@@ -74,7 +80,7 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
   ;; can't read or write to this machine
-  (define-condition tm-void-projective-access (error)
+  (define-condition void-access (error)
     ((text :initarg :text :reader text)))
 
 

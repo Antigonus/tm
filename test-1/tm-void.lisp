@@ -15,6 +15,20 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-void
 ;;
+  (defun test-void-0 ()
+    (let(
+          (x (mk 'tm-void))
+          (y (mk 'tm-list))
+          )
+      (∧
+        (s x (be ∅) (be t))
+        (a x 22 (be ∅) (be t))
+        (= (d x y (be 1) (be 2) (be 3)) 2)
+        (= (d x ∅ (be 1) (be 2) (be 3)) 2)
+        )))
+  (test-hook test-void-0)
+
+
  (defun test-heads-on-same-cell-void-0 ()
    (let(
          (a (mk 'tm-void))
@@ -35,16 +49,50 @@ See LICENSE.txt
     (let*(
            (vi  (make-instance 'tm-void))
            (flag (init vi {:mount {1 2 3}} (be 1) (be 2)))
-           (tm1  (mk 'tm-void :tape-space 'tm-list))
+           (tm1  (mk 'tm-void :tm-type 'tm-list))
           )
       (∧
         (= flag 2)
         (eq (type-of tm1) 'tm-void)
+
         (a tm1 7)
         (eq (type-of tm1) 'tm-parked-singular)
+
         (s tm1)
         (eq (type-of tm1) 'tm-singular)
         (= (r tm1) 7)
         (¬ (s tm1))
+
+        (a tm1 14)
+        (eq (type-of tm1) 'tm-list)
+        (= (r tm1) 7)
+        (s tm1)
+        (= (r tm1) 14)
+        (¬ (s tm1))
         )))
   (test-hook test-void-1)
+
+ (defun test-void-2 ()
+    (let*(
+           (vi  (make-instance 'tm-void))
+           (flag (init vi {:mount {1 2 3}} (be 1) (be 2)))
+           (tm1  (mk 'tm-void :tm-type 'tm-list))
+          )
+      (∧
+        (= flag 2)
+        (eq (type-of tm1) 'tm-void)
+
+        (a tm1 7)
+        (eq (type-of tm1) 'tm-parked-singular)
+
+        (a tm1 14)
+        (eq (type-of tm1) 'tm-parked-tape)
+
+        (s tm1)
+        (eq (type-of tm1) 'tm-list)
+        (= (r tm1) 14)
+        (s tm1)
+        (= (r tm1) 7)
+        (¬ (s tm1))
+        )))
+  (test-hook test-void-2)

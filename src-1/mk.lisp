@@ -28,9 +28,9 @@ See LICENSE.txt
 ;; initialize a tape machine of the specified type to hold the specified objects
 ;;
 ;;  init-list is a keyword list.  Basic keys are:  
-;;  :tape-space, :mount, :seed, :base, :state
+;;  :tm-type, :mount, :seed, :base, :state
 ;;
-;;  :tape-space is used by void and singular machines to know the tape space
+;;  :tm-type is used by void and singular machines to know the tape space
 ;;  should the tape be expanded.  
 ;;
 ;;  :mount is used to specify initial objects for
@@ -82,7 +82,7 @@ See LICENSE.txt
      (
        sequence 
        &optional 
-       cont-ok 
+       (cont-ok #'echo)
        (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
        )
      (declare (ignore sequence cont-ok))

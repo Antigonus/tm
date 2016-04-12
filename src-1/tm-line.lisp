@@ -138,8 +138,8 @@ See LICENSE.txt
       (tm tm-line)
       object
       &optional
-      cont-ok
-      cont-no-alloc
+      (cont-ok (be t))
+      (cont-no-alloc (be ∅))
       )
     (declare (ignore tm object cont-ok cont-no-alloc))
     (error 'tm-read-only)
@@ -150,10 +150,10 @@ See LICENSE.txt
       (tm tm-line)
       &optional 
       spill
-      cont-ok
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      cont-no-alloc
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore tm spill cont-ok cont-rightmost cont-no-alloc))
+    (declare (ignore tm spill cont-ok cont-no-dealloc cont-no-alloc))
     (error 'tm-read-only)
     )

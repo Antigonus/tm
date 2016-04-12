@@ -43,3 +43,23 @@ and returning nothing (to be consistent with access to state variables),
 13. removed the affine versions, need to add an affine transform, when
 passed a projective machine, turns it into an affine one.  .. the old
 affine machine are sitting in scratch
+
+14.  The test-meta-unwrap test often fails after a debug session, yet the definition when
+ run by itself passes, so I'm guessing it is a namespace issue with 'o'.  It is defined in
+ tm, but not sure compares are always in tm.
+
+15.  Change the generators to set class to void when they are empty
+and singular when there is one value?  Then we could detect empty and
+singleton from the tape type.  (0, 1, many ...)   ... but then how would
+you implement, say, a singleton random number generator  ...though not
+a problem for tapes that have a property that whas is in the cell does not
+change.  I think this needs to be done.
+
+16. make unmount of void and singleton a generic interface so that,
+currently there is a case statement in the respective files
+
+17. add exception unwind handling on routines that modify tms in the library,
+so that tms are never left in intermediate states.
+
+18. consider changing singular -> singleton,  don't know, not sure that
+ the tape of one cell is less singular, than say, the tape of no cells.

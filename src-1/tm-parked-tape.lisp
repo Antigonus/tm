@@ -27,21 +27,23 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-fail (λ()(error 'missing-tm-type)))
       )
     (destructuring-bind
-      (&key tape-space mount &allow-other-keys) init-list
-      (if
-        (∧
-          tape-space
-          mount
-          (≥ (length mount) 2)
-          )
+      (&key tm-type &allow-other-keys) init-list
+      (if tm-type
         (progn
-          (setf (HA tm) tape-space)
-          (setf (tape tm) (mk tape-space init-list))
-          (funcall cont-ok)
-          )
+          (let(
+                (tape-space (make-instance tm-type))
+                )
+            (init tape-space init-list
+              (λ()
+                (setf (HA tm) tm-type)
+                (setf (tape tm) tape-space)
+                (funcall cont-ok)
+                )
+              cont-fail
+              )))
         (funcall cont-fail)
         )))
 
@@ -68,7 +70,7 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       (tm tm-parked-tape)
       object
       &optional
-      cont-ok
+      (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (a◧ (tape tm) object cont-ok cont-no-alloc)
@@ -79,18 +81,35 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       (tm tm-parked-tape)
       &optional 
       spill
-      cont-ok
+      (cont-ok #'echo)
       (cont-no-dealloc (λ()(error 'dealloc-fail)))
       (cont-no-alloc  (λ()(error 'alloc-fail)))
       )
-    (let(
-          (tm-tape-space (tape tm)) ; has at least two objects now, could collapse to singular
+    (let*(
+          (tm-on-tape (tape tm)) ; has at least two objects now, could collapse to singular
+          (dealloc-object (r tm-on-tape))
           )
-      (d◧ tm-tape-space spill
-        (λ()
-          (when (typep tm-tape-space 'tm-singular) (cue-to tm tm-tape-space))
-          (funcall cont-ok)
-          )
-        cont-no-dealloc 
-        cont-no-alloc
-        )))
+      (when spill 
+        (as spill dealloc-object #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
+        )
+      (cond
+        ((doubleton tm-on-tape)
+          (s tm-on-tape
+            (λ() 
+              (let(
+                    (tm-type (HA tm))
+                    (keep-object (r tm-on-tape))
+                    )
+                (change-class tm 'tm-parked-singular)
+                (init tm {:tm-type tm-type :mount keep-object}
+                  (λ()(funcall cont-ok dealloc-object))
+                  (λ()(error 'impossible-to-get-here))
+                  )))
+            (λ()(error 'impossible-to-get-here))
+            ))
+        (t
+          (d◧ tm-on-tape ∅
+            #'echo
+            cont-no-dealloc 
+            (λ()(error 'impossible-to-get-here))
+            )))))

@@ -220,14 +220,12 @@ they belong to.
     ;; fundamental machines
     ;;
       #:tm-void
-      #:tm-singular-affine
-      #:tm-singular-projective
+      #:tm-singular
 
       #:tm-interval
 
       #:tm-mk-void
-      #:tm-mk-singular-affine
-      #:mk-singular-projective
+      #:tm-mk-singular
       #:tm-mk-interval
 
     ;; tm-line
