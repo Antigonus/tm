@@ -42,6 +42,18 @@ Calling deallocate, #'d, transition to 'tm-void.
       (funcall cont-ok)
       ))
 
+  (defmethod unmount ((tm tm-parked-singular))
+    (case (HA tm)
+      (tm-list {(tape tm)})
+      (tm-array #((tape tm)))
+      (t (error 'can-not-unmount))
+      ))
+
+  ;; no need to do anything
+  ;; don't know if any compilers will freak with an empty body, so I put t
+  (defmethod park ((tm tm-parked-singular)) t)
+
+
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;

@@ -11,6 +11,10 @@ This machine is typically created by allocating a cell to a tm-parked-singular m
 Calling step, #'s, steps into the tape space.
 Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
 
+.. need to use typeof everywhere on base, and not use (HA) as for void
+and singular, as otherwise we are just setting ourselves up for mismatch
+hazards.
+
 |#
 
 (in-package #:tm)
@@ -30,23 +34,35 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       (cont-fail (λ()(error 'missing-tm-type)))
       )
     (destructuring-bind
-      (&key tm-type &allow-other-keys) init-list
-      (if tm-type
-        (progn
+      (&key tm-type base &allow-other-keys) init-list
+      (cond
+        (base
+          (setf (HA tm) ∅)
+          (setf (tape tm) base)
+          )
+        (tm-type
           (let(
                 (tape-space (make-instance tm-type))
                 )
             (init tape-space init-list
               (λ()
-                (setf (HA tm) tm-type)
+                (setf (HA tm) ∅)
                 (setf (tape tm) tape-space)
                 (funcall cont-ok)
                 )
               cont-fail
               )))
-        (funcall cont-fail)
-        )))
+        (t
+          (funcall cont-fail)
+          ))))
 
+  (defmethod unmount ((tm tm-parked-tape))
+    (unmount (tape tm))
+    )
+
+  ;; no need to do anything
+  ;; don't know if any compilers will freak with an empty body, so I put t
+  (defmethod park ((tm tm-parked-tape)) t)
 
 
 ;;--------------------------------------------------------------------------------
@@ -86,19 +102,19 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
       (cont-no-alloc  (λ()(error 'alloc-fail)))
       )
     (let*(
-          (tm-on-tape (tape tm)) ; has at least two objects now, could collapse to singular
-          (dealloc-object (r tm-on-tape))
+          (tm-from-the-tape (tape tm)) ; has at least two objects now, could collapse to singular
+          (dealloc-object (r tm-from-the-tape))
           )
       (when spill 
         (as spill dealloc-object #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
         )
       (cond
-        ((doubleton tm-on-tape)
-          (s tm-on-tape
+        ((doubleton tm-from-the-tape)
+          (s tm-from-the-tape
             (λ() 
               (let(
-                    (tm-type (HA tm))
-                    (keep-object (r tm-on-tape))
+                    (tm-type (type-of tm-from-the-tape))
+                    (keep-object (r tm-from-the-tape))
                     )
                 (change-class tm 'tm-parked-singular)
                 (init tm {:tm-type tm-type :mount keep-object}
@@ -108,7 +124,7 @@ Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
             (λ()(error 'impossible-to-get-here))
             ))
         (t
-          (d◧ tm-on-tape ∅
+          (d◧ tm-from-the-tape ∅
             #'echo
             cont-no-dealloc 
             (λ()(error 'impossible-to-get-here))

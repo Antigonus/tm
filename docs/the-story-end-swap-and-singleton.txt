@@ -1,0 +1,62 @@
+
+I discovered a cute trick for implementing deallocate leftmost, #'d◧, in a gereric manner
+(making it a 'derived' function), so that it does not have to be a primitive function.
+Every tape machine type has to implement all the primitive function, so this saves
+some work and reduces the risk of introducing bugs.  This is all good.
+
+It goes like this, first I take the object in the right neighbor of leftmost, and I write
+it into leftmost.  Then I deallocate the right neighbor.
+
+Even if the leftmost being deallocated was being pointed at from a symbol
+table or such, this still works for creating the appearance of deallocating
+leftmost.
+
+But I ran into two problems.  Firstly, in some structures end deallocation was possible,
+but middle allocation was not.  For example, I can displace an array base pointer,
+provided I can get to the base pointer, but I can't delete a cell out of it.  And actually
+I can get to the base pointer, as it lives in (tape tm).  Such pointers aren't from symbol
+tables, so this concern of symbol tables is unnecessary.  This problem with arrays was
+easily smoothed over by defining a leftmost dealloc method with a type signature on
+arrays.  But now there are multiple #'d◧ functions, so we lose some of the benefit.
+
+Then I revised the library to use transitioning dynamic types for tape machines.  This
+approach moves end case code to the dispatch.  As dispatch has to be done anyway, so this
+is a win. (My C++ version some years ago did this also.)  So a funciton like step, #'s,
+doesn't have to have end case checks looking for void upon every invocation - and this
+might matter when it is called in a loop.
+
+The object cell swap trick requires two cells, so I reasoned that a singleton machine was
+also special.  As I've been making allusions to discrete topology, I also called these
+machine singular.  This is because all machine that holds a single value are actually the
+same.  We just store the pointer to that value in the place we would have a tape pointer
+in the various machines.  Then the all collapse into the same thing.  I have implemented
+this, in two languages now, and it does appear elegant to watch a tape machine start just
+a void type declaration, to a unified holder of one value, and then grow into a larger
+typed structure as new objects are added.  All seemed good - until getting to transforms.
+
+A tape machine transform is a tape machine that bases its work on another tape machine.
+For example the depth first transform has a base machine where some objects are also
+sequences.  The depth first machine then gives us a linear tape view when in fact
+we are taking a  depth first traversal.
+
+As another example, the interval transform is a tape machine that picks a contiguous group
+of cells (the interval space) and makes them look like their own machine.  Thus leftmost
+and rightmost continuations will happen at the end of the interval rather the end of the
+tape, etc.
+
+So what happens when an interval is reduce to one cell?  If we make it singular, a
+reference to that one object moves into (tape tm) and replaces the tape reference.  We
+no longer have a reference to the cell on the original tape.  If we
+then call dealloc, the interval machine becomes void.  This is all good, however the base
+machine will still have the cell that was intended to be deallocated, so though the
+interval looks right, the base machine does not.  
+
+Transforms are important, probably more so than having a generic (i.e. derived from
+primitives) deallocate routine.  Hence, I am moving deallocate leftmost back to
+primitives, and removing singular machines from the library.  So now when the
+second to last cell is removed from an interval, it remains as view to the base
+machine.  When the last cell is removed, the interval becomes void, as do all
+machines with no cells.  But this does not cause problems because, after all,
+we can't dealloc any cells from a void space.  We use the same mechanism as
+currently employed to go from singular back to a larger interval, though now
+we do it from void.

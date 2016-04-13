@@ -45,6 +45,18 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
           (funcall cont-ok)
           ))))
 
+  (defmethod unmount ((tm tm-void))
+    (case (HA tm)
+      (tm-list ∅)
+      (tm-array #())
+      (t (error 'can-not-unmount))
+      ))
+
+  ;; no need to do anything
+  ;; don't know if any compilers will freak with an empty body, so I put t
+  (defmethod park ((tm tm-void)) t)
+
+
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;

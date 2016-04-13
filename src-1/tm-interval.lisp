@@ -5,17 +5,18 @@ See LICENSE.txt
 
   Interval Space
 
-  tm-interval defines a range of continguous cells from another tape machine's tape, as
-  this tape machine's tape.
+  tm-interval defines a range of continguous cells from another tape machine's tape. 
+  Because it is based on another tm (or in this case two tms) it is properly a transform.
 
   Read, write, allocate, etc, just pass through to the base machine.  However, our
   leftmost and rightmost may be different than the leftmost and rightmost of the base
-  machine.
+  machines.
 
   An interval space is not to be confused with a subspace. A subspace occurs when
   a cell holds a tape.  See tm-subspace.lisp.
 
 |#
+
 
 (in-package #:tm)
 
@@ -26,7 +27,7 @@ See LICENSE.txt
 
   (defstruct interval
     leftmost ; a tape machine with head on the interval leftmost
-    rightmost ; a tape machine *on the same tape* with head on the new rightmost
+    rightmost ; a tape machine *on the same tape* with head on the interval rightmost
     )
 
   (defmethod init 
@@ -38,19 +39,40 @@ See LICENSE.txt
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key seed &allow-other-keys) init-list
-      (if
-        (∧ seed (= (length seed) 2))
-        (funcall cont-fail)
-        (let(
-              (leftmost-tm (first seed)) ; wonder if I should dup these
-              (rightmost-tm (second seed))
-              )
-          (setf (HA tm) (dup leftmost-tm))
-          (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
-          (funcall cont-ok)
-          ))))
-
+      (&key base mount &allow-other-keys) init-list
+      (let( leftmost rightmost )
+        (cond
+          ((∧ (consp base) (= (length base) 2))
+            (setq leftmost-tm (dup (first base)))
+            (setq rightmost-tm (dup (second base)))
+            )
+          ((∧ (consp base) (= (length base) 1))
+            (setq leftmost-tm (dup (first base)))
+            (setq rightmost-tm (dup (first base)))
+            )
+          ((∧ (¬ consp base) (typep base 'tape-machine ))
+            (setq leftmost-tm (dup base))
+            (setq rightmost-tm (dup base))
+            )
+          (t (funcall cont-fail)
+            ))
+        (cond
+          ((consp mount)
+            (as* rightmost-tm mount #'do-nothing cont-fail)
+            )
+          (mount
+            (as rightmost-tm mount #'do-nothing cont-fail)
+            ))
+        (cond
+          ((heads-on-same-cell leftmost-tm rightmost-tm)
+            (change-class tm 'tm-singular)
+            (init :tm-type {'tm-interval :base leftmost-tm} :mount (r leftmost-tm))
+            )
+          (t
+            (setf (HA tm) (dup leftmost-tm))
+            (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
+            (funcall cont-ok)
+            )))))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods

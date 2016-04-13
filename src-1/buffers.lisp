@@ -3,41 +3,26 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+In the English language, 'dequeue' means to remove something from a queue, and 
+that is the sense we use the word in this library.
 
-          the attachment point for adding to a queue
-          rightmost
-          a object on the stack / in the queue
+A tm-stack or a tm-queue referred to below is an interval space:
+
+          rightmost of interval
+          bottom of the stack
+          enqueue values for the queue with #'as
           |
           |
-     A .. X
+     L .. R
      |
      |
-     leftmost
-     the attachment point for the stack/queue
-     also the dequue point
+     leftmost of interval
+     top of the stack
+     dequeue values for the queue or stack with d◧
+     enqueue values for the stack with a◧
 
-In this diagram of a tape, A is the attachment cell for the stack. The stack or queue
-does not read or write this cell, rather it builds the buffer to the right of this cell.
+Use the generic function 'is-void' to test if a stack or queue is empty.
 
-Here, X is the rightmost of the tape. For queues it is the allocation point for new data.
-For a stack it is the 'bottom' of the stack.
-
-When the stack has multiple values, i.e. like this,
-
-    A Y W ... X
-
-Then using #'d from A in or to dequeue Y works well, and after the operation, the
-stack/queue looks like this:
-
-   A W ... X
-
-However if the queue has only one value, i.e. like this,
-
-     A X
-
-Then calling #'d to dequeue a value would remove, X, our allocation point for a queue.
-That would be bad. Hence we treat the case of removing the last item from the queue
-specially.
 
 |#
 
@@ -50,10 +35,9 @@ specially.
 ;;
   (defun stack-enqueue (tm-stack object)
     "Pushes an object on to the stack"
-    (a tm-stack object)
+    (a◧ tm-stack object)
     )
 
-  ;; in the English language, dequeue means to remove something from a queue
   ;; it is pronounced d-q
   (defun stack-dequeue
     (
@@ -63,29 +47,26 @@ specially.
       (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
       )
     "Pulls an object off of the stack"
-    (d tm-stack ∅ cont-ok cont-empty)
+    (d◧ tm-stack ∅ cont-ok cont-empty)
     )
 
-  (defun stack-empty (tm-stack &optional (cont-true (be t)) (cont-false (be ∅)))
-    (on-rightmost tm-stack cont-true cont-false)
-    )
 
 ;;--------------------------------------------------------------------------------
 ;;  queue as operators on a tape
 ;;
-;; tm-h◧ is the pull point, using #'d
-;; tm-h◨ is the push point, using #'a
+;; tm-attach is the pull point, using #'d
+;; tm&h◨ is the push point, using #'a
 ;;
-;; for an empty queue tm-h◨ is also leftmost
+;; For an empty queue tm-h◨'s and tm-attach's heads are on the same cell.
 ;;
-  (defun queue-enqueue (tm-h◨ object)
-    (as tm-h◨ object)
+  (defun queue-enqueue (tm&h◨ object)
+    (as tm&h◨ object)
     )
 
   (defun queue-dequeue
     (
-      tm-h◧
-      tm-h◨
+      tm-attach
+      tm&h◨
       &optional 
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty)))
@@ -93,16 +74,16 @@ specially.
 
     ;; park the head to prevent having tm-h◨ going into limbo when emptying a queue
     (distance+1
-      tm-h◧ 
-      tm-h◨ 
-      (λ()(cue-to tm-h◨ tm-h◧))
+      tm-attach
+      tm&h◨ 
+      (λ()(cue-to tm&h◨ tm-attach)
       #'do-nothing
       )
 
-    (stack-dequeue tm-h◧ cont-ok cont-empty)
+    (stack-dequeue tm-attach cont-ok cont-empty)
     )
 
-  (defun queue-empty (tm-h◧ tm-h◨) (heads-on-same-cell tm-h◧ tm-h◨))
+  (defun queue-empty (tm-attach tm&h◨) (heads-on-same-cell tm-attach tm&h◨))
 
 ;;--------------------------------------------------------------------------------
 ;;  queues and stacks as objects of their own
@@ -127,7 +108,7 @@ specially.
 
   (defmethod dequeue 
     (
-      (tm-h◧ stack)
+      (tm-attach stack)
       &optional 
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))

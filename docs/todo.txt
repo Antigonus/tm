@@ -63,3 +63,5 @@ so that tms are never left in intermediate states.
 
 18. consider changing singular -> singleton,  don't know, not sure that
  the tape of one cell is less singular, than say, the tape of no cells.
+
+

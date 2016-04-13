@@ -126,7 +126,7 @@ See LICENSE.txt
                 #'do-nothing 
                 (λ()(return-from d (funcall cont-no-alloc)))
                 ))
-            (change-class tm 'tm-singular)
+            (change-class tm 'tm-list-singular)
             (init tm {:tm-type 'tm-list :mount keep-object})
             (funcall cont-ok dealloc-object)
             )

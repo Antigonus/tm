@@ -31,10 +31,10 @@ See LICENSE.txt
 ;;  :tm-type, :mount, :seed, :base, :state
 ;;
 ;;  :tm-type is used by void and singular machines to know the tape space
-;;  should the tape be expanded.  
+;;    should the tape be expanded.  
 ;;
 ;;  :mount is used to specify initial objects for
-;;  a tape machine.  
+;;    a tape machine.  
 ;;
 ;;  :seed is used to give seed parameters for generators.
 ;;

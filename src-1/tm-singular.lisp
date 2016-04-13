@@ -44,6 +44,17 @@ Calling dealloc, #'d transitions to 'tm-void.
       (t (error 'can-not-unmount))
       ))
 
+  ;; returns nothing
+  (defmethod park ((tm tm-singular))
+    (let(
+          (tm-type (HA tm))
+          (object (tape tm))
+          )
+      (change-class tm 'tm-parked-singular)
+      (init tm {:tm-type tm-type :mount object})
+      ))
+
+
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
@@ -60,12 +71,20 @@ Calling dealloc, #'d transitions to 'tm-void.
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
-          (tm-type (HA tm))
+          (tm-type (if (consp (HA tm)) (car (HA tm)) (HA tm)))
+          (options (if (consp (HA tm)) (cdr (HA tm)) ∅))
           (object-0 (tape tm))
           )
       (change-class tm tm-type)
-      (init tm {:tm-type tm-type :mount {object-0 object-1}} cont-ok cont-no-alloc)
-      ))
+      (init tm 
+        {
+          :tm-type tm-type 
+          :mount {object-0 object-1}
+          (o options)
+          } 
+        cont-ok
+        cont-no-alloc
+        )))
 
   (defmethod d 
     (

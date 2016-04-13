@@ -26,8 +26,9 @@ See LICENSE.txt
 
                (:module "src-0"
                  :components (
-                              (:file "fundamental")
-                              (:file "list-L")
+                              (:file "synonyms")
+                              (:file "list-qL")
+                              (:file "reader-macros")
                               (:file "functions")
                               ))
 
@@ -38,7 +39,7 @@ See LICENSE.txt
 
                (:module "test-0"
                  :components (
-                              (:file "list-L")
+                              (:file "list-qL")
                                ))
 
                (:module "src-1"
@@ -56,18 +57,16 @@ See LICENSE.txt
                                (:file "location")
                                (:file "length")
 
-
                              ;; trivial machines
                                (:file "tm-void")
                                (:file "tm-parked-singular")
                                (:file "tm-parked-tape")
                                (:file "tm-singular")
 
-                             ;; generic adapters
-                               (:file "buffers")  ; stack and queue
+                             ;; transforms
                                (:file "tm-interval")
+                               (:file "buffers")
 
-                             ;; interpretting another tm as a tree
                                (:file "tm-depth-mk")
                                (:file "tm-depth-primitives")
                                (:file "tm-depth-convert")
@@ -75,8 +74,6 @@ See LICENSE.txt
                                (:file "tm-breadth-mk")
                                (:file "tm-breadth-primitives")
                                (:file "tm-breadth-convert")
-
-
 
                              ;; simple generators 
                                (:file "tm-line")
@@ -103,8 +100,6 @@ See LICENSE.txt
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
 
-#|
-
                               (:file "length")
                               (:file "location")
 
@@ -118,7 +113,6 @@ See LICENSE.txt
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
-|#
                               ))
 
 #|
