@@ -1,0 +1,34 @@
+
+An interval space is a set of contiguous cells that belong to another space. This other
+space is a substrate upon which the interval is built.  Thus, like all cells in the
+interval, the leftmost cell of the interval will also be a cell on the substrate, though
+not necessarily the leftmost cell of the substrate.  An analogous situation exists for the
+rightmost cell.
+
+We define a 'transform' as a tape machine that uses as its tape, another tape machine.
+The functional interface of transform machine then typically provides a different behavior
+than the base machine would if used directly. It follows from this definition that
+tm-interval is a transform tape machine, where the substrate we speak of above is the base
+we speak of with transforms.
+
+We might think of an interval as a sort of 'super cell'.  We then use #'a-interval to
+allocate an interval on the tape, and #'d-interval to deallocate one.  
+
+When deallocating with spill, the deallocated cells may be moved from one tape to the
+other using the existing d* with spill, and then the definition of the interval
+machine is updated to point at the spill substrate.  An analogous process happens
+with a-interval and a*.
+
+We can create an interval using the 'gather' function.  Gather accepts two
+tape machines that are on the same tape, and returns an interval of that tape.
+
+We can also create an interval using init. init requires two options, :base, and
+:mount.  The head of the base machine locates the cell for the a-interval operation,
+and mount provides the initialization objects.
+
+
+
+
+
+
+

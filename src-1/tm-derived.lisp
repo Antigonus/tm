@@ -259,11 +259,7 @@ of the primitives.
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (a tm object 
-      (λ()
-        (s tm
-          cont-ok
-          (λ()(error 'tm-impossible-to-get-here))
-          ))
+      (λ()(s tm cont-ok #'cant-happen))
       cont-no-alloc
       ))
 
@@ -301,6 +297,44 @@ of the primitives.
     (as tm object cont-ok cont-no-alloc)
     )
 
+  (defgeneric a◨ (tm object &optional cont-ok cont-no-alloc)
+    (:documentation
+      "Allocates a cell to the right of rightmost (thus making a new rightmost)."
+      ))
+
+  (defmethod a◧
+    (
+      (tm tape-machine)
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (let(
+          (tm1 (dup tm))
+          )
+      (cue-rightmost tm1)
+      (a tm1 object cont-ok cont-no-alloc)
+      ))
+
+  (defgeneric a◨s (tm object &optional cont-ok cont-no-alloc)
+    (:documentation
+      "Allocates a cell to the right of rightmost, and steps to it"
+      ))
+
+  (defmethod a◨s
+    (
+      (tm tape-machine)
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      )
+    (a◨ tm object
+      (λ() (s tm cont-ok #'cant-happen))
+      cont-no-alloc
+      ))
+
   (defgeneric -a (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
       "Allocate a new cell to the left of the head."
@@ -332,49 +366,68 @@ of the primitives.
       ))
 
 ;;--------------------------------------------------------------------------------
-;; deallocate cells (delete cells)  
+;;
 ;;
   (defgeneric d◧ (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to #'d but the leftmost cell is deallocated independent of where the head
-       is located, unless the leftmost cell is the rightmost cell, in which case
-       cont-rightmost is called. If the tape head is on the leftmost cell, it is moved to
-       the new leftmost cell.
+       is located. The tape machine could become empty, but if not, and the tape head is on
+       the leftmost cell, the head is moved to the new leftmost cell.
        "
       ))
 
-  ;; swap objects between cell-0 to cell-1, then call #'d
-  (defmethod d◧
-    (
-      (tm tape-machine)
-      &optional
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (be ∅))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
-      )
-    (let(
-          (tm0 (dup tm))
-          )
-      (cue-leftmost tm0)
-      (when (on-rightmost tm0) (return-from d◧ (funcall cont-rightmost)))
+  ;; after an object is collapsed to empty, allocating a new cell to the empty will
+  ;; recreate an object of the same type that collapsed.  (init) is used for this,
+  ;; and only one option is given, that of :mount.
+  ;;
+  ;; If the object doesn't collapse, then it must have started with at least two 
+  ;; cells, so the swap trick can work to deallocate the right neighbor of leftmost
+  ;; using #'d (after the object in the right neighbor is moved to leftmost)
+  ;;
+  ;; If more options are needed, or if the swap trick doesn't work on the given 
+  ;; tape type, then the programmer must provide a specialization for d◧
+  ;;
+    (defmethod d◧
+      (
+        (tm tm-interval)
+        &optional 
+        spill
+        (cont-ok #'echo)
+        (cont-no-dealloc (λ()(error 'dealloc-fail)))
+        (cont-no-alloc (λ()(error 'alloc-fail)))
+        )
       (let(
-            (tm1 (dup tm0))
+            (tm-type (type-of tm))
+            (dealloc-object (r tm-leftmost))
             )
-        (s tm1
-          (λ() 
-            (let(
-                  (obj-0 (r tm0))
-                  (obj-1 (r tm1))
-                  )
-              (w tm0 obj-1)
-              (w tm1 obj-0)
-              (d tm spill cont-ok cont-rightmost cont-no-alloc)
-              ))
-          (λ()(error 'tm-impossible-to-get-here))
-          ))))
 
-     
+        (if (singleton tm)
+
+          ;; collapse to empty
+          (progn
+            (when spill
+              (as spill dealloc-object 
+                #'do-nothing 
+                (λ()(return-from d◧ (funcall cont-no-alloc)))
+                ))
+            (change-class tm 'tm-empty)
+            (init tm {:tm-type tm-type}
+              (λ() (funcall cont-ok dealloc-object))
+              #'cant-happen
+              ))
+
+          ;;normal dealloc, not singleton, so has at least two cells
+          ;; swap objects, delete second cell
+          (progn
+            (let(
+                  (tm◧ (dup tm))
+                  )
+              (cue-leftmost tm◧)
+              (w tm◧ (r-index tm◧ 1 #'do-nothing #'cant-happen))
+              (d tm◧ spill cont-ok cont-no-dealloc cont-no-alloc)
+            ))
+          )))
+
 ;;--------------------------------------------------------------------------------
 ;; moving data
 ;;

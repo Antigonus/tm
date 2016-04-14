@@ -15,6 +15,14 @@ See LICENSE.txt
   An interval space is not to be confused with a subspace. A subspace occurs when
   a cell holds a tape.  See tm-subspace.lisp.
 
+  Upon init, 
+   If the :mount parameter is specified, and it is a tape machine, then the entire
+   tape machine is the interval.  If it is a list, then the 
+
+the :base option takes one or two tape machines.  If one machine is supplied,
+  then the interval is understood to span the entire tape.  and it is not empty, then the
+  interval has one cell, which is both the leftmost and the rightmost of the interval.
+
 |#
 
 
@@ -40,37 +48,37 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key base mount &allow-other-keys) init-list
-      (let( leftmost rightmost )
+      (let( tm-leftmost tm-rightmost )
         (cond
           ((∧ (consp base) (= (length base) 2))
-            (setq leftmost-tm (dup (first base)))
-            (setq rightmost-tm (dup (second base)))
+            (setq tm-leftmost (dup (first base)))
+            (setq tm-rightmost (dup (second base)))
             )
           ((∧ (consp base) (= (length base) 1))
-            (setq leftmost-tm (dup (first base)))
-            (setq rightmost-tm (dup (first base)))
+            (setq tm-leftmost (dup (first base)))
+            (setq tm-rightmost (dup (first base)))
             )
-          ((∧ (¬ consp base) (typep base 'tape-machine ))
-            (setq leftmost-tm (dup base))
-            (setq rightmost-tm (dup base))
+          ((∧ (¬ (consp base)) (typep base 'tape-machine ))
+            (setq tm-leftmost (dup base))
+            (setq tm-rightmost (dup base))
             )
           (t (funcall cont-fail)
             ))
         (cond
           ((consp mount)
-            (as* rightmost-tm mount #'do-nothing cont-fail)
+            (as* tm-rightmost mount #'do-nothing cont-fail)
             )
           (mount
-            (as rightmost-tm mount #'do-nothing cont-fail)
+            (as tm-rightmost mount #'do-nothing cont-fail)
             ))
         (cond
-          ((heads-on-same-cell leftmost-tm rightmost-tm)
+          ((heads-on-same-cell tm-leftmost tm-rightmost)
             (change-class tm 'tm-singular)
-            (init :tm-type {'tm-interval :base leftmost-tm} :mount (r leftmost-tm))
+            (init :tm-type {'tm-interval :base tm-leftmost} :mount (r tm-leftmost))
             )
           (t
-            (setf (HA tm) (dup leftmost-tm))
-            (setf (tape tm) (make-interval :leftmost leftmost-tm :rightmost rightmost-tm))
+            (setf (HA tm) (dup tm-leftmost))
+            (setf (tape tm) (make-interval :leftmost tm-leftmost :rightmost tm-rightmost))
             (funcall cont-ok)
             )))))
 
@@ -88,6 +96,11 @@ See LICENSE.txt
  
   (defmethod cue-leftmost  ((tm tm-interval)) 
     (cue-to (HA tm) (interval-leftmost (tape tm)))
+    t
+    )
+
+  (defmethod cue-rightmost  ((tm tm-interval)) 
+    (cue-to (HA tm) (interval-rightmost (tape tm)))
     t
     )
 
@@ -141,17 +154,14 @@ See LICENSE.txt
     (if
       (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
       (funcall cont-rightmost)
-      (s (HA tm) 
-        cont-ok 
-        (λ()(error 'impossible-to-get-here :text "we just filtered out the rightmost case"))
-        )
+      (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
       ))
 
   ;; allocate a cell
   ;;
   ;; All allocations within the interval space are part of the interval space, thus
   ;;  when allocation is made from rightmost, the rightmost bound is pushed out to 
-  ;;  be on the newly allocated cell.
+  ;;  be on the newly allocated cell, etc.
   ;;
   ;; Note, tm-interval uses multiple heads on the same tape (that of HA, intervale-lefmost
   ;; and interval-rightmost, so if array, say, were to emulate allocation by moving data,
@@ -191,4 +201,41 @@ See LICENSE.txt
       ))
 
 
-    
+  ;; deallocate the leftmost cell
+  (defmethod d◧
+    (
+      (tm tm-interval)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (let(
+          (tm-leftmost (interval-leftmost (tape tm)))
+          (tm-rightmost (interval-rightmost (tape tm)))
+          (dealloc-object (r tm-leftmost))
+          )
+
+      (if (heads-on-same-cell tm-leftmost tm-rightmost)
+
+        ;; collapse to empty
+        (progn
+          (when spill
+            (as spill dealloc-object 
+              #'do-nothing 
+              (λ()(return-from d◧ (funcall cont-no-alloc)))
+              ))
+          (change-class tm 'tm-empty)
+          (init tm {:tm-type {'tm-interval :base tm-leftmost}}
+            (λ() (funcall cont-ok dealloc-object))
+            #'cant-happen
+            ))
+
+        ;;normal dealloc, not singleton, so has at least two cells
+        ;; swap objects, delete second cell
+        (progn
+          (w tm-leftmost (r-index tm-leftmost 1 #'do-nothing #'cant-happen))
+          (d tm-leftmost spill cont-ok cont-no-dealloc cont-no-alloc)
+          )
+        )))

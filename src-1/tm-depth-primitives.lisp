@@ -32,7 +32,7 @@ See LICENSE.txt
   ;;
   ;; #'deque-sublist is recursive until a tm is found that is not on rightmost and can
   ;; thus be stepped forward (to step over the sublist just traversed).  It would be
-  ;; possible to avoid this recursive unwinding by not stacking tm points on rightmost in
+  ;; possible to aempty this recursive unwinding by not stacking tm points on rightmost in
   ;; the first place, but this is not as friendly to tree modifications between
   ;; steps. There could be a long time betweeen stacking a tm and getting back to it.
   ;; Perhaps we should provide two versions for s-depth, one constant time but not as
@@ -53,13 +53,8 @@ See LICENSE.txt
 
           (save-and-step-in() ; a saved traversal point is always one past a sublist
             (enqueue history (dup tm)) ; for later traversal from
-            (si tm 
-              cont-si
-              (λ()
-                (error 'tm-impossible-to-get-here 
-                  :text "save-and-step-in is called after a consp check on tm"
-                  ))
-              ))
+            (si tm cont-si #'cant-happen)
+            )
 
           (dequeue-sublist()
             (dequeue history

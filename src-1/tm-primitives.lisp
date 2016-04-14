@@ -85,7 +85,7 @@ All tape machine implmentations must specialize these functions.
   (defgeneric d (tm &optional spill cont-ok cont-no-dealloc cont-no-alloc)
     (:documentation 
       "Deallocates one cell to the right of the head. If there is no such cell,
-       #'d takes cont-no-dealloc. Otherise if spill does not exist, the cell is dropped,
+       #'d takes cont-no-dealloc. If spill does not exist, the cell is dropped,
        and #d takes cont-ok, passing it the object from the deallocated cell.  If spill
        does exist then either the deallocated cell is moved to spill, or the object from
        the deallocated cell is moved to a new allocation on spill. In the latter
@@ -94,3 +94,4 @@ All tape machine implmentations must specialize these functions.
        "
       ))
 
+  

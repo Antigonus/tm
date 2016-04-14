@@ -3,11 +3,9 @@
 2. access lang needs to be finished, also chapter needs to be added
 to the manual.
 
-3. expand access lang
+expand access lang
 
 4. need to write mn and m* as repeating m is very inefficient
-
-5. tm-init needs keyword arguments instead of current list position stuff
 
 6. binner is commented out in worker-utilities, due to a change before
 the last release
@@ -16,7 +14,7 @@ the last release
    tm-line -> tm-difference-engine .. will rename it tm-sums
    (really it sums a finite difference to recover the original sequence)
 
-8. need tm on a stream, also the utf8 converters
+8. ... need tm on a stream, also the utf8 converters --> tm needs to re
 
 10. should modify #'L, i.e. {},  to recognize repeated symbols and only evaluate
     them once.  This could be done by wrapping the current #'L with a let.
@@ -48,20 +46,18 @@ affine machine are sitting in scratch
  run by itself passes, so I'm guessing it is a namespace issue with 'o'.  It is defined in
  tm, but not sure compares are always in tm.
 
-15.  Change the generators to set class to void when they are empty
-and singular when there is one value?  Then we could detect empty and
-singleton from the tape type.  (0, 1, many ...)   ... but then how would
-you implement, say, a singleton random number generator  ...though not
-a problem for tapes that have a property that whas is in the cell does not
-change.  I think this needs to be done.
+15.  Change the generators must go void when they are empty.
 
-16. make unmount of void and singleton a generic interface so that,
-currently there is a case statement in the respective files
+16. unmount of void is a little funny, it is dispatched from type tm-void, but
+then must determine how to make various void object ...  perhaps
+the fall of the end case should just return nil, should this somehow dispatch
+so folks can define their nil sequence cases?
 
 17. add exception unwind handling on routines that modify tms in the library,
 so that tms are never left in intermediate states.
 
-18. consider changing singular -> singleton,  don't know, not sure that
- the tape of one cell is less singular, than say, the tape of no cells.
+*18.  deallocate leftmost in tm-derived would be more useful if  type-of returned
+enough information for rebuilding the object (intervals need bounds, arrays size, etc.)
+or if some other mechanism got that information in place.
 
-
+19 tm-interval limits are currently not checked to be void

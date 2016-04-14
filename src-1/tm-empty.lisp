@@ -3,15 +3,13 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-The void projective machine has the control mechanism for a tape,
+The empty projective machine has the control mechanism for a tape,
 but any attempt to read or write it is an error.
 
-(HA tm) holds the type for tape space.
+A tm-empty machine takes as an initialization value a type for the
+tape space it would grow into should a new cell be allocated.
 
-A tm-void machine takes as an initialization value a type for the
-tape space.
-
-Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
+Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
 |#
 
@@ -20,11 +18,11 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-void (tape-machine)())
+  (defclass tm-empty (tape-machine)())
 
   (defmethod init 
     (
-      (tm tm-void)
+      (tm tm-empty)
       init-list 
       &optional
       (cont-ok (be t))
@@ -40,12 +38,12 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
           (funcall cont-ok)
           )
         (t
-          (setf (HA tm) 'tm-void)
+          (setf (HA tm) 'tm-empty)
           (setf (tape tm) ∅)
           (funcall cont-ok)
           ))))
 
-  (defmethod unmount ((tm tm-void))
+  (defmethod unmount ((tm tm-empty))
     (case (HA tm)
       (tm-list ∅)
       (tm-array #())
@@ -54,28 +52,28 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 
   ;; no need to do anything
   ;; don't know if any compilers will freak with an empty body, so I put t
-  (defmethod park ((tm tm-void)) t)
+  (defmethod park ((tm tm-empty)) t)
 
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
-  (defmethod r ((tm tm-void))
+  (defmethod r ((tm tm-empty))
     (declare (ignore tm))
     (error 'oid-access)
     )
-  (defmethod w ((tm tm-void) object)
+  (defmethod w ((tm tm-empty) object)
     (declare (ignore tm object))
-    (error 'void-access)
+    (error 'empty-access)
     )
 
   (defmethod cue-leftmost (tm) t)
 
-  (defun heads-on-same-cell-void-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-empty-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
-        (typep tm0 'tm-void)
-        (typep tm1 'tm-void)
+        (typep tm0 'tm-empty)
+        (typep tm1 'tm-empty)
         (eq (HA tm0) (HA tm1))
         )
       (funcall cont-true)
@@ -84,29 +82,29 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 
   (defmethod heads-on-same-cell 
     (
-      (tm0 tm-void) 
+      (tm0 tm-empty) 
       (tm1 tape-machine) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-empty-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
-      (tm1 tm-void) 
+      (tm1 tm-empty) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-empty-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
     (
-      (tm tm-void)
+      (tm tm-empty)
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
@@ -117,28 +115,22 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 
   (defmethod a
     (
-      (tm tm-void)
+      (tm tm-empty)
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (let(
           (tm-type (HA tm))
           )
-      (if
-        (eq tm-type 'tm-void)
-        (funcall cont-no-alloc)
-        (progn
-          (change-class tm 'tm-parked-singular)
-          (init tm {:tm-type tm-type :mount object} 
-            (λ()(funcall cont-ok)) 
-            (λ()(error 'impossible-to-get-here))
-            )))))
+      (change-class tm 'tm-parked-tape)
+      (init tm {:tm-type tm-type :mount {object}} cont-ok cont-no-alloc)
+      ))
 
   (defmethod d 
     (
-      (tm tm-void)
+      (tm tm-empty)
       &optional 
       spill
       (cont-ok #'echo)
@@ -151,7 +143,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
 
   (defmethod d◧
     (
-      (tm tm-void)
+      (tm tm-empty)
       &optional 
       spill
       (cont-ok #'echo)
@@ -162,10 +154,4 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-singular.
     (funcall cont-no-dealloc)
     )
 
-  (defmethod unmount ((tm tm-void))
-    (case (HA tm)
-      (tm-list '())
-      (tm-array #())
-      (t (error 'can-not-unmount))
-      ))
       

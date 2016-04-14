@@ -19,7 +19,7 @@ See LICENSE.txt
 ;; specialized versions might be faster, otherwise would have made these functions.
 ;;
   (defmethod singleton ((tm0 tape-machine))
-    (and
+    (∧
       (on-leftmost tm0)
       (on-rightmost tm0)
       ))
@@ -29,7 +29,7 @@ See LICENSE.txt
            (tm1 (dup tm0))
            )
       (cue-leftmost tm1)
-      (and
+      (∧
         (s tm1)
         (on-rightmost tm1)
         )))
@@ -39,7 +39,7 @@ See LICENSE.txt
            (tm1 (dup tm0))
            )
       (cue-leftmost tm1)
-      (and
+      (∧
         (s tm1)
         (s tm1)
         (on-rightmost tm1)
@@ -96,7 +96,7 @@ See LICENSE.txt
                    (on-rm-b (on-rightmost tmb-1))
                    )
                (cond
-                 ((and on-rm-a on-rm-b)
+                 ((∧ on-rm-a on-rm-b)
                    (return-from length-cmp (funcall cont-same)))
                  (on-rm-b
                    (return-from length-cmp (funcall cont-longer)))

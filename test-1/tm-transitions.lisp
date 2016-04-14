@@ -11,25 +11,6 @@ See LICENSE.txt
 |#
   (in-package #:tm)
 
-(defun test-tm-singular-m0 ()
-  (let*(
-        (x (mk 'tm-singular :mount 3))
-        (y (mk 'tm-list))
-        (z (r x))
-        )
-    (w x 71)
-    (∧
-      (= z 3)
-      (= (r x) 71)
-      (s x (be ∅) (be t))
-      (a x 22 (be t) (be ∅))
-      (equal (tape x) [71 22]) ; tm-type 'tm-singular, not sure I'm happy with this behavior
-      (= (d x y (be 1) (be 2) (be 3)) 2)
-      (= (d x ∅ (be 1) (be 2) (be 3)) 2)
-      )))
-(test-hook test-tm-singular-m0)
-
-
 (defun test-tm-singular-0 ()
   (let(
         (tm (mount {1 2 3}))
@@ -37,13 +18,19 @@ See LICENSE.txt
     (∧
       (typep tm 'tm-list)
 
-      (= (d tm) 2)
+      (= (d◧ tm) 1)
       (typep tm 'tm-list)
 
       (= (d tm) 3)
-      (typep tm 'tm-singular)
+      (typep tm 'tm-list)
 
-      (d tm ∅ (be 'incorrect) (be t)) ; head is now on rightmost
+      (d tm ∅ (be ∅) (be t)) ; head is now on rightmost
+
+      (= (d◧ tm) 2)
+      (typep tm 'tm-void)
+
+      (d tm ∅ (be ∅) (be t)) ;can't dealloc from void (watch me pull a rabbit from my hat..)
+      (d◧ tm ∅ (be ∅) (be t))
       )))
 (test-hook test-tm-singular-0)
 
@@ -58,14 +45,26 @@ See LICENSE.txt
 
       (= (d tm spill) 2)
       (typep tm 'tm-list)
-      (typep spill 'tm-singular)
+      (typep spill 'tm-parked-tape)
 
       (= (d tm spill) 3)
-      (typep tm 'tm-singular)
-      (typep spill 'tm-list)
+      (typep tm 'tm-tape)
+      (typep spill 'tm-parked-tape)
 
       (d tm spill (be nil) (be t)) ; fails, head is on rightmost
       (equal (unmount spill) {2 3})
+
+      (= (d◧ tm spill) 1)
+      (typep tm 'tm-void)
+      (typep spill 'tm-parked-tape)
+      (equal (unmount spill) {1 2 3})
+
+      (s spill)
+      (typep spill 'tm-list)
+      (= (r spill) 1)
+
+      (= (d◧ spill) 1)
+      (typep spill 'tm-void)
       )))
 (test-hook test-tm-singular-1)
 
@@ -78,30 +77,33 @@ See LICENSE.txt
       (equal (tape tm) ∅)
 
       (a tm 1)
-      (typep tm 'tm-parked-singular)
-      (equal (tape tm) 1)
+      (typep tm 'tm-parked-tape)
+      (equal (tape tm) {1})
 
       (a tm 2)
       (typep tm 'tm-parked-tape)
       (equal (tape (tape tm)) {2 1})
 
+      (s tm)
       (a tm 3)
-      (typep tm 'tm-parked-tape)
-      (equal (tape (tape tm)) {3 2 1})
+      (typep tm 'tm-list)
+      (equal (tape (tape tm)) {2 3 1})
 
       (= (d tm) 3)
-      (typep tm 'tm-parked-tape)
+      (typep tm 'tm-list)
       (equal (tape (tape tm)) {2 1})
 
+      (park tm)
       (= (d tm) 2)
-      (typep tm 'tm-parked-singular)
+      (typep tm 'tm-parked-list)
       (equal (tape tm) 1)
 
       (= (d tm) 1)
       (typep tm 'tm-void)
       (equal (tape tm) ∅)
 
-      (d tm ∅ (be ∅) (be t)) ; head is now on rightmost
+      (d tm ∅ (be ∅) (be t)) 
+      (d◧ tm ∅ (be ∅) (be t)) 
       )))
 (test-hook test-tm-singular-2)
 

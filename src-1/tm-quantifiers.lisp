@@ -220,7 +220,7 @@ See LICENSE.txt
 ;; love the null case.  If there are no tms to step, then there does not
 ;; exist a tm that stepped, so we should return ∅.  On the other hand, if there
 ;; are no tms to step, then no tm failed to step, so we should return true. 
-;; I avoided this issue by passing in a tm to the sequence of tms. Such a sequence
+;; I aemptyed this issue by passing in a tm to the sequence of tms. Such a sequence
 ;; must have one member to exist.
 ;;
   (defun s-together 
@@ -257,8 +257,7 @@ See LICENSE.txt
 ;; repeated until end of tape operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-
-  ;; if you want fill to be a single values, make it a singular-affine machine
+  ;; if you want fill to be a single value, make it a singular-affine machine
   ;; cont-rightmost is called when the fill machine hits rightmost
   (defgeneric w* (tm fill &optional cont-ok cont-rightmost))
 

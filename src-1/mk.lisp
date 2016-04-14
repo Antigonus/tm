@@ -27,20 +27,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified type to hold the specified objects
 ;;
-;;  init-list is a keyword list.  Basic keys are:  
-;;  :tm-type, :mount, :seed, :base, :state
+;;  init-list is a keyword list.  
 ;;
-;;  :tm-type is used by void and singular machines to know the tape space
-;;    should the tape be expanded.  
+;;  :tm-type is used by empty to know the tape of tape to create should cells be
+;;    added to the empty.
 ;;
-;;  :mount is used to specify initial objects for
-;;    a tape machine.  
+;;  :mount is used to specify initial objects for a tape machine.  
 ;;
-;;  :seed is used to give seed parameters for generators.
+;;  :seed is used to give seed parameters to generators.
 ;;
-;;  :base provides the base machine for a transform
-;;
-;;  :state external storage for a tape machine. 
+;;  :base provides the base machine for a transforms.
 ;;
 ;;  Other keywords should not override these, as they are used in the init
 ;;  routines to detect valid initialization expressions.
@@ -67,7 +63,7 @@ See LICENSE.txt
       instance
       ))
 
-;;--------------------------------------------------------------------------------
+;;-----------------------p---------------------------------------------------------
 ;;  given a sequence return a tape machine over that sequence
 ;;    sequences are things we can step into, and that tree traversal will
 ;;    consider to be something to traverse.

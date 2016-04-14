@@ -3,17 +3,14 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-(HA tm) holds the type of the tape space.
-(tape tm) holds a tape machine
+tm-parked-tape is a tranform, and hence there is a base tape machine.
+This transform makes it appear that the head is sitting in empty space,
+but just to the left of leftmost.
 
-This machine is typically created by allocating a cell to a tm-parked-singular machine.
+(tape tm) holds the base tape machine
 
-Calling step, #'s, steps into the tape space.
-Calling deallocate, #'d, potentialy transition to 'tm-parked-singular.
-
-.. need to use typeof everywhere on base, and not use (HA) as for void
-and singular, as otherwise we are just setting ourselves up for mismatch
-hazards.
+Calling step, #'s, steps into the base machine
+Calling deallocate, #'d, potentialy transition to empty.
 
 |#
 
@@ -23,7 +20,7 @@ hazards.
 ;; a specialization
 ;;
 
-  (defclass tm-parked-tape (tm-void)())
+  (defclass tm-parked-tape (tm-empty)())
 
   (defmethod init 
     (
@@ -37,17 +34,19 @@ hazards.
       (&key tm-type base &allow-other-keys) init-list
       (cond
         (base
-          (setf (HA tm) ∅)
-          (setf (tape tm) base)
-          )
+            (setf (HA tm) ∅)
+            (setf (tape tm) (dup base)) ; wonder if we should cue leftmost ...
+            )
         (tm-type
-          (let(
-                (tape-space (make-instance tm-type))
+          (let*(
+                (type-specifier (if (consp tm-type) (car tm-type) tm-type))
+                (options (if (consp tm-type) (cdr tm-type)) ∅)
+                (base-machine (make-instance type-specifier))
                 )
-            (init tape-space init-list
+            (init base-machine (append options init-list)
               (λ()
                 (setf (HA tm) ∅)
-                (setf (tape tm) tape-space)
+                (setf (tape tm) base-machine)
                 (funcall cont-ok)
                 )
               cont-fail
@@ -68,7 +67,7 @@ hazards.
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
-  ;; steps head from void space into tape space
+  ;; steps head from empty space into tape space
   (defmethod s
     (
       (tm tm-parked-tape)
@@ -101,31 +100,30 @@ hazards.
       (cont-no-dealloc (λ()(error 'dealloc-fail)))
       (cont-no-alloc  (λ()(error 'alloc-fail)))
       )
-    (let*(
-          (tm-from-the-tape (tape tm)) ; has at least two objects now, could collapse to singular
-          (dealloc-object (r tm-from-the-tape))
+    (let(
+          (tm-from-the-tape (tape tm))
           )
-      (when spill 
-        (as spill dealloc-object #'do-nothing (λ()(return-from d (funcall cont-no-alloc))))
-        )
-      (cond
-        ((doubleton tm-from-the-tape)
-          (s tm-from-the-tape
-            (λ() 
-              (let(
-                    (tm-type (type-of tm-from-the-tape))
-                    (keep-object (r tm-from-the-tape))
-                    )
-                (change-class tm 'tm-parked-singular)
-                (init tm {:tm-type tm-type :mount keep-object}
-                  (λ()(funcall cont-ok dealloc-object))
-                  (λ()(error 'impossible-to-get-here))
-                  )))
-            (λ()(error 'impossible-to-get-here))
-            ))
-        (t
-          (d◧ tm-from-the-tape ∅
-            #'echo
-            cont-no-dealloc 
-            (λ()(error 'impossible-to-get-here))
-            )))))
+      (d◧ tm-from-the-tape spill
+        (λ(dealloc-object)
+          (if 
+            (typep tm-from-the-tape 'tm-empty)
+            (progn
+              (cue-to tm tm-from-the-tape)
+              (funcall cont-ok dealloc-object)
+              )))
+        cont-no-dealloc
+        cont-no-alloc
+        )))
+
+  (defmethod d◧
+    (
+      (tm tm-parked-tape)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore tm spill cont-ok cont-no-alloc))
+    (funcall cont-no-dealloc)
+    )

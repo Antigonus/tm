@@ -53,11 +53,7 @@ See LICENSE.txt
             (dequeue history
               (λ(tm0)
                 (cue-to tm tm0)
-                (si 
-                  tm 
-                  cont-si
-                  (λ()(error 'tm-impossible-to-get-here :text "we only save lists"))
-                  )
+                (si tm cont-si #'cant-happen) ; we only save lists
                 )
               cont-rightmost ; there were no sublists to explore
               ))

@@ -60,3 +60,6 @@ machines with no cells.  But this does not cause problems because, after all,
 we can't dealloc any cells from a void space.  We use the same mechanism as
 currently employed to go from singular back to a larger interval, though now
 we do it from void.
+
+.. at least the swap trick still works for allocating a new cell to leftmost,
+so a◧ still has a generic implementation.

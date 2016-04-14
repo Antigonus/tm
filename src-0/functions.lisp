@@ -32,6 +32,11 @@ See LICENSE.txt
   (defun notλ (f) (λ(&rest x)(not (apply f x))))
 
 ;;--------------------------------------------------------------------------------
+;; fundamental errors
+;;
+  (defun cant-happen () (error 'impossible-to-get-here))
+
+;;--------------------------------------------------------------------------------
 ;; pass a value in a box  (via dmitry_vk stack exchange)
 ;;
 ;;  Normally one would use a closure to bring varibles into scope, instead of the argument

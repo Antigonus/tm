@@ -5,13 +5,11 @@ See LICENSE.txt
 
   Tape is implemented with a singly linked list.
 
-  A machine is born as void projective,  with the addition of the first
-  cell it becomes singular projective, and then, upon this branch of
-  development it arrives at the tm-list.  And thus a tm-list will
-  have at least two cells.
+  When a machine is first created it will be of type empty projective, Upon 
+  the allocation of a new cell, it then becomes a tm-list.
 
-  Deallocation, #'d may cause this machine to collapse into a singular
-  projective machine.
+  Deallocation, #'d◧  of the last cell will cause tm-list to collapse back
+  into projective machine.
 
 |#
 
@@ -97,7 +95,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
-  ;; a tm-list has at least two cells (or it would have collapsed to singular or void)
   ;; deallocates the cell just to the right of the head
   (defmethod d 
     (
@@ -108,29 +105,9 @@ See LICENSE.txt
       (cont-no-dealloc (λ()(error 'dealloc-fail)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-
     (tm-list-on-rightmost tm
       (λ() (funcall cont-no-dealloc) )
       (λ()
-        (if (tm-list-doubleton tm) 
-
-          ;; doubleton, then collapses to singular
-          ;; as we eliminated the rightmost case, head is on leftmost
-          (let*(
-                 (keep-object (car (tape tm)))
-                 (dealloc-cell (cdr (tape tm)))
-                 (dealloc-object (car dealloc-cell))
-                 )
-            (when spill
-              (as spill dealloc-object 
-                #'do-nothing 
-                (λ()(return-from d (funcall cont-no-alloc)))
-                ))
-            (change-class tm 'tm-list-singular)
-            (init tm {:tm-type 'tm-list :mount keep-object})
-            (funcall cont-ok dealloc-object)
-            )
-          
           ;; normal case, tape is longer than doubleton
           ;; as we elimated the rightost case, dealloc-cell will exist
           (let*(
@@ -145,6 +122,5 @@ See LICENSE.txt
                 ))
             (rplacd (HA tm) connection-point)
             (funcall cont-ok dealloc-object)
-            )))))
+            ))))
      
-

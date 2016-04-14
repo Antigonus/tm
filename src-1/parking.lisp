@@ -18,8 +18,7 @@ cell are not.
   (defun parked (tm)
     "True iff tape machine head is parked."
     (∨
-      (typep tm 'tm-void)
-      (typep tm 'tm-parked-singular)
+      (typep tm 'tm-empty)
       (typep tm 'tm-parked-tape)
       ))
 
@@ -29,14 +28,14 @@ cell are not.
     (¬ (parked tm))
     )
 
-  (defun is-void (tm)
-    "True iff the machine is void."
-    (typep tm 'tm-void)
+  (defun is-empty (tm)
+    "True iff the machine is empty."
+    (typep tm 'tm-empty)
     )
     
-  (defun not-void (tm)
-    "True iff the tape machine tape is not void."
-    (¬ (is-void tm))
+  (defun not-empty (tm)
+    "True iff the tape machine tape is not empty."
+    (¬ (is-empty tm))
     )
 
   ;; the return value from park should ignored
@@ -48,6 +47,6 @@ cell are not.
           )
       (init instance {:base tm}
         #'do-nothing
-        (λ()(error 'impossible-to-get-here))
+        #'cant-happen
         )))
 

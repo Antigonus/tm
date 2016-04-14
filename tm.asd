@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defsystem #:tm
   :name "tm"
-  :version "0.2"
+  :version "0.5"
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
@@ -58,10 +58,8 @@ See LICENSE.txt
                                (:file "length")
 
                              ;; trivial machines
-                               (:file "tm-void")
-                               (:file "tm-parked-singular")
+                               (:file "tm-empty")
                                (:file "tm-parked-tape")
-                               (:file "tm-singular")
 
                              ;; transforms
                                (:file "tm-interval")
@@ -92,8 +90,8 @@ See LICENSE.txt
 
                (:module "test-1"
                 :components (
-                              (:file "tm-void")
-                              (:file "tm-singular")
+                              (:file "tm-empty")
+                              (:file "tm-transitions")
                               
                               (:file "tm-derived")
 

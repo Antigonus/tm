@@ -27,29 +27,20 @@ See LICENSE.txt
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key tm-type mount &allow-other-keys) init-list
-
-      ;; tm-type shouldn't be defined for tm-list, but we let it slide if the 
-      ;; value it is set to is set tm-list.  tm-type is for tm-void and tm-singular.
-      (when
-        (∧ tm-type (¬ (eq tm-type 'tm-list)))
-        (return-from init 
-          (funcall cont-fail)
-          ))
-      (unless mount
-        (change-class tm 'tm-void)
-        (return-from init 
+      (&key mount &allow-other-keys) init-list
+      (cond
+        ((¬ mount)
+          (change-class tm 'tm-empty)
           (init tm {:tm-type 'tm-list} cont-ok cont-fail)
-          ))
-      (unless (cdr mount)
-        (change-class tm 'tm-singular)
-        (return-from init 
-          (init tm {:tm-type 'tm-list :mount (car mount)} cont-ok cont-fail)
-          ))
-      (setf (tape tm) mount)
-      (setf (HA tm) mount)
-      (funcall cont-ok)
-      ))
+          )
+        ((consp mount) 
+          (setf (tape tm) mount)
+          (setf (HA tm) mount)
+          (funcall cont-ok)
+          )
+        (t
+          (funcall cont-fail)
+          ))))
 
   (defmethod mount ((sequence cons) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
