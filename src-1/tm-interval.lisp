@@ -6,22 +6,23 @@ See LICENSE.txt
   Interval Space
 
   tm-interval defines a range of continguous cells from another tape machine's tape. 
-  Because it is based on another tm (or in this case two tms) it is properly a transform.
+  Because it is based on another tm it is properly a transform.
 
   Read, write, allocate, etc, just pass through to the base machine.  However, our
   leftmost and rightmost may be different than the leftmost and rightmost of the base
   machines.
 
   An interval space is not to be confused with a subspace. A subspace occurs when
-  a cell holds a tape.  See tm-subspace.lisp.
+  a cell holds a sequence or tape machine as an object.  See tm-subspace.lisp.
 
-  Upon init, 
-   If the :mount parameter is specified, and it is a tape machine, then the entire
-   tape machine is the interval.  If it is a list, then the 
+  :base  - specifies the location of the interval
+  :mount - is a list of objects to put in the interval
+  :rightmost - is a machine that marks the rightmost cell of the interval at the
+       time of initialization.
+  
+  :base is required.
 
-the :base option takes one or two tape machines.  If one machine is supplied,
-  then the interval is understood to span the entire tape.  and it is not empty, then the
-  interval has one cell, which is both the leftmost and the rightmost of the interval.
+ 
 
 |#
 
@@ -34,8 +35,8 @@ the :base option takes one or two tape machines.  If one machine is supplied,
   (defclass tm-interval (tape-machine)())
 
   (defstruct interval
-    leftmost ; a tape machine with head on the interval leftmost
-    rightmost ; a tape machine *on the same tape* with head on the interval rightmost
+    location ; interval lies to the right of this cell
+    rightmost ; a tape machine *on the same tape* with head on the interval rightmost 
     )
 
   (defmethod init 
@@ -47,40 +48,58 @@ the :base option takes one or two tape machines.  If one machine is supplied,
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key base mount &allow-other-keys) init-list
-      (let( tm-leftmost tm-rightmost )
-        (cond
-          ((∧ (consp base) (= (length base) 2))
-            (setq tm-leftmost (dup (first base)))
-            (setq tm-rightmost (dup (second base)))
-            )
-          ((∧ (consp base) (= (length base) 1))
-            (setq tm-leftmost (dup (first base)))
-            (setq tm-rightmost (dup (first base)))
-            )
-          ((∧ (¬ (consp base)) (typep base 'tape-machine ))
-            (setq tm-leftmost (dup base))
-            (setq tm-rightmost (dup base))
-            )
-          (t (funcall cont-fail)
-            ))
-        (cond
-          ((consp mount)
-            (as* tm-rightmost mount #'do-nothing cont-fail)
-            )
-          (mount
-            (as tm-rightmost mount #'do-nothing cont-fail)
-            ))
-        (cond
-          ((heads-on-same-cell tm-leftmost tm-rightmost)
-            (change-class tm 'tm-singular)
-            (init :tm-type {'tm-interval :base tm-leftmost} :mount (r tm-leftmost))
-            )
-          (t
-            (setf (HA tm) (dup tm-leftmost))
-            (setf (tape tm) (make-interval :leftmost tm-leftmost :rightmost tm-rightmost))
-            (funcall cont-ok)
-            )))))
+      (&key base mount rightmost &allow-other-keys) init-list
+
+      (unless base  (return-from init (funcall cont-fail)))
+
+      (cond
+        (rightmost
+          (let(
+                (location (dup base))
+                )
+            (setf (tape tm) 
+              (make-interval 
+                :location loocation
+                :rightmost (dup rightmost)
+                ))
+            (s base ; base becomes leftmost after being stepped
+              (λ()
+                (setf (HA tm) (dup base))
+                (if mount
+                  (let(
+                        (tm-data (mount mount))
+                        )
+                    (a* location tm-data cont-ok cont-fail)
+                    )
+                  (funcall cont-ok)
+                  ))
+              cont-fail ; rightmost was provided, so must be able to step base
+              )))
+      
+        (mount
+          (let(
+                (tm-data (mount mount))
+                (location (dup base))
+                )
+            (as base (r tm-data) ; after step, base is leftmost
+              (λ()
+                (setf (HA tm) (dup base))
+                (s tm-data (λ()(as* base tm-data)) #'do-nothing) ; base becomes rightmost
+                (setf (tape tm) 
+                  (make-interval 
+                    :location location
+                    :rightmost (dup base)
+                    ))
+                (funcall cont-ok)
+                )
+              cont-fail
+              )))
+
+        (t
+          (change-class tm 'tm-void)
+          (init tm {:tm-type {'tm-interval :base base}})
+          )
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
@@ -95,9 +114,13 @@ the :base option takes one or two tape machines.  If one machine is supplied,
     )
  
   (defmethod cue-leftmost  ((tm tm-interval)) 
-    (cue-to (HA tm) (interval-leftmost (tape tm)))
-    t
-    )
+    (let(
+          (tm (dup (interval-location (tape tm))))
+          )
+      (s tm
+        (λ() (cue-to (HA tm) tm))
+        (λ() (error 'imppossible-to-get-here)) ; the interval is not empty
+        )))
 
   (defmethod cue-rightmost  ((tm tm-interval)) 
     (cue-to (HA tm) (interval-rightmost (tape tm)))
@@ -151,11 +174,11 @@ the :base option takes one or two tape machines.  If one machine is supplied,
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (if
-      (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
-      (funcall cont-rightmost)
-      (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
-      ))
+    (heads-on-same-cell (HA tm) (interval-rightmost (tape tm))
+      (λ()(funcall cont-rightmost))
+      (λ()
+        (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
+        )))
 
   ;; allocate a cell
   ;;
@@ -176,14 +199,17 @@ the :base option takes one or two tape machines.  If one machine is supplied,
         (cont-ok (be t))
         (cont-no-alloc (λ()(error 'alloc-fail)))
         )
-      (if
-        (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
-        (progn
-          (a (HA tm) cont-ok cont-no-alloc)
-          (s (interval-rightmost (tape tm)))
+      (heads-on-same-cell (HA tm) (interval-rightmost (tape tm))
+        (λ()
+          (a (HA tm) 
+            (λ()(s (interval-rightmost (tape tm)) #'do-nothing #'cant-get-here))
+            cont-no-alloc
+            ))
+
           )
-        (a (HA tm) cont-ok cont-no-alloc)
-        ))
+        (λ()
+          (a (HA tm) cont-ok cont-no-alloc)
+          )))
 
   (defmethod d 
     (
@@ -226,7 +252,7 @@ the :base option takes one or two tape machines.  If one machine is supplied,
               #'do-nothing 
               (λ()(return-from d◧ (funcall cont-no-alloc)))
               ))
-          (change-class tm 'tm-empty)
+          (change-class tm 'tm-void)
           (init tm {:tm-type {'tm-interval :base tm-leftmost}}
             (λ() (funcall cont-ok dealloc-object))
             #'cant-happen

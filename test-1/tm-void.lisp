@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-void
 ;;
-  (defun test-void-0 ()
+  (defun test-empty-0 ()
     (let(
           (x (mk 'tm-void))
           (y (mk 'tm-list))
@@ -26,10 +26,10 @@ See LICENSE.txt
         (= (d x y (be 1) (be 2) (be 3)) 2)
         (= (d x ∅ (be 1) (be 2) (be 3)) 2)
         )))
-  (test-hook test-void-0)
+  (test-hook test-empty-0)
 
 
- (defun test-heads-on-same-cell-void-0 ()
+ (defun test-heads-on-same-cell-empty-0 ()
    (let(
          (a (mk 'tm-void))
          (b (mk 'tm-void))
@@ -42,10 +42,10 @@ See LICENSE.txt
        (¬ (heads-on-same-cell a c))
        (¬ (heads-on-same-cell c a))
        )))
- (test-hook test-heads-on-same-cell-void-0)
+ (test-hook test-heads-on-same-cell-empty-0)
 
 
- (defun test-void-1 ()
+ (defun test-empty-1 ()
     (let*(
            (vi  (make-instance 'tm-void))
            (flag (init vi {:mount {1 2 3}} (be 1) (be 2)))
@@ -70,9 +70,9 @@ See LICENSE.txt
         (= (r tm1) 14)
         (¬ (s tm1))
         )))
-  (test-hook test-void-1)
+  (test-hook test-empty-1)
 
- (defun test-void-2 ()
+ (defun test-empty-2 ()
     (let*(
            (vi  (make-instance 'tm-void))
            (flag (init vi {:mount {1 2 3}} (be 1) (be 2)))
@@ -95,4 +95,4 @@ See LICENSE.txt
         (= (r tm1) 7)
         (¬ (s tm1))
         )))
-  (test-hook test-void-2)
+  (test-hook test-empty-2)

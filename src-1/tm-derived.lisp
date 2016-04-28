@@ -389,7 +389,7 @@ of the primitives.
   ;;
     (defmethod d◧
       (
-        (tm tm-interval)
+        (tm tape-machine)
         &optional 
         spill
         (cont-ok #'echo)
@@ -410,7 +410,7 @@ of the primitives.
                 #'do-nothing 
                 (λ()(return-from d◧ (funcall cont-no-alloc)))
                 ))
-            (change-class tm 'tm-empty)
+            (change-class tm 'tm-void)
             (init tm {:tm-type tm-type}
               (λ() (funcall cont-ok dealloc-object))
               #'cant-happen

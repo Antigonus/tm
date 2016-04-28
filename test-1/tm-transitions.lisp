@@ -29,7 +29,7 @@ See LICENSE.txt
       (= (d◧ tm) 2)
       (typep tm 'tm-void)
 
-      (d tm ∅ (be ∅) (be t)) ;can't dealloc from void (watch me pull a rabbit from my hat..)
+      (d tm ∅ (be ∅) (be t)) ;can't dealloc from empty (watch me pull a rabbit from my hat..)
       (d◧ tm ∅ (be ∅) (be t))
       )))
 (test-hook test-tm-singular-0)

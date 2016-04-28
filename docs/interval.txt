@@ -11,23 +11,30 @@ than the base machine would if used directly. It follows from this definition th
 tm-interval is a transform tape machine, where the substrate we speak of above is the base
 we speak of with transforms.
 
-We might think of an interval as a sort of 'super cell'.  We then use #'a-interval to
-allocate an interval on the tape, and #'d-interval to deallocate one.  
+We might think of an interval as a sort of 'super cell'.
 
-When deallocating with spill, the deallocated cells may be moved from one tape to the
-other using the existing d* with spill, and then the definition of the interval
-machine is updated to point at the spill substrate.  An analogous process happens
-with a-interval and a*.
+We init an interval with a base machine, the head location on the base machine
+is taken as the location of the interval.  The interval lies to the right of this
+cell the head is on.  Then we provide one of either :mount for allocating a new
+interval, or :rightmost for gathering existing cells from the tape.  
 
-We can create an interval using the 'gather' function.  Gather accepts two
-tape machines that are on the same tape, and returns an interval of that tape.
+As an interval is a tape machine, quantified functions can be used as for other machines.
+As examples:
 
-We can also create an interval using init. init requires two options, :base, and
-:mount.  The head of the base machine locates the cell for the a-interval operation,
-and mount provides the initialization objects.
+Repeat allocate can create an allocation and copy an interval.
 
+  (a* tm0 fill cont-ok, cont-no-alloc)
 
+When the fill machine is an interval, a number of cells sufficient for holding
+the interval are allocated, and the objects are shallow copied over.  When tm0 
+is an empty interval, then it will become a copy of the fill interval.  When
+tm0 is not empty, it may be unclear after the copy as to where the newly created
+copy region ends.  If using as*, the head of tm0 is left on the last cell of the
+newly allocated region.
 
+  (d* tm-interval spill cont-rightmost cont-no-alloc)
+
+deallocates an interval
 
 
 

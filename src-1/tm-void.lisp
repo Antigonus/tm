@@ -3,10 +3,10 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-The empty projective machine has the control mechanism for a tape,
+The void projective machine has the control mechanism for a tape,
 but any attempt to read or write it is an error.
 
-A tm-empty machine takes as an initialization value a type for the
+A tm-void machine takes as an initialization value a type for the
 tape space it would grow into should a new cell be allocated.
 
 Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
@@ -18,11 +18,11 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-empty (tape-machine)())
+  (defclass tm-void (tape-machine)())
 
   (defmethod init 
     (
-      (tm tm-empty)
+      (tm tm-void)
       init-list 
       &optional
       (cont-ok (be t))
@@ -38,12 +38,12 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
           (funcall cont-ok)
           )
         (t
-          (setf (HA tm) 'tm-empty)
+          (setf (HA tm) 'tm-void)
           (setf (tape tm) ∅)
           (funcall cont-ok)
           ))))
 
-  (defmethod unmount ((tm tm-empty))
+  (defmethod unmount ((tm tm-void))
     (case (HA tm)
       (tm-list ∅)
       (tm-array #())
@@ -52,28 +52,28 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
   ;; no need to do anything
   ;; don't know if any compilers will freak with an empty body, so I put t
-  (defmethod park ((tm tm-empty)) t)
+  (defmethod park ((tm tm-void)) t)
 
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
-  (defmethod r ((tm tm-empty))
+  (defmethod r ((tm tm-void))
     (declare (ignore tm))
     (error 'oid-access)
     )
-  (defmethod w ((tm tm-empty) object)
+  (defmethod w ((tm tm-void) object)
     (declare (ignore tm object))
-    (error 'empty-access)
+    (error 'void-access)
     )
 
   (defmethod cue-leftmost (tm) t)
 
-  (defun heads-on-same-cell-empty-0 (tm0 tm1 cont-true cont-false)
+  (defun heads-on-same-cell-void-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
-        (typep tm0 'tm-empty)
-        (typep tm1 'tm-empty)
+        (typep tm0 'tm-void)
+        (typep tm1 'tm-void)
         (eq (HA tm0) (HA tm1))
         )
       (funcall cont-true)
@@ -82,29 +82,29 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
   (defmethod heads-on-same-cell 
     (
-      (tm0 tm-empty) 
+      (tm0 tm-void) 
       (tm1 tape-machine) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-empty-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
-      (tm1 tm-empty) 
+      (tm1 tm-void) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-empty-0 tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-void-0 tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
     (
-      (tm tm-empty)
+      (tm tm-void)
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
@@ -115,7 +115,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
   (defmethod a
     (
-      (tm tm-empty)
+      (tm tm-void)
       object
       &optional
       (cont-ok (be t))
@@ -130,7 +130,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
   (defmethod d 
     (
-      (tm tm-empty)
+      (tm tm-void)
       &optional 
       spill
       (cont-ok #'echo)
@@ -143,7 +143,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked-tape.
 
   (defmethod d◧
     (
-      (tm tm-empty)
+      (tm tm-void)
       &optional 
       spill
       (cont-ok #'echo)

@@ -18,7 +18,7 @@ cell are not.
   (defun parked (tm)
     "True iff tape machine head is parked."
     (∨
-      (typep tm 'tm-empty)
+      (typep tm 'tm-void)
       (typep tm 'tm-parked-tape)
       ))
 
@@ -30,7 +30,7 @@ cell are not.
 
   (defun is-empty (tm)
     "True iff the machine is empty."
-    (typep tm 'tm-empty)
+    (typep tm 'tm-void)
     )
     
   (defun not-empty (tm)

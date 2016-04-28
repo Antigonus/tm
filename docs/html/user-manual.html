@@ -21,7 +21,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction" class="active">1</a></li>
+        <li><a href="#Introduction" class="active">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -46,31 +47,94 @@
       <h1>Introduction</h1>
 
       <p>
+        This is a formalized iteratation library for Common Lisp.
+
+      <p>
+        The tape machine may be used to access and traverse through the objects in a
+        container.  Loop constructs follow naturally as quanitification operations on
+        containers.  Unlike for the standard library loop structure, after exiting a loop,
+        the unprocessed parts of lists are still accessible.  Unlike for stream libraries,
+        the tape machine has random access capabilities between continuation limits.
+
+      <p>
+        By the term <i>formalized</i> I mean that the iteration model is constructed from
+        formal concepts, most that have been well studied in computation theory. Basically
+        the tape machine is a hybrid between a Turing Machine and a Lambda Calculus, with
+        the Turing machine used for iteration, and the choice of continuation functions,
+        lambdas, used for control flow.  I make the claim that there are no architectural
+        limitations to working with arbitrary long containers when using this library.
+
+      <p>
+        If for no other reason, the formal derivation is useful because it guided the
+        terminology.  As it turns out, there is an explosion in the number of end cases
+        when dealing with containers.  Using our formalism we can now name them and
+        talk about them.
+
+    </section>
+  </article>
+</div>
+
+  <a name="Concepts"></a>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts" class="active">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+  </header>
+
+
+<div class="page">
+
+  <article>
+    <section>
+      <h1>Basic Concepts</h1>
+
+      <p>
         In Pascal's calculator and Babbage's computer the alignment between one of the
         imprinted digit values encircling a gear and an index needle was said to indicate the value of
         a digit.  Then an array of such gears and index pointers were said to indicate the
-        values of the multiple digits that made up a number.  Contemporary computers
-        create an abstraction in an analogous manner, where a more than threshold amount
-        of charge existing in a memory cell is said to indicate a <i>one</i> and a less than
-        threshold amount is said to indicate a <i>zero</i>, thus indicating the value of a
-        single binary digit, or bit.  Bits are then arrayed to create words, which
-        typically represent integers.  
+        values of the multiple digits that made up a number.  
+
+      <p>
+        Contemporary computers create an abstraction in an analogous manner, where a more
+        than threshold amount of charge existing in a memory cell is said to indicate
+        a <i>one</i> and a less than threshold amount is said to indicate a <i>zero</i>,
+        thus indicating the value of a single binary digit, or bit.  Bits are then arrayed
+        to create words, which typically represent integers.
 
       <p>
         At the next abstraction level up words are then arrayed.  An address decoder is
         placed on top of such an array.  An address decoder is a circuit that creates a
-        correspondence between an input word called the address, and the location of word
-        in the word array.  In this manner the address decoder gives our container
-        topological properties such neighboring words, and ordering among words. Note that
-        in this context a word is an allocation unit, not a value.  We address memory
-        cells, not the data in them.  Thus such a container forms a sort of fabric, which
-        we abstract into the concept of address space.
+        correspondence between an input word called the <i>address</i>, and the location
+        of another word in the array.  In this manner the address decoder gives our
+        container topological properties such neighboring words, and ordering among
+        words. Note that in this context a word is an allocation unit, not a value.  We
+        address memory cells, not the data in them.  Thus such a container forms a sort of
+        fabric, which we abstract into the concept of address space.
 
       <p>
         The prior two paragraphs summarize my partially complete "Memory Book" which may
         be found on my website.  The take away here is that the interface between
-        computation and information is the <i>container</i>, so containers are of
-        fundamental importance. In mathematics the fundamental container is the set, in
+        computation and information is the address space, so address spaces are of
+        fundamental importance. In mathematics the fundamental address space is the set, in
         computing it depends on the language used.  In the C language, all pointers can
         be interpreted as arrays of objects that have a given type (a given layout in
         memory, a given format) simply by applying the [·] operator.  Lisp is also built
@@ -98,22 +162,26 @@
       <p>
         In <i>Elements of the Theory of Computation</i> Christos Papdimitriou builds
         computation theory up from founding assumptions, while characterizing successively
-        more powerful computing paradigms, arriving finally at the Turing Machine. He
-        finding limitations, but is not able to identify a more powerful paradigm. In a
-        dual approach Lambda Calculus can be used to establish the same theorems.  What we
-        know from these formalisms is that all Turing Complete computing approaches employ
-        a potentially open series of finite computations, performed over a potentially
-        unbounded memory, where that memory need only have one topological property, that
-        of a every cell, save one, having two distinct neighbors.  (It can be held that an
-        exceptional cell is a start cell, and has only one neighbor.)
+        more powerful computing paradigms, arriving finally at the Turing Machine. The
+        Turing Machine has limitations, such as not being able be used to solve
+        the <i>halting problem</i>, but he can not identifiy a stronger computing
+        paradigm.  In a dual approach Lambda Calculus can be used to establish the same
+        theorems.  What we know from these formalisms is that all Turing Complete
+        computing approaches employ a potentially open series of finite computations,
+        performed over a potentially unbounded memory, where that memory need only have
+        one topological property, that of a every cell, save one, having two distinct
+        neighbors.  (It can be held that an exceptional cell is a start cell, and has only
+        one neighbor.)
 
       <p>
-        Presented in this library is a container type that is a variation on the sequence
-        and iteration model combined, while at every boundary triggering, not an
-        exception, but a call to a continuation function.  We call our container a <i>tape
-        machine</i>. For example, to step an iterator, one calls the function #'s and
-        passes it a <i>tape machine</i> and two functions.  Here the two functions are
-        called <i>cont-ok</i> and <i>cont-rightmost</i>:
+        Presented in this library is a container type based on the Turing Machine
+        abstraction.  Though the container is bounded, upon striking a bound a
+        continuation function is executed, and that continuation function may over come
+        the bound, or perhaps take some other actions. We call our container a <i>tape
+        machine</i>, and often abbreviate it as <i>tm</i>. For example, to step an
+        iterator, one calls the function #'s and passes it a tape machine instance and two
+        functions.  Here the two functions are called <i>cont-ok</i>
+        and <i>cont-rightmost</i>:
 
       <pre>
         <code>
@@ -169,7 +237,7 @@
       <p>
         will return true should the step succeed, and return ∅ should it not.  However
         note, that when used in this manner, step will almost surely be followed by a test
-        of the return value, and that this test will almost surely be doing the same work
+        of the return value, and this test will almost surely be doing the same work
         that was done inside the function in order to to detect the end condition.  So one
         of the things we hope to accomplish with this library, is to eliminate this sort
         of redundant testing.
@@ -252,7 +320,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode" class="active">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -338,7 +407,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature" class="active">3</a></li>
         <li><a href="#List">4</a></li>
@@ -496,7 +566,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode" >2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List" class="active">4</a></li>
@@ -638,7 +709,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode" >2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -795,7 +867,8 @@
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode" >2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1037,7 +1110,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1232,7 +1306,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1382,7 +1457,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1458,7 +1534,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1512,7 +1589,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>
@@ -1701,7 +1779,8 @@ contination-name := symbol  (evaluates to a continuation function)
     </ul>
     <div class="center">
       <ul class="pagination">
-        <li><a href="#Introduction">1</a></li>
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
         <li><a href="#Unicode">2</a></li>
         <li><a href="#Nomenclature">3</a></li>
         <li><a href="#List">4</a></li>

@@ -49,8 +49,6 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-;;   
-;;
   (defgeneric a (tm object &optional cont-ok cont-no-alloc)
     (:documentation
       "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place

@@ -60,13 +60,13 @@ extention the generic a◨ is efficient.
     )
 
   (defun queue-dequeue
-    "Dequeus object"
     (
       tm
       &optional 
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
+    "Dequeus object"
     (d◧ tm ∅ cont-ok cont-empty)
     )
 

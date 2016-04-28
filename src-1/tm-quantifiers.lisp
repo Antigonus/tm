@@ -305,7 +305,7 @@ See LICENSE.txt
 
   (defgeneric as* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
-      "Similar to a*, but tm reflects the steps taken."
+      "Similar to a*, but moves tm's head to the last cell newly allocated."
       ))
 
   (defun as*-0 

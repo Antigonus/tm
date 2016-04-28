@@ -58,7 +58,7 @@ See LICENSE.txt
                                (:file "length")
 
                              ;; trivial machines
-                               (:file "tm-empty")
+                               (:file "tm-void")
                                (:file "tm-parked-tape")
 
                              ;; transforms
@@ -80,7 +80,6 @@ See LICENSE.txt
                                (:file "tm-list-mk")
                                (:file "tm-list-primitives")
                                (:file "tm-list-derived")
-                               (:file "tm-list-buffers")
                                (:file "tm-list-convert")
 
                              ;; dataflow
@@ -90,7 +89,7 @@ See LICENSE.txt
 
                (:module "test-1"
                 :components (
-                              (:file "tm-empty")
+                              (:file "tm-void")
                               (:file "tm-transitions")
                               
                               (:file "tm-derived")

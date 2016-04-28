@@ -30,7 +30,7 @@ See LICENSE.txt
       (&key mount &allow-other-keys) init-list
       (cond
         ((¬ mount)
-          (change-class tm 'tm-empty)
+          (change-class tm 'tm-void)
           (init tm {:tm-type 'tm-list} cont-ok cont-fail)
           )
         ((consp mount) 

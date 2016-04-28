@@ -20,7 +20,7 @@ Calling deallocate, #'d, potentialy transition to empty.
 ;; a specialization
 ;;
 
-  (defclass tm-parked-tape (tm-empty)())
+  (defclass tm-parked-tape (tm-void)())
 
   (defmethod init 
     (
@@ -106,7 +106,7 @@ Calling deallocate, #'d, potentialy transition to empty.
       (d◧ tm-from-the-tape spill
         (λ(dealloc-object)
           (if 
-            (typep tm-from-the-tape 'tm-empty)
+            (typep tm-from-the-tape 'tm-void)
             (progn
               (cue-to tm tm-from-the-tape)
               (funcall cont-ok dealloc-object)

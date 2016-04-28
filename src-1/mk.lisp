@@ -38,6 +38,8 @@ See LICENSE.txt
 ;;
 ;;  :base provides the base machine for a transforms.
 ;;
+;;  :rightmost marks the rightmost cell for intervals
+;;
 ;;  Other keywords should not override these, as they are used in the init
 ;;  routines to detect valid initialization expressions.
 ;;
@@ -72,16 +74,16 @@ See LICENSE.txt
 ;;  tape machine to a tape machine, which is similar to dup, except the
 ;;  head goes to leftmost
 ;;
-   (defgeneric mount (sequence &optional cont-ok cont-fail))
+  (defgeneric mount (sequence &optional cont-ok cont-fail))
 
-   (defmethod mount
-     (
-       sequence 
-       &optional 
-       (cont-ok #'echo)
-       (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
-       )
-     (declare (ignore sequence cont-ok))
-     (funcall cont-fail)
-     )
+  (defmethod mount
+    (
+      sequence 
+      &optional 
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
+      )
+    (declare (ignore sequence cont-ok))
+    (funcall cont-fail)
+    )
 
