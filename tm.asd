@@ -62,7 +62,7 @@ See LICENSE.txt
                                (:file "tm-parked-tape")
 
                              ;; transforms
-                               (:file "tm-interval")
+                               (:file "tm-region")
                                (:file "buffers")
 
                                (:file "tm-depth-mk")
@@ -101,7 +101,7 @@ See LICENSE.txt
                               (:file "location")
 
                               (:file "buffers")
-                              (:file "tm-interval")
+                              (:file "tm-region")
                               (:file "tm-depth")
                               (:file "tm-breadth")
 

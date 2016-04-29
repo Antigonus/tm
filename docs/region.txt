@@ -1,0 +1,63 @@
+
+A region is a set of contiguous cells that belong to another space. 
+
+I have defined a 'transform' as a tape machine that uses as its tape, another tape
+machine.  The functional interface of transform machine then typically provides a
+different behavior than the base machine would if used directly. It follows from this
+definition that tm-region is a transform, where the more general space we speak of above
+is provided by the base machine.
+
+The leftmost cell of the region will also be a cell of the tape in the base machine, but
+not necessarily the leftmost cell of the base machine.  An analogous situation exists for
+the rightmost cell of the region.
+
+We might think of a region as a sort of 'super cell'.
+
+We init a tm-region with a base machine, the head location on the base machine is taken as
+the location of the region on the base machine's tape.  The region lies to the right of
+the cell the base machine's head is on.  Optionally we may also init with a :mount
+parameter for allocating and initializaing new cells to the new region.  Optionaly we may
+also init with a :rightmost parameter for including existing cells from the base into the
+region.
+
+Because a region is a tape machine, quantified functions can be used as for other machines.
+As examples:
+
+Repeat allocate can copy a region:
+
+  (a* tm0 fill cont-ok, cont-no-alloc)
+
+In this call, when the fill machine is a region, a number of cells sufficient for holding
+the region are allocated, and the objects are shallow copied over.  When tm0 is a void
+region, then it will become a copy of the fill region (and thus the caller will have a
+reference to the new region).  When tm0 is not an empty region (thus either not a region,
+or a region that is not empty), it may be unclear after the copy as to where the newly
+created copy region ends.  In this latter case the function #'as*, may be helpful, as it
+leaves the head of tm0 on the last cell of the newly allocated region.
+
+Repeat deallocation may be used to deallocate all the cells in a region.
+
+  (d* tm-region spill cont-rightmost cont-no-alloc)
+
+After all the cells of a region are deallocated, the region will collapse
+and become tm-void.  When spill is ∅, then nothing is spilled.  When spill is a void
+region then it becomes a copy of the deallocated region, as for the remarks above for
+tm0 used in #'a*.
+
+Given just a base machine, it is not possible to know if regions have been define using
+this base, because no accounting information for regions is held in the base.  It follows
+that one can define as many regions as desired and the base will not get any larger.  Also
+there is nothing to 'clean up' in the base after abandoning a region machine.
+
+Given just a region, it is possible to implement methods to recover the base machine, as
+the location and the rightmost indicators are both base machines.  Currently I do not
+provide any such methods in the library.  One might imagine that it would be useful, for
+example, to have a predicate that identifies if two regions belong to the same space, if
+they overlap, etc.
+
+
+
+
+
+
+

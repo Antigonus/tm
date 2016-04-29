@@ -38,7 +38,7 @@ See LICENSE.txt
 ;;
 ;;  :base provides the base machine for a transforms.
 ;;
-;;  :rightmost marks the rightmost cell for intervals
+;;  :rightmost marks the rightmost cell for regions
 ;;
 ;;  Other keywords should not override these, as they are used in the init
 ;;  routines to detect valid initialization expressions.

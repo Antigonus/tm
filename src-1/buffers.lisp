@@ -3,12 +3,11 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-In the English language, 'dequeue' means to remove something from a queue, and 
-that is the sense we use the word in this library.
+In the English language, 'dequeue' means to remove something from a queue.
 
-A tm-stack or a tm-queue referred to below is an interval space:
+A tm-stack, or a tm-queue, are implemented in regions of space:
 
-          rightmost of interval
+          rightmost of region
           bottom of the stack
           enqueue values for the queue with #'a◨s
           |
@@ -16,15 +15,14 @@ A tm-stack or a tm-queue referred to below is an interval space:
      L .. R
      |
      |
-     leftmost of interval
+     leftmost of region
      top of the stack
      dequeue values for the queue or stack with d◧
      enqueue values for the stack with a◧
 
-Use the generic function 'is-empty' to test if a stack or queue is empty.
-
-Note that cue-rightmost is an efficient operation on interval spaces. By
-extention the generic a◨ is efficient.
+Note that cue-rightmost is an efficient operation on regions. By
+extention the generic a◨ is efficient.  This is why we use regions for
+the buffer objects.
 
 |#
 
@@ -73,11 +71,21 @@ extention the generic a◨ is efficient.
 ;;--------------------------------------------------------------------------------
 ;;  queues and stacks as objects of their own
 ;;
-  (defclass buffer(tm-interval)())
+  (defclass buffer(tm-region)())
 
-  (defgeneric enqueue (buffer object))
-  (defgeneric dequeue (buffer &optional cont-ok cont-empty))
+  (defgeneric enqueue (a-buffer object))
+  (defgeneric dequeue (a-buffer &optional cont-ok cont-empty))
+  (defgeneric empty (a-buffer &optional cont-true cont-false))
 
+  (defmethod empty 
+    (
+      (a-buffer buffer)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (typep a-buffer 'tm-void)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; stack

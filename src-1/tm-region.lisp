@@ -3,24 +3,28 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Interval Space
+  Region of Space
 
-  tm-interval defines a range of continguous cells from another tape machine's tape. 
+  tm-region defines a range of continguous cells from another tape machine's tape. 
   Because it is based on another tm it is properly a transform.
 
-  Read, write, allocate, etc, just pass through to the base machine.  However, our
-  leftmost and rightmost may be different than the leftmost and rightmost of the base
-  machines.
+  Read, write, allocate, etc, just pass through to the base machine.  However, the
+  region's leftmost and rightmost may be different than the leftmost and rightmost
+  of the base machine.
 
-  An interval space is not to be confused with a subspace. A subspace occurs when
-  a cell holds a sequence or tape machine as an object.  See tm-subspace.lisp.
+  A region of space is not to be confused with a subspace. A subspace occurs when a cell
+  holds a sequence or tape machine as an object.  See tm-subspace.lisp.
 
-  :base  - specifies the location of the interval
-  :mount - is a list of objects to put in the interval
-  :rightmost - is a machine that marks the rightmost cell of the interval at the
-       time of initialization.
-  
-  :base is required.
+  A tm-region is intialized with one to three parameters:
+
+  :base is required.  It locates the region within the base space.  The region
+  occures to the right of the cell the base machine's head is on.
+
+  :mount, if provided, is a list of objects to be allocated to the region using #'a*
+
+  :rightmost, if provided, must be a dup of the base tape machine.  Its head address
+  becomes the rightmost of the region, this rightmost point must be to the right of the
+  cell specified by :base.  Currently we do not verifiy this.
 
  
 
@@ -32,16 +36,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-interval (tape-machine)())
+  (defclass tm-region (tape-machine)())
 
-  (defstruct interval
-    location ; interval lies to the right of this cell
-    rightmost ; a tape machine *on the same tape* with head on the interval rightmost 
+  (defstruct region
+    location ; region lies to the right of this cell
+    rightmost ; a tape machine *on the same tape* with head on the region rightmost 
     )
 
   (defmethod init 
     (
-      (tm tm-interval)
+      (tm tm-region)
       init-list 
       &optional
       (cont-ok (be t))
@@ -58,21 +62,16 @@ See LICENSE.txt
                 (location (dup base))
                 )
             (setf (tape tm) 
-              (make-interval 
+              (make-region 
                 :location loocation
                 :rightmost (dup rightmost)
                 ))
             (s base ; base becomes leftmost after being stepped
               (λ()
                 (setf (HA tm) (dup base))
-                (if mount
-                  (let(
-                        (tm-data (mount mount))
-                        )
-                    (a* location tm-data cont-ok cont-fail)
-                    )
-                  (funcall cont-ok)
-                  ))
+                (when mount (a* location (mount mount) cont-ok cont-fail))
+                (funcall cont-ok)
+                )
               cont-fail ; rightmost was provided, so must be able to step base
               )))
       
@@ -86,7 +85,7 @@ See LICENSE.txt
                 (setf (HA tm) (dup base))
                 (s tm-data (λ()(as* base tm-data)) #'do-nothing) ; base becomes rightmost
                 (setf (tape tm) 
-                  (make-interval 
+                  (make-region 
                     :location location
                     :rightmost (dup base)
                     ))
@@ -97,48 +96,48 @@ See LICENSE.txt
 
         (t
           (change-class tm 'tm-void)
-          (init tm {:tm-type {'tm-interval :base base}})
+          (init tm {:tm-type {'tm-region :base base}})
           )
         )))
 
 ;;--------------------------------------------------------------------------------
 ;; primitive methods
 ;;
-  (defmethod r ((tm tm-interval))
+  (defmethod r ((tm tm-region))
     (r (HA tm))
     )
 
-  (defmethod w ((tm tm-interval) object)
+  (defmethod w ((tm tm-region) object)
     (w (HA tm) object)
     t
     )
  
-  (defmethod cue-leftmost  ((tm tm-interval)) 
+  (defmethod cue-leftmost  ((tm tm-region)) 
     (let(
-          (tm (dup (interval-location (tape tm))))
+          (tm (dup (region-location (tape tm))))
           )
       (s tm
         (λ() (cue-to (HA tm) tm))
-        (λ() (error 'imppossible-to-get-here)) ; the interval is not empty
+        (λ() (error 'imppossible-to-get-here)) ; the region is not void
         )))
 
-  (defmethod cue-rightmost  ((tm tm-interval)) 
-    (cue-to (HA tm) (interval-rightmost (tape tm)))
+  (defmethod cue-rightmost  ((tm tm-region)) 
+    (cue-to (HA tm) (region-rightmost (tape tm)))
     t
     )
 
-  ;; intervals may be nested
-  (defun heads-on-same-cell-interval (tm0 tm1 cont-true cont-false)
+  ;; regions may be nested
+  (defun heads-on-same-cell-region (tm0 tm1 cont-true cont-false)
     (let(
           (base-0 tm0)
           (base-1 tm1)
           )
       (loop
-        (unless (typep base-0 'tm-interval) (return))
+        (unless (typep base-0 'tm-region) (return))
         (setf base-0 (HA base-0))
         )
       (loop
-        (unless (typep base-1 'tm-interval) (return))
+        (unless (typep base-1 'tm-region) (return))
         (setf base-1 (HA base-1))
         )
       (heads-on-same-cell base-0 base-1 cont-true cont-false)
@@ -147,34 +146,34 @@ See LICENSE.txt
 
   (defmethod heads-on-same-cell 
     (
-      (tm0 tm-interval) 
+      (tm0 tm-region) 
       (tm1 tape-machine) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-interval tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-region tm0 tm1 cont-true cont-false)
     )
 
   (defmethod heads-on-same-cell 
     (
       (tm0 tape-machine) 
-      (tm1 tm-interval) 
+      (tm1 tm-region) 
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       ) 
-    (heads-on-same-cell-interval tm0 tm1 cont-true cont-false)
+    (heads-on-same-cell-region tm0 tm1 cont-true cont-false)
     )
 
   (defmethod s
     (
-      (tm tm-interval)
+      (tm tm-region)
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (heads-on-same-cell (HA tm) (interval-rightmost (tape tm))
+    (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
       (λ()(funcall cont-rightmost))
       (λ()
         (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
@@ -182,55 +181,56 @@ See LICENSE.txt
 
   ;; allocate a cell
   ;;
-  ;; All allocations within the interval space are part of the interval space, thus
+  ;; All allocations within the region space are part of the region space, thus
   ;;  when allocation is made from rightmost, the rightmost bound is pushed out to 
   ;;  be on the newly allocated cell, etc.
   ;;
-  ;; Note, tm-interval uses multiple heads on the same tape (that of HA, intervale-lefmost
-  ;; and interval-rightmost, so if array, say, were to emulate allocation by moving data,
-  ;; interval would have incorrect behavior, which is one of the reasons we don't do such
+  ;; Note, tm-region uses multiple heads on the same tape (that of HA, regione-lefmost
+  ;; and region-rightmost, so if array, say, were to emulate allocation by moving data,
+  ;; region would have incorrect behavior, which is one of the reasons we don't do such
   ;; emulation.
   ;;
     (defmethod a
       (
-        (tm tm-interval)
+        (tm tm-region)
         object
         &optional
         (cont-ok (be t))
         (cont-no-alloc (λ()(error 'alloc-fail)))
         )
-      (heads-on-same-cell (HA tm) (interval-rightmost (tape tm))
+      (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
         (λ()
           (a (HA tm) 
-            (λ()(s (interval-rightmost (tape tm)) #'do-nothing #'cant-get-here))
+            (λ()
+              (s (region-rightmost (tape tm)) #'do-nothing #'cant-happen)
+              (funcall cont-ok)
+              )
             cont-no-alloc
             ))
-
-          )
         (λ()
           (a (HA tm) cont-ok cont-no-alloc)
           )))
 
   (defmethod d 
     (
-      (tm tm-interval)
+      (tm tm-region)
       &optional 
       spill
       (cont-ok (be t))
       (cont-rightmost (λ()(error 'deallocation-request-at-rightmost)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (if
-      (heads-on-same-cell (HA tm) (interval-rightmost (tape tm)))
-      (funcall cont-rightmost)
-      (d (HA tm) spill cont-ok cont-rightmost cont-no-alloc)
-      ))
+    (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
+      cont-rightmost
+      (λ()
+        (d (HA tm) spill cont-ok cont-rightmost cont-no-alloc)
+        )))
 
 
   ;; deallocate the leftmost cell
   (defmethod d◧
     (
-      (tm tm-interval)
+      (tm tm-region)
       &optional 
       spill
       (cont-ok #'echo)
@@ -238,30 +238,30 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
-          (tm-leftmost (interval-leftmost (tape tm)))
-          (tm-rightmost (interval-rightmost (tape tm)))
+          (tm-leftmost (region-leftmost (tape tm)))
+          (tm-rightmost (region-rightmost (tape tm)))
           (dealloc-object (r tm-leftmost))
           )
 
-      (if (heads-on-same-cell tm-leftmost tm-rightmost)
+      (heads-on-same-cell tm-leftmost tm-rightmost
 
         ;; collapse to empty
-        (progn
+        (λ()
           (when spill
             (as spill dealloc-object 
               #'do-nothing 
               (λ()(return-from d◧ (funcall cont-no-alloc)))
               ))
           (change-class tm 'tm-void)
-          (init tm {:tm-type {'tm-interval :base tm-leftmost}}
+          (init tm {:tm-type {'tm-region :base (region-location tm)}}
             (λ() (funcall cont-ok dealloc-object))
             #'cant-happen
             ))
 
         ;;normal dealloc, not singleton, so has at least two cells
         ;; swap objects, delete second cell
-        (progn
+        (λ()
           (w tm-leftmost (r-index tm-leftmost 1 #'do-nothing #'cant-happen))
           (d tm-leftmost spill cont-ok cont-no-dealloc cont-no-alloc)
           )
-        )))
+       )))

@@ -28,16 +28,6 @@ cell are not.
     (¬ (parked tm))
     )
 
-  (defun is-empty (tm)
-    "True iff the machine is empty."
-    (typep tm 'tm-void)
-    )
-    
-  (defun not-empty (tm)
-    "True iff the tape machine tape is not empty."
-    (¬ (is-empty tm))
-    )
-
   ;; the return value from park should ignored
   (defgeneric park (tm))
 

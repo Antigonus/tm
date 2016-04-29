@@ -7,7 +7,7 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-(defun test-tm-interval-0 ()
+(defun test-tm-region-0 ()
   (let*(
         (base-tm (mount [0 1 2 3 4 5 6 7]))
         (left-machine (dup base-tm))
@@ -16,17 +16,17 @@ See LICENSE.txt
     (sn left-machine 3)
     (sn right-machine 5)
     (let(
-          (tm-interval (mk 'tm-interval left-machine right-machine))
+          (tm-region (mk 'tm-region left-machine right-machine))
           )
       (∧
-        (on-leftmost tm-interval)
-        (= (r tm-interval) 3)
-        (s tm-interval)
-        (= (r tm-interval) 4)
-        (s tm-interval)
-        (= (r tm-interval) 5)
-        (on-rightmost tm-interval)
-        (¬ (s tm-interval))
+        (on-leftmost tm-region)
+        (= (r tm-region) 3)
+        (s tm-region)
+        (= (r tm-region) 4)
+        (s tm-region)
+        (= (r tm-region) 5)
+        (on-rightmost tm-region)
+        (¬ (s tm-region))
         )
         )))
-(test-hook test-tm-interval-0)
+(test-hook test-tm-region-0)
