@@ -219,9 +219,8 @@ of the primitives.
 ;; cell allocation
 ;;
 ;; Allocated cells must be initialized.  The initialization value is provided
-;; by a three way fill function.  The three being skip, object, tm-fill.  
+;; directly or though a fill machine.
 ;;
-
   (defgeneric a◧ (tm object &optional cont-ok cont-no-alloc)
     (:documentation
       "Allocates a new leftmost cell."
@@ -233,7 +232,7 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
           (tm1 (dup tm))
@@ -256,7 +255,7 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (a tm object 
       (λ()(s tm cont-ok #'cant-happen))
@@ -275,7 +274,7 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
     )
@@ -292,7 +291,7 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (as tm object cont-ok cont-no-alloc)
     )
@@ -302,13 +301,13 @@ of the primitives.
       "Allocates a cell to the right of rightmost (thus making a new rightmost)."
       ))
 
-  (defmethod a◧
+  (defmethod a◨
     (
       (tm tape-machine)
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
           (tm1 (dup tm))
@@ -328,7 +327,7 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (a◨ tm object
       (λ() (s tm cont-ok #'cant-happen))
@@ -371,21 +370,13 @@ of the primitives.
   (defgeneric d◧ (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to #'d but the leftmost cell is deallocated independent of where the head
-       is located. The tape machine could become empty, but if not, and the tape head is on
+       is located. The tape machine can become empty, but if not, and the tape head is on
        the leftmost cell, the head is moved to the new leftmost cell.
        "
       ))
 
-  ;; after an object is collapsed to empty, allocating a new cell to the empty will
-  ;; recreate an object of the same type that collapsed.  (init) is used for this,
-  ;; and only one option is given, that of :mount.
-  ;;
-  ;; If the object doesn't collapse, then it must have started with at least two 
-  ;; cells, so the swap trick can work to deallocate the right neighbor of leftmost
-  ;; using #'d (after the object in the right neighbor is moved to leftmost)
-  ;;
-  ;; If more options are needed, or if the swap trick doesn't work on the given 
-  ;; tape type, then the programmer must provide a specialization for d◧
+  ;; if we are here, we are not void as tm-void has a more specific version than this
+  ;; therefor leftmost exists
   ;;
     (defmethod d◧
       (
@@ -397,43 +388,53 @@ of the primitives.
         (cont-no-alloc (λ()(error 'alloc-fail)))
         )
       (let(
+            (tm&h◧ (dup tm))
             (tm-type (type-of tm))
-            (dealloc-object (r tm-leftmost))
             )
+        (cue-leftmost tm&h◧)
+        (let(
+              (dealloc-object (r tm&h◧))
+              )
 
-        (if (singleton tm)
+          (if (singleton tm)
 
-          ;; collapse to empty
-          (progn
-            (when spill
-              (as spill dealloc-object 
-                #'do-nothing 
-                (λ()(return-from d◧ (funcall cont-no-alloc)))
+            ;; collapse to empty
+            (progn
+              (when spill
+                (as spill dealloc-object 
+                  #'do-nothing 
+                  (λ()(return-from d◧ (funcall cont-no-alloc)))
+                  ))
+              (change-class tm 'tm-void)
+              (init tm {:tm-type tm-type}
+                (λ() (funcall cont-ok dealloc-object))
+                #'cant-happen
                 ))
-            (change-class tm 'tm-void)
-            (init tm {:tm-type tm-type}
-              (λ() (funcall cont-ok dealloc-object))
-              #'cant-happen
-              ))
 
-          ;;normal dealloc, not singleton, so has at least two cells
-          ;; swap objects, delete second cell
-          (progn
-            (let(
-                  (tm◧ (dup tm))
-                  )
-              (cue-leftmost tm◧)
-              (w tm◧ (r-index tm◧ 1 #'do-nothing #'cant-happen))
-              (d tm◧ spill cont-ok cont-no-dealloc cont-no-alloc)
-            ))
-          )))
+            ;;not singleton, so has at least two cells
+            ;; so put second cell's object in lefmost, then delete second cell
+            (progn
+              (let(
+                    (dealloc-object (r tm&h◧))
+                    (tm&h◧s (dup tm&h◧))
+                    )
+                (s tm&h◧s #'do-nothing #'cant-happen)
+                (let(
+                      (keep-object (r tm&h◧s))
+                      )
+                  (w tm&h◧ keep-object)
+                  (w tm&h◧s dealloc-object)
+                  (d tm&h◧ spill cont-ok cont-no-dealloc cont-no-alloc)
+                  )))
+            ))))
+                
 
 ;;--------------------------------------------------------------------------------
 ;; moving data
 ;;
 
   ;; In repeated move operations we probably throw the displaced objects away if the
-  ;; programmer wants to keep them zhe should copy them first, complications with
+  ;; programmer wants to keep them xhe should copy them first, complications with
   ;; implementing this more efficiently on lists due to head cell locations with shared
   ;; tapes. In any case with repeated ops we can hop n places instead of shuffling.
   ;;

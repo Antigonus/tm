@@ -1,0 +1,60 @@
+In the prior implementation of tm, that for another language, tms had state, and the state
+determined the set of functions that were available. This state, however, was not the
+'type' of the container, but rather an independent entity.  Here, we are using CLOS
+dispatch to achieve the same effect.  This has lead to the unification of all empty
+machines as tm-void, and thus the change of the type of an object as items are added.
+
+We have run into an issue.  Suppose we have a collapsed from tm-list to tm-void machine,
+to get tm-0.  Now we dup to create tm-1.  Both have tm-void type.  Now when we allocate a
+cell to tm-0 to it becomes tm-list again.  However, tm-1's tape remains void.  This
+violates the invarient that a dup machine is supposed to share the same tape as the
+machine it was dupped from.  This can lead to erroneous behavior for tm-1 hence forth.
+
+A first proposed solution would be to make a dupped machine a transform of the base
+machine, In our example, tm-0 would be a base machine, tm-1 would keep a copy of it. Then
+changes to the base machine tape will be reflected in the dup machine.
+
+Such a transform resembles a parked machine,  though instead of parking the head, we allow
+it to be either void or on a cell.  But  another issue then arises as now we must keep the
+tm-1  head correctly  up to  date, but  the smarts  for moving  the head  are in  the base
+machine.  So the  dup machine becomes an  implementation of all other  machines?  We might
+try  to take  advantage of  the smarts  of  another machine  by calling  the base  machine
+operations and cuing to  the result, but we can't change the state  of the base machine or
+the user might get mad at us.  Now can we dup the base machine then change it, as is done
+elsewhere to get this affect, because doing so would be circular.
+
+As a second proposed solution we come back to listener lists.  If all dup machines have a
+list of all machines they are entangled with (one list that all machines can access), then
+changes in state for one can be affected on the others. (We also want this to solve the
+"can't deallocate cell another machine has its head on" issue.)
+
+A dup is not completely a duplicate.  It shares tape state, but not head state. It remains
+entangled with its partner(s), but is not identical to them. Wonder if there is a better
+name for the dup operation...
+
+But as noted earlier, we have a fundamental problem with garbage collection when keeping
+listener lists.
+
+There is another failure with the listener list approach in the case where a machine has
+multiple regions defined.  In the collapse to void, the relative order between the regions
+is lost. If there are overlaps, we loose that information also.
+
+As a third proposed solution we can bar the use of void locations.  If we do this, then
+there will be no evoluution in type of the base machine the region is defined on. Also,
+the order among multiple regions will not be lost.
+
+For now I opt for the third proposed solution, that of making it illegal to have a void
+location.  It is interesting that in version 0.1 we did not allow void containers in
+order to avoid the associated end cases, that now we would make a similar assumption so
+as to end cases with regions.
+
+Thus, in this version we assume that there is no concept of location within void space.
+
+It is interesting that a void space does keep a concept of the type that it evolves into
+upon the allocation of a cell.  It is also interesting that there is an unused slot in
+tm-void.
+
+
+
+
+

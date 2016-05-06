@@ -60,15 +60,21 @@
         By the term <i>formalized</i> I mean that the iteration model is constructed from
         formal concepts, most that have been well studied in computation theory. Basically
         the tape machine is a hybrid between a Turing Machine and a Lambda Calculus, with
-        the Turing machine used for iteration, and the choice of continuation functions,
-        lambdas, used for control flow.  I make the claim that there are no architectural
-        limitations to working with arbitrary long containers when using this library.
+        the Turing machine used for iteration in a limited region, and then invoking
+        continuation functions, lambdas, for extending bounds.  I make the claim that
+        there are no library architectural limitations for working with arbitrary long
+        containers.
 
       <p>
-        If for no other reason, the formal derivation is useful because it guided the
+        If for no other reason, the formal derivation is useful because it guides the
         terminology.  As it turns out, there is an explosion in the number of end cases
-        when dealing with containers.  Using our formalism we can now name them and
-        talk about them.
+        when dealing with containers.  Our formalism provides a language for talking
+        about them.
+
+      <p>
+        This library is part of a scalable memory management approach, one which has
+        been left for release when I get another opportunity to spend some time on
+        this.
 
     </section>
   </article>
@@ -1196,20 +1202,20 @@ contination-name := symbol  (evaluates to a continuation function)
           The singular affine space collapses the tape machine type into a regular
           variable.
 
-        <h2>Interval Space </h2>
+        <h2>Region </h2>
 
         <p>
-        <i>tm-interval</i> is a tape machine with a finite tape, i.e. one that has a
+        <i>tm-region</i> is a tape machine with a finite tape, i.e. one that has a
         defined leftmost and rightmost cell, and this finite tape is a portion of another
-        machine's tape.  <i>tm-interval</i> is initialized from two other tape machines.
-        One with its head on the interval leftmost, and one with its head on the interval
+        machine's tape.  <i>tm-region</i> is initialized from two other tape machines.
+        One with its head on the region leftmost, and one with its head on the region
         rightmost.
 
         <p>
         The following function returns true:
 
         <pre><code>
-          (defun test-tm-interval-0 ()
+          (defun test-tm-region-0 ()
             (let*(
                   (base-tm (mount [0 1 2 3 4 5 6 7]))
                   (left-machine (dup base-tm))
@@ -1218,22 +1224,22 @@ contination-name := symbol  (evaluates to a continuation function)
               (sn left-machine 3)
               (sn right-machine 5)
               (let*(
-                     (an-interval 
-                       (make-interval 
+                     (an-region 
+                       (make-region 
                          :leftmost left-machine 
                          :rightmost right-machine
                          ))
-                     (tm-interval (tm-mk 'tm-interval an-interval))
+                     (tm-region (tm-mk 'tm-region an-region))
                      )
                 (∧
-                  (on-leftmost tm-interval)
-                  (= (r tm-interval) 3)
-                  (s tm-interval)
-                  (= (r tm-interval) 4)
-                  (s tm-interval)
-                  (= (r tm-interval) 5)
-                  (on-rightmost tm-interval)
-                  (¬ (s tm-interval))
+                  (on-leftmost tm-region)
+                  (= (r tm-region) 3)
+                  (s tm-region)
+                  (= (r tm-region) 4)
+                  (s tm-region)
+                  (= (r tm-region) 5)
+                  (on-rightmost tm-region)
+                  (¬ (s tm-region))
                   )
                   )))
         </code></pre>
@@ -1242,18 +1248,18 @@ contination-name := symbol  (evaluates to a continuation function)
           The function <i>dup</i> accepts a tape machine and returns another tape machine
           that shares the same tape and has a head on the same cell.  It is useful for
           setting check points to come back to.  In this context it is used to create
-          markers for the leftmost and rightmost of the interval. The function #'sn
-          steps <i>n</i> times.  The interval tape machine is initialized from a structure
+          markers for the leftmost and rightmost of the region. The function #'sn
+          steps <i>n</i> times.  The region tape machine is initialized from a structure
           that has two fields (two slots in Lisp argot) one for each inclusive bound of the
-          interval space.
+          region space.
           
         <p>
           The function #'a allocates a new cell to the right of the cell that the head is
-          on.  When the head is on the rightmost of the interval, the allocated cell
-          remains in the interval. An interval is a self contained space, and given an
-          interval machine there is no way to detect that the interval is part of a larger
-          space. If that information is needed it should be saved when the interval is
-          created, or derived from the space that contains the interval.
+          on.  When the head is on the rightmost of the region, the allocated cell
+          remains in the region. A region is a self contained space, and given an
+          region machine there is no way to detect that the region is part of a larger
+          space. If that information is needed it should be saved when the region is
+          created, or derived from the space that contains the region.
 
         <h2>Subspace </h2>
 
@@ -1286,7 +1292,7 @@ contination-name := symbol  (evaluates to a continuation function)
 
         <p>
           Once in a subspace, the leftmost cell is the leftmost of the subspace, the
-          rightmost the rightmost of the subspace, etc.  As for interval spaces there is
+          rightmost the rightmost of the subspace, etc.  As for region spaces there is
           no way from within the subspace to detect the existence of the superspace. Hence
           in order to step back out of the subspace one first uses #'dup to get a copy of
           the tape machine before stepping in, and then steps in while using either copy,
@@ -1637,7 +1643,7 @@ contination-name := symbol  (evaluates to a continuation function)
         <p>
           Even in the presence of multiple heads and structural changes, tape machines still
           can not be broken if those operations are used while checking for and avoiding
-          hazards.  One example of this is the implementation of <i>tm-interval</i>.  So
+          hazards.  One example of this is the implementation of <i>tm-region</i>.  So
           what are the hazards?
 
         <h2> Deletion of the Cell the Head is on Hazard</h2>                  

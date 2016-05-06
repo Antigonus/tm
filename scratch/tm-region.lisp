@@ -15,16 +15,12 @@ See LICENSE.txt
     A region of space is not to be confused with a subspace. A subspace occurs when a cell
     holds a sequence or tape machine as an object.  See tm-subspace.lisp.
 
-    Like subspaces, regions can not be defined on void machines.
-
   Initializaiton
 
     A tm-region is intialized with one to three parameters:
 
-    :base is required.  It locates the region within the base space.  The region occurs to
-    the right of the cell the base machine's head is on.  A-typical to initialization, the
-    base is not dupped. This is so the location can be moved left should the location cell
-    be deallocated.
+    :base is required.  It locates the region within the base space.  The region
+    occures to the right of the cell the base machine's head is on.
 
     :mount, if provided, is a list of objects to be allocated to the region using #'a*
 
@@ -49,14 +45,17 @@ See LICENSE.txt
     Suppose that two regions are neighbors.  Then the location of the right neighbor
     region is the rightmost of the leftneighbor region.  Now suppose the left neighbor
     region becomes void, this would be illegal, as it would require deleting the
-    cell that another machine's head is on (i.e deleting the right neighbor location
-    marker).
+    cell that another machine's head is on.  However, how can the other region know
+    about this?  
 
-  Void Base 
+  Void Base and Transition from Void
 
-    When the base is void, we can not account for location. Hence, we do not support 
-    regions on tm-void.
+    Suppose the base of a region is void.  It follows that the region must be void
+    also, as it is contained in the space defined by the base.  The location of such
+    a region will be tm-void.
 
+    Now suppose that a cell is allocated to the base.  The base machine is no longer
+    void.  Because of this very scenario, we have not dupped the base parameter.
 
 |#
 
@@ -84,8 +83,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key base mount rightmost &allow-other-keys) init-list
 
-      (unless (∧ base (¬ (typep base 'tm-void)))
-        (return-from init (funcall cont-fail)))
+      (unless base  (return-from init (funcall cont-fail)))
 
       (cond
         (rightmost
@@ -98,10 +96,10 @@ See LICENSE.txt
                 :location location
                 :rightmost rightmost
                 ))
-            (when mount (a* location (mount mount) cont-ok cont-fail))
             (s leftmost ; base becomes leftmost after being stepped
               (λ()
-                (setf (HA tm) leftmost)
+                (setf (HA tm) (dup base))
+                (when mount (a* location (mount mount) cont-ok cont-fail))
                 (funcall cont-ok)
                 )
               cont-fail ; rightmost was provided, so must be able to step base
@@ -109,24 +107,21 @@ See LICENSE.txt
       
         (mount
           (let(
+                (tm-data (mount mount))
                 (location base)
                 (leftmost (dup base))
-                (tm-data (mount mount))
                 )
-            (as leftmost (r tm-data) ; after step, base is leftmost
+            (as base (r tm-data) ; after step, base is leftmost
               (λ()
-                (setf (HA tm) leftmost)
-                (let(
-                      (i (dup leftmost)) ; general use iterator
-                      )
-                  (s tm-data (λ()(as* i  tm-data)) #'do-nothing) ; i is rightmost after this
-                  (setf (tape tm) 
-                    (make-region 
-                      :location location
-                      :rightmost i
-                      ))
+                (setf (HA tm) (dup base))
+                (s tm-data (λ()(as* base tm-data)) #'do-nothing) ; base becomes rightmost
+                (setf (tape tm) 
+                  (make-region 
+                    :location location
+                    :rightmost (dup base)
+                    ))
                 (funcall cont-ok)
-                ))
+                )
               cont-fail
               )))
 

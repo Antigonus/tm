@@ -365,7 +365,7 @@ See LICENSE.txt
       &optional 
       spill
       (cont-rightmost (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (labels(
              (do-work()

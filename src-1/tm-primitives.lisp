@@ -75,8 +75,6 @@ All tape machine implmentations must specialize these functions.
 ;; to deallocate,  b) because the tape does not support structural changes.  As
 ;; a third problem, the reallocation to spill might fail.
 ;;
-;; need to rename cont-rightmost as cont-no-dealloc in other parts of the code
-;;
 ;; both deallocation and allocation are really the same thing, moving cells from
 ;; one space to another
 ;;

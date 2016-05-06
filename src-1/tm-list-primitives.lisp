@@ -108,7 +108,6 @@ See LICENSE.txt
     (tm-list-on-rightmost tm
       (λ() (funcall cont-no-dealloc) )
       (λ()
-          ;; normal case, tape is longer than doubleton
           ;; as we elimated the rightost case, dealloc-cell will exist
           (let*(
                  (dealloc-cell (cdr (HA tm)))

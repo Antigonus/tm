@@ -122,7 +122,7 @@ See LICENSE.txt
       object 
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (a (tape tm) object cont-ok cont-no-alloc)
     )
@@ -138,7 +138,7 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (d (tape tm) spill cont-ok cont-rightmost cont-no-alloc)
     )

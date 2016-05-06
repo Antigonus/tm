@@ -53,7 +53,7 @@ the buffer objects.
 ;;  tape is a queue
 ;;
   (defun queue-enqueue (tm object)
-    "Enqueues object"
+    "Enqueues object.  Note effiency issues as it refers to rightmost."
     (a◨s tm object)
     )
 
@@ -71,21 +71,35 @@ the buffer objects.
 ;;--------------------------------------------------------------------------------
 ;;  queues and stacks as objects of their own
 ;;
-  (defclass buffer(tm-region)())
+  (defclass buffer()
+    ((region
+       :initform
+       (let*(
+              (base (mk 'tm-list))
+              )
+         (as base 'buffer) ; assures that the region location will not be void
+         (mk 'tm-region :base base)
+         )
+      :initarg :region
+      :accessor region
+      )))
 
-  (defgeneric enqueue (a-buffer object))
-  (defgeneric dequeue (a-buffer &optional cont-ok cont-empty))
-  (defgeneric empty (a-buffer &optional cont-true cont-false))
+  (defgeneric enqueue (buffer object))
+  (defgeneric dequeue (buffer &optional cont-ok cont-empty))
+  (defgeneric empty (buffer &optional cont-true cont-false))
 
   (defmethod empty 
     (
-      (a-buffer buffer)
+      (buffer buffer)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    (typep a-buffer 'tm-void)
-    )
+    (if 
+      (typep (region buffer) 'tm-void)
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; stack
@@ -94,20 +108,20 @@ the buffer objects.
 
   (defmethod dequeue 
     (
-      (tm-stack stack)
+      (stack stack)
       &optional 
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (stack-dequeue tm-stack cont-ok cont-empty)
+    (stack-dequeue (region stack) cont-ok cont-empty)
     )
 
   (defmethod enqueue
     (
-      (tm-stack stack)
+      (stack stack)
       object
       )
-    (stack-enqueue tm-stack object)
+    (stack-enqueue (region stack) object)
     )
     
 ;;--------------------------------------------------------------------------------
@@ -119,18 +133,18 @@ the buffer objects.
 
   (defmethod dequeue 
     (
-      (tm-queue queue)
+      (queue queue)
       &optional 
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (queue-dequeue tm-queue cont-ok cont-empty)
+    (queue-dequeue (region queue) cont-ok cont-empty)
     )
 
   (defmethod enqueue
     (
-      (tm-queue queue)
+      (queue queue)
       object
       )
-    (queue-enqueue tm-queue object)
+    (queue-enqueue (region queue) object)
     )

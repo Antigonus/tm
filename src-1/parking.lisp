@@ -19,7 +19,7 @@ cell are not.
     "True iff tape machine head is parked."
     (∨
       (typep tm 'tm-void)
-      (typep tm 'tm-parked-tape)
+      (typep tm 'tm-parked)
       ))
 
   ;; this is the more common call for synch
@@ -33,7 +33,7 @@ cell are not.
 
   (defmethod park ((tm tape-machine))
     (let(
-          (instance (mk 'tm-parked-tape))
+          (instance (mk 'tm-parked))
           )
       (init instance {:base tm}
         #'do-nothing

@@ -83,6 +83,9 @@ See LICENSE.txt
   (define-condition void-access (error)
     ((text :initarg :text :reader text)))
 
+  ;; can't read or write to this machine
+  (define-condition parked-access (error)
+    ((text :initarg :text :reader text)))
 
   ;; used for #'a and #'d on spill when allocation fails
   (define-condition alloc-fail (error)

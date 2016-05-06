@@ -48,7 +48,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       &optional
       (cont-ok (be t))
       (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Head is on a given cell.  That cell has an object.  The object should be either
      mk-able or be ∅.  If it is ∅, we exit with cont-mk-fail where the programmer
@@ -78,7 +78,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       &optional
       (cont-ok (be t))
       (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
-      (cont-no-alloc (λ()(error 'tm-alloc-fail)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "like ai, but the tape-machine is stepped into the new cell"
     (let(

@@ -45,18 +45,18 @@ See LICENSE.txt
 
       (= (d tm spill) 2)
       (typep tm 'tm-list)
-      (typep spill 'tm-parked-tape)
+      (typep spill 'tm-parked)
 
       (= (d tm spill) 3)
       (typep tm 'tm-tape)
-      (typep spill 'tm-parked-tape)
+      (typep spill 'tm-parked)
 
       (d tm spill (be nil) (be t)) ; fails, head is on rightmost
       (equal (unmount spill) {2 3})
 
       (= (d◧ tm spill) 1)
       (typep tm 'tm-void)
-      (typep spill 'tm-parked-tape)
+      (typep spill 'tm-parked)
       (equal (unmount spill) {1 2 3})
 
       (s spill)
@@ -77,11 +77,11 @@ See LICENSE.txt
       (equal (tape tm) ∅)
 
       (a tm 1)
-      (typep tm 'tm-parked-tape)
+      (typep tm 'tm-parked)
       (equal (tape tm) {1})
 
       (a tm 2)
-      (typep tm 'tm-parked-tape)
+      (typep tm 'tm-parked)
       (equal (tape (tape tm)) {2 1})
 
       (s tm)

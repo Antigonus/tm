@@ -59,7 +59,7 @@ See LICENSE.txt
 
                              ;; trivial machines
                                (:file "tm-void")
-                               (:file "tm-parked-tape")
+                               (:file "tm-parked")
 
                              ;; transforms
                                (:file "tm-region")
@@ -90,7 +90,7 @@ See LICENSE.txt
                (:module "test-1"
                 :components (
                               (:file "tm-void")
-                              (:file "tm-transitions")
+;;                              (:file "tm-transitions")
                               
                               (:file "tm-derived")
 
