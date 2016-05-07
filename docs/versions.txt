@@ -1,0 +1,9 @@
+v0.1
+Initial release.
+
+
+v0.5
+
+adds parked and void machines
+
+adds listener lists for collisions between machines on the same tape (called entanglement)

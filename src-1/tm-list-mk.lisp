@@ -10,6 +10,7 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
@@ -18,6 +19,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making tm-list machines from other objects
 ;;
+  (defun make-entanglements (tm-first)
+    (let(
+          (entanglements (make-instance 'tm-list))
+          )
+      (setf (HA entanglements) (cons tm-first ∅))
+      (setf (tape entanglements) (cons tm-first ∅))
+      (setf (entanglements entanglements) ∅)
+      entanglements
+      ))
+
   (defmethod init 
     (
       (tm tm-list)
@@ -36,12 +47,13 @@ See LICENSE.txt
         ((consp mount) 
           (setf (tape tm) mount)
           (setf (HA tm) mount)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (t
           (funcall cont-fail)
           ))))
-
+    
   (defmethod mount ((sequence cons) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(

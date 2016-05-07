@@ -91,9 +91,13 @@ See LICENSE.txt
   (define-condition alloc-fail (error)
     ((text :initarg :text :reader text)))
 
-  ;; When the head is on rightmost, there are not cells further right that can be
-  ;; deallocated.
-  (define-condition dealloc-fail (error)
+  (define-condition dealloc-on-rightmost (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition dealloc-not-supported (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition dealloc-entangled (error)
     ((text :initarg :text :reader text)))
 
 

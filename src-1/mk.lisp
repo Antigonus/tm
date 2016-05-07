@@ -18,6 +18,10 @@ See LICENSE.txt
         :initarg :HA 
         :accessor HA
         )
+      (entanglements
+        :initarg entanglements
+        :accessor entanglements
+        )
       (tape
         :initarg :tape
         :accessor tape
@@ -65,7 +69,7 @@ See LICENSE.txt
       instance
       ))
 
-;;-----------------------p---------------------------------------------------------
+;;--------------------------------------------------------------------------------
 ;;  given a sequence return a tape machine over that sequence
 ;;    sequences are things we can step into, and that tree traversal will
 ;;    consider to be something to traverse.

@@ -23,8 +23,8 @@ See LICENSE.txt
       (∧
         (s x (be ∅) (be t))
         (a x 22 (be ∅) (be t)) ; this fails because the base type is 'tm-void
-        (= (d x y (be 1) (be 2) (be 3)) 2)
-        (= (d x ∅ (be 1) (be 2) (be 3)) 2)
+        (= (d x y (be 1) (be 2) (be 3) (be 4) (be 5)) 2)
+        (= (d x ∅ (be 1) (be 2) (be 3) (be 4) (be 5)) 2)
         )))
   (test-hook test-void-0)
 

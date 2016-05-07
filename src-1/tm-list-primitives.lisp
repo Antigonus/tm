@@ -102,11 +102,14 @@ See LICENSE.txt
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
+    (declare (ignore cont-not-supported))
     (tm-list-on-rightmost tm
-      (λ() (funcall cont-no-dealloc) )
+      cont-rightmost
       (λ()
           ;; as we elimated the rightost case, dealloc-cell will exist
           (let*(
@@ -114,12 +117,17 @@ See LICENSE.txt
                  (dealloc-object (car dealloc-cell))
                  (connection-point (cdr dealloc-cell))
                  )
-            (when spill
-              (as spill dealloc-object 
-                #'do-nothing 
-                (λ()(return-from d (funcall cont-no-alloc)))
-                ))
-            (rplacd (HA tm) connection-point)
-            (funcall cont-ok dealloc-object)
-            ))))
+            (entangled tm dealloc-cell
+              cont-entangled
+              (λ()
+                (when spill
+                  (as spill dealloc-object 
+                    #'do-nothing 
+                    (λ()(return-from d (funcall cont-no-alloc)))
+                    ))
+                (rplacd (HA tm) connection-point)
+                (funcall cont-ok dealloc-object)
+                )
+              )))
+      ))
      

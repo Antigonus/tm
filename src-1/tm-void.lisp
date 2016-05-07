@@ -35,11 +35,13 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
         (tm-type
           (setf (HA tm) tm-type)
           (setf (tape tm) ∅)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (t
           (setf (HA tm) 'tm-void)
           (setf (tape tm) ∅)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           ))))
 
@@ -158,30 +160,37 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
     (a-tm-void tm object cont-ok cont-no-alloc)
     )
 
-  (defmethod d 
+  ;; if we repetitively delete cells from a tape, then eventually we will get cont-rightmost 
+  ;; now, if repetitiely delete cells from a parked tape, then the same thing, cont-rightmost
+  (defmethod d
     (
       (tm tm-void)
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore tm spill cont-ok cont-no-alloc))
-    (funcall cont-no-dealloc)
+    (declare (ignore tm spill cont-ok cont-not-supported cont-entangled cont-no-alloc))
+    (funcall cont-rightmost)
     )
 
+  ;; on a parked machine d◧ is the same as d, note the comments above
   (defmethod d◧
     (
       (tm tm-void)
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore tm spill cont-ok cont-no-alloc))
-    (funcall cont-no-dealloc)
+    (declare (ignore tm spill cont-ok cont-not-supported cont-entangled cont-no-alloc))
+    (funcall cont-rightmost)
     )
 
       

@@ -49,6 +49,7 @@ See LICENSE.txt
           (&optional (min 0) (max ∅) (Δ 1)) seed
           (setf (HA tm) min)
           (setf (tape tm) (make-line :min min :max max :Δ Δ))
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (funcall cont-fail)
@@ -145,15 +146,24 @@ See LICENSE.txt
     (error 'tm-read-only)
     )
 
+  ;; deallocates the cell just to the right of the head
   (defmethod d 
     (
       (tm tm-line)
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore tm spill cont-ok cont-no-dealloc cont-no-alloc))
-    (error 'tm-read-only)
+    (declare (ignore
+               spill
+               cont-ok 
+               cont-rightmost
+               cont-entangled
+               cont-no-alloc
+               ))
+    (funcall cont-not-supported)
     )

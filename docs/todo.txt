@@ -61,3 +61,9 @@ enough information for rebuilding the object (intervals need bounds, arrays size
 or if some other mechanism got that information in place.
 
 19 tm-interval limits are currently not checked to be void
+
+20. weak pointers on the entanglement list
+
+21. update cue-to and dup to dispatched methods as otherwise regions won't dup.  Update park
+not to change out the base instance, but just to update slots. finish entanglements.lisp and
+replace current calls to entangled - as that applies to tapes not cells.

@@ -67,26 +67,28 @@ All tape machine implmentations must specialize these functions.
 ;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
 ;; the object from the deallocated cell is moved to it, preferably the former. 
 ;;
-;; d must have transactional behavior, so if the cont-no-alloc exit is to be taken,
-;; then tm must remain uneffected.  I.e. the cell can't just be dropped, as then
-;; continuation might not be possible.
+;; d must have transactional behavior, i.e. the cell is only dealloced if all goes well,
+;; otherwise d makes no structural changes. 
 ;;
-;; There are two reasons deallocation might fail a) because there is nothing
-;; to deallocate,  b) because the tape does not support structural changes.  As
-;; a third problem, the reallocation to spill might fail.
+;; There are multiple reasons deallocation might fail a) because there is nothing
+;; to deallocate,  b) because the tape does not support structural changes c) because
+;; another machine has a head on the dealloc cell.
 ;;
-;; both deallocation and allocation are really the same thing, moving cells from
-;; one space to another
+;; d will also fail if spill is not nil, and reallocation to spill fails
 ;;
-  (defgeneric d (tm &optional spill cont-ok cont-no-dealloc cont-no-alloc)
+  (defgeneric d (tm &optional spill 
+                  cont-ok 
+                  cont-rightmost
+                  cont-not-supported
+                  cont-entangled
+                  cont-no-alloc)
     (:documentation 
       "Deallocates one cell to the right of the head. If there is no such cell,
-       #'d takes cont-no-dealloc. If spill does not exist, the cell is dropped,
-       and #d takes cont-ok, passing it the object from the deallocated cell.  If spill
-       does exist then either the deallocated cell is moved to spill, or the object from
-       the deallocated cell is moved to a new allocation on spill. In the latter
-       case, if the allocation fails #'d takes cont-no-alloc.  Otherwise 
-       cont-ok is called with the object from the deallocated cell.
+       #'d takes cont-rightmost.  If the machine does not allow deallocation,
+      then #'d takes cont-not-supported.  If another machine is entangled and has its
+      head on the same cell, then #'d takes cont-entangled.  If spill is not ∅ and
+      realloction to spill fails, then the #'d takes cont-no-alloc.  Otherwise
+      #'d takes cont-ok.  Structural changes are only made when #'d takes cont-ok.
        "
       ))
 

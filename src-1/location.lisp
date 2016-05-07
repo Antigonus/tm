@@ -10,8 +10,9 @@ See LICENSE.txt
   Array specializations will have more efficient implementation than these
   generic ones.
 
-  If you have a good idea which tape machine is on the left, it will be 
-  more efficient to provide that one as the first argument.
+  By the term 'leftmost'  we refer to the only cell on a projective tape that
+  does not have a left neighbor.  Leftmost has address zero.  The right neighbor
+  of leftmost has address 1, etc.  
 
 |#
 (in-package #:tm)

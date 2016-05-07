@@ -15,7 +15,27 @@ See LICENSE.txt
     A region of space is not to be confused with a subspace. A subspace occurs when a cell
     holds a sequence or tape machine as an object.  See tm-subspace.lisp.
 
-    Like subspaces, regions can not be defined on void machines.
+  Address of a Region
+
+    The address of a region within a space is the address of the cell just to the left of
+    the leftmost cell belonging to the region.  An address may be represented by
+    indicating the cell with a given address using a tape machine.  If such a tape machine
+    is void, then the region extends from the leftmost cell of the tape.
+
+    The smallest region is a void region, which has zero cells. It is because of void
+    regions that we have adopted the one to the left addressing convention.
+
+    A singleton region has a single cell.  Note though, because it is a region the address
+    of a single cell region is the address of the left neighbor cell, rather than the
+    address of the single cell itself.
+
+    Within a region there is no way to access the cell that has the address being used to
+    locate the region in space.  Hence, operations that make use of the region address
+    are operations that belong to the space, rather than to the region. 
+
+    Note that our deallocation function, #'d addresses the cell to be deallocated as
+    though it is a singleton region.  #'d* then operates on non-singular regions.  #'d is
+    an operator that belongs to a space, and is used to operate on regions. 
 
   Initializaiton
 
@@ -47,16 +67,14 @@ See LICENSE.txt
     A region that is void still has a location.  
 
     Suppose that two regions are neighbors.  Then the location of the right neighbor
-    region is the rightmost of the leftneighbor region.  Now suppose the left neighbor
-    region becomes void, this would be illegal, as it would require deleting the
+    region is the rightmost cell of the left neighbor region.  Now suppose the left
+    neighbor region becomes void, this would be illegal, as it would require deleting the
     cell that another machine's head is on (i.e deleting the right neighbor location
     marker).
 
   Void Base 
 
-    When the base is void, we can not account for location. Hence, we do not support 
-    regions on tm-void.
-
+    When the base is void, there is only one possible location, that of void.
 
 |#
 
@@ -102,6 +120,7 @@ See LICENSE.txt
             (s leftmost ; base becomes leftmost after being stepped
               (λ()
                 (setf (HA tm) leftmost)
+                (setf (entanglements tm) (make-entanglements tm))
                 (funcall cont-ok)
                 )
               cont-fail ; rightmost was provided, so must be able to step base
@@ -125,7 +144,8 @@ See LICENSE.txt
                       :location location
                       :rightmost i
                       ))
-                (funcall cont-ok)
+                  (setf (entanglements tm) (make-entanglements tm))
+                  (funcall cont-ok)
                 ))
               cont-fail
               )))
@@ -247,19 +267,21 @@ See LICENSE.txt
           (a (HA tm) object cont-ok cont-no-alloc)
           )))
 
-  (defmethod d 
+  (defmethod d
     (
       (tm tm-region)
       &optional 
       spill
-      (cont-ok (be t))
-      (cont-rightmost (λ()(error 'deallocation-request-at-rightmost)))
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
       cont-rightmost
       (λ()
-        (d (HA tm) spill cont-ok cont-rightmost cont-no-alloc)
+        (d (HA tm) spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
         )))
 
 
@@ -272,7 +294,9 @@ See LICENSE.txt
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
@@ -285,7 +309,6 @@ See LICENSE.txt
             (dealloc-object (r leftmost))
             )
         (heads-on-same-cell leftmost rightmost
-
           ;; collapse to void
           (λ()
             (when spill
@@ -298,8 +321,7 @@ See LICENSE.txt
               (λ() (funcall cont-ok dealloc-object))
               #'cant-happen
               ))
-          
           ;;normal dealloc
           (λ()
-            (d location spill cont-ok cont-no-dealloc cont-no-alloc)
+            (d location spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
             )))))

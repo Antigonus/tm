@@ -29,8 +29,9 @@ See LICENSE.txt
       (if 
         base
         (progn
-          (setf (HA tm) (mk 'queue-list))
+          (setf (HA tm) (make-instance 'queue))
           (setf (tape tm) base)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (funcall cont-fail)

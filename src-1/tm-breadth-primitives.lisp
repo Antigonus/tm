@@ -137,8 +137,15 @@ See LICENSE.txt
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'tm-deallocation-request-at-rightmost)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d (tape tm) spill cont-ok cont-rightmost cont-no-alloc)
-    )
+    (d (tape tm) spill
+      cont-ok 
+      cont-rightmost
+      cont-not-supported
+      cont-entangled
+      cont-no-alloc
+      ))

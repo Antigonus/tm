@@ -56,6 +56,7 @@ See LICENSE.txt
                              ;; general properties
                                (:file "location")
                                (:file "length")
+                               (:file "entanglement")
 
                              ;; trivial machines
                                (:file "tm-void")

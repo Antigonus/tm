@@ -4,13 +4,15 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
 tm-parked is a tranform, and hence there is a base tape machine.
-This transform makes it appear that the head is sitting in empty space,
-but just to the left of leftmost.
+This transform makes it appear that the head is sitting in void space,
+just to the left of leftmost cell on the tape.
 
-(tape tm) holds the base tape machine
+(tape tm) holds the base machine
 
-Calling step, #'s, steps into the base machine
-Calling deallocate, #'d, potentialy transition to empty.
+Calling step, #'s, steps into the base machine Calling deallocate, #'d, potentialy
+transition to empty.
+
+
 
 |#
 
@@ -19,7 +21,6 @@ Calling deallocate, #'d, potentialy transition to empty.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-
   (defclass tm-parked (tape-machine)())
 
   (defmethod init 
@@ -40,6 +41,8 @@ Calling deallocate, #'d, potentialy transition to empty.
             (setf (HA tm) ∅)
             (cue-leftmost base-machine)
             (setf (tape tm) base-machine) 
+            (setf (entanglements tm) (make-entanglements tm))
+            (funcall cont-ok)
             ))
         (tm-type
           (let*(
@@ -51,6 +54,7 @@ Calling deallocate, #'d, potentialy transition to empty.
               (λ()
                 (setf (HA tm) ∅)
                 (setf (tape tm) base-machine)
+                (setf (entanglements tm) (make-entanglements tm))
                 (funcall cont-ok)
                 )
               cont-fail
@@ -115,19 +119,23 @@ Calling deallocate, #'d, potentialy transition to empty.
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
-      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
           (tm-from-the-tape (tape tm))
           )
       (d◧ tm-from-the-tape spill
         (λ(dealloc-object)
-          ;; collapse to void case
+          ;; check for collapse to void
           (when (typep tm-from-the-tape 'tm-void) (cue-to tm tm-from-the-tape))
           (funcall cont-ok dealloc-object)
           )
-        cont-no-dealloc
+        cont-rightmost
+        cont-not-supported
+        cont-entangled
         cont-no-alloc
         )))
 
@@ -137,10 +145,12 @@ Calling deallocate, #'d, potentialy transition to empty.
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
-      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d-parked tm spill cont-ok cont-no-dealloc cont-no-alloc)
+    (d-parked tm spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
     )
 
   (defmethod d◧
@@ -149,8 +159,10 @@ Calling deallocate, #'d, potentialy transition to empty.
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-no-dealloc (λ()(error 'dealloc-fail)))
-      (cont-no-alloc  (λ()(error 'alloc-fail)))
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'dealloc-not-supported)))
+      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d-parked tm spill cont-ok cont-no-dealloc cont-no-alloc)
+    (d-parked tm spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
     )

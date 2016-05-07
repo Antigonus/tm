@@ -15,44 +15,34 @@ of the primitives.
 
 
 |#
-
 (in-package #:tm)
-
 
 ;;--------------------------------------------------------------------------------
 ;; tape-machine duplication
 ;;
-;;   a dangerous operation to combine with deallocation. If one machine deletes
-;;   a cell that another machine's head is on, things probably go haywire afterward.
-;;   adding listeners and checks is one of the todo items, but those will come
-;;   at a higher price if we do them.
-;;
-;;   originally I thought cue-to could be generic, but we cue-to a machine with
-;;   more slots than head and tape, and expect to go back again, hence we have to
-;;   with within the those slots and this cue-to to not have an entropy problem.
-;;
   (defun cue-to
     (
-      tm-cued ; original contents get clobbered
+      tm-cued ; object affected, contents get clobbered
       tm-orig ; remains undisturbed
       )
     "Unless tm-cued type is (typep (type-of tm-orig)), tm-cued is changed to the type of
-     tm-orig.  tm-cued is either already on the same tape as tm-orig, or it mounts it.
-     tm-cued is cued to the same cell that tm-orig's head is on.  Returns tm-cued.
+     tm-orig.  tm-cued shared a tape with tm-orig, and has its head on the same cell.
      "
     (unless (typep tm-cued (type-of tm-orig)) (change-class tm-cued (type-of tm-orig)))
-    (setf (tape tm-cued) (tape tm-orig))
     (setf (HA tm-cued) (HA tm-orig))
+    (setf (tape tm-cued) (tape tm-orig))
+    (setf (entanglements tm-cued) (entanglements tm-orig))
     tm-cued
     )
 
+;; alas this needs to be dispatached, as sometimes the head is a reference
+; to head state rather than being the head state, note regions for example
   (defun dup (tm-orig)
-    "Returns a tm with head on the same cell."
+    "Returns a new tm cued to tm-orig."
     (let(
           (tm-dup (make-instance (type-of tm-orig)))
           )
-      (setf (tape tm-dup) (tape tm-orig))
-      (setf (HA tm-dup) (HA tm-orig))
+      (cue-to tm-dup tm-orig)
       tm-dup
       ))
 
@@ -367,7 +357,13 @@ of the primitives.
 ;;--------------------------------------------------------------------------------
 ;;
 ;;
-  (defgeneric d◧ (tm &optional spill cont-ok cont-rightmost cont-no-alloc)
+  (defgeneric d◧ (tm &optional spill 
+                   cont-ok
+                   cont-rightmost
+                   cont-not-supported
+                   cont-entangled
+                   cont-no-alloc
+                   )
     (:documentation 
       "Similar to #'d but the leftmost cell is deallocated independent of where the head
        is located. The tape machine can become empty, but if not, and the tape head is on
@@ -384,7 +380,9 @@ of the primitives.
         &optional 
         spill
         (cont-ok #'echo)
-        (cont-no-dealloc (λ()(error 'dealloc-fail)))
+        (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+        (cont-not-supported (λ()(error 'dealloc-not-supported)))
+        (cont-entangled (λ()(error 'dealloc-entangled)))
         (cont-no-alloc (λ()(error 'alloc-fail)))
         )
       (let(
@@ -424,7 +422,13 @@ of the primitives.
                       )
                   (w tm&h◧ keep-object)
                   (w tm&h◧s dealloc-object)
-                  (d tm&h◧ spill cont-ok cont-no-dealloc cont-no-alloc)
+                  (d tm&h◧ spill
+                    cont-ok
+                    cont-rightmost
+                    cont-not-supported
+                    cont-entangled
+                    cont-no-alloc
+                    )
                   )))
             ))))
                 

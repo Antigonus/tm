@@ -18,7 +18,7 @@ See LICENSE.txt
   ;; base is another tape machine
   (defmethod init 
     (
-      (instance tm-depth)
+      (tm tm-depth)
       init-list
       &optional 
       (cont-ok (be t))
@@ -29,8 +29,9 @@ See LICENSE.txt
       (if 
         base
         (progn
-          (setf (HA instance) (mk 'stack-list))
-          (setf (tape instance) base)
+          (setf (HA tm) (make-instance 'stack))
+          (setf (tape tm) base)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (funcall cont-fail)
