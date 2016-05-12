@@ -91,6 +91,18 @@ See LICENSE.txt
       (funcall cont-ok)
       ))
           
+  (defmethod a◧
+    (
+      (tm tm-list)
+      object 
+      &optional 
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore cont-no-alloc)) ;; should do something with this ..
+    (setf (tape tm) (cons object (tape tm)))
+    (funcall cont-ok)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
@@ -103,22 +115,22 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'dealloc-not-supported)))
-      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-not-supported))
     (tm-list-on-rightmost tm
       cont-rightmost
       (λ()
-          ;; as we elimated the rightost case, dealloc-cell will exist
+          ;; as we elimated the rightost case, dealloc-cell must exist
           (let*(
                  (dealloc-cell (cdr (HA tm)))
                  (dealloc-object (car dealloc-cell))
                  (connection-point (cdr dealloc-cell))
                  )
-            (entangled tm dealloc-cell
-              cont-entangled
+            (∃-collision-s tm
+              cont-collision
               (λ()
                 (when spill
                   (as spill dealloc-object 
@@ -131,3 +143,32 @@ See LICENSE.txt
               )))
       ))
      
+  ;; deallocates the leftmost cell
+  (defmethod d◧
+    (
+      (tm tm-list)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore cont-rightmost cont-not-supported))
+    (∃-collision◧ tm
+      cont-collision
+      (λ() ; if there is no collision on the cell, it can't be rightmost
+        (let(
+              (dealloc-object (car (tape tm)))
+              )
+          (when spill
+            (as spill dealloc-object 
+              #'do-nothing 
+              (λ()(return-from d◧ (funcall cont-no-alloc)))
+              ))
+          (setf (tape tm) (cdr (tape tm)))
+          (funcall cont-ok dealloc-object)
+          ))
+      ))
+        

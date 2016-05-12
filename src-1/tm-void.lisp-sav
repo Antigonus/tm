@@ -45,7 +45,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
               (let(
                     (entangled-machine (r entanglements))
                     )
-                (change-class entangled-machine 'tm-void)
+                (change-type entangled-machine 'tm-void)
                 ;; head continues to hold the type
                 (setf (tape entangled-machine) ∅) ; frees the tape memory
                 ;; entanglements are preserved
@@ -69,19 +69,37 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
     (destructuring-bind
       (&key tm-type mount &allow-other-keys) init-list
       (cond
-        (mount (funcall cont-fail)) ; don't know if we should bother with this
+        (mount (funcall cont-fail))
         (tm-type
-          (change-class tm tm-type) 
-          (init tm (remove-key-pair init-list :tm-type) cont-ok cont-fail)
+          (setf (HA tm) tm-type)
+          (setf (tape tm) ∅)
+          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (t
           (setf (HA tm) 'tm-void)
           (setf (tape tm) ∅)
-          (setf (parameters tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           ))))
+
+  (defmethod init 
+    (
+      (tm tm-void)
+      init-list 
+      &optional
+      (cont-ok (be t))
+      (cont-fail (λ()(error 'bad-init-value)))
+      )
+    (destructuring-bind
+      (&key tm-type mount &allow-other-keys) init-list
+    (when init-list (return-from init) cont-fail)
+    (setf (HA tm) 'tm-void)
+    (setf (tape tm) ∅)
+    (setf (parameters tm) ∅)
+    (setf (entanglements tm) (make-entanglements tm))
+    (funcall cont-ok)
+    )
 
   (defmethod unmount ((tm tm-void))
     (case (HA tm)
@@ -185,7 +203,7 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
         (funcall cont-ok)
         )
       (λ() ; continue fail
-        (change-class tm 'tm-void) ; transactional behavior, reset to void 
+        (change-type tm 'tm-void) ; transactional behavior, reset to void 
         (setf (tape tm) ∅)
         (funcall cont-no-alloc)
       )))
@@ -226,7 +244,6 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
       &optional 
       spill
       (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-not-supported (λ()(error 'not-supported)))
       (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))

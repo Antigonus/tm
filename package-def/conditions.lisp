@@ -87,19 +87,26 @@ See LICENSE.txt
   (define-condition parked-access (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition not-supported (error)
+    ((text :initarg :text :reader text)))
+
   ;; used for #'a and #'d on spill when allocation fails
   (define-condition alloc-fail (error)
+    ((text :initarg :text :reader text)))
+
+  ;; alloc and dealloc on arrays, as examples
+  (define-condition not-supported (error)
     ((text :initarg :text :reader text)))
 
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition dealloc-not-supported (error)
-    ((text :initarg :text :reader text)))
-
   (define-condition dealloc-entangled (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition malformed-entanglements (error)
+    ((text :initarg :text :reader text)))
+ 
 
 ;;--------------------------------------------------------------------------------
 ;; tm-derived

@@ -3,7 +3,9 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-When two or more machines share the same tape, they are said to be entangled.
+Two or more machines are said to be entangled when they share the same tape.
+Two or more machines are said to be in a collision when they have their heads
+on the same cell. Only entangled machines can collide.
 
 The purpose of entanglement accounting is to preserve the structural integrity
 of tape machines in the presence of deallocation and state transitions.
@@ -43,8 +45,6 @@ Parked
 
 Void
 
-  A void machine can not become entangled.
-
   Only a singleton machine can become void.  (#'d* is considered a repeat of #'d).
   All machines in an entanglment group for a singleton machine are either parked,
   or have their head on the singleton cell.
@@ -54,16 +54,17 @@ Void
   the system is collapsing to void, then no other machine has its head on the singleton
   cell.
 
-  When there are no collisions, so it is possible to transition to void, and one of a
-  group of entangled machines indeed does transition to tm-void, then we must go through
-  the entanglement list and transition all the machines to void. Vice versa, when a 
-  cell is added causing a transition away from void, then all the entangled machines
-  must also have their tapes updated and transition away from void.
+  When it is possible to transition to void, and one of a group of entangled machines
+  indeed does transition to tm-void, then we must go through the entanglement list and
+  transition all the machines to void. In the inverse operation when a cell is added
+  causing a transition away from void, then all the entangled machines must also have
+  their tapes updated and transition away from void.
 
   It is because of these transitions that we have been forced to add the entanglement
   feature (I was fine with leaving deallocation collision accounting to the user ;-).  We
   did not need to do these updates in the earlier C++ implementation, as we dispatched
-  functions directly from a sharted state variable rather than the type of the instance.
+  functions directly from a sharted state variable rather than from the type of the
+  instance.
 
 
 Region
@@ -100,12 +101,71 @@ Region
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; head parking - moving the head into and out of the address space
+;; modifying the entangled set
 ;;
-  (defun entangled (tm0 tm1 &optional (cont-true t) (cont-false ∅)) 
-    (declare (ignore tm0 tm1 cont-true))
-    (funcall cont-false)
-    )
+  (defun disentangle 
+    (
+      tm 
+      &optional 
+      (cont-success (be t))
+      (cont-fail (λ()(error 'malformed-entanglements)))
+      )
+    "Removes tm from the associated entanglements set. This is done, for example, 
+     in the cue-to function to release the instance for reuse.  It is analogous
+     to the weak pointer going to null when a tm is deallocated.
+     "
+    (∃ (entanglements tm) 
+      (λ(e)
+        (∧
+          (eq tm (r e))
+          (∨ (w e ∅) t)
+          ))
+      cont-success
+      cont-fail ; each machine is entangled with itself, so typically this should not happen
+      ))
 
 
-  
+;;--------------------------------------------------------------------------------
+;; detecting a collision
+;;
+  (defun collision (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
+    "tm0 and tm1 are distinct machines, and have their heads on the same cell."
+    (if
+      (∧
+        tm0 tm1
+        (¬ (eq tm0 tm1))
+        (heads-on-same-cell tm0 tm1)
+        )
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+
+  (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    "tm0 collides with an entangled machine."
+    (∃ (entanglements tm) (λ(e)(collision tm (r e)))
+      cont-true
+      cont-false
+      ))
+
+  (defun ∃-collision-s (tm0 &optional (cont-true (be t)) (cont-false (be ∅)))
+    "if tm0 were to be stepped, it would collide with an entangled machine"
+    (on-rightmost tm0
+      cont-false
+      (λ()
+        (let(
+              (tm1 (dup tm0))
+              )
+          (s tm1 #'do-nothing #'cant-happen)
+          (∃-collision tm1 cont-true cont-false)
+          ))))
+
+  (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    "an entangled machine is on leftmost."
+    (∃ (entanglements tm) (λ(e)(on-leftmost (r e)))
+      cont-true
+      cont-false
+      ))
+
+
+
+         

@@ -21,13 +21,13 @@ See LICENSE.txt
           (c (mount {1 2}))
           (d (mount {1 2 3}))
           )
-      (synch #'not-parked {a}
+      (synch #'mounted {a}
         (be 'ready-path)
         (λ(retry tms)
           (declare (ignore retry))
           (destructuring-bind (aa) tms
             (∧
-              (parked aa)
+              (unmounted aa)
               (singleton b)
               (not (doubleton b))
               (not (singleton c))

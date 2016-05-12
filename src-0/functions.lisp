@@ -32,7 +32,7 @@ See LICENSE.txt
   (defun notλ (f) (λ(&rest x)(not (apply f x))))
 
 ;;--------------------------------------------------------------------------------
-;; fundamental errors
+;; fundamental errors as functions
 ;;
   (defun cant-happen () (error 'impossible-to-get-here))
 
@@ -61,3 +61,27 @@ See LICENSE.txt
   (defun (setf unbox) (new-value a-box)
     (funcall (box-write a-box) new-value)
     )
+
+;;--------------------------------------------------------------------------------
+;; remove a key pair
+;;
+
+  ;; removes the first key pair from the list (leaves later ones)
+  (defun remove-key-pair (l go-away-key)
+    (labels(
+             (remove-key-pair-1 (l)
+               (if (∧ l (cdr l))
+                 (let(
+                       (key (car l))
+                       (val (cadr l))
+                       )
+                   (if (eq go-away-key key)
+                     (cddr l)
+                     (cons key (cons val (remove-key-pair-1 (cddr l))))
+                     ))
+                 (if l l ∅)
+                 ))
+             )
+      (remove-key-pair-1 l)
+      ))
+

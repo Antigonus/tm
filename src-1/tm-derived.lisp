@@ -20,30 +20,27 @@ of the primitives.
 ;;--------------------------------------------------------------------------------
 ;; tape-machine duplication
 ;;
-  (defun cue-to
-    (
-      tm-cued ; object affected, contents get clobbered
-      tm-orig ; remains undisturbed
-      )
-    "Unless tm-cued type is (typep (type-of tm-orig)), tm-cued is changed to the type of
-     tm-orig.  tm-cued shared a tape with tm-orig, and has its head on the same cell.
+  ;; this works when the head is a value, such as an integer or cons.  However, if it is a
+  ;; reference, then a deeper copy will be needed. Note for example, tm-region
+  (defun cue-to (tm-cued tm-orig)
+    "tm-cued is rewritten.  It will be change-class'ed to the same type as tm-orig, it
+     will share the same tape, entanglesments, and parameters as tm-orig, though have an
+     indendent head.  The head is initially on the same cell as that of tm-orig.  tm-cued
+     is added to the entanglement list.
      "
-    (unless (typep tm-cued (type-of tm-orig)) (change-class tm-cued (type-of tm-orig)))
-    (setf (HA tm-cued) (HA tm-orig))
-    (setf (tape tm-cued) (tape tm-orig))
-    (setf (entanglements tm-cued) (entanglements tm-orig))
+    (disentangle tm-cued) ; the entangled machines will no longer see tm-cued
+    (change-class tm-cued (type-of tm-orig))
+    (cue-to-1 tm-cued tm-orig)
     tm-cued
     )
 
-;; alas this needs to be dispatached, as sometimes the head is a reference
-; to head state rather than being the head state, note regions for example
   (defun dup (tm-orig)
     "Returns a new tm cued to tm-orig."
     (let(
-          (tm-dup (make-instance (type-of tm-orig)))
+          (tm-cued (make-instance (type-of tm-orig)))
           )
-      (cue-to tm-dup tm-orig)
-      tm-dup
+      (cue-to-1 tm-cued tm-orig)
+      tm-cued
       ))
 
   ;; Mounts the same tape that another machine has mounted.
@@ -105,6 +102,26 @@ of the primitives.
         (λ()(funcall cont-ok (r tm1)))
         (λ(n)(funcall cont-index-beyond-rightmost n))
         )))
+
+  (defgeneric r◧ (tm &optional cont-ok cont-void)
+    (:documentation 
+      "Reads the leftmost cell."
+      ))
+  ;; see tm-void for the void specialization
+  (defmethod r◧
+    (
+      (tm tape-machine)
+      &optional
+      (cont-ok #'echo) 
+      (cont-void (λ()(error 'void-access)))
+      )
+    (declare (ignore cont-void))
+    (let(
+          (tm1 (dup tm))
+          )
+      (cue-leftmost tm1)
+      (funcall cont-ok (r tm1))
+      ))
 
   (defgeneric w-index (tm object index &optional cont-ok cont-index-beyond-rightmost))
 
@@ -211,29 +228,6 @@ of the primitives.
 ;; Allocated cells must be initialized.  The initialization value is provided
 ;; directly or though a fill machine.
 ;;
-  (defgeneric a◧ (tm object &optional cont-ok cont-no-alloc)
-    (:documentation
-      "Allocates a new leftmost cell."
-      ))
-
-  (defmethod a◧
-    (
-      (tm tape-machine)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (let(
-          (tm1 (dup tm))
-          )
-      (cue-leftmost tm1)
-      (a tm1 (r tm1)
-        (λ() (w tm1 object)(funcall cont-ok))
-        cont-no-alloc
-        )
-      ))
-
   (defgeneric as (tm object &optional cont-ok cont-no-alloc)
     (:documentation 
       "Like #'a, but tm is stepped to the new cell"
@@ -353,85 +347,6 @@ of the primitives.
         )
       cont-no-alloc
       ))
-
-;;--------------------------------------------------------------------------------
-;;
-;;
-  (defgeneric d◧ (tm &optional spill 
-                   cont-ok
-                   cont-rightmost
-                   cont-not-supported
-                   cont-entangled
-                   cont-no-alloc
-                   )
-    (:documentation 
-      "Similar to #'d but the leftmost cell is deallocated independent of where the head
-       is located. The tape machine can become empty, but if not, and the tape head is on
-       the leftmost cell, the head is moved to the new leftmost cell.
-       "
-      ))
-
-  ;; if we are here, we are not void as tm-void has a more specific version than this
-  ;; therefor leftmost exists
-  ;;
-    (defmethod d◧
-      (
-        (tm tape-machine)
-        &optional 
-        spill
-        (cont-ok #'echo)
-        (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-        (cont-not-supported (λ()(error 'dealloc-not-supported)))
-        (cont-entangled (λ()(error 'dealloc-entangled)))
-        (cont-no-alloc (λ()(error 'alloc-fail)))
-        )
-      (let(
-            (tm&h◧ (dup tm))
-            (tm-type (type-of tm))
-            )
-        (cue-leftmost tm&h◧)
-        (let(
-              (dealloc-object (r tm&h◧))
-              )
-
-          (if (singleton tm)
-
-            ;; collapse to empty
-            (progn
-              (when spill
-                (as spill dealloc-object 
-                  #'do-nothing 
-                  (λ()(return-from d◧ (funcall cont-no-alloc)))
-                  ))
-              (change-class tm 'tm-void)
-              (init tm {:tm-type tm-type}
-                (λ() (funcall cont-ok dealloc-object))
-                #'cant-happen
-                ))
-
-            ;;not singleton, so has at least two cells
-            ;; so put second cell's object in lefmost, then delete second cell
-            (progn
-              (let(
-                    (dealloc-object (r tm&h◧))
-                    (tm&h◧s (dup tm&h◧))
-                    )
-                (s tm&h◧s #'do-nothing #'cant-happen)
-                (let(
-                      (keep-object (r tm&h◧s))
-                      )
-                  (w tm&h◧ keep-object)
-                  (w tm&h◧s dealloc-object)
-                  (d tm&h◧ spill
-                    cont-ok
-                    cont-rightmost
-                    cont-not-supported
-                    cont-entangled
-                    cont-no-alloc
-                    )
-                  )))
-            ))))
-                
 
 ;;--------------------------------------------------------------------------------
 ;; moving data

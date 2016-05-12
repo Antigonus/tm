@@ -15,6 +15,11 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tape-machine)())
 
+  (defstruct tm-depth-parms
+    base ; machine being traversed
+    history ; backtrack buffer
+    )
+
   ;; base is another tape machine
   (defmethod init 
     (
@@ -31,6 +36,7 @@ See LICENSE.txt
         (progn
           (setf (HA tm) (make-instance 'stack))
           (setf (tape tm) base)
+          (setf (parameters tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )

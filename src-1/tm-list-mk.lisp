@@ -3,8 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Make list machines from other objects.
-  Make other objects from list machines.
+  Make list machines.
 
 |#
 
@@ -22,9 +21,11 @@ See LICENSE.txt
   (defun make-entanglements (tm-first)
     (let(
           (entanglements (make-instance 'tm-list))
+          (first-cell (cons tm-first ∅))
           )
-      (setf (HA entanglements) (cons tm-first ∅))
-      (setf (tape entanglements) (cons tm-first ∅))
+      (setf (HA entanglements) first-cell)
+      (setf (tape entanglements) first-cell)
+      (setf (parameters entanglements) ∅)
       (setf (entanglements entanglements) ∅)
       entanglements
       ))
@@ -42,11 +43,16 @@ See LICENSE.txt
       (cond
         ((¬ mount)
           (change-class tm 'tm-void)
-          (init tm {:tm-type 'tm-list} cont-ok cont-fail)
+          (setf (HA tm) 'tm-list)
+          (setf (tape tm) ∅)
+          (setf (parameters tm) ∅)
+          (setf (entanglements tm) (make-entanglements tm))
+          (funcall cont-ok)
           )
         ((consp mount) 
-          (setf (tape tm) mount)
           (setf (HA tm) mount)
+          (setf (tape tm) mount)
+          (setf (parameters tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )

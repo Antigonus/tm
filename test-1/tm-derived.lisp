@@ -36,6 +36,7 @@ See LICENSE.txt
            (a (list 1 2 3))
            (tm1 (mount a))
            )
+      (s tm1) ; moves head off of leftmost
       (d◧ tm1)
       (equal
         (tape tm1)

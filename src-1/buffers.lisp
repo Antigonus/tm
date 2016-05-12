@@ -85,8 +85,8 @@ the buffer objects.
 
   (defgeneric enqueue (buffer object))
   (defgeneric dequeue (buffer &optional cont-ok cont-empty))
-  (defgeneric empty (buffer &optional cont-true cont-false))
 
+  ;; defgeneric empty is in length.lisp
   (defmethod empty 
     (
       (buffer buffer)

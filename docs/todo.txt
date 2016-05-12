@@ -64,6 +64,29 @@ or if some other mechanism got that information in place.
 
 20. weak pointers on the entanglement list
 
-21. update cue-to and dup to dispatched methods as otherwise regions won't dup.  Update park
-not to change out the base instance, but just to update slots. finish entanglements.lisp and
-replace current calls to entangled - as that applies to tapes not cells.
+21. update cue-to and dup to dispatched methods as otherwise regions won't dup.  finish
+entanglements.lisp and replace current calls to entangled - as that applies to tapes not
+cells.
+
+22. #'a need to expand out cont-no-alloc to the two cases rightmost and not-supported
+
+23. add somethign to the manual about functional programming (state machines),  state
+variables,  and transactional behavior for tm functions (so that state doesn't change
+when state transitions are not taken) .. about region and cell addresses, note
+copy to new list doe snot have the problem and it is also transactional
+
+24. the cont-no-alloc on #'a is actaully cont-not-supported,  there should also
+be a cont-no-alloc continuation for when heap allocation fails.
+
+25. change ∃ to generic method so that we can dispatch the weak version with
+clean up.
+
+26. need to add cont-void-access to read and write
+
+27. add r-address to read a cell by address - what happens to the address space
+when a cell is deallocated?  do cells get new addresses?  or keep the old ones?
+
+28. transforms, tm-depth, tm-breadth .. what is there parked and void and back
+behavior .. currently tm-depth and tm-breadth can not be parked or voided.
+
+

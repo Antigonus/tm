@@ -46,6 +46,7 @@ See LICENSE.txt
            (a (list 1 2 3))
            (tm1 (mount a))
            )
+      (park tm1)
       (d* tm1)
       (equal
         (unmount tm1)

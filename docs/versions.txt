@@ -4,6 +4,26 @@ Initial release.
 
 v0.5
 
-adds parked and void machines
+Two or more machines that share the same tape are said to be 'entangled'.  This version
+implements listener lists so that entangled machines can know about each other. If
+two or more entangled machines have their heads on the same cell, they are said to
+have 'collided'.  Unlike for a real tape machine, a collision is not necessarily a
+bad thing.
 
-adds listener lists for collisions between machines on the same tape (called entanglement)
+We check the entanglements before deallocating a cell.  If there is a collision then
+we take a cont-collision from the dealloc routine.  Hence, we can now complete our
+proof that tape machines maintain integrity through operations on the interface.
+
+With this version a machine may start out as void, and then transition to another machine
+type when the first cell is allocated, and transition back to void when the last cell is
+deallocated.
+
+I think it is instructive to examine the complexity of deallocating a cell.  Deallocation
+requires a listener list, it might cause the container to become void, and it has more
+continuation options than any other function.  The code added between v0.1 to v0.5 is just
+to support safe deallocation.  This is the complexity that is avoided when using a
+non-destructive programming style.
+
+Also notice another problem with deallocating a cell.  The deallocation function takes a
+region address, but reading the cell requires a cell address.  Hence, reading and reacting
+by deleting the cell requires having two references.

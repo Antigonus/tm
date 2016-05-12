@@ -15,7 +15,7 @@ See LICENSE.txt
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
-  :depends-on ("local-time")
+  :depends-on ("local-time" "trivial-garbage")
   :serial t
   :components(
                (:module "package-def"
@@ -26,32 +26,33 @@ See LICENSE.txt
 
                (:module "src-0"
                  :components (
-                              (:file "synonyms")
-                              (:file "list-qL")
-                              (:file "reader-macros")
-                              (:file "functions")
-                              ))
+                               (:file "synonyms")
+                               (:file "list-qL")
+                               (:file "reader-macros")
+                               (:file "functions")
+                               ))
 
                (:module "src-test"
                  :components (
-                              (:file "test")
-                              ))
+                               (:file "test")
+                               ))
 
                (:module "test-0"
                  :components (
-                              (:file "list-qL")
+                               (:file "list-qL")
+                               (:file "functions")
                                ))
 
                (:module "src-1"
                  :components (
                              ;; interface definition
-                               (:file "mk")
-                               (:file "parking")
+                               (:file "tm-mk")
+                               (:file "state")
                                (:file "tm-primitives")
                                (:file "tm-derived")
                                (:file "tm-quantifiers")
                                (:file "tm-subspace")
-                               (:file "tm-convert")
+                               (:file "convert")
 
                              ;; general properties
                                (:file "location")

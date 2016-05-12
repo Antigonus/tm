@@ -57,7 +57,6 @@ See LICENSE.txt
         (do-work)
         ))
 
-
 ;;--------------------------------------------------------------------------------
 ;; quaternion relationship among quantifiers
 ;;   q00 is existential quantification
@@ -351,7 +350,11 @@ See LICENSE.txt
     (as*-0 tm0 fill cont-ok cont-no-alloc)
     )
 
-  (defgeneric d* (tm &optional spill cont-rightmost cont-no-alloc)
+  (defgeneric d* (tm &optional spill 
+                  cont-ok 
+                  cont-not-supported
+                  cont-collision
+                  cont-no-alloc)
     (:documentation 
       "Deallocates all cells right of the head up to and including rightmost.
        If spill is not ∅, then the deallocated right side is moved to it.  Preferably the
@@ -364,7 +367,9 @@ See LICENSE.txt
       (tm tape-machine)
       &optional 
       spill
-      (cont-rightmost (be t))
+      (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (labels(
@@ -374,7 +379,9 @@ See LICENSE.txt
                    (declare (ignore object))
                    (funcall #'do-work)
                    )
-                 cont-rightmost
+                 cont-ok
+                 cont-not-supported
+                 cont-collision
                  cont-no-alloc
                  ))
              )

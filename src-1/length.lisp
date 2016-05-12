@@ -8,42 +8,58 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-
-(defgeneric singleton (tm))
-(defgeneric doubleton (tm))
-(defgeneric tripleton (tm))
-
 ;; (length tm0) <?> ( (length tm1) | n )
 (defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
+(defgeneric empty     (tm &optional cont-true cont-false))
+(defgeneric singleton (tm &optional cont-true cont-false))
+(defgeneric doubleton (tm &optional cont-true cont-false))
+(defgeneric tripleton (tm &optional cont-true cont-false))
+
 ;; specialized versions might be faster, otherwise would have made these functions.
 ;;
-  (defmethod singleton ((tm0 tape-machine))
-    (∧
-      (on-leftmost tm0)
-      (on-rightmost tm0)
-      ))
+  (defmethod empty ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
+    (declare (ignore cont-true))
+    (funcall cont-false)
+    )
+
+  (defmethod singleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
+    (let(
+          (tm1 (dup tm0))
+          )
+      (cue-leftmost tm1)
+      (on-rightmost tm1
+        cont-true
+        cont-false
+        )))
   
-  (defmethod doubleton ((tm0 tape-machine))
+  (defmethod doubleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
            (tm1 (dup tm0))
            )
       (cue-leftmost tm1)
-      (∧
-        (s tm1)
-        (on-rightmost tm1)
-        )))
+      (if (∧
+            (s tm1)
+            (on-rightmost tm1)
+            )
+      (funcall cont-true)
+      (funcall cont-false)
+      )))
   
-  (defmethod tripleton ((tm0 tape-machine))
+  (defmethod tripleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
            (tm1 (dup tm0))
            )
       (cue-leftmost tm1)
-      (∧
-        (s tm1)
-        (s tm1)
-        (on-rightmost tm1)
-        )))
+      (if
+        (∧
+          (s tm1)
+          (s tm1)
+          (on-rightmost tm1)
+          )
+      (funcall cont-true)
+      (funcall cont-false)
+      )))
 
 ;; for more than trippleton, use #'cue-leftmost #'length=
 

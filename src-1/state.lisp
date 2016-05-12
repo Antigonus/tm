@@ -11,32 +11,17 @@ cell are not.
 
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
 ;; head parking - moving the head into and out of the address space
 ;;
-
-  (defun parked (tm)
-    "True iff tape machine head is parked."
+  (defun unmounted (tm)
     (∨
       (typep tm 'tm-void)
       (typep tm 'tm-parked)
       ))
 
   ;; this is the more common call for synch
-  (defun not-parked (tm)
-    "True iff tape machine head is not parked."
-    (¬ (parked tm))
+  (defun mounted (tm)
+    (¬ (unmounted tm))
     )
-
-  ;; the return value from park should ignored
-  (defgeneric park (tm))
-
-  (defmethod park ((tm tape-machine))
-    (let(
-          (instance (mk 'tm-parked))
-          )
-      (init instance {:base tm}
-        #'do-nothing
-        #'cant-happen
-        )))
-

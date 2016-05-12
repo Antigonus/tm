@@ -138,14 +138,35 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'dealloc-not-supported)))
-      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (d (tape tm) spill
       cont-ok 
       cont-rightmost
       cont-not-supported
-      cont-entangled
+      cont-collision
       cont-no-alloc
       ))
+
+  ;; deallocates the leftmost cell
+  (defmethod d◧
+    (
+      (tm tm-breadth)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (d◧ (tape tm) spill
+      cont-ok 
+      cont-rightmost
+      cont-not-supported
+      cont-collision
+      cont-no-alloc
+      ))
+

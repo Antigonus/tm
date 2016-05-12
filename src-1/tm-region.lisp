@@ -163,6 +163,16 @@ See LICENSE.txt
     (r (HA tm))
     )
 
+  (defun r◧-region (tm)
+    ;; tm-region is not tm-void, so there will be a leftmost cell
+    (r-index (region-location (tape tm)) 1 #'echo #'cant-happen)
+    )
+
+  (defmethod r◧ ((tm tm-region) &optional cont-ok cont-void)
+    (declare (ignore cont-void))
+    (funcall cont-ok (r◧-region tm))
+    )
+
   (defmethod w ((tm tm-region) object)
     (w (HA tm) object)
     t
@@ -274,16 +284,15 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'dealloc-not-supported)))
-      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
       cont-rightmost
       (λ()
-        (d (HA tm) spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
+        (d (HA tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
         )))
-
 
   ;; deallocate the leftmost cell
   ;; we wouldn't be here if the region were void, thus there must be one cell
@@ -295,33 +304,11 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'dealloc-not-supported)))
-      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (let(
-          (location (region-location (tape tm)))
-          (leftmost (dup (region-location (tape tm)))) ; will be leftmost after being stepped
-          (rightmost (region-rightmost (tape tm)))
-          )
-      (s leftmost #'do-nothing #'cant-happen)
-      (let(
-            (dealloc-object (r leftmost))
-            )
-        (heads-on-same-cell leftmost rightmost
-          ;; collapse to void
-          (λ()
-            (when spill
-              (as spill dealloc-object 
-                #'do-nothing 
-                (λ()(return-from d◧ (funcall cont-no-alloc)))
-                ))
-            (change-class tm 'tm-void)
-            (init tm {:tm-type {'tm-region :base location}}
-              (λ() (funcall cont-ok dealloc-object))
-              #'cant-happen
-              ))
-          ;;normal dealloc
-          (λ()
-            (d location spill cont-ok cont-rightmost cont-not-supported cont-entangled cont-no-alloc)
-            )))))
+    ;; tm is not void (or we wouldn't be here) so location can not be rightmost
+    (d (region-location (tape tm)) spill 
+      cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    )

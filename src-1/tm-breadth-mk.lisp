@@ -15,6 +15,11 @@ See LICENSE.txt
 ;;
   (defclass tm-breadth (tape-machine)())
 
+  (defstruct tm-breadth-parms
+    base ; machine being traversed
+    history ; backtrack buffer
+    )
+
   ;; base is another tape machine
   (defmethod init 
     (

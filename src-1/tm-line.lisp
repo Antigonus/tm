@@ -24,7 +24,7 @@ See LICENSE.txt
 ;;
   (defclass tm-line (tape-machine)())
 
-  (defstruct line
+  (defstruct tm-line-parms
     min ; the value for the leftmost cell
     max ; when ∅ there is no maximum 
       Δ ; a step increment
@@ -48,7 +48,8 @@ See LICENSE.txt
         (destructuring-bind
           (&optional (min 0) (max ∅) (Δ 1)) seed
           (setf (HA tm) min)
-          (setf (tape tm) (make-line :min min :max max :Δ Δ))
+          (setf (tape tm) ∅) ; some generators may create a tape as a cache
+          (setf (parameters tm) (make-tm-line-parms :min min :max max :Δ Δ))
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
@@ -66,15 +67,13 @@ See LICENSE.txt
     )
  
   (defmethod cue-leftmost  ((tm tm-line)) 
-    (setf (HA tm) (car (tape tm)))
+    (setf (HA tm) (tm-line-parms-min (parameters tm)))
     t
     )
 
-  ;; Interesting problem because the cons cell for tape
-  ;; will copy and not be eq, for two duped machines.
-  ;; The line is read only, so perhaps just a head number match
-  ;; is good enough to say they are on the same cell.
-  ;; We will go with that.
+  ;; Interesting problem because the cons cell for tape will copy and not be eq, for two
+  ;; duped machines.  The line is read only, so perhaps just a head number match is good
+  ;; enough to say they are on the same cell.  We will go with that.
   (defun heads-on-same-cell-line-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧
@@ -116,22 +115,38 @@ See LICENSE.txt
       (cont-rightmost (be ∅))
       )
     (let(
-          (sup (line-max (tape tm)))
-          (Δ   (line-Δ (tape tm)))
+          (max (tm-line-parms-max (parameters tm)))
+          (Δ   (tm-line-parms-Δ (parameters tm)))
           )
-      (if
-        (∧
-          sup
-          (> 
-            (+ (HA tm) Δ)
-            sup
-            )
-          )
-        (funcall cont-rightmost)
+      (if max
+        (let(
+              (threshold (- max Δ))
+              )
+          (if
+            (> (HA tm) threshold)
+            (funcall cont-rightmost)
+            (progn
+              (setf (HA tm) (+ (HA tm) Δ))
+              (funcall cont-ok)
+              )))
         (progn
           (setf (HA tm) (+ (HA tm) Δ))
           (funcall cont-ok)
-          ))))
+          ))
+      ))
+
+  ;; allocate a cell
+  (defmethod a◧
+    (
+      (tm tm-line)
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (be ∅))
+      )
+    (declare (ignore tm object cont-ok cont-no-alloc))
+    (error 'not-supported) ; this needs to be a continuation ...
+    )
 
   ;; allocate a cell
   (defmethod a
@@ -143,7 +158,7 @@ See LICENSE.txt
       (cont-no-alloc (be ∅))
       )
     (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'tm-read-only)
+    (error 'not-supported)
     )
 
   ;; deallocates the cell just to the right of the head
@@ -154,16 +169,39 @@ See LICENSE.txt
       spill
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'dealloc-not-supported)))
-      (cont-entangled (λ()(error 'dealloc-entangled)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore
                spill
                cont-ok 
                cont-rightmost
-               cont-entangled
+               cont-collision
                cont-no-alloc
                ))
     (funcall cont-not-supported)
     )
+
+  ;; deallocates the leftmost cell
+  (defmethod d◧
+    (
+      (tm tm-line)
+      &optional 
+      spill
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-collision (λ()(error 'dealloc-entangled)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (declare (ignore
+               spill
+               cont-ok 
+               cont-rightmost
+               cont-collision
+               cont-no-alloc
+               ))
+    (funcall cont-not-supported)
+    )
+
