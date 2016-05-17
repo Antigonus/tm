@@ -161,7 +161,7 @@ See LICENSE.txt
       ))
 
   ;; deallocates the leftmost cell
-  (defmethod d◧
+  (defmethod d◧-0
     (
       (tm tm-depth)
       &optional 
@@ -172,7 +172,7 @@ See LICENSE.txt
       (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d◧ (tape tm) spill
+    (d◧-0 (tape tm) spill
       cont-ok 
       cont-rightmost
       cont-not-supported

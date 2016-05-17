@@ -26,38 +26,6 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
 ;;
   (defclass tm-void (tape-machine)())
 
-  (defun ∀-void (tm &optional (cont-success t) (cont-fail ∅))
-    (let(
-          (entanglements (entanglements tm))
-          )
-      (∀ entanglements 
-        (λ(e) ; predicate
-          (let(
-                (entangled-machine (r e))
-                )
-            (∧
-              (typep entangled-machine 'tm-parked)
-              (singleton entangled-machine)
-              )))
-        (λ() ; true continuation
-          (cue-leftmost entanglements)
-          (⟳(λ(cont-loop cont-return)
-              (let(
-                    (entangled-machine (r entanglements))
-                    )
-                (change-class entangled-machine 'tm-void)
-                ;; head continues to hold the type
-                (setf (tape entangled-machine) ∅) ; frees the tape memory
-                ;; entanglements are preserved
-                )
-              (s entanglements cont-loop cont-return)
-              ))
-          (funcall cont-success)
-          )
-        (λ() ; false continuation
-          (funcall cont-fail)
-          ))))
-
   (defmethod init 
     (
       (tm tm-void)
@@ -202,8 +170,8 @@ Calling alloc, #'a, will cause the machine to transition to 'tm-parked.
     (a◧ tm object cont-ok cont-no-alloc)
     )
 
-  ;; if we repetitively delete cells from a tape, then eventually we will get cont-rightmost 
-  ;; now, if repetitiely delete cells from a parked tape, then the same thing, cont-rightmost
+  ;; if we repeatedly delete cells from a tape, then eventually we will get cont-rightmost 
+  ;; now, if repeatedly delete cells from a parked tape, then the same thing, cont-rightmost
   (defmethod d
     (
       (tm tm-void)

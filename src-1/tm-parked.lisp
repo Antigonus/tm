@@ -91,6 +91,40 @@
     (error 'parked-access)
     )
 
+  (defmethod r◧
+    (
+      (tm tm-parked)
+      &optional
+      (cont-ok #'echo) 
+      (cont-void (λ()(error 'void-access)))
+      )
+    (let(
+          (tm1 (dup-0 tm))
+          )
+      (change-class tm1 (HA tm))
+      (r◧ tm1 cont-ok cont-void)
+      ))
+
+  (defmethod r-index
+    (
+      (tm tm-parked)
+      index
+      &optional 
+      (cont-ok #'echo) 
+      (cont-index-beyond-rightmost
+        (λ() (error 'tm-read-beyond-rightmost :text "attempt to read beyond the rightmost allocated cell of the tape") ∅)
+        )
+      )
+    (if 
+      (= index 0)
+      (error 'parked-access)
+      (let(
+            (tm1 (dup-0 tm))
+            )
+        (cue-leftmost tm1)
+        (r-index tm1 (1- index) cont-ok cont-index-beyond-rightmost)
+        )))
+
   (defmethod w ((tm tm-parked) object)
     (declare (ignore tm object))
     (error 'parked-access)
@@ -195,7 +229,6 @@
     ;; parked machines are not void, so there will be a leftmost (never cont-rightmost)
     ;; parked machines that are singleton can always transition (to void i.e. never cont-not-supported)
     ;; parked machines don't have a head on the tape, so never cont-collision
-    (declare (ignore cont-rightmost))
     (r◧ tm
       (λ(dealloc-object)
         (singleton tm
@@ -216,7 +249,7 @@
                   (tm1 (dup tm))
                   )
               (change-class tm1 (HA tm1))
-              (d◧ tm1 cont-ok cont-not-supported cont-collision cont-no-alloc)
+              (d◧ tm1 spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
               ))))
       ;; read fails
       #'cant-happen ; can not fail because parked machines are not void

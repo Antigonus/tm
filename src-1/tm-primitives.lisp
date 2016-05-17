@@ -72,6 +72,24 @@ All tape machine implmentations must specialize these functions.
       "
       ))
 
+  (defgeneric aw (tm object &optional cont-ok cont-no-alloc)
+    (:documentation
+      "Like #'a but the cell allocated for holding the object will be automatically
+       deallocated when the contained object is deallocated.
+       "
+      ))
+  
+  ;; a◧ implementations must work even when the tape is initially ∅, as this will be
+  ;; the case when a machine is expanded from tm-void.
+  (defgeneric a◧w (tm object &optional cont-ok cont-no-alloc)
+    (:documentation
+      "Like #'a◧ but the cell allocated for holding the object will be automatically
+       deallocated when the contained object is deallocated.
+       "
+      ))
+
+
+
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
@@ -107,7 +125,7 @@ All tape machine implmentations must specialize these functions.
        "
       ))
 
-  (defgeneric d◧ (tm &optional spill 
+  (defgeneric d◧-0 (tm &optional spill 
                    cont-ok
                    cont-rightmost
                    cont-not-supported
@@ -115,11 +133,14 @@ All tape machine implmentations must specialize these functions.
                    cont-no-alloc
                    )
     (:documentation 
-      "Similar to #'d but the leftmost cell is deallocated independent of where the head
-       is located. If the tape is parked and singleton, calling d◧ will cause the machine
-       to collapse to void.
+      "Internal, deallocates the leftmost cell only on this machine.  Entangled
+       machines will also have to be updated.
        "
       ))
+
+Similar to #'d but the leftmost cell is deallocated independent of where the head
+       is located. If the tape is parked and singleton, calling d◧ will cause the machine
+       to collapse to void.
 
 ;;--------------------------------------------------------------------------------
 ;; state transition
@@ -143,15 +164,18 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;
-  (defgeneric cue-to-1
+;;   we need a layer 0 with no entanglement accounting in order to implement the
+;;   entanglement list functions sans circular references.
+;;
+  (defgeneric cue-to-0
     (
       tm-cued ; object affected, contents get clobbered
       tm-orig ; remains undisturbed
       )
-    (:documentation "Used internally.  Common code between cue-to and dup.")
+    (:documentation "Used internally to make copies sans entanglement accounting.")
     )
 
-  (defmethod cue-to-1
+  (defmethod cue-to-0
     (
       tm-cued 
       (tm-orig tape-machine)
@@ -159,8 +183,7 @@ All tape machine implmentations must specialize these functions.
     (setf (HA tm-cued) (HA tm-orig))
     (setf (tape tm-cued) (tape tm-orig))
     (setf (parameters tm-cued) (parameters tm-orig))
-    (setf (entanglements tm-cued) (entanglements tm-orig))
-    (a (entanglements tm-cued) tm-cued #'do-nothing #'cant-happen)
+    (setf (entanglements tm-cued) ∅)
     tm-cued
     )
 

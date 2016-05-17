@@ -76,6 +76,8 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; quantification
 ;;
+;; careful - the quantifiers start where the head is located, they do not cue-leftmost first
+;;
   (defun ∃ 
     (
       tm
@@ -379,7 +381,7 @@ See LICENSE.txt
                    (declare (ignore object))
                    (funcall #'do-work)
                    )
-                 cont-ok
+                 cont-ok ; this is at rightmost continuation for #'d
                  cont-not-supported
                  cont-collision
                  cont-no-alloc

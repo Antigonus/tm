@@ -25,10 +25,8 @@ See LICENSE.txt
         (= 6 (r-index k 0))
         (= 7 (r-index k 1))
         (= 8 (r-index k 2))
-        (= 1 (r-index k 3
-               (λ(x)(declare (ignore x)) ∅)
-               #'echo
-               )))))
+        (r-index k 3 (be ∅) (be t))
+        )))
   (test-hook test-r-index-0)
 
   (defun test-d◧-0 ()

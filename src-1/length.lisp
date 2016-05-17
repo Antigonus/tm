@@ -3,8 +3,6 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
   
-  Bounded length checks.
-
 |#
 (in-package #:tm)
 
@@ -25,7 +23,7 @@ See LICENSE.txt
 
   (defmethod singleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let(
-          (tm1 (dup tm0))
+          (tm1 (dup-0 tm0))
           )
       (cue-leftmost tm1)
       (on-rightmost tm1
@@ -35,7 +33,7 @@ See LICENSE.txt
   
   (defmethod doubleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
-           (tm1 (dup tm0))
+           (tm1 (dup-0 tm0))
            )
       (cue-leftmost tm1)
       (if (∧
@@ -48,7 +46,7 @@ See LICENSE.txt
   
   (defmethod tripleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
-           (tm1 (dup tm0))
+           (tm1 (dup-0 tm0))
            )
       (cue-leftmost tm1)
       (if
@@ -77,7 +75,7 @@ See LICENSE.txt
       (cont-same   (be 'same))
       (cont-shorter (be 'shorter))
       )
-    (let ((tm0-1 (dup tm0)))
+    (let ((tm0-1 (dup-0 tm0)))
       (⟳ (λ(cont-loop cont-return) 
            (when (≤ n 0) (return-from length-cmp (funcall cont-longer)))
            (decf n)
@@ -100,8 +98,8 @@ See LICENSE.txt
       (cont-shorter (be 'shorter))
       )
     (let(
-          (tma-1 (dup tma))
-          (tmb-1 (dup tmb))
+          (tma-1 (dup-0 tma))
+          (tmb-1 (dup-0 tmb))
           )
       (let(
             (tms (mount {tma-1 tmb-1}))

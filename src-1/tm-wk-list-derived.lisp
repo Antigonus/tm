@@ -12,49 +12,49 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+
+;;--------------------------------------------------------------------------------
+;; length
+;;
+  (defun tm-list-singleton (tm0)
+    (¬ (cdr (tape tm0)))
+    )
+
+  (defmethod singleton 
+    (
+      (tm0 tm-list)
+      &optional
+      (cont-true (be t)) 
+      (cont-false (be ∅))
+      )
+    (if 
+      (tm-list-singleton tm0)
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+
+  (defun tm-list-doubleton (tm0)
+    (∧
+      (cdr (tape tm0))
+      (¬ (cddr (tape tm0)))
+    ))
+
+  (defmethod doubleton 
+    (
+      (tm0 tm-list)
+      &optional
+      (cont-true (be t)) 
+      (cont-false (be ∅))
+      )
+    (if
+      (tm-list-doubleton tm0)
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-
-  ;; disentangle uses tm-list's r-index, so I've defined this specific version so as not
-  ;; to create any entangled tms in the function.
-  (defun r-index-tm-list
-    (
-      tm
-      index
-      &optional 
-      (cont-ok #'echo) 
-      (cont-index-beyond-rightmost
-        (λ() (error 'tm-read-beyond-rightmost :text "attempt to read beyond the rightmost allocated cell of the tape") ∅)
-        )
-      )
-    (let(
-          (node (HA tm)) ; this will be non-nil because tm is not void
-          )
-      (dotimes (i index)
-        (if 
-          (cdr node)
-          (setq node (cdr node))
-          (return-from r-index-tm-list (funcall cont-index-beyond-rightmost))
-          ))
-      (funcall cont-ok (car node))
-      ))
-
-  (defmethod r-index
-    (
-      (tm tm-list)
-      index
-      &optional 
-      (cont-ok #'echo) 
-      (cont-index-beyond-rightmost
-        (λ() (error 'tm-read-beyond-rightmost :text "attempt to read beyond the rightmost allocated cell of the tape") ∅)
-        )
-      )
-    (r-index-tm-list tm index cont-ok cont-index-beyond-rightmost)
-    )
-
-  (defun r◧-tm-list (tm) (car (tape tm)))
-
   (defmethod r◧
     (
       (tm tm-list)
@@ -63,7 +63,7 @@ See LICENSE.txt
       (cont-void (λ()(error 'void-access)))
       )
     (declare (ignore cont-void))
-    (funcall cont-ok (r◧-tm-list tm))
+    (car (tape tm))
     )
 
 ;;--------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ See LICENSE.txt
 
   (defun tm-list-on-leftmost (tm0  &optional (cont-true (be t)) (cont-false (be ∅)))
     (if
-      (eq (tape tm0) (HA tm0))
+      (eq (cdr (tape tm0)) (cdr (HA tm0)))
       (funcall cont-true)
       (funcall cont-false)
       ))

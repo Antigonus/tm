@@ -35,7 +35,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (let(
-          (tm1 (dup tm0))
+          (tm1 (dup-0 tm0))
           )
       (cue-leftmost tm1)
       (s tm1
@@ -62,7 +62,7 @@ See LICENSE.txt
       ((= n 0) (on-leftmost tm0 cont-true cont-false))
       (t
         (let(
-              (tm1 (dup tm0))
+              (tm1 (dup-0 tm0))
               )
           (cue-leftmost tm1)
           (sn tm1 n
@@ -83,7 +83,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (let(
-          (tm1 (dup tm0))
+          (tm1 (dup-0 tm0))
           )
       (s tm1)
       (on-rightmost tm1 cont-true cont-false)
@@ -105,7 +105,7 @@ See LICENSE.txt
       ((= n 0) (on-rightmost tm0 cont-true cont-false))
       (t
         (let(
-              (tm1 (dup tm0))
+              (tm1 (dup-0 tm0))
               )
           (sn tm1 (- n)
             (λ()(on-rightmost tm1 cont-true cont-false))
@@ -154,7 +154,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (let(
-          (tm0-dup (dup tm0))
+          (tm0-dup (dup-0 tm0))
           )
       (s tm0-dup
         (λ() (heads-on-same-cell tm0-dup tm1 cont-true cont-false))
@@ -184,7 +184,7 @@ See LICENSE.txt
         )
       (t
         (let(
-              (tm0-dup (dup tm0))
+              (tm0-dup (dup-0 tm0))
               )
           (sn tm0-dup n
             (λ() (heads-on-same-cell tm0-dup tm1 cont-true cont-false))

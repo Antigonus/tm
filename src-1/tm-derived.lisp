@@ -19,14 +19,41 @@ of the primitives.
 
 ;;--------------------------------------------------------------------------------
 ;; tape-machine duplication
+;;   we need a layer 0 with no entanglement accounting in order to implement the
+;;   entanglement list functions sans circular references.
 ;;
+  (defun dup-0 (tm-orig)
+    "Creates a new machines that is a copy of another, sans entanglement accounting."
+    (let(
+          (tm-cued (make-instance (type-of tm-orig)))
+          )
+      (cue-to-0 tm-cued tm-orig)
+      tm-cued
+      ))
+
+  ;; adds entanglement accounting to cue-to-0 result
+  (defun cue-to-1
+    (
+      tm-cued 
+      tm-orig
+      )
+    (cue-to-0 tm-cued tm-orig)
+    (let(
+          (es (entanglements tm-orig))
+          )
+      (setf (entanglements tm-cued) es)
+      (when es (a (entanglements tm-cued) tm-cued #'do-nothing #'cant-happen))
+      )
+    tm-cued
+    )
+
   ;; this works when the head is a value, such as an integer or cons.  However, if it is a
   ;; reference, then a deeper copy will be needed. Note for example, tm-region
   (defun cue-to (tm-cued tm-orig)
-    "tm-cued is rewritten.  It will be change-class'ed to the same type as tm-orig, it
-     will share the same tape, entanglesments, and parameters as tm-orig, though have an
-     indendent head.  The head is initially on the same cell as that of tm-orig.  tm-cued
-     is added to the entanglement list.
+    "tm-cued machine will be rewritten.  It will be change-class'ed to the same type as
+     tm-orig, it will share the same tape, entanglesments, and parameters as tm-orig,
+     though have an indendent head.  The head is initially on the same cell as that of
+     tm-orig.  tm-cued is added to the entanglement list.
      "
     (disentangle tm-cued) ; the entangled machines will no longer see tm-cued
     (change-class tm-cued (type-of tm-orig))
@@ -96,7 +123,7 @@ of the primitives.
         )
       )
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (sn tm1 index
         (λ()(funcall cont-ok (r tm1)))
@@ -117,11 +144,13 @@ of the primitives.
       )
     (declare (ignore cont-void))
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (cue-leftmost tm1)
-      (funcall cont-ok (r tm1))
-      ))
+      (let((object (r tm1)))
+        (disentangle tm1)
+        (funcall cont-ok object)
+        )))
 
   (defgeneric w-index (tm object index &optional cont-ok cont-index-beyond-rightmost))
 
@@ -135,7 +164,7 @@ of the primitives.
       (cont-index-beyond-rightmost (be ∅))
       )
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (sn tm index
         (λ() (w tm1 object) (funcall cont-ok))
@@ -175,7 +204,7 @@ of the primitives.
       (cont-false (be ∅))
       )
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (cue-leftmost tm1)
       (heads-on-same-cell tm1 tm cont-true cont-false)
@@ -194,7 +223,7 @@ of the primitives.
       (cont-false (be ∅))
       )
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (s tm1 cont-false cont-true)
       ))
@@ -294,7 +323,7 @@ of the primitives.
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
-          (tm1 (dup tm))
+          (tm1 (dup-0 tm))
           )
       (cue-rightmost tm1)
       (a tm1 object cont-ok cont-no-alloc)
@@ -346,6 +375,80 @@ of the primitives.
         (funcall cont-ok)
         )
       cont-no-alloc
+      ))
+
+;;--------------------------------------------------------------------------------
+;; cell deallocation
+;;
+
+;;also fix a◧
+
+
+  (defun d◧-∀-void (entanglements)
+    (⟳(λ(cont-loop cont-return)
+        (let(
+              (entangled-machine (r entanglements))
+              )
+          (change-class entangled-machine 'tm-void)
+          ;; head continues to hold the type
+          (setf (tape entangled-machine) ∅) ; frees the tape memory
+          ;; entanglements are preserved
+          )
+        (s entanglements cont-loop cont-return)
+        )))
+
+  (defun d◧-∀-0 (entanglements spill cont-ok cont-rightmost cont-not-supported cont-collisions cont-no-alloc)
+    (⟳(λ(cont-loop cont-return)
+        (let(
+              (entangled-machine (r entanglements))
+              )
+          (d◧-0 entangled-machine spill cont-ok cont-rightmost cont-not-supported cont-collisions cont-no-alloc)
+          (s entanglements cont-loop cont-return)
+          ))))
+
+  (defun d◧ (
+              tm 
+              &optional 
+              spill 
+              (cont-ok #'echo)
+              (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+              (cont-not-supported (λ()(error 'not-supported)))
+              (cont-collision (λ()(error 'dealloc-entangled)))
+              (cont-no-alloc (λ()(error 'alloc-fail)))
+              )
+      " Similar to #'d but the leftmost cell is deallocated independent of where the head
+       is located. If the tape is singleton, calling d◧ will cause the machine to collapse
+       to void.
+       "
+    (r◧ tm
+      (λ(dealloc-object)
+        (∃-collision◧ tm
+          cont-collision
+          (λ() 
+            (let(
+                  (entanglements (entanglements tm))
+                  )
+              (cue-leftmost entanglements)
+              (singleton tm 
+                (λ() ; is singleton-tape, goes to void
+                  (if
+                    spill 
+                    (as spill dealloc-object
+                      (λ() (d◧-∀-void entanglements))
+                      cont-no-alloc
+                      )
+                    (d◧-∀-void entanglements)
+                    ))
+                (λ() ; not singleton
+                  (if
+                    spill 
+                    (as spill dealloc-object
+                      (λ() (d◧-∀-0 entanglements spill cont-ok cont-rightmost cont-not-supported cont-collisions cont-no-alloc))
+                      cont-no-alloc
+                      )
+                    (d◧-∀-0 entanglements spill cont-ok cont-rightmost cont-not-supported cont-collisions cont-no-alloc))
+                    ))))))
+      cont-not-supported
       ))
 
 ;;--------------------------------------------------------------------------------

@@ -82,6 +82,7 @@ See LICENSE.txt
                                (:file "tm-list-mk")
                                (:file "tm-list-primitives")
                                (:file "tm-list-derived")
+                               (:file "tm-list-length")
                                (:file "tm-list-convert")
 
                              ;; dataflow

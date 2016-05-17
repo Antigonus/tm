@@ -96,34 +96,29 @@ Region
   value is a tape machine, so dup would just make another reference to the same machine.
   It is this case that caused us to move dup from a function to a dispatched method.
 
+Dup and entanglement
+
+  It is common for a routine to create a copy of a tape machine within a lexical scope so
+  as not to perturb the state of the machine passed in.  This is typically done by calling
+  dup.  The dup machine is then entangled.
+
+  When the dup machine reaches the end of scope it is released for garbage collection.  
+  Hence, it initially seemed like a good way to handle dup entanglements was to hold
+  them with weak pointers.  The problem with that approach is that we don't know when
+  the garbage collector will get around to releasing it.  Calling the garbage collector
+  to force the release is too expensive.  (And in our tests using a portable weak-pointer
+  library, even after calling gc the entanglments weak pointer still pointed at the
+  dup machine.  This is confusing, but in any case gc is not a good answer).
+
+  Hence, we are forced to adopt the discipline of manually disentangling dup machines
+  before they leave scope.  Currently we use disentangle to do this, though it
+  would be better to provide a macro form analogous to let, that does the dup and
+  the cleanup, even in the presence of exceptions.
+  
+
 |#
 
 (in-package #:tm)
-
-;;--------------------------------------------------------------------------------
-;; modifying the entangled set
-;;
-  (defun disentangle 
-    (
-      tm 
-      &optional 
-      (cont-success (be t))
-      (cont-fail (λ()(error 'malformed-entanglements)))
-      )
-    "Removes tm from the associated entanglements set. This is done, for example, 
-     in the cue-to function to release the instance for reuse.  It is analogous
-     to the weak pointer going to null when a tm is deallocated.
-     "
-    (∃ (entanglements tm) 
-      (λ(e)
-        (∧
-          (eq tm (r e))
-          (∨ (w e ∅) t)
-          ))
-      cont-success
-      cont-fail ; each machine is entangled with itself, so typically this should not happen
-      ))
-
 
 ;;--------------------------------------------------------------------------------
 ;; detecting a collision
@@ -132,7 +127,6 @@ Region
     "tm0 and tm1 are distinct machines, and have their heads on the same cell."
     (if
       (∧
-        tm0 tm1
         (¬ (eq tm0 tm1))
         (heads-on-same-cell tm0 tm1)
         )
@@ -142,10 +136,15 @@ Region
 
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "tm0 collides with an entangled machine."
-    (∃ (entanglements tm) (λ(e)(collision tm (r e)))
-      cont-true
-      cont-false
-      ))
+    (let(
+          (es (entanglements tm))
+          )
+      (unless es (return-from ∃-collision (funcall cont-false)))
+      (cue-leftmost es)
+      (∃ es (λ(e)(collision tm (r e)))
+        cont-true
+        cont-false
+        )))
 
   (defun ∃-collision-s (tm0 &optional (cont-true (be t)) (cont-false (be ∅)))
     "if tm0 were to be stepped, it would collide with an entangled machine"
@@ -161,11 +160,154 @@ Region
 
   (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "an entangled machine is on leftmost."
-    (∃ (entanglements tm) (λ(e)(on-leftmost (r e)))
-      cont-true
-      cont-false
+    (let(
+          (es (entanglements tm))
+          )
+      (unless es (return-from ∃-collision◧ (funcall cont-false)))
+      (cue-leftmost es)
+      (∃ es (λ(e)(on-leftmost (r e)))
+        cont-true
+        cont-false
+        )))
+
+;;--------------------------------------------------------------------------------
+;; removing an entanglement
+;; 
+;;
+  ;; This is built specifically around entanglements that use tm-list so as to avoid
+  ;; circular creation of entanglements. None of the functions used here create
+  ;; entanglements.
+  (defun disentangle (tm)
+    "Removes tm from the associated entanglements set. This is done, for example, 
+     in the cue-to function to release the instance for reuse.
+     "
+    (let(
+          (es (entanglements tm)) ; es must be type tm-list
+          )
+      (unless es (return-from disentangle))
+      (let(
+            (e (r◧-tm-list es))
+            )
+        (when 
+          (eq e tm)
+          (d◧-tm-list es)
+          (return-from disentangle)
+          ))
+      (cue-leftmost es)
+      (⟳(λ(cont-loop cont-return)
+          (r-index-tm-list es 1
+            (λ(e) 
+              (when (eq e tm) 
+                (d es)
+                (return-from disentangle) ; found it, so return
+                ))
+            (λ() ; typical return, index fails because we are on rightmost
+              (return-from disentangle)
+              ))
+          (s es cont-loop cont-return) ; cont-return case for e not found
+          ))
       ))
 
+  (defun test-disentangle-0 ()
+    (let(
+          (a (mount {1 2 3}))
+          )
+      (disentangle a)
+      (empty (entanglements a))
+      ))
+             
+;;--------------------------------------------------------------------------------
+;; entanglement scope
+;;
+;; (with-dups ((dup0 tm0) (dup1 tm1) ..) body-form ..)
+;;
+;; expands to:
+;; 
+;; (let(dup0 dup1 ..)
+;;    (unwind-protect
+;;      (progn
+;;         (setq dup0 (dup mach0))
+;;         (setq dup1 (dup mach1))
+;;         ..
+;;         body
+;;      )
+;;      (when dup0 (disentangle dup0))
+;;      (when dup1 (disentangle dup1))
+;;          ..
+;;    )
+;;
+;;  this expansion works, but it would be higher performance to not lose the
+;;  the dup references up top, then to just deallocate them directly
+;;
+  (defun make-dup-decl (defs)
+    (let(
+          (tm-defs (mount defs))
+          (dup-decl (mk 'tm-list))
+          )
+      (⟳(λ(cont-loop cont-return)
+          (let(
+                (dup-name (car (r tm-defs)))
+                )
+            (as dup-decl dup-name)
+            )
+          (s tm-defs cont-loop cont-return)
+          ))
+      (unmount dup-decl)
+      ))
+
+  (defun make-dup-prog (defs)
+    (let(
+          (tm-defs (mount defs))
+          (dup-prog (mk 'tm-list))
+          )
+      (⟳(λ(cont-loop cont-return)
+          (let(
+                (dup-name (car (r tm-defs)))
+                (mach-name (cadr (r tm-defs)))
+                )
+            (as dup-prog `(setq ,dup-name (dup ,mach-name)))
+            )
+          (s tm-defs cont-loop cont-return)
+          ))
+      (unmount dup-prog)
+      ))
+
+  (defun make-dis-prog (defs)
+    (let(
+          (tm-defs (mount defs))
+          (dis-prog (mk 'tm-list))
+          )
+      (⟳(λ(cont-loop cont-return)
+          (let(
+                (dup-name (car (r tm-defs)))
+                )
+            (as dis-prog `(when ,dup-name (disentangle ,dup-name)))
+            )
+          (s tm-defs cont-loop cont-return)
+          ))
+      (unmount dis-prog)
+      ))
+
+  (defmacro with-dups (defs &body body)
+    (unless defs (return-from with-dups ∅))
+    (let(
+          (dup-decl (make-dup-decl defs))
+          (dup-prog (make-dup-prog defs))
+          (dis-prog (make-dis-prog defs))
+          )
+      (let(
+            (prog 
+              `(let ,dup-decl
+                 (unwind-protect
+                   (progn
+                     ,@dup-prog
+                     ,@body
+                     )
+                   ,@dis-prog
+                   )))
+            )
+        ;; (pprint prog)
+        prog
+        )))
 
 
-         

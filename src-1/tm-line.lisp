@@ -184,7 +184,7 @@ See LICENSE.txt
     )
 
   ;; deallocates the leftmost cell
-  (defmethod d◧
+  (defmethod d◧-0
     (
       (tm tm-line)
       &optional 

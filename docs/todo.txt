@@ -89,4 +89,9 @@ when a cell is deallocated?  do cells get new addresses?  or keep the old ones?
 28. transforms, tm-depth, tm-breadth .. what is there parked and void and back
 behavior .. currently tm-depth and tm-breadth can not be parked or voided.
 
+29. umount should descend into subspaces (not leave any tms)
 
+30. with-dups should keep a enganglements list pointer for the bottom of
+  the dups stack, and then just pop them all off in one step at the end.
+  The current approach is built from existing functions just to get
+  the functionality in place.
