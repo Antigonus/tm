@@ -184,24 +184,13 @@ See LICENSE.txt
     )
 
   ;; deallocates the leftmost cell
-  (defmethod d◧-0
+   (defmethod d◧-0
     (
       (tm tm-line)
       &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-ok (be t))
       (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore
-               spill
-               cont-ok 
-               cont-rightmost
-               cont-collision
-               cont-no-alloc
-               ))
-    (funcall cont-not-supported)
+    (declare (ignore cont-ok))
+    (funcall cont-no-supported)
     )
-

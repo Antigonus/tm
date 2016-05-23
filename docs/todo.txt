@@ -95,3 +95,6 @@ behavior .. currently tm-depth and tm-breadth can not be parked or voided.
   the dups stack, and then just pop them all off in one step at the end.
   The current approach is built from existing functions just to get
   the functionality in place.
+
+31. d◧-0 on region will collide with the rightmost marker when attempting
+to deallocate the last cell, need to fix this.

@@ -155,18 +155,9 @@ See LICENSE.txt
     (
       (tm tm-breadth)
       &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-ok (be t))
       (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d◧-0 (tape tm) spill
-      cont-ok 
-      cont-rightmost
-      cont-not-supported
-      cont-collision
-      cont-no-alloc
-      ))
-
+    (declare (ignore cont-ok))
+    (funcall cont-no-supported)
+    )

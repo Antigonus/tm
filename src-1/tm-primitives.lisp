@@ -12,81 +12,116 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defgeneric r (tm)
-    (:documentation 
-      "Given a tape machine, returns the object from the cell under the tape head.")
+  (defun r
+    (
+      tm
+      &optional
+      (cont-ok #'echo)
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "Given a tape machine, returns the object from the cell under the tape head."
+    (r-0 tm (state tm) cont-ok cont-parked)
     )
+  (defgeneric r-0 (tm state cont-ok cont-parked))
 
-  (defgeneric w (tm object)
-    (:documentation "Writes object into the cell under the tape head.")
+  (defun w 
+    (
+      tm
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "Writes object into the cell under the tape head."
+    (w-0 tm (state tm) object cont-ok cont-parked)
     )
+  (defgeneric w-0 (tm state object cont-ok cont-parked))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defgeneric cue-leftmost (tm)
-    (:documentation 
-      "Cue tm's head to the leftmost cell.
-       "
-      ))
+  (defun cue-leftmost 
+    (
+      tm
+      &optional
+      (cont-ok (be t))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "Cue tm's head to the leftmost cell."
+    (cue-leftmost-0 tm (state tm) cont-ok cont-parked)
+    )
+  (defgeneric cue-leftmost-0 (tm state cont-ok cont-parked))
 
 ;;--------------------------------------------------------------------------------
 ;; head location predicate
 ;;
-  (defgeneric heads-on-same-cell (tm0 tm1 &optional cont-true cont-false)
-    (:documentation "tm0 and tm1 heads are on the same cell")
+  (defun heads-on-same-cell 
+    (
+      tm0 
+      tm1
+      &optional 
+      (cont-true (be t))
+      (cont-false (be ∅))
+      (cont-parked  (be ∅))
+      )
+    "tm0 and tm1 heads are on the same cell"
+    (heads-on-same-cell-0 tm0 (state tm0) tm1 (state tm1) cont-true cont-false cont-parked)
     )
+  (defgeneric heads-on-same-cell-0 (tm-0 state-tm0 tm1 state-tm1 cont-true cont-false))
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defgeneric s (tm &optional cont-ok cont-rightmost)
-    (:documentation 
-      "If the head is on a cell, and there is a right neighbor, puts the head on the
+  (defun s
+    (
+      tm
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      )
+    "If the head is on a cell, and there is a right neighbor, puts the head on the
        right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
-      "))
+      "
+    (s-0 tm (state tm) cont-ok cont-rightmost)
+    )
+  (defgeneric s-0 (tm state cont-ok cont-rightmost))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-;; Entanglement accounting complicates the swap trick for implementing a◧, so I have made
-;; it a primitive.
-;;
-  (defgeneric a (tm object &optional cont-ok cont-no-alloc)
-    (:documentation
-      "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
+  (defun a◧
+    (
+      tm
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    "Allocates a new leftmost cell on this machine. The old leftmost becomes the new
+      cell's right neighbor.
+      "
+    (a◧-0 tm (state tm) object cont-ok cont-no-alloc)
+    )
+  (defgeneric a◧-0 (tm state object cont-ok cont-no-alloc))
+
+  (defun a
+    (
+      tm
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
        it to the right of the cell the head is currently on.  The newly allocated cell
        initialized with the given object.  There are two reasons allocation might fail, a)
        because memory has been exhausted, b) because the tape does not support structural
        changes. (The current implementation throws a system error when the heap is
        depleted.)
        "
-      ))
-  
-  ;; a◧ implementations must work even when the tape is initially ∅, as this will be
-  ;; the case when a machine is expanded from tm-void.
-  (defgeneric a◧ (tm object &optional cont-ok cont-no-alloc)
-    (:documentation
-      "Allocates a new leftmost cell. The old leftmost becomes the new cell's right
-      neighbor.
-      "
-      ))
-
-  (defgeneric aw (tm object &optional cont-ok cont-no-alloc)
-    (:documentation
-      "Like #'a but the cell allocated for holding the object will be automatically
-       deallocated when the contained object is deallocated.
-       "
-      ))
-  
-  ;; a◧ implementations must work even when the tape is initially ∅, as this will be
-  ;; the case when a machine is expanded from tm-void.
-  (defgeneric a◧w (tm object &optional cont-ok cont-no-alloc)
-    (:documentation
-      "Like #'a◧ but the cell allocated for holding the object will be automatically
-       deallocated when the contained object is deallocated.
-       "
-      ))
+    (a-0 tm (state tm) object cont-ok cont-no-alloc)
+    )
+  (defgeneric a-0 (tm state object cont-ok cont-no-alloc));
 
 
 
@@ -109,63 +144,54 @@ All tape machine implmentations must specialize these functions.
 ;; Entanglement accounting complicates the swap trick for implementing d◧, so I have made
 ;; it a primitive.
 ;;
-  (defgeneric d (tm &optional spill 
-                  cont-ok 
-                  cont-rightmost
-                  cont-not-supported
-                  cont-collision
-                  cont-no-alloc)
-    (:documentation 
-      "Deallocates one cell to the right of the head. If there is no such cell,
-       #'d takes cont-rightmost.  If the machine does not allow deallocation, then #'d
-      takes cont-not-supported.  If another machine is entangled and has its head on the
-      deallocation cell, then #'d takes cont-collision.  If spill is not ∅ and realloction
-      to spill fails, then the #'d takes cont-no-alloc.  Otherwise #'d takes cont-ok.
-      Structural changes are only made when #'d takes cont-ok.
-       "
-      ))
 
-  (defgeneric d◧-0 (tm &optional spill 
-                   cont-ok
-                   cont-rightmost
-                   cont-not-supported
-                   cont-collision
-                   cont-no-alloc
-                   )
-    (:documentation 
-      "Internal, deallocates the leftmost cell only on this machine.  Entangled
-       machines will also have to be updated.
-       "
-      ))
-
-Similar to #'d but the leftmost cell is deallocated independent of where the head
-       is located. If the tape is parked and singleton, calling d◧ will cause the machine
-       to collapse to void.
-
-;;--------------------------------------------------------------------------------
-;; state transition
-;;
-
-  ;; voids this machine, does not look at entanglements set
-  (defgeneric void (tm)
-    (:documentation
-      "When deallocation causes the machine to collapse to void, this function
-       is called."
-      ))
-
-  ;; This works if the tm does not need parameters.
-  (defmethod void ((tm tape-machine))
-    (change-class tm 'tm-void)
-    (setf (HA tm) (type-of tm))
-    (setf (tape tm) ∅)
-    ;; entanglements are preserved
+  (defun d*-1
+    (
+      tm
+      &optional 
+      (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
+      )
+    "Deallocates the tape.
+    "
+    (d*-0 tm (state tm) cont-ok cont-not-supported)
     )
+  (defgeneric d*-0 (tm state cont-ok cont-not-supported))
+
+
+  ;; 
+  (defun d◧-1
+    (
+      tm
+      &optional 
+      (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
+      )
+    "Internal, deallocates the leftmost cell only on this machine. 
+    "
+    (d◧-0 tm (state tm) cont-ok cont-not-supported)
+    )
+  (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
+
+  (defun d-1
+    (
+      tm
+      &optional 
+      (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
+      )
+    "Internal, deallocates the cell to the left of the head.
+    "
+    (d-0 tm (state tm) cont-ok cont-not-supported)
+    )
+  (defgeneric d-0 (tm state cont-ok cont-not-supported))
+
 
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;
-;;   we need a layer 0 with no entanglement accounting in order to implement the
-;;   entanglement list functions sans circular references.
+;; The base copying requies no entanglement accounting, because it is derived.
+;; This is for internal use.
 ;;
   (defgeneric cue-to-0
     (
@@ -175,15 +201,16 @@ Similar to #'d but the leftmost cell is deallocated independent of where the hea
     (:documentation "Used internally to make copies sans entanglement accounting.")
     )
 
+  ;; this will work for many machine types
   (defmethod cue-to-0
     (
       tm-cued 
       (tm-orig tape-machine)
       )
+    (setf (state tm-cued) (state tm-orig))
     (setf (HA tm-cued) (HA tm-orig))
     (setf (tape tm-cued) (tape tm-orig))
     (setf (parameters tm-cued) (parameters tm-orig))
-    (setf (entanglements tm-cued) ∅)
     tm-cued
     )
 

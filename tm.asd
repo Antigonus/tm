@@ -46,11 +46,14 @@ See LICENSE.txt
                (:module "src-1"
                  :components (
                              ;; interface definition
+                               (:file "tm-mk-0")
                                (:file "tm-mk")
-                               (:file "state")
                                (:file "tm-primitives")
-                               (:file "tm-derived")
+                               (:file "tm-derived-0")
+#|
                                (:file "tm-quantifiers")
+                               (:file "tm-derived-1")
+
                                (:file "tm-subspace")
                                (:file "convert")
 
@@ -87,9 +90,11 @@ See LICENSE.txt
 
                              ;; dataflow
                                (:file "dataflow")
-                              ))
+  |#
 
+                            ))
 
+#|
                (:module "test-1"
                 :components (
                               (:file "tm-void")
@@ -114,6 +119,7 @@ See LICENSE.txt
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
                               ))
+|#
 
 #|
 

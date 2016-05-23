@@ -76,6 +76,18 @@ See LICENSE.txt
 
     When the base is void, there is only one possible location, that of void.
 
+  Entanglement
+
+    Base machine entanglements work out because the location, rightmost and head of the
+    region are machines on the base tape.
+
+    Deleting leftmost of the region is the same as calling #'d on the location machine,
+    with the exception of entanglement with region's rightmost marker.  The region 
+    entanglemnt space is spearate from the base machine's entanglement space, so 
+    calling d◧ on the region will dispatch to d◧-0 here. At that point, if the region
+    is singular, we have to do something with the rightmost marker before calling 
+    #'d on the location.
+
 |#
 
 
@@ -294,21 +306,22 @@ See LICENSE.txt
         (d (HA tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
         )))
 
-  ;; deallocate the leftmost cell
-  ;; we wouldn't be here if the region were void, thus there must be one cell
-  ;; and if the region isn't void, neither is the space.
-  (defmethod d◧
+  ;; Deallocate the leftmost cell.  We wouldn't be here if the region were void, thus
+  ;; there must be one cell There will be collision when trying to delete the rightmost
+  ;; cell of the region, we leave this situation in tact for now.  It is on the to-do
+  ;; list to fix.
+  (defmethod d◧-0
     (
       (tm tm-region)
       &optional 
-      spill
       (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     ;; tm is not void (or we wouldn't be here) so location can not be rightmost
-    (d (region-location (tape tm)) spill 
-      cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (d (region-location (tape tm)) ∅
+      cont-ok 
+      cont-rightmost 
+      cont-not-supported
+      cont-collision
+      cont-no-alloc)
     )

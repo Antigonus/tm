@@ -183,7 +183,7 @@
     (funcall cont-ok)
     )
 
-  (defmethod a◧
+  (defmethod a◧-0
     (
       (tm tm-parked)
       object
@@ -192,7 +192,7 @@
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (unpark tm)
-    (a◧ tm object
+    (a◧-0 tm object
       (λ()
         (park tm)
         (funcall cont-ok)
@@ -215,46 +215,6 @@
     (a◧ tm object cont-ok cont-no-alloc)
     )
 
-  (defun d-parked
-    (
-      tm
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    ;; parked machines are not void, so there will be a leftmost (never cont-rightmost)
-    ;; parked machines that are singleton can always transition (to void i.e. never cont-not-supported)
-    ;; parked machines don't have a head on the tape, so never cont-collision
-    (r◧ tm
-      (λ(dealloc-object)
-        (singleton tm
-          (λ() ; singular-tape, all entangled machines share the same tape, but not same head
-            (∀-void tm
-              (λ()
-                (when spill
-                  (as spill dealloc-object 
-                    #'do-nothing 
-                    (λ()(return-from d-parked (funcall cont-no-alloc)))
-                    ))
-                (funcall cont-ok)
-                )
-              cont-collision ; one of the cells couldn't be deallocated, must have head on it
-              ))
-          (λ() ; not singular
-            (let(
-                  (tm1 (dup tm))
-                  )
-              (change-class tm1 (HA tm1))
-              (d◧ tm1 spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-              ))))
-      ;; read fails
-      #'cant-happen ; can not fail because parked machines are not void
-      ))
-
   (defmethod d
     (
       (tm tm-parked)
@@ -266,19 +226,23 @@
       (cont-collision (λ()(error 'dealloc-entangled)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d-parked tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (d◧ tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
 
-  (defmethod d◧
+  (defmethod d◧-0
     (
       (tm tm-parked)
       &optional 
-      spill
       (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (d-parked tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    )
+    (unpark tm)
+    (d◧-0 tm 
+      (λ()
+        (park tm)
+        (funcall cont-ok)
+        )
+      (λ()
+        (park tm)
+        (funcall cont-not-supported)
+        )))

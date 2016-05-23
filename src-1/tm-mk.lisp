@@ -10,58 +10,29 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; the base type
+;; tape machine states
 ;;
-;;  HA holds the head state.  cue-leftmost resets this HA without refering
-;;  to its prior value.  Park uses HA for a different purpose, that of remembering
-;;  the type of machine that was parked.
-;;
-;;  tape is the stuff that has been added to the container.  This is set to ∅
-;;  when the machine goes to tm-void. The tape is restored with the function a◧.
-;;
-;;  parameters holds characterizing information unique to the instance.  For example for
-;;  our integer recurrance generator, it is a struct that holds the min value (start
-;;  value), the max value, and the increment.
-;;
-;;  entanglments is a list of machines that share the tape.
-;;
-  (defclass tape-machine ()
-    (
-      (HA ; locates a cell on the tape
-        :initarg :HA 
-        :accessor HA
-        )
-      (tape ; a sequence of cells, each that may hold an object
-        :initarg :tape
-        :accessor tape
-        )
-      (parameters ; for such things as generator that need seed values
-        :initarg :parameters
-        :accessor parameters
-        )
-      (entanglements ; list of other tape-machines that share the same tape
-        :initarg entanglements
-        :accessor entanglements
-        )
-      ))
+  (defparam void (make-instance 'void))
+  (defparam parked (make-instance 'parked))
+  (defparam active (make-instance 'active))
 
-
+;;--------------------------------------------------------------------------------
+;; print machine
+;;
    (defun indent (n) 
      (dotimes (i n)(princ "  "))
      )
 
-   (defun print-tape-machine-1 (tm &optional (n 0))
+   (defun print-machine-0 (tm &optional (n 0))
      (indent n) (princ tm) (nl)
+     (indent n) (princ "state: " (princ (type-of (state tm))))(nl)
      (indent n) (princ "HA: ") (princ (HA tm)) (nl)
      (indent n) (princ "tape: ") (princ (tape tm)) (nl)
      (indent n) (princ "parameters: ") (princ (parameters tm)) (nl)
      )
 
-   (defun print-tape-machine (tm &optional (n 0))
-     (indent n) (princ tm) (nl)
-     (indent n) (princ "HA: ") (princ (HA tm)) (nl)
-     (indent n) (princ "tape: ") (princ (tape tm)) (nl)
-     (indent n) (princ "parameters: ") (princ (parameters tm)) (nl)
+   (defun print-machine (tm &optional (n 0))
+     (print-machine-0 n)
      (indent n) (princ "entanglements:") (nl)
      (let(
            (es (entanglements tm))
@@ -72,11 +43,10 @@ See LICENSE.txt
              (if 
                (eq (r es) tm)
                (progn (indent (1+ n)) (princ "#self")(nl))
-               (print-tape-machine-1 (r es) (1+ n))
+               (print-machine-0 (r es) (1+ n))
                )
              (s es cont-loop cont-return)
              ))))
-
 
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified type to hold the specified objects

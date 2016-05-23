@@ -91,7 +91,7 @@ See LICENSE.txt
       (funcall cont-ok)
       ))
 
-  (defmethod a◧
+  (defmethod a◧-0
     (
       (tm tm-list)
       object 
@@ -147,41 +147,12 @@ See LICENSE.txt
   ;; deallocates the leftmost cell
   (defmethod d◧-0
     (
-      (tm tm-list)
+      (tm tm-depth)
       &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-ok (be t))
       (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (declare (ignore cont-rightmost cont-not-supported))
-    (∃-collision◧ tm
-      cont-collision
-      (λ() ; if there is no collision on the cell, leftmost can't also be rightmost
-        (d◧-tm-list tm spill cont-ok cont-no-alloc)
-        )
-      ))
-        
-  ;; this version used by disentangle, has no collision-check
-  ;; tm-list is non-void, so it must have a leftmost cell
-  (defun d◧-tm-list
-    (
-      tm
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (let(
-          (dealloc-object (car (tape tm)))
-          )
-      (when spill
-        (as spill dealloc-object 
-          #'do-nothing 
-          (λ()(return-from d◧-tm-list (funcall cont-no-alloc)))
-          ))
-      (setf (tape tm) (cdr (tape tm)))
-      (funcall cont-ok dealloc-object)
-      ))
+    (declare (ignore cont-not-supported))
+    (setf (tape tm) (cdr (tape tm)))
+    (funcall cont-ok)
+    )

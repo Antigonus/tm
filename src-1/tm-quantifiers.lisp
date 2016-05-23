@@ -238,8 +238,8 @@ See LICENSE.txt
     be stepped.
     "
     (let(
-          (tms0 (dup tms))
-          (tms1 (dup tms))
+          (tms0 (dup-0 tms))
+          (tms1 (dup-0 tms))
           )
       (if
         (¬∃ tms0 #'on-rightmost)
@@ -336,7 +336,7 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
-          (tm1 (dup tm0))
+          (tm1 (dup-0 tm0))
           )
       (as*-0 tm1 fill cont-ok cont-no-alloc)
       ))
@@ -396,8 +396,11 @@ See LICENSE.txt
 ;;
   (defgeneric sn (tm n &optional cont-ok cont-rightmost)
     (:documentation 
-      "Step count times.  
-       When called, cont-rightmost is passed the remaining count."
+      "Step n times.  When called, cont-rightmost is passed the current value of n.  For
+       example, if the head is on leftmost, and the tape has two cells, and sn is called
+       with n set to 3, then the step from rightmost continuation will be called with a
+       value of 2.
+      "
       ))
 
   (defmethod sn
@@ -469,3 +472,84 @@ See LICENSE.txt
       ))
 
 
+;;--------------------------------------------------------------------------------
+;; indexed read and write
+;;
+  (defun dsnr 
+    (
+      tm
+      index
+      &optional
+      (cont-ok #'echo) ; whenever cont-ok is #'echo, other continuations must throw an error
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "dup tm, step n places, then read."
+    (dsnr-0 tm (state tm) index cont-ok cont-rightmost cont-parked)
+    )
+  (defgeneric dsnr-0 (tm (state tm) index cont-ok cont-rightost cont-parked))
+  (defmethod dsnr-0 (tm (state void) index cont-ok cont-rightost cont-parked)
+    (declare (ignore tm state index cont-ok))
+    (if (= 0 index)
+      (funcall cont-parked)
+      (funcall cont-rightmost index)
+      ))
+  (defmethod dsnr-0 (tm (state parked) index cont-ok cont-rightost cont-parked)
+    (if (= 0 index)
+      (funcall cont-parked)
+      (let(
+            (tm1 (dup-0 tm))
+            )
+        (cue-leftmost tm1) ; this will unpark the head
+        (sn tm1 (1- index) 
+          (λ()(r tm cont-ok #cant-happen))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+  (defmethod dsnr-0 (tm (state active) index cont-ok cont-rightost cont-parked)
+    (let(
+          (tm1 (dup-0 tm))
+          )
+      (sn tm1 index
+        (λ()(r tm cont-ok #cant-happen))
+        (λ(n)(funcall cont-rightmost n))
+        )))
+
+  (defun dsnw 
+    (
+      tm
+      object
+      index
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "dup tm, step n places, then write object."
+    (dsnw-0 tm (state tm) object index cont-ok cont-rightmost cont-parked)
+    )
+  (defgeneric dsnw-0 (tm (state tm) index cont-ok cont-rightost cont-parked))
+  (defmethod dsnw-0 (tm (state void) index cont-ok cont-rightost cont-parked)
+    (declare (ignore tm state index cont-ok))
+    (if (= 0 index)
+      (funcall cont-parked)
+      (funcall cont-rightmost index)
+      ))
+  (defmethod dsnw-0 (tm (state parked) index cont-ok cont-rightost cont-parked)
+    (if (= 0 index)
+      (funcall cont-parked)
+      (let(
+            (tm1 (dup-0 tm))
+            )
+        (cue-leftmost tm1) ; this will unpark the head
+        (sn tm1 (1- index) 
+          (λ()(w tm1 object cont-ok #'cant-happen))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+  (defmethod dsnw-0 (tm (state active) index cont-ok cont-rightost cont-parked)
+    (let(
+          (tm1 (dup-0 tm))
+          )
+      (sn tm1 index
+        (λ()(w tm1 object cont-ok #'cant-happen))
+        (λ(n)(funcall cont-rightmost n))
+        )))

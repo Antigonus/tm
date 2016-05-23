@@ -14,7 +14,8 @@ See LICENSE.txt
 ;; converts a tape machine to another form
 ;;
   ;; return's whatever sequence type represents the space in Lisp
-  (defgeneric unmount(tm)) 
+  (defun unmount(tm)(unmount-0 tm (state tm)))
+  (defgeneric unmount-0(tm state))
 
   (defgeneric to-list (tm))
   (defgeneric to-array-adj (tm))
