@@ -1,0 +1,30 @@
+
+How we got here: passing in null does not allow intiialization of the variable passed in,
+so we can not test for null and do something special inside a function.  In another
+language we could hav passed in a pointer to a pointer, that pointed to the object, and
+then if that second pointer were null, to update the object.  However, in this latter case
+it leaves to the programmer to test for null before each use of the object.  In the
+presence of dispatch this is a waste, as dispatch can simply send us to different
+functions tailored to each case.
+
+There was an initial C++ implementation that used a state variable to direct dispatch.  In
+the CLOS implementation I initially tried to create void as a type, and then to pass the
+information as to the type one was to transition to inside one of the unusued slots in the
+void machine.  This inconsistent use of slots caught up with me when I started
+implementing higher order types, such as the region.  Consequently I have moved to a state
+model in the CLOS implementation also.  This has relieved the code from a number of
+complexities.
+
+It was tempting to break the tape machine into two parts: a tape transport, and a head
+assembly; i.e. a container and an iterator.  However, this meant that both required state
+variables, and it created the possibility of inconsitent state between the two, as a void
+tape implied the head could not have state referencing a cell on the tape, so it to has to
+be in a special state.  However, by keeping them together, we end up having to use the
+entanglement list for updating fields.  Had the tape transport been shared, changes to the
+tape would automatically be reflected into the tape slot of every head assembly.  However,
+this meant that we didn't tell the head assemblies about changes, and as some of those may
+be abstract, this could be problematic.  The original concept of a listener list (which
+became the entanglements list) is better, as then all entangled machines are informed of
+changes of state.  I have considered in this design that the entanglements list will
+typically not be very long, to the benefit of a listener model over that of changing things
+out from under the machine model is greater.

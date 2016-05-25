@@ -12,8 +12,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tape machine states
 ;;
+
+  ;; a void machine has no tape and no head
   (defparam void (make-instance 'void))
+
+  ;; a parked machine has a tape, but no head
   (defparam parked (make-instance 'parked))
+
+  ;; an active machine has both a tape and a head
   (defparam active (make-instance 'active))
 
 ;;--------------------------------------------------------------------------------

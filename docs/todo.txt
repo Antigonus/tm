@@ -98,3 +98,4 @@ behavior .. currently tm-depth and tm-breadth can not be parked or voided.
 
 31. d◧-0 on region will collide with the rightmost marker when attempting
 to deallocate the last cell, need to fix this.
+

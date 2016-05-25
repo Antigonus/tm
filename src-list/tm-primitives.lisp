@@ -23,6 +23,10 @@ All tape machine implmentations must specialize these functions.
     (r-0 tm (state tm) cont-ok cont-parked)
     )
   (defgeneric r-0 (tm state cont-ok cont-parked))
+  (defmethod r-0 (tm (state void) cont-ok cont-parked)
+    (declare (ignore tm state cont-ok))
+    (funcall cont-parked)
+    )
 
   (defun w 
     (
@@ -36,21 +40,30 @@ All tape machine implmentations must specialize these functions.
     (w-0 tm (state tm) object cont-ok cont-parked)
     )
   (defgeneric w-0 (tm state object cont-ok cont-parked))
+  (defmethod w-0 (tm (state void) object cont-ok cont-parked)
+    (declare (ignore tm state object cont-ok))
+    (funcall cont-parked)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun cue-leftmost 
+  (defun cue-leftmost
     (
       tm
       &optional
       (cont-ok (be t))
-      (cont-parked (λ()(error 'parked-head-use)))
+      (cont-void (λ()(error 'access-void)))
       )
     "Cue tm's head to the leftmost cell."
-    (cue-leftmost-0 tm (state tm) cont-ok cont-parked)
+    (cue-leftmost-0 tm (state tm) cont-ok cont-void)
     )
-  (defgeneric cue-leftmost-0 (tm state cont-ok cont-parked))
+  (defgeneric cue-leftmost-0 (tm state cont-ok cont-void))
+  (defmethod cue-leftmost-0 (tm (state void) cont-ok cont-void)
+    (declare (ignore tm state cont-ok))
+    (funcall cont-void)
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; head location predicate
@@ -62,12 +75,24 @@ All tape machine implmentations must specialize these functions.
       &optional 
       (cont-true (be t))
       (cont-false (be ∅))
-      (cont-parked  (be ∅))
+      (cont-parked (λ()(error 'parked-head-use)))
       )
     "tm0 and tm1 heads are on the same cell"
     (heads-on-same-cell-0 tm0 (state tm0) tm1 (state tm1) cont-true cont-false cont-parked)
     )
-  (defgeneric heads-on-same-cell-0 (tm-0 state-tm0 tm1 state-tm1 cont-true cont-false))
+  (defgeneric heads-on-same-cell-0 (tm0 state0 tm1 state1 cont-true cont-false cont-parked))
+  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 state1 cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
+  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 state1 cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
+  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 parked) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
@@ -85,23 +110,16 @@ All tape machine implmentations must specialize these functions.
     (s-0 tm (state tm) cont-ok cont-rightmost)
     )
   (defgeneric s-0 (tm state cont-ok cont-rightmost))
+  (defmethod s-0 (tm (state void) cont-ok cont-rightmost)
+    (declare (ignore tm state cont-ok))
+    (funcall cont-rightmost)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun a◧
-    (
-      tm
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    "Allocates a new leftmost cell on this machine. The old leftmost becomes the new
-      cell's right neighbor.
-      "
-    (a◧-0 tm (state tm) object cont-ok cont-no-alloc)
-    )
+  ;; see tm-derived-1  for defun a◧
+  ;; the job of this primitive is to add a new leftmost cell to the specified machine
   (defgeneric a◧-0 (tm state object cont-ok cont-no-alloc))
 
   (defun a
@@ -144,7 +162,6 @@ All tape machine implmentations must specialize these functions.
 ;; Entanglement accounting complicates the swap trick for implementing d◧, so I have made
 ;; it a primitive.
 ;;
-
   (defun d*-1
     (
       tm
@@ -157,34 +174,25 @@ All tape machine implmentations must specialize these functions.
     (d*-0 tm (state tm) cont-ok cont-not-supported)
     )
   (defgeneric d*-0 (tm state cont-ok cont-not-supported))
-
-
-  ;; 
-  (defun d◧-1
-    (
-      tm
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    "Internal, deallocates the leftmost cell only on this machine. 
-    "
-    (d◧-0 tm (state tm) cont-ok cont-not-supported)
+  ;; deallocation of a whole tape returns no objects, so we can follow cont-ok
+  (defmethod d*-0 (tm (state void) cont-ok cont-not-supported)
+    (declare (ignore cont-not-supported))
+    (funcall cont-ok)
     )
+
   (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
-
-  (defun d-1
-    (
-      tm
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    "Internal, deallocates the cell to the left of the head.
-    "
-    (d-0 tm (state tm) cont-ok cont-not-supported)
+  ;; deallocation of a single cell returns the object that was in the cell,
+  ;; but we can't do that in a void space, so we follow cont-not-supported
+  (defmethod d◧-0 (tm (state void) cont-ok cont-not-supported)
+    (declare (ignore cont-ok))
+    (funcall cont-not-supported)
     )
+
   (defgeneric d-0 (tm state cont-ok cont-not-supported))
+  (defmethod d-0 (tm (state void) cont-ok cont-not-supported)
+    (declare (ignore cont-ok))
+    (funcall cont-not-supported)
+    )
 
 
 ;;--------------------------------------------------------------------------------

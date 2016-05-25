@@ -43,16 +43,21 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "src-1"
+               (:module "src-list"
                  :components (
                              ;; interface definition
                                (:file "tm-mk-0")
                                (:file "tm-mk")
                                (:file "tm-primitives")
                                (:file "tm-derived-0")
-#|
-                               (:file "tm-quantifiers")
+                               (:file "tm-quantifiers-0")
+                               (:file "entanglement-0")
                                (:file "tm-derived-1")
+                               (:file "entanglement-1")
+
+#|
+                               (:file "tm-quantifiers-1")
+                               (:file "tm-derived-2")
 
                                (:file "tm-subspace")
                                (:file "convert")
@@ -60,7 +65,6 @@ See LICENSE.txt
                              ;; general properties
                                (:file "location")
                                (:file "length")
-                               (:file "entanglement")
 
                              ;; trivial machines
                                (:file "tm-void")
@@ -95,7 +99,7 @@ See LICENSE.txt
                             ))
 
 #|
-               (:module "test-1"
+               (:module "test-list"
                 :components (
                               (:file "tm-void")
 ;;                              (:file "tm-transitions")
@@ -124,7 +128,7 @@ See LICENSE.txt
 #|
 
 
-               (:module "src-2"
+               (:module "src-array"
                 :components (
 
                               (:file "worker")

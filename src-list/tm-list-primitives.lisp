@@ -130,7 +130,7 @@ See LICENSE.txt
                  (dealloc-object (car dealloc-cell))
                  (connection-point (cdr dealloc-cell))
                  )
-            (∃-collision-s tm
+            (ds-∃-collision tm
               cont-collision
               (λ()
                 (when spill
