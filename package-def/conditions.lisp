@@ -59,9 +59,9 @@ See LICENSE.txt
   (define-condition wrong-tm-type (error)
     ((text :initarg :text :reader text)))
   
-  (define-condition can-not-unmount (error)
+  (define-condition mount-fail (error)
     ((text :initarg :text :reader text)))
-  
+
   (define-condition missing-tm-type (error)
     ((text :initarg :text :reader text)))
 

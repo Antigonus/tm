@@ -29,21 +29,22 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
-    (a◨-0 tm (state tm) object cont-ok cont-no-alloc)
+    (a◨-0 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defgeneric a◨-0 (tm state object cont-ok cont-no-alloc))
-  (defmethod a◨-0 (tm (state void) object cont-ok cont-no-alloc)
+  (defgeneric a◨-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
+  (defmethod a◨-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore state))
     ;; ironic, allocating to rightmost from void is the same as allocating to leftmost
     (a◧ tm object cont-ok cont-no-alloc)
     )
-  (defmethod a◨-0 (tm state object cont-ok cont-no-alloc)
+  (defmethod a◨-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore state))
     (let(
-          (tm1 (dup-0 tm))
+          (tm1 (copy-0 tm))
           )
       (cue-rightmost tm1)
       (a tm1 object cont-ok cont-no-alloc)
@@ -55,11 +56,13 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a cell to the right of rightmost, and steps to it"
     (a◨ tm object
       (λ() (s tm cont-ok #'cant-happen))
+      cont-not-supported
       cont-no-alloc
       ))
 
@@ -74,10 +77,11 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a cell to the left of leftmost (thus becoming the new leftmost)."
-    (a◧-1 tm (state tm) object cont-ok cont-no-alloc)
+    (a◧-1 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
     )
 
   (defun entanglements-follow-0 (tm)
@@ -106,21 +110,23 @@ of the primitives.
               ))
           ))
 
-  (defgeneric a◧-1 (tm state object cont-ok cont-no-alloc))
-  (defmethod a◧-1 (tm (state void) object cont-ok cont-no-alloc)
+  (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
+  (defmethod a◧-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
       (λ()
         (entanglements-follow-1 tm)
         (funcall cont-ok)
         )
+      cont-not-supported
       cont-no-alloc
       ))
-  (defmethod a◧-1 (tm state object cont-ok cont-no-alloc)
+  (defmethod a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
       (λ()
         (entanglements-follow-0 tm)
         (funcall cont-ok)
         )
+      cont-not-supported
       cont-no-alloc
       ))
 
@@ -216,18 +222,17 @@ of the primitives.
 
   (defgeneric d-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
   (defmethod d-1 (tm (state void) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (declare (ignore tm state spill cont-ok cont-rightmost cont-collision cont-no-alloc))
+    (declare (ignore tm state spill cont-ok cont-not-supported cont-collision cont-no-alloc))
     (funcall cont-rightmost) ; cont-rightmost follows from a progression of deleting cells from a parked state machine
     )
   (defmethod d-1 (tm (state parked) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (d◧-1 tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
   (defmethod d-1 (tm (state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (on-rightmost tm
-      cont-rightmost
-      (λ() 
+    (csnr tm 1
+      (λ(dealloc-object) 
         (let(
-              (tm1 (dup-1 tm))
+              (tm1 (copy-1 tm))
               )
           (∃-collision tm1
             cont-collision
@@ -248,6 +253,8 @@ of the primitives.
                       (funcall cont-ok)
                       )))
                 cont-not-supported
-                )))
-          ))))
+                )))))
+      cont-rightmost
+      #'cant-happen
+      ))
 

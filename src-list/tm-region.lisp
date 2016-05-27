@@ -17,42 +17,42 @@ See LICENSE.txt
 
   Address of a Region
 
-    The address of a region within a space is the address of the cell just to the left of
-    the leftmost cell belonging to the region.  An address may be represented by
-    indicating the cell with a given address using a tape machine.  If such a tape machine
-    is void, then the region extends from the leftmost cell of the tape.
+    A region is located by a tape machine on the base tape.  The region lies to the 
+    right of the cell the location tape machine's head is on.  If the location machine
+    is in the parked state, then the region begins with the leftmost cell on the base
+    machine tape.
 
     The smallest region is a void region, which has zero cells. It is because of void
-    regions that we have adopted the one to the left addressing convention.
+    regions that we adopted the 'lies to the right of the head of the location machine'
+    convention.
 
-    A singleton region has a single cell.  Note though, because it is a region the address
-    of a single cell region is the address of the left neighbor cell, rather than the
-    address of the single cell itself.
+    A singleton region has a single cell.  One may now note that #'a and #'d operate on
+    singleton regions rather than directly on cells, as the cell allocated or deleted is
+    to the right of the cell of the cell the head is on for the machine passed in.
 
     Within a region there is no way to access the cell that has the address being used to
     locate the region in space.  Hence, operations that make use of the region address
     are operations that belong to the space, rather than to the region. 
-
-    Note that our deallocation function, #'d addresses the cell to be deallocated as
-    though it is a singleton region.  #'d* then operates on non-singular regions.  #'d is
-    an operator that belongs to a space, and is used to operate on regions. 
 
   Initializaiton
 
     A tm-region is intialized with one to three parameters:
 
     :base is required.  It locates the region within the base space.  The region occurs to
-    the right of the cell the base machine's head is on.  A-typical to initialization, the
-    base is not dupped. This is so the location can be moved left should the location cell
+    the right of the cell the base machine's head is on.  Atypical to initialization, the
+    base is not copied. This is so the location can be moved left should the location cell
     be deallocated.
 
     :mount, if provided, is a list of objects to be allocated to the region using #'a*
 
-    :rightmost, if provided, must be a dup of the base tape machine.  Its head address
-    becomes the rightmost of the region, this rightmost point must be to the right of the
-    cell specified by :base.  Currently we do not verifiy this.
+    :rightmost, if provided, must be on the same tape as the base tape machine.  Its head
+    address locates the rightmost cell of the region, this rightmost point must be to the
+    right of the cell specified by :base.  Currently we do not verifiy this. Unlike the
+    location machine, the rightmost machine is in the region.  This has implication, for
+    example the region may not be directly deallocated due to entanglements with the
+    rightmost machine.
 
-    Deleting the location cell
+  Deleting the location cell
 
     A region is located in space via the base machine.  The region lies just to the 
     right of the cell the base machine's head is on. 
@@ -74,7 +74,7 @@ See LICENSE.txt
 
   Void Base 
 
-    When the base is void, there is only one possible location, that of void.
+    When the base machine is void, there is only one possible location, that of void.
 
   Entanglement
 
@@ -114,16 +114,15 @@ See LICENSE.txt
     (destructuring-bind
       (&key base mount rightmost &allow-other-keys) init-list
 
-      (unless (∧ base (¬ (typep base 'tm-void)))
-        (return-from init (funcall cont-fail)))
+      (unless base (return-from init (funcall cont-fail)))
 
       (cond
         (rightmost
           (let(
                 (location base)
-                (leftmost (dup base))
+                (leftmost (copy base))
                 )
-            (setf (tape tm) 
+            (setf (parameters tm) 
               (make-region 
                 :location location
                 :rightmost rightmost
@@ -141,14 +140,14 @@ See LICENSE.txt
         (mount
           (let(
                 (location base)
-                (leftmost (dup base))
+                (leftmost (copy base))
                 (tm-data (mount mount))
                 )
             (as leftmost (r tm-data) ; after step, base is leftmost
               (λ()
                 (setf (HA tm) leftmost)
                 (let(
-                      (i (dup leftmost)) ; general use iterator
+                      (i (copy leftmost)) ; general use iterator
                       )
                   (s tm-data (λ()(as* i  tm-data)) #'do-nothing) ; i is rightmost after this
                   (setf (tape tm) 
@@ -192,7 +191,7 @@ See LICENSE.txt
  
   (defmethod cue-leftmost  ((tm tm-region)) 
     (let(
-          (tm (dup (region-location (tape tm))))
+          (tm (copy (region-location (tape tm))))
           )
       (s tm
         (λ() (cue-to (HA tm) tm))

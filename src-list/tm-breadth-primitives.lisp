@@ -46,7 +46,7 @@ See LICENSE.txt
         (
 
           (save-sublist ()
-            (enqueue history (dup tm))
+            (enqueue history (copy tm))
             )
           
           (dequeue-and-step-in ()

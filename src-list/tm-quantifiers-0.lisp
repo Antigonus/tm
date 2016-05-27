@@ -221,25 +221,24 @@ See LICENSE.txt
 ;; love the null case.  If there are no tms to step, then there does not
 ;; exist a tm that stepped, so we should return ∅.  On the other hand, if there
 ;; are no tms to step, then no tm failed to step, so we should return true. 
-;; I aemptyed this issue by passing in a tm to the sequence of tms. Such a sequence
-;; must have one member to exist.
+;; We avoid this end case by requiring that tms be non-void.
 ;;
   (defun s-together 
     (
-      tms ; tms hold tape machines, tms is not moved, but the constituent machines are
+      tms ; tms holds tape machines, tms is not moved, but the constituent machines are
       &optional
       (cont-ok #'echo)
       (cont-exists-on-rightmost (be ∅))
       )
-    "s-together is passed a list of tape machines.
+    "s-together is passed a non-void list of tape machines.
     Each time s-together is called, all machines in the list are stepped.
     If any of the machines can not be stepped, then none of the machines are stepped.
     cont-exists-end is called with an iterator on the first of the tms that could not
     be stepped.
     "
     (let(
-          (tms0 (dup-0 tms))
-          (tms1 (dup-0 tms))
+          (tms0 (copy-0 tms))
+          (tms1 (copy-0 tms))
           )
       (if
         (¬∃ tms0 #'on-rightmost)
@@ -254,3 +253,124 @@ See LICENSE.txt
         )))
 
 
+;;--------------------------------------------------------------------------------
+;; stepping multiple times
+;;
+  (defgeneric sn (tm n &optional cont-ok cont-rightmost)
+    (:documentation 
+      "Step n times.  When called, cont-rightmost is passed the current value of n.  For
+       example, if the head is on leftmost, and the tape has two cells, and sn is called
+       with n set to 3, then the step from rightmost continuation will be called with a
+       value of 2.
+      "
+      ))
+
+  (defmethod sn
+    (
+      (tm tape-machine)
+      (n integer)
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (λ(n)(declare (ignore n)) ∅))
+      )
+    (labels(
+             (count-test()
+               (when (≤ n 0) (return-from sn (funcall cont-ok)))
+               )
+             (work()
+               (decf n)
+               (count-test)
+               (take-step) ; step from rightmost test is built into #'s
+               )
+             (take-step()
+               (s 
+                 tm 
+                 #'work
+                 (λ()(return-from sn (funcall cont-rightmost n)))
+                 ))
+             )
+      (count-test)
+      (take-step)
+      ))
+
+;;--------------------------------------------------------------------------------
+;; indexed read and write
+;;
+  (defun csnr 
+    (
+      tm
+      index
+      &optional
+      (cont-ok #'echo) ; whenever cont-ok is #'echo, other continuations must throw an error
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "copy tm, step n places, then read."
+    (csnr-0 tm (state tm) index cont-ok cont-rightmost cont-parked)
+    )
+  (defgeneric csnr-0 (tm state index cont-ok cont-rightmost cont-parked))
+  (defmethod csnr-0 (tm (state void) index cont-ok cont-rightmost cont-parked)
+    (declare (ignore tm state cont-ok))
+    (if (= 0 index)
+      (funcall cont-parked)
+      (funcall cont-rightmost index)
+      ))
+  (defmethod csnr-0 (tm (state parked) index cont-ok cont-rightmost cont-parked)
+    (if (= 0 index)
+      (funcall cont-parked)
+      (let(
+            (tm1 (copy-0 tm))
+            )
+        (cue-leftmost tm1) ; this will unpark the head
+        (sn tm1 (1- index) 
+          (λ()(r tm cont-ok #'cant-happen))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+  (defmethod csnr-0 (tm (state active) index cont-ok cont-rightmost cont-parked)
+    (let(
+          (tm1 (copy-0 tm))
+          )
+      (sn tm1 index
+        (λ()(r tm cont-ok #'cant-happen))
+        (λ(n)(funcall cont-rightmost n))
+        )))
+
+  (defun csnw 
+    (
+      tm
+      object
+      index
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      (cont-parked (λ()(error 'parked-head-use)))
+      )
+    "copy tm, step n places, then write object."
+    (csnw-0 tm (state tm) object index cont-ok cont-rightmost cont-parked)
+    )
+  (defgeneric csnw-0 (tm state object index cont-ok cont-rightmost cont-parked))
+  (defmethod csnw-0 (tm (state void) object index cont-ok cont-rightmost cont-parked)
+    (declare (ignore tm state object cont-ok))
+    (if (= 0 index)
+      (funcall cont-parked)
+      (funcall cont-rightmost index)
+      ))
+  (defmethod csnw-0 (tm (state parked) object index cont-ok cont-rightmost cont-parked)
+    (if (= 0 index)
+      (funcall cont-parked)
+      (let(
+            (tm1 (copy-0 tm))
+            )
+        (cue-leftmost tm1) ; this will unpark the head
+        (sn tm1 (1- index) 
+          (λ()(w tm1 object cont-ok #'cant-happen))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+  (defmethod csnw-0 (tm (state active) object index cont-ok cont-rightmost cont-parked)
+    (let(
+          (tm1 (copy-0 tm))
+          )
+      (sn tm1 index
+        (λ()(w tm1 object cont-ok #'cant-happen))
+        (λ(n)(funcall cont-rightmost n))
+        )))

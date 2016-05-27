@@ -71,9 +71,6 @@ See LICENSE.txt
     t
     )
 
-  ;; Interesting problem because the cons cell for tape will copy and not be eq, for two
-  ;; duped machines.  The line is read only, so perhaps just a head number match is good
-  ;; enough to say they are on the same cell.  We will go with that.
   (defun heads-on-same-cell-line-0 (tm0 tm1 cont-true cont-false)
     (if
       (∧

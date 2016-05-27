@@ -52,7 +52,7 @@ See LICENSE.txt
         (
 
           (save-and-step-in() ; a saved traversal point is always one past a sublist
-            (enqueue history (dup tm)) ; for later traversal from
+            (enqueue history (copy tm)) ; for later traversal from
             (si tm cont-si #'cant-happen)
             )
 

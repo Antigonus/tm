@@ -18,7 +18,7 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine duplication
+;; tape-machine copying
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;
@@ -54,7 +54,7 @@ of the primitives.
     tm-cued
     )
 
-  (defun dup (tm-orig)
+  (defun copy (tm-orig)
     "Returns a new tm cued to tm-orig."
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
@@ -64,13 +64,13 @@ of the primitives.
       ))
 
   ;; Mounts the same tape that another machine has mounted.
-  ;; Unlike dup, upon exit the head is at leftmost.
+  ;; Unlike copy, upon exit the head is at leftmost.
   (defmethod mount ((tm tape-machine) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
-          (tm-dup (dup tm))
+          (cp (copy tm))
           )
-      (cue-leftmost tm-dup)
-      (funcall cont-ok tm-dup)
+      (cue-leftmost cp)
+      (funcall cont-ok cp)
       ))
 

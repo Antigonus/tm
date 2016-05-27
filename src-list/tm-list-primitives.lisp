@@ -18,47 +18,67 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-list)) (car (HA tm)))
-  (defmethod w ((tm tm-list) object) (setf (car (HA tm)) object) t)
+  ;; void and parked states handled in tm-primitive
+  (defmethod r-0 ((tm tm-list) (state active) cont-ok cont-parked)
+    (declare (ignore state cont-parked))
+    (funcall cont-ok (car (HA tm)))
+    )
+
+  ;; void and parked states handled in tm-primitive
+  (defmethod w-0 ((tm tm-list) (state active) object cont-ok cont-parked)
+    (declare (ignore state cont-parked))
+    (setf (car (HA tm)) object)
+    (funcall cont-ok)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
   ;; our tape is never nil, so this returns true
-  (defmethod cue-leftmost  ((tm tm-list)) 
+  ;; void state handled in tm-primitive
+  (defmethod cue-leftmost-0  ((tm tm-list) (state active) cont-ok cont-void)
+    (declare (ignore state cont-void))
     (setf (HA tm) (tape tm))
-    tm
+    (funcall cont-ok)
+    )
+  ;; identitical to above, for parked state
+  (defmethod cue-leftmost-0  ((tm tm-list) (state parked) cont-ok cont-void)
+    (declare (ignore state cont-void))
+    (setf (HA tm) (tape tm))
+    (funcall cont-ok)
     )
   
 ;;--------------------------------------------------------------------------------
 ;;  head location predicates
 ;;
-  (defmethod heads-on-same-cell 
+  ;; void parked states handled in tm-primitives
+  (defmethod heads-on-same-cell-0
     (
       (tm0 tm-list) 
+      (state0 active)
       (tm1 tm-list) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
+      (state1 active)
+      cont-true
+      cont-false
+      cont-parked 
       ) 
+    (declare (ignore state0 state1 cont-parked))
     (if
-      ;; compares pointers, can't compare objects
-      ;; our boundary value calculus causes this test to be complete (without end cases)
       (eq (HA tm0) (HA tm1))
       (funcall cont-true)
       (funcall cont-false)
       ))
 
-
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s
+  ;; void parked states handled in tm-primitives
+  (defmethod s-0
     (
       (tm tm-list)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (state active)
+      cont-ok
+      cont-rightmost
       )
     (if 
       (cdr (HA tm))
@@ -73,16 +93,45 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  ;; Allocates a cell to the right of the head.
-  (defmethod a 
+  ;; void state handled in tm-primitives
+  (defmethod a◧-0
     (
       (tm tm-list)
+      (state active)
       object 
-      &optional 
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
       )
-    (declare (ignore cont-no-alloc)) ;; should do something with this ..
+    (declare (ignore state cont-not-supported cont-no-alloc)) ; should do something with cont-no-alloc
+    (setf (tape tm) (cons object (tape tm)))
+    (funcall cont-ok)
+    )
+  (defmethod a◧-0 ; identical to above, for parked
+    (
+      (tm tm-list)
+      (state parked)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (declare (ignore state cont-not-supported cont-no-alloc)) ; should do something with cont-no-alloc
+    (setf (tape tm) (cons object (tape tm)))
+    (funcall cont-ok)
+    )
+
+  ;; Allocates a cell to the right of the head.
+  (defmethod a-0
+    (
+      (tm tm-list)
+      (state active)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (declare (ignore state cont-not-supported cont-no-alloc)) ; should do something with cont-no-alloc
     (let*(
            (connection-point (cdr (HA tm)))
            (new-cell (cons object connection-point))
@@ -90,69 +139,82 @@ See LICENSE.txt
       (rplacd (HA tm) new-cell)
       (funcall cont-ok)
       ))
-
-  (defmethod a◧-0
+  ;; Allocates a cell to the right of the head.
+  (defmethod a-0
     (
       (tm tm-list)
+      (state parked)
       object 
-      &optional 
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
       )
-    (declare (ignore cont-no-alloc)) ;; should do something with this ..
-    (setf (tape tm) (cons object (tape tm)))
+    (a◧-0 tm state object cont-ok cont-not-supported cont-no-alloc)
+    )
+  (defmethod a-0
+    (
+      (tm tm-list)
+      (state void) ; will transition to parked
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (declare (ignore state cont-not-supported cont-no-alloc))
+    (setf (tape tm) (cons object ∅))
+    (setf (state tm) parked)
     (funcall cont-ok)
     )
 
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
-
-  ;; deallocates the cell just to the right of the head
-  (defmethod d 
+  ;; deallocates all cells on the tape
+  ;; entanglement accounting, transition to void, and spilling is handled by the caller
+  ;; void and parked cases handled by the caller
+  (defmethod d*-0
     (
       (tm tm-list)
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (state active)
+      cont-ok
+      cont-not-supported 
       )
-    (declare (ignore cont-not-supported))
-    (tm-list-on-rightmost tm
-      cont-rightmost
-      (λ()
-          ;; as we elimated the rightost case, dealloc-cell must exist
-          (let*(
-                 (dealloc-cell (cdr (HA tm)))
-                 (dealloc-object (car dealloc-cell))
-                 (connection-point (cdr dealloc-cell))
-                 )
-            (ds-∃-collision tm
-              cont-collision
-              (λ()
-                (when spill
-                  (as spill dealloc-object 
-                    #'do-nothing 
-                    (λ()(return-from d (funcall cont-no-alloc)))
-                    ))
-                (rplacd (HA tm) connection-point)
-                (funcall cont-ok dealloc-object)
-                )
-              )))
-      ))
+    (declare (ignore state cont-not-supported))
+    (setf (tape tm) ∅)
+    (funcall cont-ok)
+    )
 
   ;; deallocates the leftmost cell
+  ;; entanglement accounting, transition to void, and spilling is handled by the caller
+  ;; void and parked cases handled by the caller
   (defmethod d◧-0
     (
-      (tm tm-depth)
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
+      (tm tm-list)
+      (state active)
+      cont-ok
+      cont-not-supported
       )
-    (declare (ignore cont-not-supported))
+    (declare (ignore state cont-not-supported))
     (setf (tape tm) (cdr (tape tm)))
     (funcall cont-ok)
     )
+
+  ;; deallocates the cell just to the right of the head
+  ;; entanglement accounting, transition to void, and spilling is handled by the caller
+  ;; void and parked cases handled by the caller
+  (defmethod d-0
+    (
+      (tm tm-list)
+      (state active)
+      cont-ok
+      cont-not-supported 
+      )
+    (declare (ignore state cont-not-supported))
+    (let*(
+           (dealloc-cell (cdr (HA tm)))
+           (connection-point (cdr dealloc-cell))
+           )
+      (rplacd (HA tm) connection-point)
+      (funcall cont-ok)
+      ))
+

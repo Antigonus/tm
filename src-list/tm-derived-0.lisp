@@ -18,13 +18,13 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine duplication
+;; tape-machine copying
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;
   ;; cue-to-0 is primitive
 
-  (defun dup-1 (tm-orig)
+  (defun copy-1 (tm-orig)
     "Adds entanglement accounting to cue-to-0 result, but leaves out the tm-cued
      machine.
     "
@@ -36,7 +36,7 @@ of the primitives.
       tm-cued
       ))
 
-  (defun dup-0 (tm-orig)
+  (defun copy-0 (tm-orig)
     "Creates a new machines that is a copy of another, sans entanglement accounting."
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
@@ -67,7 +67,7 @@ of the primitives.
   (defmethod r◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (dup-0 tm))
+          (tm1 (copy-0 tm))
           )
       (cue-leftmost tm1)
       (r tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -91,7 +91,7 @@ of the primitives.
   (defmethod w◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (dup-0 tm))
+          (tm1 (copy-0 tm))
           )
       (cue-leftmost tm1)
       (w tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -143,7 +143,7 @@ of the primitives.
   (defgeneric on-leftmost-0 (tm cont-true cont-false))
   (defmethod on-leftmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (dup-0 tm))
+          (tm1 (copy-0 tm))
           )
       (cue-leftmost tm1)
       (heads-on-same-cell tm1 tm cont-true cont-false)
@@ -161,7 +161,7 @@ of the primitives.
   (defgeneric on-rightmost-0 (tm cont-true cont-false))
   (defmethod on-rightmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (dup-0 tm))
+          (tm1 (copy-0 tm))
           )
       (s tm1 cont-false cont-true)
       ))
@@ -214,11 +214,13 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Like #'a, but tm is stepped to the new cell"
     (a tm object 
       (λ()(s tm cont-ok #'cant-happen))
+      cont-not-supported
       cont-no-alloc
       ))
 
@@ -228,15 +230,16 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "#'a with a contract that the head is on rightmost."
-    (a&h◧-0 tm object cont-ok cont-no-alloc)
+    (a&h◨-0 tm object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defgeneric a&h◧-0 (tm object cont-ok cont-no-alloc))
+  (defgeneric a&h◨-0 (tm object cont-ok cont-not-supported cont-no-alloc))
   ;; some specializations can make better use of this contract
-  (defmethod a&h◧-0 (tm object cont-ok cont-no-alloc)
-    (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
+  (defmethod a&h◨-0 (tm object cont-ok cont-not-supported cont-no-alloc)
+    (a tm object (λ()(s tm)(funcall cont-ok)) cont-not-supported cont-no-alloc)
     )
 
   (defun a&h◨s
@@ -245,15 +248,16 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "#'as with a contract that the head is on rightmost."
-    (a&h◧-0 tm object cont-ok cont-no-alloc)
+    (a&h◨-0 tm object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defgeneric a&h◧s-0 (tm object cont-ok cont-no-alloc))
+  (defgeneric a&h◨s-0 (tm object cont-ok cont-not-supported cont-no-alloc))
   ;; some specializations can make better use of this contract
-  (defmethod a&h◧s-0 (tm object cont-ok cont-no-alloc)
-    (as tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
+  (defmethod a&h◨s-0 (tm object cont-ok cont-not-supported cont-no-alloc)
+    (as tm object (λ()(s tm)(funcall cont-ok)) cont-not-supported cont-no-alloc)
     )
 
 

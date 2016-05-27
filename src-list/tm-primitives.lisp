@@ -94,6 +94,7 @@ All tape machine implmentations must specialize these functions.
     (funcall cont-parked)
     )
 
+
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
@@ -112,7 +113,11 @@ All tape machine implmentations must specialize these functions.
   (defgeneric s-0 (tm state cont-ok cont-rightmost))
   (defmethod s-0 (tm (state void) cont-ok cont-rightmost)
     (declare (ignore tm state cont-ok))
-    (funcall cont-rightmost)
+    (funcall cont-rightmost) ; derived from limiting behavior when in parked state
+    )
+  (defmethod s-0 (tm (state parked) cont-ok cont-rightmost)
+    (declare (ignore cont-rightmost)); parked machine has at least 1 cell
+    (cue-leftmost-0 tm state cont-ok #'cant-happen) 
     )
 
 ;;--------------------------------------------------------------------------------
@@ -120,7 +125,7 @@ All tape machine implmentations must specialize these functions.
 ;;
   ;; see tm-derived-1  for defun a◧
   ;; the job of this primitive is to add a new leftmost cell to the specified machine
-  (defgeneric a◧-0 (tm state object cont-ok cont-no-alloc))
+  (defgeneric a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
 
   (defun a
     (
@@ -128,19 +133,16 @@ All tape machine implmentations must specialize these functions.
       object
       &optional
       (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
-       it to the right of the cell the head is currently on.  The newly allocated cell
-       initialized with the given object.  There are two reasons allocation might fail, a)
-       because memory has been exhausted, b) because the tape does not support structural
-       changes. (The current implementation throws a system error when the heap is
-       depleted.)
-       "
-    (a-0 tm (state tm) object cont-ok cont-no-alloc)
+     it to the right of the cell the head is currently on.  The newly allocated cell will
+     be initialized with the given object.
+     "
+    (a-0 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defgeneric a-0 (tm state object cont-ok cont-no-alloc));
-
+  (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc));
 
 
 ;;--------------------------------------------------------------------------------
@@ -180,6 +182,7 @@ All tape machine implmentations must specialize these functions.
     (funcall cont-ok)
     )
 
+  ;; see tm-derived-1 for defun d◧
   (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
   ;; deallocation of a single cell returns the object that was in the cell,
   ;; but we can't do that in a void space, so we follow cont-not-supported
@@ -188,6 +191,7 @@ All tape machine implmentations must specialize these functions.
     (funcall cont-not-supported)
     )
 
+  ;; see tm-derived-1 for defun d
   (defgeneric d-0 (tm state cont-ok cont-not-supported))
   (defmethod d-0 (tm (state void) cont-ok cont-not-supported)
     (declare (ignore cont-ok))

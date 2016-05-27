@@ -27,11 +27,15 @@ See LICENSE.txt
 
   ;; generic list maker, some specializations, particularly the tm-list specialization,
   ;; will be more efficient.
-  (defmethod to-list ((tm0 tape-machine))
+  (defmethod to-list ((tm tape-machine))
     (let(
+          (tm0 (copy-0 tm))
           (tm1 (mk 'tm-list))
           )
-      (⟳ (λ(cont-loop cont-return) (as tm1 (r tm0) cont-loop cont-return)))
+      (⟳ (λ(cont-loop cont-return) 
+           (as tm1 (r tm0) #'do-nothing #'cant-happen)
+           (s tm0 cont-loop cont-return)
+           ))
       (tape tm1)
       ))
 

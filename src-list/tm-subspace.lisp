@@ -21,112 +21,81 @@ and rightmost, etc. apply to the subspace (not the original tape).
     "If either: object is a tm, or #'mk succeeds on the object, steps in.
      Otherwise cont-mount-failed.
      "
-    (let(
-          (object (r tm))
-          )
-      (if
-        (typep object 'tape-machine)
-        (progn
-          (cue-to tm object)
-          (funcall cont-ok)
-          )
-        (mount object
-          (λ(new-tm) 
-            (cue-to tm new-tm)
+    (r tm
+      (λ(subspace)
+        (if 
+          (typep subspace 'tape-machine)
+          (progn
+            (cue-to tm subspace)
             (funcall cont-ok)
             )
-          cont-mount-failed
-          ))))
+          (mount subspace
+            (λ(new-tm) ; should mark new-tm readonly, except we don't support that yet
+              (cue-to tm new-tm)
+              (funcall cont-ok)
+              )
+            cont-mount-failed
+            )))
+        cont-mount-failed
+        ))
 
-  ;; when a sublist is empty, it should be represented with ∅, then ai
-  ;; will exit with cont-mk-fail on the first insertion, where the programmer
-  ;; can then create teh appropriate singleton sublist initialized with object.
   (defun ai
     (
       tm
       object
       &optional
       (cont-ok (be t))
-      (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
+      (cont-mount-fail (be ∅)) ; object isn't a tape machine
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "Head is on a given cell.  That cell has an object.  The object should be either
-     mk-able or be ∅.  If it is ∅, we exit with cont-mk-fail where the programmer
-     can then build the singleton sublist of the desired type.  If it is mk-able
-     then a new cell is prepended and initialized to object.
+    "Allocates a new cell to the left of leftmost in the subspace.
      "
-    (let(
-          (sublist (r tm))
-          )
-      (if
-       (typep sublist 'tape-machine)
-        (progn
-          (cue-leftmost sublist)
-          (-a sublist object cont-ok cont-no-alloc)
-          )
-        (mount object
-          (λ()
-            (-a sublist object cont-ok cont-no-alloc)
-            )
-          cont-mk-fail
-          ))))
+    (r tm
+      (λ(subspace)
+        (if 
+          (typep subspace 'tape-machine)
+          (a◧ subspace object cont-ok cont-no-alloc)
+          cont-mount-fail
+          ))
+      cont-mount-fail
+      ))
 
-  (defun ais
+  (defun aisi
     (
       tm
       object
       &optional
       (cont-ok (be t))
-      (cont-mk-fail (be ∅)) ; OUH could not be interpretted as a tape
+      (cont-mount-fail (be ∅)) 
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "like ai, but the tape-machine is stepped into the new cell"
-    (let(
-          (sublist (r tm))
-          )
-      (if
-       (typep sublist 'tape-machine)
-        (progn
-          (cue-leftmost sublist)
-          (-a-s sublist object cont-ok cont-no-alloc)
-          )
-        (mount object
-          (λ()
-            (-a-s sublist object cont-ok cont-no-alloc)
-            )
-          cont-mk-fail
-          ))))
-
-  (defgeneric di (tm &optional spill cont-ok cont-rightmost cont-mk-fail)
-    (:documentation 
-      "(r tm) is an object.  This object should be a tape machine, or an object that can
-       be passed to mk to get a tape machine.  This function deallocates the leftmost
-       cell from that machine's tape. The deallocated cell is #'a onto spill. Should the
-       user attempt to deallocate the last cell of the tape machine, then this routine
-       exits via cont-rightmost, where the user can (w tm) replace the object with
-       whatever empty marker is used, typically ∅.
-       "
+    "#'ai then step into the subspace"
+    (ai tm object
+      (λ()(cue-to tm (r tm))(funcall cont-ok))
+      cont-mount-fail
+      cont-no-alloc
       ))
 
-  (defmethod di 
-    (
-      (tm tape-machine)
-      &optional
-      spill
-      cont-ok
-      cont-rightmost
-      cont-mk-fail
-      )
-    (let(
-          (object (r tm))
-          )
-      (if
-        (typep object 'tape-machine)
-        (d object spill cont-ok cont-rightmost)
-        (mount object
-          (λ(new-tm) 
-            (d new-tm spill cont-ok cont-rightmost)
-            )
-          cont-mk-fail
-          ))))
+  (defun di (
+              tm 
+              &optional 
+              spill 
+              (cont-ok #'echo)
+              (cont-mount-fail (λ()(error 'mount-fail)))
+              (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+              (cont-not-supported (λ()(error 'not-supported)))
+              (cont-collision (λ()(error 'dealloc-entangled)))
+              (cont-no-alloc (λ()(error 'alloc-fail)))
+              )
+    "Object is subspace. Deletes the leftmost cell of the subspace."
+    (r tm
+      (λ(subspace)
+        (if 
+          (typep subspace 'tape-machine)
+          (d◧ subspace spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+          cont-mount-fail
+          ))
+      cont-mount-fail
+      ))
+
     

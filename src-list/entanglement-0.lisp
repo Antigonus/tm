@@ -23,9 +23,9 @@ Deallocation
   region' continuation if a region to be deallocated has any machine heads on it, 
   independent if the region is to be spilled or not.
 
-Dup
-  When a machine is dupped a new entry is made on the entanglements list for the
-  copy. The user may remove the dup from the entanglements list any time after it is
+Copy
+  When a machine is copied a new entry is made on the entanglements list for the
+  copy. The user may remove the copy from the entanglements list any time after it is
   no longer used.
 
 Parked
@@ -90,29 +90,29 @@ Region
   Hence, much of the entanglement problem for regions will be taken care of without
   any special consideration.
 
-  The region itself is a tape machine.  When we dup it, an entry will be added to the
+  The region itself is a tape machine.  When we copy it, an entry will be added to the
   entanglement list.  This information will be used should the region transition to or
-  from void.  The region struct is shared, so the dup does not affect this.  The head
-  value is a tape machine, so dup would just make another reference to the same machine.
-  It is this case that caused us to move dup from a function to a dispatched method.
+  from void.  The region struct is shared, so the copy does not affect this.  The head
+  value is a tape machine, so copy would just make another reference to the same machine.
+  It is this case that caused us to move copy from a function to a dispatched method.
 
-Dup and entanglement
+Copy and entanglement
 
   It is common for a routine to create a copy of a tape machine within a lexical scope so
   as not to perturb the state of the machine passed in.  This is typically done by calling
-  dup.  The dup machine is then entangled.
+  copy.  The copy machine is then entangled.
 
-  When the dup machine reaches the end of scope it is released for garbage collection.  
-  Hence, it initially seemed like a good way to handle dup entanglements was to hold
+  When the copy machine reaches the end of scope it is released for garbage collection.  
+  Hence, it initially seemed like a good way to handle copy entanglements was to hold
   them with weak pointers.  The problem with that approach is that we don't know when
   the garbage collector will get around to releasing it.  Calling the garbage collector
   to force the release is too expensive.  (And in our tests using a portable weak-pointer
   library, even after calling gc the entanglments weak pointer still pointed at the
-  dup machine.  This is confusing, but in any case gc is not a good answer).
+  copy machine.  This is confusing, but in any case gc is not a good answer).
 
-  Hence, we are forced to adopt the discipline of manually disentangling dup machines
+  Hence, we are forced to adopt the discipline of manually disentangling copy machines
   before they leave scope.  Currently we use disentangle to do this, though it
-  would be better to provide a macro form analogous to let, that does the dup and
+  would be better to provide a macro form analogous to let, that does the copy and
   the cleanup, even in the presence of exceptions.
   
 

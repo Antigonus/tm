@@ -52,24 +52,31 @@ See LICENSE.txt
                                (:file "tm-derived-0")
                                (:file "tm-quantifiers-0")
                                (:file "entanglement-0")
+
+                               (:file "length")
                                (:file "tm-derived-1")
                                (:file "entanglement-1")
-
-#|
                                (:file "tm-quantifiers-1")
                                (:file "tm-derived-2")
 
                                (:file "tm-subspace")
                                (:file "convert")
+                               (:file "entanglement-scope")
 
-                             ;; general properties
                                (:file "location")
-                               (:file "length")
 
-                             ;; trivial machines
+                             ;; projective void
                                (:file "tm-void")
-                               (:file "tm-parked")
 
+                             ;; list implementation
+                               (:file "tm-list-mk")
+                               (:file "tm-list-primitives")
+                               (:file "tm-list-derived")
+                               (:file "tm-list-length")
+;;                               (:file "tm-list-convert")
+
+
+#|
                              ;; transforms
                                (:file "tm-region")
                                (:file "buffers")
@@ -85,12 +92,6 @@ See LICENSE.txt
                              ;; simple generators 
                                (:file "tm-line")
 
-                             ;; list implementation
-                               (:file "tm-list-mk")
-                               (:file "tm-list-primitives")
-                               (:file "tm-list-derived")
-                               (:file "tm-list-length")
-                               (:file "tm-list-convert")
 
                              ;; dataflow
                                (:file "dataflow")

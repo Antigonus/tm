@@ -33,3 +33,12 @@ See LICENSE.txt
           )))))
 
 
+  (defun test-disentangle-0 ()
+    (let(
+          (a (mount {1 2 3}))
+          )
+      (disentangle a)
+      (empty (entanglements a))
+      ))
+  (test-hook test-disentangle-0)
+             
