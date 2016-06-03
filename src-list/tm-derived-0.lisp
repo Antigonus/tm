@@ -18,13 +18,13 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine copying
+;; tape-machine forking
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;
   ;; cue-to-0 is primitive
 
-  (defun copy-1 (tm-orig)
+  (defun fork-1 (tm-orig)
     "Adds entanglement accounting to cue-to-0 result, but leaves out the tm-cued
      machine.
     "
@@ -36,8 +36,8 @@ of the primitives.
       tm-cued
       ))
 
-  (defun copy-0 (tm-orig)
-    "Creates a new machines that is a copy of another, sans entanglement accounting."
+  (defun fork-0 (tm-orig)
+    "Creates a new machines that is a fork of another, sans entanglement accounting."
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
           )
@@ -67,7 +67,7 @@ of the primitives.
   (defmethod r◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-leftmost tm1)
       (r tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -91,7 +91,7 @@ of the primitives.
   (defmethod w◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-leftmost tm1)
       (w tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -143,7 +143,7 @@ of the primitives.
   (defgeneric on-leftmost-0 (tm cont-true cont-false))
   (defmethod on-leftmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-leftmost tm1)
       (heads-on-same-cell tm1 tm cont-true cont-false)
@@ -161,7 +161,7 @@ of the primitives.
   (defgeneric on-rightmost-0 (tm cont-true cont-false))
   (defmethod on-rightmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (s tm1 cont-false cont-true)
       ))

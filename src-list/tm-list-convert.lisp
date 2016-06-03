@@ -13,6 +13,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other objects from tm-list machines
 ;;
-  (defmethod unmount ((tm tm-list))(tape tm))
+  (defmethod unmount-0 ((tm tm-list) (state void)) ∅)
+  (defmethod unmount-0 ((tm tm-list) (state parked)) (tape tm))
+  (defmethod unmount-0 ((tm tm-list) (state active)) (tape tm))
+
   (defmethod to-list ((tm tm-list))(tape tm))
   

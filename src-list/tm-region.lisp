@@ -120,7 +120,7 @@ See LICENSE.txt
         (rightmost
           (let(
                 (location base)
-                (leftmost (copy base))
+                (leftmost (fork base))
                 )
             (setf (parameters tm) 
               (make-region 
@@ -140,14 +140,14 @@ See LICENSE.txt
         (mount
           (let(
                 (location base)
-                (leftmost (copy base))
+                (leftmost (fork base))
                 (tm-data (mount mount))
                 )
             (as leftmost (r tm-data) ; after step, base is leftmost
               (λ()
                 (setf (HA tm) leftmost)
                 (let(
-                      (i (copy leftmost)) ; general use iterator
+                      (i (fork leftmost)) ; general use iterator
                       )
                   (s tm-data (λ()(as* i  tm-data)) #'do-nothing) ; i is rightmost after this
                   (setf (tape tm) 
@@ -191,7 +191,7 @@ See LICENSE.txt
  
   (defmethod cue-leftmost  ((tm tm-region)) 
     (let(
-          (tm (copy (region-location (tape tm))))
+          (tm (fork (region-location (tape tm))))
           )
       (s tm
         (λ() (cue-to (HA tm) tm))

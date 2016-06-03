@@ -23,10 +23,11 @@ Deallocation
   region' continuation if a region to be deallocated has any machine heads on it, 
   independent if the region is to be spilled or not.
 
-Copy
-  When a machine is copied a new entry is made on the entanglements list for the
-  copy. The user may remove the copy from the entanglements list any time after it is
-  no longer used.
+Fork
+
+  When a machine is forked, a new entry is made on the entanglements list for the forked
+  machine. The user may remove the forked machine from the entanglements list any time
+  after it is no longer used.
 
 Parked
 
@@ -90,29 +91,30 @@ Region
   Hence, much of the entanglement problem for regions will be taken care of without
   any special consideration.
 
-  The region itself is a tape machine.  When we copy it, an entry will be added to the
+  The region itself is a tape machine.  When we fork it, an entry will be added to the
   entanglement list.  This information will be used should the region transition to or
-  from void.  The region struct is shared, so the copy does not affect this.  The head
-  value is a tape machine, so copy would just make another reference to the same machine.
-  It is this case that caused us to move copy from a function to a dispatched method.
+  from void.  The region struct is shared, so the fork does not affect this.  The head
+  value is a tape machine, so fork would just make another reference to the same machine.
+  It is this case that caused us to move fork from a function to a dispatched method.
 
-Copy and entanglement
+Fork and Entanglement
 
-  It is common for a routine to create a copy of a tape machine within a lexical scope so
-  as not to perturb the state of the machine passed in.  This is typically done by calling
-  copy.  The copy machine is then entangled.
+  It is common for a routine to create a fork of a tape machine within a lexical scope so
+  as not to perturb the head state of the machine passed in.  This is typically done by
+  calling fork.  The fork machine is then said to be 'entangled' due to the fact it shares
+  a tape with the original machine.
 
-  When the copy machine reaches the end of scope it is released for garbage collection.  
-  Hence, it initially seemed like a good way to handle copy entanglements was to hold
+  When the fork machine reaches the end of scope it is released for garbage collection.  
+  Hence, it initially seemed like a good way to handle fork entanglements was to hold
   them with weak pointers.  The problem with that approach is that we don't know when
   the garbage collector will get around to releasing it.  Calling the garbage collector
   to force the release is too expensive.  (And in our tests using a portable weak-pointer
   library, even after calling gc the entanglments weak pointer still pointed at the
-  copy machine.  This is confusing, but in any case gc is not a good answer).
+  fork machine.  This is confusing, but in any case gc is not a good answer).
 
-  Hence, we are forced to adopt the discipline of manually disentangling copy machines
+  Hence, we are forced to adopt the discipline of manually disentangling fork machines
   before they leave scope.  Currently we use disentangle to do this, though it
-  would be better to provide a macro form analogous to let, that does the copy and
+  would be better to provide a macro form analogous to let, that does the fork and
   the cleanup, even in the presence of exceptions.
   
 

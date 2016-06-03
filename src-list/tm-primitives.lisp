@@ -27,6 +27,10 @@ All tape machine implmentations must specialize these functions.
     (declare (ignore tm state cont-ok))
     (funcall cont-parked)
     )
+  (defmethod r-0 (tm (state parked) cont-ok cont-parked)
+    (declare (ignore tm state cont-ok))
+    (funcall cont-parked)
+    )
 
   (defun w 
     (
@@ -41,6 +45,10 @@ All tape machine implmentations must specialize these functions.
     )
   (defgeneric w-0 (tm state object cont-ok cont-parked))
   (defmethod w-0 (tm (state void) object cont-ok cont-parked)
+    (declare (ignore tm state object cont-ok))
+    (funcall cont-parked)
+    )
+  (defmethod w-0 (tm (state parked) object cont-ok cont-parked)
     (declare (ignore tm state object cont-ok))
     (funcall cont-parked)
     )
@@ -210,7 +218,7 @@ All tape machine implmentations must specialize these functions.
       tm-cued ; object affected, contents get clobbered
       tm-orig ; remains undisturbed
       )
-    (:documentation "Used internally to make copies sans entanglement accounting.")
+    (:documentation "Used internally to make copies that have no entanglement accounting.")
     )
 
   ;; this will work for many machine types

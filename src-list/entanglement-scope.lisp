@@ -11,57 +11,57 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; entanglement scope
 ;;
-;; (with-copies ((cp0 tm0) (cp1 tm1) ..) body-form ..)
+;; (with-forks ((fk0 tm0) (fk1 tm1) ..) body-form ..)
 ;;
 ;; expands to:
 ;; 
-;; (let(cp0 cp1 ..)
+;; (let(fk0 fk1 ..)
 ;;    (unwind-protect
 ;;      (progn
-;;         (setq cp0 (copy mach0))
-;;         (setq cp1 (copy mach1))
+;;         (setq fk0 (fork mach0))
+;;         (setq fk1 (fork mach1))
 ;;         ..
 ;;         body
 ;;      )
-;;      (when cp0 (disentangle cp0))
-;;      (when cp1 (disentangle cp1))
+;;      (when fk0 (disentangle fk0))
+;;      (when fk1 (disentangle fk1))
 ;;          ..
 ;;    )
 ;;
 ;;  this expansion works, but it would be higher performance to not lose the
-;;  the copy references up top, then to just deallocate them directly
+;;  the fork references up top, then to just deallocate them directly
 ;;
-  (defun make-copy-decl (defs)
+  (defun make-fork-decl (defs)
     (let(
           (tm-defs (mount defs))
-          (copy-decl (mk 'tm-list))
+          (fork-decl (mk 'tm-list))
           )
       (⟳(λ(cont-loop cont-return)
           (let(
-                (copy-name (car (r tm-defs)))
+                (fork-name (car (r tm-defs)))
                 )
-            (as copy-decl copy-name)
+            (as fork-decl fork-name)
             )
           (s tm-defs cont-loop cont-return)
           ))
-      (unmount copy-decl)
+      (unmount fork-decl)
       ))
 
-  (defun make-copy-prog (defs)
+  (defun make-fork-prog (defs)
     (let(
           (tm-defs (mount defs))
-          (copy-prog (mk 'tm-list))
+          (fork-prog (mk 'tm-list))
           )
       (⟳(λ(cont-loop cont-return)
           (let(
-                (copy-name (car (r tm-defs)))
+                (fork-name (car (r tm-defs)))
                 (mach-name (cadr (r tm-defs)))
                 )
-            (as copy-prog `(setq ,copy-name (copy ,mach-name)))
+            (as fork-prog `(setq ,fork-name (fork ,mach-name)))
             )
           (s tm-defs cont-loop cont-return)
           ))
-      (unmount copy-prog)
+      (unmount fork-prog)
       ))
 
   ;; makes the disentangle program
@@ -72,28 +72,28 @@ See LICENSE.txt
           )
       (⟳(λ(cont-loop cont-return)
           (let(
-                (copy-name (car (r tm-defs)))
+                (fork-name (car (r tm-defs)))
                 )
-            (as dis-prog `(when ,copy-name (disentangle ,copy-name)))
+            (as dis-prog `(when ,fork-name (disentangle ,fork-name)))
             )
           (s tm-defs cont-loop cont-return)
           ))
       (unmount dis-prog)
       ))
 
-  (defmacro with-copies (defs &body body)
-    (unless defs (return-from with-copies ∅))
+  (defmacro with-forks (defs &body body)
+    (unless defs (return-from with-forks ∅))
     (let(
-          (cp-decl (make-copy-decl defs))
-          (cp-prog (make-copy-prog defs))
+          (fk-decl (make-fork-decl defs))
+          (fk-prog (make-fork-prog defs))
           (dis-prog (make-dis-prog defs))
           )
       (let(
             (prog 
-              `(let ,cp-decl
+              `(let ,fk-decl
                  (unwind-protect
                    (progn
-                     ,@cp-prog
+                     ,@fk-prog
                      ,@body
                      )
                    ,@dis-prog

@@ -47,7 +47,7 @@ See LICENSE.txt
                  :components (
                              ;; interface definition
                                (:file "tm-mk-0")
-                               (:file "tm-mk")
+                               (:file "tm-mk-1")
                                (:file "tm-primitives")
                                (:file "tm-derived-0")
                                (:file "tm-quantifiers-0")
@@ -73,7 +73,7 @@ See LICENSE.txt
                                (:file "tm-list-primitives")
                                (:file "tm-list-derived")
                                (:file "tm-list-length")
-;;                               (:file "tm-list-convert")
+                               (:file "tm-list-convert")
 
 
 #|
@@ -99,11 +99,10 @@ See LICENSE.txt
 
                             ))
 
-#|
                (:module "test-list"
                 :components (
-                              (:file "tm-void")
-;;                              (:file "tm-transitions")
+                              (:file "tm-state")
+#|
                               
                               (:file "tm-derived")
 
@@ -123,8 +122,8 @@ See LICENSE.txt
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
-                              ))
 |#
+                              ))
 
 #|
 

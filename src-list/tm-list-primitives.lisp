@@ -41,9 +41,9 @@ See LICENSE.txt
     (setf (HA tm) (tape tm))
     (funcall cont-ok)
     )
-  ;; identitical to above, for parked state
   (defmethod cue-leftmost-0  ((tm tm-list) (state parked) cont-ok cont-void)
-    (declare (ignore state cont-void))
+    (declare (ignore cont-void))
+    (setf (state tm) active)
     (setf (HA tm) (tape tm))
     (funcall cont-ok)
     )

@@ -23,7 +23,7 @@ See LICENSE.txt
 
   (defmethod singleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let(
-          (tm1 (copy-0 tm0))
+          (tm1 (fork-0 tm0))
           )
       (cue-leftmost tm1)
       (on-rightmost tm1
@@ -33,7 +33,7 @@ See LICENSE.txt
   
   (defmethod doubleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
-           (tm1 (copy-0 tm0))
+           (tm1 (fork-0 tm0))
            )
       (cue-leftmost tm1)
       (if (∧
@@ -46,7 +46,7 @@ See LICENSE.txt
   
   (defmethod tripleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
     (let (
-           (tm1 (copy-0 tm0))
+           (tm1 (fork-0 tm0))
            )
       (cue-leftmost tm1)
       (if
@@ -75,7 +75,7 @@ See LICENSE.txt
       (cont-same   (be 'same))
       (cont-shorter (be 'shorter))
       )
-    (let ((tm0-1 (copy-0 tm0)))
+    (let ((tm0-1 (fork-0 tm0)))
       (⟳ (λ(cont-loop cont-return) 
            (when (≤ n 0) (return-from length-cmp (funcall cont-longer)))
            (decf n)
@@ -98,8 +98,8 @@ See LICENSE.txt
       (cont-shorter (be 'shorter))
       )
     (let(
-          (tma-1 (copy-0 tma))
-          (tmb-1 (copy-0 tmb))
+          (tma-1 (fork-0 tma))
+          (tmb-1 (fork-0 tmb))
           )
       (let(
             (tms (mount {tma-1 tmb-1}))

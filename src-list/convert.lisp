@@ -21,7 +21,7 @@ See LICENSE.txt
   (defgeneric to-array-adj (tm))
 
   ;; We purposely leave to-array without a generic implementation due to element
-  ;; type conversion issues.  Typically a program will use a worker to copy to an
+  ;; type conversion issues.  Typically a program will use a worker to fork to an
   ;; array machine, and then the prorgram will call to-array on the array machine.
   (defgeneric to-array (tm))
 
@@ -29,7 +29,7 @@ See LICENSE.txt
   ;; will be more efficient.
   (defmethod to-list ((tm tape-machine))
     (let(
-          (tm0 (copy-0 tm))
+          (tm0 (fork-0 tm))
           (tm1 (mk 'tm-list))
           )
       (⟳ (λ(cont-loop cont-return) 

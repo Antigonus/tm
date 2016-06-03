@@ -44,7 +44,7 @@ of the primitives.
   (defmethod a◨-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore state))
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-rightmost tm1)
       (a tm1 object cont-ok cont-no-alloc)
@@ -232,7 +232,7 @@ of the primitives.
     (csnr tm 1
       (λ(dealloc-object) 
         (let(
-              (tm1 (copy-1 tm))
+              (tm1 (fork-1 tm))
               )
           (∃-collision tm1
             cont-collision

@@ -93,7 +93,7 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
-          (tm1 (copy-0 tm0))
+          (tm1 (fork-0 tm0))
           )
       (as*-0 tm1 fill cont-ok cont-not-supported cont-no-alloc)
       ))
@@ -154,7 +154,7 @@ See LICENSE.txt
 ;;
   (defgeneric an (tm tm-fill count &optional cont-ok cont-rightmost)
     (:documentation 
-      "Similar to calling #'a n times on a copy of tm."
+      "Similar to calling #'a n times on a fork of tm."
       ))
 
   (defgeneric asn (tm tm-fill n &optional cont-ok cont-rightmost)

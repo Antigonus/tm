@@ -8,48 +8,49 @@
       a allocate/add/append a new cell, place it just to the right of head cell, requires fill
       d deallocate/drop/delete cell - optional spill (i.e. realloc), affects cell to the right of the head
 
-      ;; move derived, not primitive
       m move data, no allocation or deallocation of cells, requires fill
 
+      f fork, returns a machine with the same tape, but an independent head.  When the
+        tape is a code stream, this is similar to Unix fork.
 
 syntax of derived functions:
 
 ---
 
-  [tape-side] command [modifier]
+  [tape-side] command [modifier] [& contract]*
 
   tape-side: -
 
   command:  r | w | s | a | d | m
 
-  modifier:  [affects] (& contract)*
-
-  affects: ◧ ◨ 
+  modifier: ◧ ◨ n 
 
   when tape-side is not specified, it is right
-  when affects is not specified, it is the head
 
+modifier
+    ◧  operate on leftmost
+    ◨  operate on rightost
+    n  repeats n times, n provided through an argument
 
- contracts:
+   when operate on leftmost or rightmost is not specified, operates on the cell
+   the head is on
+
+contracts:
     h◧    head is at leftmost
     h◨    head is at rightmost
     hp    head is parked
     h¬p   head is not parked
-    t     has tape space
-    ¬t    has no tape space
 
 examples:
-
    -s     ; step left
    s*     ; cue rightmost
    -s*    ; cue leftmost
    sch¬p  ; step with a contract that the head is not parked
    a◧     ; creates a new leftmost cell
    a◨     ; append to rightmost
-   sn     ; step n times, n is provided as an argument
+   sn     ; step n times
 
 to derive a longer command, combine:
-
    as    ;  append then step
    -a-s  ; append to the left, step to the left
    

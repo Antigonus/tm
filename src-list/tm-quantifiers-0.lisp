@@ -237,8 +237,8 @@ See LICENSE.txt
     be stepped.
     "
     (let(
-          (tms0 (copy-0 tms))
-          (tms1 (copy-0 tms))
+          (tms0 (fork-0 tms))
+          (tms1 (fork-0 tms))
           )
       (if
         (¬∃ tms0 #'on-rightmost)
@@ -305,7 +305,7 @@ See LICENSE.txt
       (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
       (cont-parked (λ()(error 'parked-head-use)))
       )
-    "copy tm, step n places, then read."
+    "fork tm, step n places, then read."
     (csnr-0 tm (state tm) index cont-ok cont-rightmost cont-parked)
     )
   (defgeneric csnr-0 (tm state index cont-ok cont-rightmost cont-parked))
@@ -319,7 +319,7 @@ See LICENSE.txt
     (if (= 0 index)
       (funcall cont-parked)
       (let(
-            (tm1 (copy-0 tm))
+            (tm1 (fork-0 tm))
             )
         (cue-leftmost tm1) ; this will unpark the head
         (sn tm1 (1- index) 
@@ -328,7 +328,7 @@ See LICENSE.txt
           ))))
   (defmethod csnr-0 (tm (state active) index cont-ok cont-rightmost cont-parked)
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (sn tm1 index
         (λ()(r tm cont-ok #'cant-happen))
@@ -345,7 +345,7 @@ See LICENSE.txt
       (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
       (cont-parked (λ()(error 'parked-head-use)))
       )
-    "copy tm, step n places, then write object."
+    "fork tm, step n places, then write object."
     (csnw-0 tm (state tm) object index cont-ok cont-rightmost cont-parked)
     )
   (defgeneric csnw-0 (tm state object index cont-ok cont-rightmost cont-parked))
@@ -359,7 +359,7 @@ See LICENSE.txt
     (if (= 0 index)
       (funcall cont-parked)
       (let(
-            (tm1 (copy-0 tm))
+            (tm1 (fork-0 tm))
             )
         (cue-leftmost tm1) ; this will unpark the head
         (sn tm1 (1- index) 
@@ -368,7 +368,7 @@ See LICENSE.txt
           ))))
   (defmethod csnw-0 (tm (state active) object index cont-ok cont-rightmost cont-parked)
     (let(
-          (tm1 (copy-0 tm))
+          (tm1 (fork-0 tm))
           )
       (sn tm1 index
         (λ()(w tm1 object cont-ok #'cant-happen))

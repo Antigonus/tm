@@ -18,7 +18,56 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine copying
+;; tape machine states
+;;
+  (defun park (tm &optional (cont-ok (be t)) (cont-void (be ∅)))
+    "parks the head"
+    (park-0 tm (state tm) cont-ok cont-void)
+    )
+  (defgeneric park-0 (tm state cont-ok cont-void))
+  (defmethod park-0 (tm (state void) cont-ok cont-void)
+    (declare (ignore tm state cont-ok))
+    (funcall cont-void)
+    )
+  (defmethod park-0 (tm (state parked) cont-ok cont-void)
+    (declare (ignore tm state cont-void))
+    (funcall cont-ok)
+    )
+  ;; this will work for many tm types
+  (defmethod park-0 (tm (state active) cont-ok cont-void)
+    (declare (ignore state cont-void))
+    (disentangle tm)
+    (setf (HA tm) ∅)
+    (setf (state tm) parked)
+    (funcall cont-ok)
+    )
+  
+  (defun void (tm)
+    "voids the machine"
+    (void-0 tm (state tm))
+    )
+  (defgeneric void-0 (tm state))
+  (defmethod void-0 (tm (state void))
+    (declare (ignore tm state))
+    )
+  ;; this will work for many tm types
+  (defmethod void-0 (tm (state parked))
+    (declare (ignore state))
+    (disentangle tm)
+    (setf (tape tm) ∅)
+    (setf (state tm) void)
+    )
+  ;; this will work for many tm types
+  (defmethod void-0 (tm (state active))
+    (declare (ignore state))
+    (disentangle tm)
+    (setf (HA tm) ∅) ; parks the head
+    (setf (tape tm) ∅) ; voids the tape
+    (setf (state tm) void)
+    )
+
+;;--------------------------------------------------------------------------------
+;; tape-machine forking
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;
@@ -41,7 +90,7 @@ of the primitives.
     )
 
   ;; this works when the head is a value, such as an integer or cons.  However, if it is a
-  ;; reference, then a deeper copy will be needed. Note for example, tm-region
+  ;; reference, then a deeper fork will be needed. Note for example, tm-region
   (defun cue-to (tm-cued tm-orig)
     "tm-cued machine will be rewritten.  It will be change-class'ed to the same type as
      tm-orig, it will share the same tape, entanglesments, and parameters as tm-orig,
@@ -54,7 +103,7 @@ of the primitives.
     tm-cued
     )
 
-  (defun copy (tm-orig)
+  (defun fork(tm-orig)
     "Returns a new tm cued to tm-orig."
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
@@ -64,13 +113,13 @@ of the primitives.
       ))
 
   ;; Mounts the same tape that another machine has mounted.
-  ;; Unlike copy, upon exit the head is at leftmost.
+  ;; Unlike fork, upon exit the head is at leftmost.
   (defmethod mount ((tm tape-machine) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
-          (cp (copy tm))
+          (fk (fork tm))
           )
-      (cue-leftmost cp)
-      (funcall cont-ok cp)
+      (cue-leftmost fk)
+      (funcall cont-ok fk)
       ))
 

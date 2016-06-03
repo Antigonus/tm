@@ -100,7 +100,7 @@ See LICENSE.txt
 ;;    sequences are things we can step into, and that tree traversal will
 ;;    consider to be something to traverse.
 ;;
-;;  tm-derived provides a mount for tape machines (similar to copy but cues to leftmost)
+;;  tm-derived provides a mount for tape machines (similar to fork but cues to leftmost)
 ;;
   (defgeneric mount (sequence &optional cont-ok cont-fail))
 
