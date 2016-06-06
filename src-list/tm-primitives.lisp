@@ -153,17 +153,11 @@ All tape machine implmentations must specialize these functions.
 
   (defgeneric a-1 (tm state object cont-ok cont-not-supported cont-no-alloc));
 
-  ;; all entangled machines share the same tape
-  ;; transitions state from void to parked
-  ;; append a new cell to the tape for one machine, then update the tape for all others
   (defmethod a-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
-    (∀ (entanglements tm) 
-      (λ(es)
-        (a-0 (r es) (state (r es)) object cont-ok cont-not-supported cont-no-alloc)
-        t
-        )))
+    (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
+    )
   (defmethod a-1 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
-    (a◧-0 tm state object cont-ok cont-not-supported cont-no-alloc)
+    (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
   (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc));
 

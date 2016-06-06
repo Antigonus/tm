@@ -18,52 +18,6 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape machine states
-;;
-  (defun park (tm &optional (cont-ok (be t)) (cont-void (be ∅)))
-    "parks the head"
-    (park-0 tm (state tm) cont-ok cont-void)
-    )
-  (defgeneric park-0 (tm state cont-ok cont-void))
-  (defmethod park-0 (tm (state void) cont-ok cont-void)
-    (declare (ignore tm state cont-ok))
-    (funcall cont-void)
-    )
-  (defmethod park-0 (tm (state parked) cont-ok cont-void)
-    (declare (ignore tm state cont-void))
-    (funcall cont-ok)
-    )
-  ;; this will work for many tm types
-  (defmethod park-0 (tm (state active) cont-ok cont-void)
-    (declare (ignore state cont-void))
-    (setf (HA tm) ∅)
-    (setf (state tm) parked)
-    (funcall cont-ok)
-    )
-  
-  (defun void (tm)
-    "voids the machine"
-    (∀ (entanglements tm) (λ(es)(void-0 (r es) (state (r es)))t))
-    )
-  (defgeneric void-0 (tm state))
-  (defmethod void-0 (tm (state void))
-    (declare (ignore tm state))
-    )
-  ;; this will work for many tm types
-  (defmethod void-0 (tm (state parked))
-    (declare (ignore state))
-    (setf (tape tm) ∅)
-    (setf (state tm) void)
-    )
-  ;; this will work for many tm types
-  (defmethod void-0 (tm (state active))
-    (declare (ignore state))
-    (setf (HA tm) ∅) ; parks the head
-    (setf (tape tm) ∅) ; voids the tape
-    (setf (state tm) void)
-    )
-
-;;--------------------------------------------------------------------------------
 ;; tape-machine copying
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.

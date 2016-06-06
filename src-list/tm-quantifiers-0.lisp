@@ -76,7 +76,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; quantification
 ;;
-;; careful - the quantifiers start where the head is located, they do not cue-leftmost first
+;; careful:
+;;
+;; The quantifiers start where the head is located, they do not cue-leftmost first.  I do
+;; this so that prefix values may be processed before calling a quantifier.
+;;
+;; I pass the tape machine to the predicate rather than the object in the cell the head
+;; is on.  I do this so that predicates may use the head as a general marker on the tape,
+;; for example, as the origin for a sliding window.
 ;;
   (defun ∃ 
     (
@@ -98,9 +105,9 @@ See LICENSE.txt
     (funcall cont-false)
     )
 
-  ;; same as step-while
-  ;; not all objects match pred, here we will show you the first one that doesn't
-  ;; there exists an object for which pred is false
+  ;; There exists an object for which pred is false.
+  ;; Same as step-while
+  ;; Not all objects match pred, here we will show you the first one that doesn't.
   (defun ¬∀
     (
       tm

@@ -263,21 +263,29 @@ of the primitives.
           (tm1 (fork-1 tm))
           )
       (s tm1
-        (λ()
+        (λ() ; step ok
           (∃-collision tm1
             cont-collision
-            (λ() 
-              (if
-                spill
-                ;; if spill
-                (as spill (r tm1)
-                  (λ()
-                    (d-0 tm state
-                      (λ()(funcall cont-ok dealloc-object))
-                      cont-not-supported
-                      ))
-                  cont-no-alloc
-                  )))))
+            (λ() ; no collision
+              (let(
+                    (dealloc-object (r tm1))
+                    )
+                (if
+                  spill
+                  ;; if spill
+                  (as spill dealloc-object
+                    (λ()
+                      (d-0 tm state
+                        (λ()(funcall cont-ok dealloc-object))
+                        cont-not-supported
+                        ))
+                    cont-no-alloc
+                    )
+                  ;; if not spill
+                  (d-0 tm state
+                    (λ()(funcall cont-ok dealloc-object))
+                    cont-not-supported
+                    ))))))
         cont-rightmost
         )))
 
