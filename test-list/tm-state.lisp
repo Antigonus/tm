@@ -73,7 +73,7 @@ See LICENSE.txt
     (∧
       (= (d a) 6)
       (eq (state a) active)
-      (d◧ a ∅ (be ∅) (be ∅) (be ∅) (be t) (be ∅))
+      (= (d◧ a ∅ (be 10) (be 20) (be 30) (be 41) (be 50)) 41)
       (eq (state a) active)
       (park a)
       (eq (state a) parked)

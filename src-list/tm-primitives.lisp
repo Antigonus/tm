@@ -148,18 +148,17 @@ All tape machine implmentations must specialize these functions.
      it to the right of the cell the head is currently on.  The newly allocated cell will
      be initialized with the given object.
      "
-    (a-1 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
+    (a-0 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
     )
 
-  (defgeneric a-1 (tm state object cont-ok cont-not-supported cont-no-alloc));
+  (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
 
-  (defmethod a-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defmethod a-1 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc));
 
 
 ;;--------------------------------------------------------------------------------

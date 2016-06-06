@@ -103,3 +103,6 @@ to deallocate the last cell, need to fix this.
   ;; behavior is not transactional, all machines update even when one or more cont-not-supported
   ;; need to check support first
   (defun ∀-entanglements-d◧-0 (tm cont-ok cont-not-supported)
+
+33. change the quantifiers so that the first parms are optional, the first parm is
+   the object, and the second is the machine

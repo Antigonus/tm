@@ -48,12 +48,12 @@ See LICENSE.txt
                              ;; interface definition
                                (:file "tm-mk-0")
                                (:file "tm-mk-1")
-                               (:file "tm-state")
                                (:file "tm-primitives")
                                (:file "tm-derived-0")
                                (:file "tm-quantifiers-0")
                                (:file "entanglement-0")
 
+                               (:file "tm-state")
                                (:file "length")
                                (:file "tm-derived-1")
                                (:file "entanglement-1")

@@ -139,21 +139,7 @@ See LICENSE.txt
       (rplacd (HA tm) new-cell)
       (funcall cont-ok)
       ))
-  ;; parked state handled in tm-primitives
-  (defmethod a-0
-    (
-      (tm tm-list)
-      (state void) ; will transition to parked
-      object 
-      cont-ok
-      cont-not-supported
-      cont-no-alloc
-      )
-    (declare (ignore state cont-not-supported cont-no-alloc))
-    (setf (tape tm) (cons object ∅))
-    (setf (state tm) parked)
-    (funcall cont-ok)
-    )
+  ;; parked and void states handled in tm-primitives.lisp
 
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells

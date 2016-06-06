@@ -113,10 +113,13 @@ of the primitives.
     (let(
           (es (entanglements tm))
           )
-      (unless es (return-from ∀-entanglements-a◧-message))
-      (cue-leftmost es)
-      (∀* es (λ(es)(a◧-message (r es) tm)) cont-ok cont-not-supported)
-      ))
+      (if es
+        (progn
+          (cue-leftmost es)
+          (∀* es (λ(es)(a◧-message (r es) tm)) cont-ok cont-not-supported)
+          )
+        (funcall cont-ok)
+        )))
 
   (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
   (defmethod a◧-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
