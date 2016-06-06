@@ -33,7 +33,7 @@ See LICENSE.txt
           ))
       (cue-leftmost es)
       (⟳(λ(cont-loop cont-return)
-          (csnr es 1
+          (fsnr es 1
             (λ(e) 
               (when (eq e tm) 
                 (d es)

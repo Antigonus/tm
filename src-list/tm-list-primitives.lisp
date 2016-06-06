@@ -139,18 +139,7 @@ See LICENSE.txt
       (rplacd (HA tm) new-cell)
       (funcall cont-ok)
       ))
-  ;; Allocates a cell to the right of the head.
-  (defmethod a-0
-    (
-      (tm tm-list)
-      (state parked)
-      object 
-      cont-ok
-      cont-not-supported
-      cont-no-alloc
-      )
-    (a◧-0 tm state object cont-ok cont-not-supported cont-no-alloc)
-    )
+  ;; parked state handled in tm-primitives
   (defmethod a-0
     (
       (tm tm-list)

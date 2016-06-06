@@ -9,52 +9,88 @@ See LICENSE.txt
 ;; (length tm0) <?> ( (length tm1) | n )
 (defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
-(defgeneric empty     (tm &optional cont-true cont-false))
-(defgeneric singleton (tm &optional cont-true cont-false))
-(defgeneric doubleton (tm &optional cont-true cont-false))
-(defgeneric tripleton (tm &optional cont-true cont-false))
+(defun empty     (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+  (empty-0 tm (state tm) cont-true cont-false)
+  )
+(defun singleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+  (singleton-0 tm (state tm) cont-true cont-false)
+  )
+(defun doubleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+  (doubleton-0 tm (state tm) cont-true cont-false)
+  )
+(defun tripleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+  (tripleton-0 tm (state tm) cont-true cont-false)
+  )
 
-;; specialized versions might be faster, otherwise would have made these functions.
-;;
-  (defmethod empty ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
-    (declare (ignore cont-true))
-    (funcall cont-false)
-    )
 
-  (defmethod singleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
-    (let(
-          (tm1 (fork-0 tm0))
-          )
-      (cue-leftmost tm1)
-      (on-rightmost tm1
-        cont-true
-        cont-false
-        )))
-  
-  (defmethod doubleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
-    (let (
-           (tm1 (fork-0 tm0))
-           )
-      (cue-leftmost tm1)
-      (if (∧
-            (s tm1)
-            (on-rightmost tm1)
-            )
-      (funcall cont-true)
-      (funcall cont-false)
+(defgeneric empty-0     (tm state cont-true cont-false))
+(defgeneric singleton-0 (tm state cont-true cont-false))
+(defgeneric doubleton-0 (tm state cont-true cont-false))
+(defgeneric tripleton-0 (tm state cont-true cont-false))
+
+(defmethod empty-0     (tm (state void) cont-true cont-false)
+  (declare (ignore tm state cont-false))
+  (funcall cont-true)
+  )
+(defmethod empty-0     (tm (state parked) cont-true cont-false)
+  (declare (ignore tm state cont-true))
+  (funcall cont-false)
+  )
+(defmethod empty-0     (tm (state active) cont-true cont-false)
+  (declare (ignore tm state cont-true))
+  (funcall cont-false)
+  )
+
+(defmethod singleton-0 (tm (state void) cont-true cont-false)
+  (declare (ignore tm state cont-true))
+  (funcall cont-false)
+  )
+(defmethod doubleton-0 (tm (state void) cont-true cont-false)
+  (declare (ignore tm state cont-true))
+  (funcall cont-false)
+  )
+(defmethod tripleton-0 (tm state cont-true cont-false)
+  (declare (ignore tm state cont-true))
+  (funcall cont-false)
+  )
+
+(defmethod singleton-0 (tm (state active) cont-true cont-false)
+  (declare (ignore state))
+  (let(
+        (tm1 (fork-0 tm))
+        )
+    (cue-leftmost tm1)
+    (on-rightmost tm1
+      cont-true
+      cont-false
       )))
   
-  (defmethod tripleton ((tm0 tape-machine) &optional (cont-true (be t)) (cont-false (be ∅)))
-    (let (
-           (tm1 (fork-0 tm0))
-           )
-      (cue-leftmost tm1)
-      (if
-        (∧
-          (s tm1)
+(defmethod doubleton-0 (tm (state active) cont-true cont-false)
+  (declare (ignore state))
+  (let (
+         (tm1 (fork-0 tm))
+         )
+    (cue-leftmost tm1)
+    (if (∧
           (s tm1)
           (on-rightmost tm1)
           )
+      (funcall cont-true)
+      (funcall cont-false)
+      )))
+
+(defmethod tripleton-0 (tm state cont-true cont-false)
+  (declare (ignore state))
+  (let (
+         (tm1 (fork-0 tm))
+         )
+    (cue-leftmost tm1)
+    (if
+      (∧
+        (s tm1)
+        (s tm1)
+        (on-rightmost tm1)
+        )
       (funcall cont-true)
       (funcall cont-false)
       )))

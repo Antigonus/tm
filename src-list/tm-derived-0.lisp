@@ -18,7 +18,7 @@ of the primitives.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine forking
+;; tape-machine copying
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;
@@ -45,6 +45,8 @@ of the primitives.
       (setf (entanglements tm-cued) ∅)
       tm-cued
       ))
+
+  
 
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write
@@ -138,10 +140,18 @@ of the primitives.
       (cont-false (be ∅))
       )
     "tm head is on the leftmost cell."
-    (on-leftmost-0 tm cont-true cont-false)
+    (on-leftmost-0 tm (state tm) cont-true cont-false)
     )
-  (defgeneric on-leftmost-0 (tm cont-true cont-false))
-  (defmethod on-leftmost-0 (tm cont-true cont-false)
+  (defgeneric on-leftmost-0 (tm state cont-true cont-false))
+  (defmethod on-leftmost-0 (tm (state void) cont-true cont-false)
+    (declare (ignore tm state cont-true))
+    (funcall cont-false)
+    )
+  (defmethod on-leftmost-0 (tm (state parked) cont-true cont-false)
+    (declare (ignore tm state cont-true))
+    (funcall cont-false)
+    )
+  (defmethod on-leftmost-0 (tm (state active) cont-true cont-false)
     (let(
           (tm1 (fork-0 tm))
           )

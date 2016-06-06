@@ -36,7 +36,6 @@ of the primitives.
   ;; this will work for many tm types
   (defmethod park-0 (tm (state active) cont-ok cont-void)
     (declare (ignore state cont-void))
-    (disentangle tm)
     (setf (HA tm) ∅)
     (setf (state tm) parked)
     (funcall cont-ok)
@@ -44,7 +43,7 @@ of the primitives.
   
   (defun void (tm)
     "voids the machine"
-    (void-0 tm (state tm))
+    (∀ (entanglements tm) (λ(es)(void-0 (r es) (state (r es)))t))
     )
   (defgeneric void-0 (tm state))
   (defmethod void-0 (tm (state void))
@@ -53,21 +52,19 @@ of the primitives.
   ;; this will work for many tm types
   (defmethod void-0 (tm (state parked))
     (declare (ignore state))
-    (disentangle tm)
     (setf (tape tm) ∅)
     (setf (state tm) void)
     )
   ;; this will work for many tm types
   (defmethod void-0 (tm (state active))
     (declare (ignore state))
-    (disentangle tm)
     (setf (HA tm) ∅) ; parks the head
     (setf (tape tm) ∅) ; voids the tape
     (setf (state tm) void)
     )
 
 ;;--------------------------------------------------------------------------------
-;; tape-machine forking
+;; tape-machine copying
 ;;   we need a layer 0 with no entanglement accounting in order to implement the
 ;;   entanglement list functions sans circular references.
 ;;

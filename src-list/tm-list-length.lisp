@@ -12,13 +12,27 @@ See LICENSE.txt
     (¬ (cdr (tape tm0)))
     )
 
-  (defmethod singleton ((tm0 tm-list) &optional (cont-true (be t)) (cont-false (be ∅)))
+  (defmethod singleton-0 ((tm0 tm-list) (state active) cont-true cont-false)
     (if (¬ (cdr (tape tm0)))
-      cont-true
-      cont-false
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+  (defmethod singleton-0 ((tm0 tm-list) (state parked) cont-true cont-false)
+    (if (¬ (cdr (tape tm0)))
+      (funcall cont-true)
+      (funcall cont-false)
       ))
 
-  (defmethod doubleton ((tm0 tm-list) &optional (cont-true (be t)) (cont-false (be ∅)))
+  (defmethod doubleton-0 ((tm0 tm-list) (state active) cont-true cont-false)
+    (if
+      (∧
+        (cdr (tape tm0))
+        (¬ (cddr (tape tm0)))
+        )
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+  (defmethod doubleton-0 ((tm0 tm-list) (state parked) cont-true cont-false)
     (if
       (∧
         (cdr (tape tm0))
@@ -28,7 +42,17 @@ See LICENSE.txt
       (funcall cont-false)
       ))
   
-  (defmethod tripleton ((tm0 tm-list) &optional (cont-true (be t)) (cont-false (be ∅)))
+  (defmethod tripleton-0 ((tm0 tm-list) (state active) cont-true cont-false)
+    (if
+      (∧
+        (cdr (tape tm0))
+        (cddr (tape tm0))
+        (¬ (cdddr (tape tm0)))
+        )
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+  (defmethod tripleton-0 ((tm0 tm-list) (state parked) cont-true cont-false)
     (if
       (∧
         (cdr (tape tm0))

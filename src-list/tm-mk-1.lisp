@@ -31,28 +31,41 @@ See LICENSE.txt
 
    (defun print-machine-0 (tm &optional (n 0))
      (indent n) (princ tm) (nl)
-     (indent n) (princ "state: " (princ (type-of (state tm))))(nl)
+     (indent n) (princ "state: ") (princ (type-of (state tm)))(nl)
      (indent n) (princ "HA: ") (princ (HA tm)) (nl)
      (indent n) (princ "tape: ") (princ (tape tm)) (nl)
      (indent n) (princ "parameters: ") (princ (parameters tm)) (nl)
      )
 
-   (defun print-machine (tm &optional (n 0))
-     (print-machine-0 n)
+   ;; does not recursively descend into entangled machines, just prints their ids
+   (defun print-entanglements-1 (tm &optional (n 0))
      (indent n) (princ "entanglements:") (nl)
      (let(
            (es (entanglements tm))
            )
-       (when es
-         (cue-leftmost es))
-         (⟳(λ(cont-loop cont-return)
-             (if 
-               (eq (r es) tm)
-               (progn (indent (1+ n)) (princ "#self")(nl))
-               (print-machine-0 (r es) (1+ n))
-               )
-             (s es cont-loop cont-return)
-             ))))
+       (cue-leftmost es
+         (λ() ; all cued up
+           (⟳(λ(cont-loop cont-return)
+               (r es
+                 (λ(entangled-tm) 
+                   (indent n)
+                   (when (eq entangled-tm tm) (princ "#self:"))
+                   (princ entangled-tm) 
+                   (nl)
+                   )
+                 #'cant-happen ; we called cue-leftmost to get here
+                 )
+               (s es cont-loop cont-return)
+               )))
+         (λ() ; cue failed
+           (indent n)(princ "#empty")(nl)
+           ))))
+
+   (defun print-machine (tm &optional (n 0))
+     (print-machine-0 tm n)
+     (print-entanglements-1 tm n)
+     )
+
 
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified type to hold the specified objects

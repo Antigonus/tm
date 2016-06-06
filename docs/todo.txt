@@ -99,3 +99,7 @@ behavior .. currently tm-depth and tm-breadth can not be parked or voided.
 31. d◧-0 on region will collide with the rightmost marker when attempting
 to deallocate the last cell, need to fix this.
 
+32.
+  ;; behavior is not transactional, all machines update even when one or more cont-not-supported
+  ;; need to check support first
+  (defun ∀-entanglements-d◧-0 (tm cont-ok cont-not-supported)

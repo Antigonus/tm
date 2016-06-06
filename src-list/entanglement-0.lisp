@@ -137,7 +137,7 @@ Fork and Entanglement
       ))
 
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-    "tm0 collides with an entangled machine."
+    "tm collides with an entangled machine."
     (let(
           (es (entanglements tm))
           )

@@ -67,10 +67,10 @@ of the primitives.
       ))
 
   ;; all entangled machines share the same tape, but typically reference the tape by its
-  ;; leftmost cell, so the references to the tape need to be updated after a new leftmost
-  ;; cell is added. If the tape is referenced in another manner in some other tape machine
-  ;; implementation, then a◧-1 must be further specified for that other implementation.
-  ;; If tm is void, then adding a cell to the tape will transition the machine to parked
+  ;; leftmost cell, so all references to the tape by entangled machines need to be updated
+  ;; after a new leftmost cell is added. If the tape is referenced in another manner in
+  ;; some other tape machine implementation, then a◧-1 and/or a◧-also-0 must be further
+  ;; specified for that other implementation.
   (defun a◧
     (
       tm
@@ -84,47 +84,51 @@ of the primitives.
     (a◧-1 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
     )
 
-  (defun entanglements-follow-0 (tm)
-        (let(
-              (tape (tape tm))
-              (entanglements (entanglements tm))
-              )
-          (∀ entanglements 
-            (λ(es)
-              (setf (tape (r es)) tape)
-              t
-              ))
-          ))
-
-  (defun entanglements-follow-1 (tm)
-        (let(
-              (tape (tape tm))
-              (state (state tm))
-              (entanglements (entanglements tm))
-              )
-          (∀ entanglements 
-            (λ(es)
-              (setf (tape (r es)) tape)
-              (setf (state (r es)) state)
-              t
-              ))
-          ))
+  ;; this is a message sent to all entangled machines to tell them that tm0
+  ;; has been had a new leftmost cell added to the tape.
+  (defun a◧-also (tm-also tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
+    (a◧-also-0 tm-also (state tm-also) tm0 cont-ok cont-not-supported)
+    )
+  (defgeneric a◧-also-0 (tm-also state tm0 cont-ok cont-not-supported))
+  ;; this is typically all that has to be done, but special machines might do something
+  ;; different.
+  (defmethod a◧-also-0 (tm-also (state void) tm0 cont-ok cont-not-supported)
+    (declare (ignore cont-not-supported))
+    (when (¬ (eq tm-also tm0))
+      (setf (state tm-also) (state tm0)) ; typically will be parked
+      (setf (HA tm-also) (HA tm0))
+      (setf (tape tm-also) (tape tm0))
+      (funcall cont-ok)
+      ))
+  (defmethod a◧-also-0 (tm-also state tm0 cont-ok cont-not-supported)
+    (declare (ignore cont-not-supported))
+    (when (¬ (eq tm-also tm0))
+      (setf (tape tm-also) (tape tm0))
+      (funcall cont-ok)
+      ))
+  ;; for non-singleton machine, so there is not state change
+  ;; all entangled machines share the same tape
+  ;; delete leftmost for one machine, then update the tape for all others
+  (defun ∀-entanglements-a◧-also (tm cont-ok cont-not-supported)
+    (let(
+          (es (entanglements tm))
+          )
+      (unless es (return-from ∀-entanglements-a◧-also))
+      (cue-leftmost es)
+      (∀* es (λ(es)(a◧-also (r es) tm)) cont-ok cont-not-supported)
+      ))
 
   (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
   (defmethod a◧-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
-      (λ()
-        (entanglements-follow-1 tm)
-        (funcall cont-ok)
-        )
+      (λ()(∀-entanglements-a◧-also tm cont-ok cont-not-supported))
       cont-not-supported
       cont-no-alloc
       ))
   (defmethod a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
       (λ()
-        (entanglements-follow-0 tm)
-        (funcall cont-ok)
+        (λ()(∀-entanglements-a◧-also tm cont-ok cont-not-supported))
         )
       cont-not-supported
       cont-no-alloc
@@ -153,14 +157,32 @@ of the primitives.
     (d◧-1 tm (state tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
 
-  ;; I would have made this generic, but chances are if one needs to specify a 
-  ;; different version, one will be respecifying d◧-1 also (where this is called from).
-  (defun to-void (tm)
-    (setf (state tm) void)
-    (setf (HA tm) ∅)
-    (setf (tape tm) ∅)
-    (entanglements-follow-1 tm)
+  ;; this is a message sent to each entangled machine to tell it that d◧ was called on the
+  ;; machine given as the tm0 in the args list.  This is used when tm0 remains active after
+  ;; removing the leftmost cell.
+  (defun d◧-also (tm-also tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
+    (d◧-also-0 tm-also (state tm-also) tm0 cont-ok cont-not-supported)
     )
+  (defgeneric d◧-also-0 (tm-also state tm0 cont-ok cont-not-supported))
+  ;; this is typically all that has to be done, but special machines might do something
+  ;; different.
+  (defmethod d◧-also-0 (tm-also state  tm0 cont-ok cont-not-supported)
+    (declare (ignore cont-not-supported))
+    (when (¬ (eq tm-also tm0))
+      (setf (tape tm-also) (tape tm0))
+      (funcall cont-ok)
+      ))
+  ;; for non-singleton machine, so there is not state change
+  ;; all entangled machines share the same tape
+  ;; delete leftmost for one machine, then update the tape for all others
+  (defun ∀-entanglements-d◧-also (tm cont-ok cont-not-supported)
+    (let(
+          (es (entanglements tm))
+          )
+      (unless es (return-from ∀-entanglements-d◧-also))
+      (cue-leftmost es)
+      (∀* es (λ(es)(d◧-also (r es) tm)) cont-ok cont-not-supported)
+      ))
 
   (defgeneric d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
   (defmethod d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
@@ -175,34 +197,42 @@ of the primitives.
                   spill 
                   (as spill dealloc-object
                     (λ() 
-                      (to-void tm)
-                      (funcall cont-ok)
+                      (void tm)
+                      (funcall cont-ok dealloc-object)
                       )
                     cont-no-alloc
                     )
                   (progn 
-                    (to-void tm)
-                    (funcall cont-ok)
+                    (void tm)
+                    (funcall cont-ok dealloc-object)
                     )))
               (λ() ; not singleton, so no state change
-                (d◧-0 tm (state tm)
-                  (λ()
-                    (if
-                      spill 
-                      (as spill dealloc-object
-                        (λ() 
-                          (entanglements-follow-0 tm)
-                          (funcall cont-ok)
-                          )
-                        cont-no-alloc
-                        )
-                      (progn
-                        (entanglements-follow-0 tm)
-                        (funcall cont-ok)
-                        )))
-                  cont-not-supported
-                  )))
-            )))
+                (if
+                  spill 
+                  ;; if spill 
+                  (as spill dealloc-object
+                    (λ() 
+                      (d◧-0 tm (state tm)
+                        (λ()
+                          (∀-entanglements-d◧-also
+                            tm
+                            (λ()(funcall cont-ok dealloc-object))
+                            cont-not-supported ; an entangled machine claims d◧ is not supported
+                            ))
+                        cont-not-supported
+                        ))
+                    cont-no-alloc
+                    )
+                  ;; if not spill
+                  (d◧-0 tm (state tm)
+                    (λ()
+                      (∀-entanglements-d◧-also
+                        tm
+                        (λ()(funcall cont-ok dealloc-object))
+                        cont-not-supported ; an entangled machine claims d◧ is not supported
+                        ))
+                    cont-not-supported
+                    )))))))
       cont-rightmost ; reading void, limiting case of deleting cells from a tape
       ))
 
@@ -229,32 +259,25 @@ of the primitives.
     (d◧-1 tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
   (defmethod d-1 (tm (state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (csnr tm 1
-      (λ(dealloc-object) 
-        (let(
-              (tm1 (fork-1 tm))
-              )
+    (let(
+          (tm1 (fork-1 tm))
+          )
+      (s tm1
+        (λ()
           (∃-collision tm1
             cont-collision
             (λ() 
-              (d-0 tm state 
-                (λ() ; cont-ok for d-0
-                  (if
-                    spill 
-                    (as spill dealloc-object
-                      (λ() 
-                        (entanglements-follow-0 tm)
-                        (funcall cont-ok)
-                        )
-                      cont-no-alloc
-                      )
-                    (progn
-                      (entanglements-follow-0 tm)
-                      (funcall cont-ok)
-                      )))
-                cont-not-supported
-                )))))
-      cont-rightmost
-      #'cant-happen
-      ))
+              (if
+                spill
+                ;; if spill
+                (as spill (r tm1)
+                  (λ()
+                    (d-0 tm state
+                      (λ()(funcall cont-ok dealloc-object))
+                      cont-not-supported
+                      ))
+                  cont-no-alloc
+                  )))))
+        cont-rightmost
+        )))
 

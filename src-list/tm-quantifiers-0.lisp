@@ -296,7 +296,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; indexed read and write
 ;;
-  (defun csnr 
+  (defun fsnr 
     (
       tm
       index
@@ -306,16 +306,16 @@ See LICENSE.txt
       (cont-parked (λ()(error 'parked-head-use)))
       )
     "fork tm, step n places, then read."
-    (csnr-0 tm (state tm) index cont-ok cont-rightmost cont-parked)
+    (fsnr-0 tm (state tm) index cont-ok cont-rightmost cont-parked)
     )
-  (defgeneric csnr-0 (tm state index cont-ok cont-rightmost cont-parked))
-  (defmethod csnr-0 (tm (state void) index cont-ok cont-rightmost cont-parked)
+  (defgeneric fsnr-0 (tm state index cont-ok cont-rightmost cont-parked))
+  (defmethod fsnr-0 (tm (state void) index cont-ok cont-rightmost cont-parked)
     (declare (ignore tm state cont-ok))
     (if (= 0 index)
       (funcall cont-parked)
       (funcall cont-rightmost index)
       ))
-  (defmethod csnr-0 (tm (state parked) index cont-ok cont-rightmost cont-parked)
+  (defmethod fsnr-0 (tm (state parked) index cont-ok cont-rightmost cont-parked)
     (if (= 0 index)
       (funcall cont-parked)
       (let(
@@ -323,19 +323,19 @@ See LICENSE.txt
             )
         (cue-leftmost tm1) ; this will unpark the head
         (sn tm1 (1- index) 
-          (λ()(r tm cont-ok #'cant-happen))
+          (λ()(r tm1 cont-ok #'cant-happen))
           (λ(n)(funcall cont-rightmost n))
           ))))
-  (defmethod csnr-0 (tm (state active) index cont-ok cont-rightmost cont-parked)
+  (defmethod fsnr-0 (tm (state active) index cont-ok cont-rightmost cont-parked)
     (let(
           (tm1 (fork-0 tm))
           )
       (sn tm1 index
-        (λ()(r tm cont-ok #'cant-happen))
+        (λ()(r tm1 cont-ok #'cant-happen))
         (λ(n)(funcall cont-rightmost n))
         )))
 
-  (defun csnw 
+  (defun fsnw 
     (
       tm
       object
@@ -346,16 +346,16 @@ See LICENSE.txt
       (cont-parked (λ()(error 'parked-head-use)))
       )
     "fork tm, step n places, then write object."
-    (csnw-0 tm (state tm) object index cont-ok cont-rightmost cont-parked)
+    (fsnw-0 tm (state tm) object index cont-ok cont-rightmost cont-parked)
     )
-  (defgeneric csnw-0 (tm state object index cont-ok cont-rightmost cont-parked))
-  (defmethod csnw-0 (tm (state void) object index cont-ok cont-rightmost cont-parked)
+  (defgeneric fsnw-0 (tm state object index cont-ok cont-rightmost cont-parked))
+  (defmethod fsnw-0 (tm (state void) object index cont-ok cont-rightmost cont-parked)
     (declare (ignore tm state object cont-ok))
     (if (= 0 index)
       (funcall cont-parked)
       (funcall cont-rightmost index)
       ))
-  (defmethod csnw-0 (tm (state parked) object index cont-ok cont-rightmost cont-parked)
+  (defmethod fsnw-0 (tm (state parked) object index cont-ok cont-rightmost cont-parked)
     (if (= 0 index)
       (funcall cont-parked)
       (let(
@@ -366,7 +366,7 @@ See LICENSE.txt
           (λ()(w tm1 object cont-ok #'cant-happen))
           (λ(n)(funcall cont-rightmost n))
           ))))
-  (defmethod csnw-0 (tm (state active) object index cont-ok cont-rightmost cont-parked)
+  (defmethod fsnw-0 (tm (state active) object index cont-ok cont-rightmost cont-parked)
     (let(
           (tm1 (fork-0 tm))
           )
