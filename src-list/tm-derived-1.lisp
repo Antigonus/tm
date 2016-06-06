@@ -86,26 +86,26 @@ of the primitives.
 
   ;; this is a message sent to all entangled machines to tell them that tm0
   ;; has been had a new leftmost cell added to the tape.
-  (defun a◧-message (tm-message tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
-    (a◧-message-0 tm-message (state tm-message) tm0 cont-ok cont-not-supported)
+  (defun a◧-message (tm-receiver tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
+    (a◧-message-0 tm-receiver (state tm-receiver) tm0 cont-ok cont-not-supported)
     )
-  (defgeneric a◧-message-0 (tm-message state tm0 cont-ok cont-not-supported))
+  (defgeneric a◧-message-0 (tm-receiver state tm0 cont-ok cont-not-supported))
   ;; this is typically all that has to be done, but special machines might do something
   ;; different.
-  (defmethod a◧-message-0 (tm-message (state void) tm0 cont-ok cont-not-supported)
+  (defmethod a◧-message-0 (tm-receiver (state void) tm0 cont-ok cont-not-supported)
     (declare (ignore cont-not-supported))
-    (when (¬ (eq tm-message tm0))
-      (setf (state tm-message) (state tm0)) ; typically will be parked
-      (setf (HA tm-message) (HA tm0))
-      (setf (tape tm-message) (tape tm0))
-      (funcall cont-ok)
-      ))
+    (when (¬ (eq tm-receiver tm0))
+      (setf (state tm-receiver) (state tm0)) ; typically will be parked
+      (setf (HA tm-receiver) (HA tm0))
+      (setf (tape tm-receiver) (tape tm0))
+      )
+    (funcall cont-ok)
+    )
   (defmethod a◧-message-0 (tm-message state tm0 cont-ok cont-not-supported)
     (declare (ignore cont-not-supported))
-    (when (¬ (eq tm-message tm0))
-      (setf (tape tm-message) (tape tm0))
-      (funcall cont-ok)
-      ))
+    (when (¬ (eq tm-message tm0)) (setf (tape tm-message) (tape tm0)))
+    (funcall cont-ok)
+    )
   ;; for non-singleton machine, so there is not state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
@@ -122,17 +122,9 @@ of the primitives.
         )))
 
   (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
-  (defmethod a◧-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
-    (a◨-0 tm state object
-      (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
-      cont-not-supported
-      cont-no-alloc
-      ))
   (defmethod a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc)
-    (a◨-0 tm state object
-      (λ()
-        (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
-        )
+    (a◧-0 tm state object
+      (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
       cont-not-supported
       cont-no-alloc
       ))

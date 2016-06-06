@@ -77,7 +77,7 @@ See LICENSE.txt
       (eq (state a) active)
       (park a)
       (eq (state a) parked)
-      (= (d◧ a) 6)
+      (= (d◧ a) 7)
       (eq (state a) void)
       (a a 3)
       (eq (state a) parked)

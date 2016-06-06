@@ -93,7 +93,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  ;; void state handled in tm-primitives
   (defmethod a◧-0
     (
       (tm tm-list)
@@ -118,6 +117,20 @@ See LICENSE.txt
       )
     (declare (ignore state cont-not-supported cont-no-alloc)) ; should do something with cont-no-alloc
     (setf (tape tm) (cons object (tape tm)))
+    (funcall cont-ok)
+    )
+  (defmethod a◧-0
+    (
+      (tm tm-list)
+      (state void)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (declare (ignore state cont-not-supported cont-no-alloc)) ; should do something with cont-no-alloc
+    (setf (state tm) parked)
+    (setf (tape tm) (cons object ∅))
     (funcall cont-ok)
     )
 
