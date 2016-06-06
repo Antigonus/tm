@@ -12,9 +12,6 @@ See LICENSE.txt
 ;; removing an entanglement
 ;; 
 ;;
-  ;; This is built specifically around entanglements that use tm-list so as to avoid
-  ;; circular creation of entanglements. None of the functions used here create
-  ;; entanglements.
   (defun disentangle (tm)
     "Removes tm from the associated entanglements set. This is done, for example, 
      in the cue-to function to release the instance for reuse.
@@ -26,7 +23,7 @@ See LICENSE.txt
       (let(
             (e (r◧ es))
             )
-        (when 
+        (when
           (eq e tm)
           (d◧ es)
           (return-from disentangle)

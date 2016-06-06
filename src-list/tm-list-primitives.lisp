@@ -175,7 +175,7 @@ See LICENSE.txt
 
   ;; deallocates the leftmost cell
   ;; entanglement accounting, transition to void, and spilling is handled by the caller
-  ;; void and parked cases handled by the caller
+  ;; void case handled by the caller
   (defmethod d◧-0
     (
       (tm tm-list)
@@ -187,6 +187,18 @@ See LICENSE.txt
     (setf (tape tm) (cdr (tape tm)))
     (funcall cont-ok)
     )
+  (defmethod d◧-0
+    (
+      (tm tm-list)
+      (state parked)
+      cont-ok
+      cont-not-supported
+      )
+    (declare (ignore state cont-not-supported))
+    (setf (tape tm) (cdr (tape tm)))
+    (funcall cont-ok)
+    )
+
 
   ;; deallocates the cell just to the right of the head
   ;; entanglement accounting, transition to void, and spilling is handled by the caller

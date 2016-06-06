@@ -69,7 +69,7 @@ of the primitives.
   ;; all entangled machines share the same tape, but typically reference the tape by its
   ;; leftmost cell, so all references to the tape by entangled machines need to be updated
   ;; after a new leftmost cell is added. If the tape is referenced in another manner in
-  ;; some other tape machine implementation, then a◧-1 and/or a◧-also-0 must be further
+  ;; some other tape machine implementation, then a◧-1 and/or a◧-message-0 must be further
   ;; specified for that other implementation.
   (defun a◧
     (
@@ -86,49 +86,49 @@ of the primitives.
 
   ;; this is a message sent to all entangled machines to tell them that tm0
   ;; has been had a new leftmost cell added to the tape.
-  (defun a◧-also (tm-also tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
-    (a◧-also-0 tm-also (state tm-also) tm0 cont-ok cont-not-supported)
+  (defun a◧-message (tm-message tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
+    (a◧-message-0 tm-message (state tm-message) tm0 cont-ok cont-not-supported)
     )
-  (defgeneric a◧-also-0 (tm-also state tm0 cont-ok cont-not-supported))
+  (defgeneric a◧-message-0 (tm-message state tm0 cont-ok cont-not-supported))
   ;; this is typically all that has to be done, but special machines might do something
   ;; different.
-  (defmethod a◧-also-0 (tm-also (state void) tm0 cont-ok cont-not-supported)
+  (defmethod a◧-message-0 (tm-message (state void) tm0 cont-ok cont-not-supported)
     (declare (ignore cont-not-supported))
-    (when (¬ (eq tm-also tm0))
-      (setf (state tm-also) (state tm0)) ; typically will be parked
-      (setf (HA tm-also) (HA tm0))
-      (setf (tape tm-also) (tape tm0))
+    (when (¬ (eq tm-message tm0))
+      (setf (state tm-message) (state tm0)) ; typically will be parked
+      (setf (HA tm-message) (HA tm0))
+      (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
       ))
-  (defmethod a◧-also-0 (tm-also state tm0 cont-ok cont-not-supported)
+  (defmethod a◧-message-0 (tm-message state tm0 cont-ok cont-not-supported)
     (declare (ignore cont-not-supported))
-    (when (¬ (eq tm-also tm0))
-      (setf (tape tm-also) (tape tm0))
+    (when (¬ (eq tm-message tm0))
+      (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
       ))
   ;; for non-singleton machine, so there is not state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
-  (defun ∀-entanglements-a◧-also (tm cont-ok cont-not-supported)
+  (defun ∀-entanglements-a◧-message (tm cont-ok cont-not-supported)
     (let(
           (es (entanglements tm))
           )
-      (unless es (return-from ∀-entanglements-a◧-also))
+      (unless es (return-from ∀-entanglements-a◧-message))
       (cue-leftmost es)
-      (∀* es (λ(es)(a◧-also (r es) tm)) cont-ok cont-not-supported)
+      (∀* es (λ(es)(a◧-message (r es) tm)) cont-ok cont-not-supported)
       ))
 
   (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
   (defmethod a◧-1 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
-      (λ()(∀-entanglements-a◧-also tm cont-ok cont-not-supported))
+      (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
       cont-not-supported
       cont-no-alloc
       ))
   (defmethod a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (a◨-0 tm state object
       (λ()
-        (λ()(∀-entanglements-a◧-also tm cont-ok cont-not-supported))
+        (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
         )
       cont-not-supported
       cont-no-alloc
@@ -140,7 +140,7 @@ of the primitives.
   ;; as for a◧, we assume that the tape is referenced through its lefmost cell.  When this
   ;; is not true for a given implementation, that implementation will have to further
   ;; specify d◧-1.  So, when we deallocate the leftmost cell of a tape, we have to update
-  ;; the tape reference in all of the entangled machines.  Also, if the leftmost cell is
+  ;; the tape reference in all of the entangled machines.  Message, if the leftmost cell is
   ;; the last cell on the tape, we have to transition to void, and thus up date the state
   ;; recorded in the entangled machines.
   (defun d◧ (
@@ -160,37 +160,44 @@ of the primitives.
   ;; this is a message sent to each entangled machine to tell it that d◧ was called on the
   ;; machine given as the tm0 in the args list.  This is used when tm0 remains active after
   ;; removing the leftmost cell.
-  (defun d◧-also (tm-also tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
-    (d◧-also-0 tm-also (state tm-also) tm0 cont-ok cont-not-supported)
+  (defun d◧-message (tm-message tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
+    (d◧-message-0 tm-message (state tm-message) tm0 cont-ok cont-not-supported)
     )
-  (defgeneric d◧-also-0 (tm-also state tm0 cont-ok cont-not-supported))
+  (defgeneric d◧-message-0 (tm-message state tm0 cont-ok cont-not-supported))
   ;; this is typically all that has to be done, but special machines might do something
   ;; different.
-  (defmethod d◧-also-0 (tm-also state  tm0 cont-ok cont-not-supported)
+  (defmethod d◧-message-0 (tm-message state  tm0 cont-ok cont-not-supported)
     (declare (ignore cont-not-supported))
-    (when (¬ (eq tm-also tm0))
-      (setf (tape tm-also) (tape tm0))
+    (when (¬ (eq tm-message tm0))
+      (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
       ))
   ;; for non-singleton machine, so there is not state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
-  (defun ∀-entanglements-d◧-also (tm cont-ok cont-not-supported)
+  (defun ∀-entanglements-d◧-message (tm cont-ok cont-not-supported)
     (let(
           (es (entanglements tm))
           )
-      (unless es (return-from ∀-entanglements-d◧-also))
+      (unless es (return-from ∀-entanglements-d◧-message))
       (cue-leftmost es)
-      (∀* es (λ(es)(d◧-also (r es) tm)) cont-ok cont-not-supported)
-      ))
+      (∀* es 
+        (λ(es)
+          (∨
+            (eq (r es) tm)
+            (d◧-message (r es) tm)
+            ))
+        cont-ok 
+        cont-not-supported
+        )))
+
 
   (defgeneric d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
   (defmethod d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (r◧ tm
-      (λ(dealloc-object)
-        (∃-collision◧ tm
-          cont-collision
-          (λ() 
+      (λ(dealloc-object) ; r◧ reads leftmost cell, finds dealloc-object
+        (∀-parked tm
+          (λ() ; all parked
             (singleton tm 
               (λ() ; is singleton-tape, state transitions to void
                 (if
@@ -214,7 +221,7 @@ of the primitives.
                     (λ() 
                       (d◧-0 tm (state tm)
                         (λ()
-                          (∀-entanglements-d◧-also
+                          (∀-entanglements-d◧-message
                             tm
                             (λ()(funcall cont-ok dealloc-object))
                             cont-not-supported ; an entangled machine claims d◧ is not supported
@@ -226,14 +233,16 @@ of the primitives.
                   ;; if not spill
                   (d◧-0 tm (state tm)
                     (λ()
-                      (∀-entanglements-d◧-also
+                      (∀-entanglements-d◧-message
                         tm
                         (λ()(funcall cont-ok dealloc-object))
                         cont-not-supported ; an entangled machine claims d◧ is not supported
                         ))
                     cont-not-supported
-                    )))))))
-      cont-rightmost ; reading void, limiting case of deleting cells from a tape
+                    )))))
+          cont-collision ; not all parked
+          ))
+      cont-rightmost ; r◧ fails because tm is void
       ))
 
   (defun d (
