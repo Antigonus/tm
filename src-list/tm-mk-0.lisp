@@ -53,7 +53,9 @@ See LICENSE.txt
 ;;  our integer recurrance generator, it is a struct that holds the min value (start
 ;;  value), the max value, and the increment.
 ;;
-;;  entanglments is a list of machines that share the tape.
+;;  entanglments is a list of machines that share the tape.  Note, normally a machine is
+;;  entangled with itself.  If it happens that a machine is not entangled with itself,
+;;  some tests, such as ∀-parked, may return non-intutive results.
 ;;
   (defclass tape-machine ()
     (

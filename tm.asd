@@ -76,6 +76,19 @@ See LICENSE.txt
                                (:file "tm-list-length")
                                (:file "tm-list-convert")
 
+                             ;; dataflow
+;;                               (:file "dataflow")
+                               ))
+
+               (:module "src-generators"
+                 :components (
+
+                             ;; simple generators 
+                              ;; (:file "tm-line")
+                               ))
+
+               (:module "src-transforms"
+                 :components (
 
 #|
                              ;; transforms
@@ -90,12 +103,6 @@ See LICENSE.txt
                                (:file "tm-breadth-primitives")
                                (:file "tm-breadth-convert")
 
-                             ;; simple generators 
-                               (:file "tm-line")
-
-
-                             ;; dataflow
-                               (:file "dataflow")
   |#
 
                             ))
@@ -103,28 +110,39 @@ See LICENSE.txt
                (:module "test-list"
                 :components (
                               (:file "tm-state")
-#|
                               
                               (:file "tm-derived")
-
                               (:file "tm-subspace")
+#|
                               (:file "tm-quantifiers")
 
                               (:file "length")
                               (:file "location")
 
                               (:file "buffers")
-                              (:file "tm-region")
-                              (:file "tm-depth")
-                              (:file "tm-breadth")
-
-                              (:file "tm-line")
 
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
 |#
                               ))
+
+
+               (:module "test-generators"
+                :components (
+                             ;; (:file "tm-line")
+
+                              ))
+
+               (:module "test-transforms"
+                :components (
+#|
+                              (:file "tm-region")
+                              (:file "tm-depth")
+                              (:file "tm-breadth")
+|#
+                              ))
+
 
 #|
 

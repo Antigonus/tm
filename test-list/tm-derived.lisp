@@ -17,17 +17,17 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-derived
 ;;
-  (defun test-r-index-0 ()
+  (defun test-fsnr-0 ()
     (let(
           (k (mount [6 7 8]))
           )
       (∧
-        (= 6 (r-index k 0))
-        (= 7 (r-index k 1))
-        (= 8 (r-index k 2))
-        (r-index k 3 (be ∅) (be t))
+        (= 6 (fsnr k 0))
+        (= 7 (fsnr k 1))
+        (= 8 (fsnr k 2))
+        (fsnr k 3 (be ∅) (be t))
         )))
-  (test-hook test-r-index-0)
+  (test-hook test-fsnr-0)
 
   (defun test-d◧-0 ()
     (let*(
@@ -35,10 +35,9 @@ See LICENSE.txt
            (tm1 (mount a))
            )
       (s tm1) ; moves head off of leftmost
-      (d◧ tm1)
-      (equal
-        (tape tm1)
-        '(2 3)
+      (∧
+        (= (d◧ tm1) 1)
+        (equal (tape tm1) '(2 3))
         )))
   (test-hook test-d◧-0)
 

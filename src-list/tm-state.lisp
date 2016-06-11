@@ -46,15 +46,13 @@ These methods may cause state changes:
           (es (entanglements tm))
           )
       (if
-        (∧
-          (eq (state tm) parked)
-          (∨
-            (¬ es)
-            (∀ es (λ(es)(∨ (eq (r es) tm) (eq (state (r es)) parked))))
-            ))
-        (funcall cont-true)
-        (funcall cont-false)
-        )))
+        (∨
+          (¬ es) ; no machines are on the tape, so no machine is not parked
+          (∀ es (λ(es)(eq (state (r es)) parked)))
+          )
+      (funcall cont-true)
+      (funcall cont-false)
+      )))
 
   (defun void (tm)
     "voids the machine"

@@ -190,11 +190,11 @@ of the primitives.
   (defgeneric d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
   (defmethod d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (r◧ tm
-      (λ(dealloc-object) ; r◧ reads leftmost cell, finds dealloc-object
-        (∀-parked tm
-          (λ() ; all parked
-            (singleton tm 
-              (λ() ; is singleton-tape, state transitions to void
+      (λ(dealloc-object) ; r◧ succeeds
+        (singleton tm 
+          (λ() ; is singleton-tape, state transitions to void
+            (∀-parked tm
+              (λ() ; all parked
                 (if
                   spill 
                   (as spill dealloc-object
@@ -208,24 +208,14 @@ of the primitives.
                     (void tm)
                     (funcall cont-ok dealloc-object)
                     )))
-              (λ() ; not singleton, so no state change
-                (if
-                  spill 
-                  ;; if spill 
-                  (as spill dealloc-object
-                    (λ() 
-                      (d◧-0 tm (state tm)
-                        (λ()
-                          (∀-entanglements-d◧-message
-                            tm
-                            (λ()(funcall cont-ok dealloc-object))
-                            cont-not-supported ; an entangled machine claims d◧ is not supported
-                            ))
-                        cont-not-supported
-                        ))
-                    cont-no-alloc
-                    )
-                  ;; if not spill
+              cont-collision ; not all parked
+              ))
+          (λ() ; not singleton, so no state change
+            (if
+              spill 
+              ;; if spill 
+              (as spill dealloc-object
+                (λ() 
                   (d◧-0 tm (state tm)
                     (λ()
                       (∀-entanglements-d◧-message
@@ -234,10 +224,20 @@ of the primitives.
                         cont-not-supported ; an entangled machine claims d◧ is not supported
                         ))
                     cont-not-supported
-                    )))))
-          cont-collision ; not all parked
-          ))
-      cont-rightmost ; r◧ fails because tm is void
+                    ))
+                cont-no-alloc
+                )
+              ;; if not spill
+              (d◧-0 tm (state tm)
+                (λ()
+                  (∀-entanglements-d◧-message
+                    tm
+                    (λ()(funcall cont-ok dealloc-object))
+                    cont-not-supported ; an entangled machine claims d◧ is not supported
+                    ))
+                cont-not-supported
+                )))))
+      cont-rightmost ; r◧ fails, tm must be void
       ))
 
   (defun d (

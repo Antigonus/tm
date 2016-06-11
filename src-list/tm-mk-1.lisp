@@ -43,13 +43,19 @@ See LICENSE.txt
      (let(
            (es (entanglements tm))
            )
+       (unless es 
+         (indent (1+ n))
+         (princ "∅")
+         (nl)
+         (return-from print-entanglements-1)
+         )
        (cue-leftmost es
          (λ() ; all cued up
            (⟳(λ(cont-loop cont-return)
                (r es
                  (λ(entangled-tm) 
-                   (indent n)
-                   (when (eq entangled-tm tm) (princ "#self:"))
+                   (indent (1+ n))
+                   (when (eq entangled-tm tm) (princ "self: "))
                    (princ entangled-tm) 
                    (nl)
                    )
