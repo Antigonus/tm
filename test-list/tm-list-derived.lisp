@@ -10,7 +10,7 @@ See LICENSE.txt
 (defun test-as-0 ()
   (let*(
          (tm0 (mount {7 9 11}))
-         (tm1 (dup tm0))
+         (tm1 (fork tm0))
          )
     (as tm0 8)
     (s tm0)
@@ -19,3 +19,4 @@ See LICENSE.txt
       (= (r tm0) 10)
       (equal (tape tm1) '(7 8 9 10 11)) 
       )))
+(test-hook test-as-0)

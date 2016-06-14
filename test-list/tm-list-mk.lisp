@@ -12,14 +12,16 @@ See LICENSE.txt
 (defun test-tm-mk-list-0 ()
   (let*(
          (tm0 (mk 'tm-list))
-         (tm1 (mount [7 2 -3]))
+         (tm1 (mount {7 2 -3}))
          (tm2 (mk (type-of tm0)))
          )
     (∧
-      (eq (r tm0) 'list)
+      (typep tm2 'tm-list)
+      (= (r tm0 (be 1) (be 2)) 2)
       (eql (r tm1) 7)
-      (eq (car (tape tm2)) 'list)
-      (on-rightmost tm2)
+      (typep (tape tm1) 'cons)
+      (s tm1)(s tm1)
+      (on-rightmost tm1)
       )))
 (test-hook test-tm-mk-list-0)
 

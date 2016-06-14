@@ -117,14 +117,10 @@ See LICENSE.txt
 
                               (:file "length")
                               (:file "location")
-#|
-
-                              (:file "buffers")
 
                               (:file "tm-list-mk")
                               (:file "tm-list-primitives")
                               (:file "tm-list-derived")
-|#
                               ))
 
 
@@ -138,6 +134,7 @@ See LICENSE.txt
                 :components (
 #|
                               (:file "tm-region")
+                              (:file "buffers")
                               (:file "tm-depth")
                               (:file "tm-breadth")
 |#
