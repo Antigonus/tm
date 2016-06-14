@@ -10,6 +10,33 @@ All tape machine implmentations must specialize these functions.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; properties
+;;
+  (defgeneric supports-dealloc (tm &optional cont-true cont-false))
+  (defmethod supports-dealloc ;; default behavior
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-true))
+    (funcall cont-false)
+    )
+  (defgeneric supports-alloc (tm &optional cont-true cont-false))
+  (defmethod supports-alloc ;; default behavior
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-true))
+    (funcall cont-false)
+    )
+  
+
+;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
   (defun r
@@ -173,31 +200,13 @@ All tape machine implmentations must specialize these functions.
 ;;
 ;; There are multiple reasons deallocation might fail a) because there is nothing
 ;; to deallocate,  b) because the tape does not support structural changes c) because
-;; another machine has a head on the dealloc cell.
+;; a machine has a head on the dealloc cell.
 ;;
 ;; d will also fail if spill is not nil, and reallocation to spill fails
 ;;
 ;; Entanglement accounting complicates the swap trick for implementing d◧, so I have made
 ;; it a primitive.
 ;;
-  (defun d*-1
-    (
-      tm
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    "Deallocates the tape.
-    "
-    (d*-0 tm (state tm) cont-ok cont-not-supported)
-    )
-  (defgeneric d*-0 (tm state cont-ok cont-not-supported))
-  ;; deallocation of a whole tape returns no objects, so we can follow cont-ok
-  (defmethod d*-0 (tm (state void) cont-ok cont-not-supported)
-    (declare (ignore cont-not-supported))
-    (funcall cont-ok)
-    )
-
   ;; see tm-derived-1 for defun d◧
   (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
   ;; deallocation of a single cell returns the object that was in the cell,

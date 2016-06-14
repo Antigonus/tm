@@ -39,20 +39,20 @@ These methods may cause state changes:
     (setf (state tm) parked)
     (funcall cont-ok)
     )
+
+  (defun parked (tm) (eq (state tm) parked))
   
   ;; are all entangled machines parked? 
   (defun ∀-parked (tm &optional (cont-true (be t)) (cont-false (be ∅)))  
     (let(
           (es (entanglements tm))
           )
-      (if
-        (∨
-          (¬ es) ; no machines are on the tape, so no machine is not parked
-          (∀ es (λ(es)(eq (state (r es)) parked)))
-          )
-      (funcall cont-true)
-      (funcall cont-false)
-      )))
+      (when (¬ es) (return-from ∀-parked (funcall cont-true)))
+      (cue-leftmost es)
+      (∀ es (λ(es)(eq (state (r es)) parked))
+        cont-true
+        cont-false
+        )))
 
   (defun void (tm)
     "voids the machine"
@@ -83,6 +83,9 @@ These methods may cause state changes:
     (setf (tape tm) ∅) ; voids the tape
     (setf (state tm) void)
     )
+
+  (defun is-void (tm) (eq (state tm) void))
+
 
   ;; If there exists an entangled machine that is void, then all entangled machines are
   ;; void. If there exists an entangled machine that is singleton, then all entangled

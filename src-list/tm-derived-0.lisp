@@ -25,19 +25,20 @@ of the primitives.
   ;; cue-to-0 is primitive
 
   (defun fork-1 (tm-orig)
-    "Adds entanglement accounting to cue-to-0 result, but leaves out the tm-cued
-     machine.
-    "
+    "Returns a machine that is a fork of another, but the returned machine
+     does not appear in its own entanglements list.
+     "
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
           )
       (cue-to-0 tm-cued tm-orig)
       (setf (entanglements tm-cued) (entanglements tm-orig))
-      tm-cued
+      tm-cued ; tm-cued does not appear in its own entanglements list
       ))
 
   (defun fork-0 (tm-orig)
-    "Creates a new machines that is a fork of another, sans entanglement accounting."
+    "Returns a machine that is a fork of another, but without entanglement accounting.
+    "
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
           )
@@ -45,8 +46,6 @@ of the primitives.
       (setf (entanglements tm-cued) ∅)
       tm-cued
       ))
-
-  
 
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write

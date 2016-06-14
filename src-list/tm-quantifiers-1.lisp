@@ -110,43 +110,125 @@ See LICENSE.txt
     (as*-0 tm0 fill cont-ok cont-not-supported cont-no-alloc)
     )
 
-  (defgeneric d* (tm &optional spill 
-                  cont-ok 
-                  cont-not-supported
-                  cont-collision
-                  cont-no-alloc)
-    (:documentation 
-      "Deallocates all cells right of the head up to and including rightmost.
-       If spill is not ∅, then the deallocated right side is moved to it.  Preferably the
-       cells are moved, but often the objects are reallocated to spill using #'as.
+   ;; dealloc single cell functions return on the object in the cell as that is a natural
+   ;; flow for single cell operations.  However, for multiple cell operations we use the
+   ;; spill mechanism.
+   (defun d* (tm &optional spill 
+               (cont-ok (be t))
+               (cont-collision (λ()(error 'dealloc-entangled)))
+               (cont-not-supported (λ()(error 'not-supported)))
+               (cont-spill-not-supported (λ()(error 'spill-not-supported)))
+               (cont-spill-no-alloc (λ()(error 'alloc-fail)))
+               )
+     "Deallocates all cells right of the head up to and including rightmost.
+       If spill is not ∅, then the deallocated right side is moved to it.  Preferably
+       the cells are moved, but often the objects are reallocated to spill using #'as.
       "
+     (d*-1 tm (state tm) spill cont-ok cont-collision cont-not-supported cont-spill-not-supported cont-spill-no-alloc)
+     )
+
+  (defgeneric d*-1 
+    (
+      tm
+      state
+      spill 
+      cont-ok
+      cont-collision 
+      cont-not-supported 
+      cont-spill-not-supported 
+      cont-spill-no-alloc
+      ))
+  (defmethod d*-1
+    (
+      tm
+      (state void)
+      spill
+      cont-ok
+      cont-collision
+      cont-not-supported
+      cont-spill-not-supported
+      cont-spill-no-alloc
+      )
+    (declare (ignore tm spill cont-collision cont-not-supported cont-spill-not-supported cont-spill-no-alloc))
+    (funcall cont-ok)
+    )
+  (defmethod d*-1
+    (
+      tm
+      (state parked)
+      spill
+      cont-ok
+      cont-collision
+      cont-not-supported
+      cont-spill-not-supported
+      cont-spill-no-alloc
+      )
+    (declare (ignore cont-not-supported))
+    (∀-parked tm
+      (λ()
+        (if spill
+          (progn
+            (cue-leftmost tm) ; head was parked
+            (a* spill tm
+              (λ()
+                (void tm)
+                (funcall cont-ok)
+                )
+              cont-spill-not-supported
+              cont-spill-no-alloc
+              ))
+          (progn
+            (void tm)
+            (funcall cont-ok)
+            )))
+      cont-collision
       ))
 
-  (defmethod d*
+  ;; called from d*-1
+  (defun d*-0 (tm)
+    (⟳(λ(cont-loop cont-return)
+        (on-rightmost tm
+          cont-return
+          (λ()
+            (d-0 tm (state tm)
+              cont-loop 
+              #'cant-happen
+              ))
+          ))))
+
+  (defmethod d*-1
     (
-      (tm tape-machine)
-      &optional 
+      tm
+      (state active)
       spill
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      cont-ok
+      cont-collision
+      cont-not-supported
+      cont-spill-not-supported
+      cont-spill-no-alloc
       )
-    (labels(
-             (do-work()
-               (d tm spill 
-                 (λ(object) 
-                   (declare (ignore object))
-                   (funcall #'do-work)
-                   )
-                 cont-ok ; this is at rightmost continuation for #'d
-                 cont-not-supported
-                 cont-collision
-                 cont-no-alloc
-                 ))
-             )
-      (do-work)
-      ))
+    (on-rightmost tm
+      cont-ok
+      (λ()
+        (supports-dealloc tm
+          (λ()
+            (∃-collision-right tm
+              cont-collision
+              (λ()
+                (if spill
+                  (let(
+                        (tm0 (fork-0 tm))
+                        )
+                    (s tm0 #'do-nothing #'cant-happen) ; positions head of fill tm0 for a*
+                    (a* spill tm0
+                      (λ()(d*-0 tm)) ; note use of tm rather than tm0
+                      cont-spill-not-supported
+                      cont-spill-no-alloc
+                      ))
+                  (d*-0 tm)
+                  )))))
+        cont-not-supported
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations

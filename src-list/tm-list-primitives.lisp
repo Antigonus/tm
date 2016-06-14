@@ -16,6 +16,30 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; properties
+;;
+  (defmethod supports-dealloc
+    (
+      (tm tm-list)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-false))
+    (funcall cont-true)
+    )
+  (defmethod supports-alloc
+    (
+      (tm tm-list)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-false))
+    (funcall cont-true)
+    )
+
+;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
   ;; void and parked states handled in tm-primitive
@@ -157,21 +181,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
-  ;; deallocates all cells on the tape
-  ;; entanglement accounting, transition to void, and spilling is handled by the caller
-  ;; void and parked cases handled by the caller
-  (defmethod d*-0
-    (
-      (tm tm-list)
-      (state active)
-      cont-ok
-      cont-not-supported 
-      )
-    (declare (ignore state cont-not-supported))
-    (setf (tape tm) ∅)
-    (funcall cont-ok)
-    )
-
   ;; deallocates the leftmost cell
   ;; entanglement accounting, transition to void, and spilling is handled by the caller
   ;; void case handled by the caller

@@ -247,16 +247,15 @@ See LICENSE.txt
           (tms0 (fork-0 tms))
           (tms1 (fork-0 tms))
           )
-      (if
-        (¬∃ tms0 #'on-rightmost)
-        (progn
+      (¬∃ tms0 (λ(tms0)(on-rightmost (r tms0)))
+        (λ()
           (⟳ (λ(cont-loop cont-return)
                (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
                (s tms1 cont-loop cont-return)
                ))
           (funcall cont-ok 's)
           )
-        (funcall cont-exists-on-rightmost)
+        cont-exists-on-rightmost
         )))
 
 

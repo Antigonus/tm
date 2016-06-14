@@ -90,6 +90,9 @@ See LICENSE.txt
   (define-condition alloc-fail (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition spill-not-supported (error)
+    ((text :initarg :text :reader text)))
+
   ;; alloc and dealloc on arrays, as examples
   (define-condition not-supported (error)
     ((text :initarg :text :reader text)))

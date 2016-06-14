@@ -43,14 +43,18 @@ See LICENSE.txt
 
   (defun test-d*-0 ()
     (let*(
-           (a (list 1 2 3))
-           (tm1 (mount a))
+           (tm0 (mk 'tm-list))
+           (tm1 (mount {1 2 3}))
+           (tm2 (mount {4 5 6}))
            )
       (park tm1)
-      (d* tm1)
-      (equal
-        (unmount tm1)
-        '(1)
+      (∧
+        (d* tm0)
+        (d* tm1)
+        (d* tm2)
+        (is-void tm0)
+        (is-void tm1)
+        (equal (unmount tm2) {4})
         )))
   (test-hook test-d*-0)
 

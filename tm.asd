@@ -113,8 +113,8 @@ See LICENSE.txt
                               
                               (:file "tm-derived")
                               (:file "tm-subspace")
-#|
                               (:file "tm-quantifiers")
+#|
 
                               (:file "length")
                               (:file "location")

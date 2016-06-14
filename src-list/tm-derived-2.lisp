@@ -55,7 +55,7 @@ of the primitives.
     )
 
   (defun fork(tm-orig)
-    "Returns a new tm cued to tm-orig."
+    "Returns a tm cued to tm-orig."
     (let(
           (tm-cued (make-instance (type-of tm-orig)))
           )
@@ -64,7 +64,7 @@ of the primitives.
       ))
 
   ;; Mounts the same tape that another machine has mounted.
-  ;; Unlike fork, upon exit the head is at leftmost.
+  ;; Similar to fork, but upon exit the head is at leftmost.
   (defmethod mount ((tm tape-machine) &optional (cont-ok #'echo) cont-fail)
     (declare (ignore cont-fail))
     (let(
@@ -73,4 +73,24 @@ of the primitives.
       (cue-leftmost fk)
       (funcall cont-ok fk)
       ))
+
+  (defun copy
+    (tm-orig
+      &optional
+      (cont-ok #'echo)
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    "Returns a machine that has its own tape, but references the same objects
+     as tm-orig.  The returned machine is not entangled with tm-orig.
+     "
+    (let(
+          (tm-copy (make-instance (type-of tm-orig)))
+          )
+      (a* tm-copy tm-orig
+        (λ()(funcall cont-ok tm-copy))
+        cont-not-supported
+        cont-no-alloc
+        )))
+    
 

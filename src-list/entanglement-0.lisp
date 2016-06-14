@@ -136,17 +136,45 @@ Fork and Entanglement
       (funcall cont-false)
       ))
 
+  (defun ∃-collision-0 (tm es &optional (cont-true (be t)) (cont-false (be ∅)))
+    "tm collides with one of the machines listed on es."
+    (unless es (return-from ∃-collision-0 (funcall cont-false)))
+    (cue-leftmost es)
+    (∃ es (λ(e)(collision tm (r e)))
+      cont-true
+      cont-false
+      ))
+
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "tm collides with an entangled machine."
     (let(
           (es (entanglements tm))
           )
-      (unless es (return-from ∃-collision (funcall cont-false)))
-      (cue-leftmost es)
-      (∃ es (λ(e)(collision tm (r e)))
+      (∃-collision-0 tm es cont-true cont-false)
+      ))
+
+  (defun ∃-collision-right (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    "an entangled machine has its head on a cell to the right of the cell tm's head is on
+    "
+    (let(
+          (es (entanglements tm))
+          (tm0 (fork-0 tm))
+          )
+      (unless es (return-from ∃-collision-right (funcall cont-false)))
+      (∃-collision-0 tm es
         cont-true
-        cont-false
-        )))
+        (λ()
+          (s tm0  ; after step tm0 will not collide with tm
+            (λ()
+              (⟳(λ(cont-loop cont-return)
+                  (∃-collision-0 tm0 es
+                    (λ()(return-from ∃-collision-right (funcall cont-true)))
+                    (λ()(s tm0 cont-loop cont-return))
+                    )))
+              (funcall cont-false)
+              )
+            cont-false
+            )))))
 
   (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "an entangled machine is on leftmost."
@@ -159,5 +187,4 @@ Fork and Entanglement
         cont-true
         cont-false
         )))
-
 

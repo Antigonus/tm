@@ -21,7 +21,7 @@ syntax of derived functions:
 
   tape-side: -
 
-  command:  r | w | s | a | d | m
+  command:  r | w | s | a | d | m | f
 
   modifier: ◧ ◨ n 
 

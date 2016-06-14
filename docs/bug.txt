@@ -1,0 +1,81 @@
+This test:
+
+(defun test-meta-wrap-0 ()
+  (and
+    (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
+    (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
+    (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
+    ))
+
+Passes when invoked the first time.  Fails when invoked the second time.  However, when
+the definition is pasted at the prompt, it passes every time.  I suspect the 'o' symbol
+that is read by the meta-wrap macro.  Perhaps somewhere it is becoming a symbol?  
+
+* (test-all)
+          + TEST-UNWRAP-0
+          + TEST-META-WRAP-0
+          + TEST-Q-0
+          + TEST-Q-1
+          + TEST-L-0
+          + TEST-L-1
+          + TEST-L-2
+          + TEST-REMOVE-KEY-PAIR-0
+          + TEST-STATE-0
+          + TEST-STATE-1
+          + TEST-FSNR-0
+          + TEST-D◧-0
+          + TEST-D◧-1
+          + TEST-SI-0
+          + TEST-SI-1
+all 15 passed
+T
+* (test-all)
+          + TEST-UNWRAP-0
+     failed TEST-META-WRAP-0
+          + TEST-Q-0
+          + TEST-Q-1
+          + TEST-L-0
+          + TEST-L-1
+          + TEST-L-2
+          + TEST-REMOVE-KEY-PAIR-0
+          + TEST-STATE-0
+          + TEST-STATE-1
+          + TEST-FSNR-0
+          + TEST-D◧-0
+          + TEST-D◧-1
+          + TEST-SI-0
+          + TEST-SI-1
+------
+failed: 1 of 15
+NIL
+*   (and
+    (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
+    (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
+    (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
+)
+
+T
+* (test-meta-wrap-0)
+
+NIL
+* 
+---
+
+hint:
+
+*  (defun test-meta-wrap-0 ()
+    (meta-wrap `(∅ 2 (o (a b) (c d)) 3))
+)
+WARNING: redefining TM::TEST-META-WRAP-0 in DEFUN
+
+TEST-META-WRAP-0
+* (test-meta-wrap-0)
+
+(LIST (LIST ∅ 2) (A B) (C D) (LIST 3))
+* (test-meta-wrap-0)
+
+(LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3))
+* (test-meta-wrap-0)
+
+(LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3) (LIST 3))
+* 
