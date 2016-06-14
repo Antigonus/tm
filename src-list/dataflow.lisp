@@ -10,20 +10,20 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; synchronizing inputs
 ;;
-  (defun synch
+  (defun sync
     (
-      pred
       tms 
       &optional 
+      (pred #'is-active)
       (cont-ready (be t))
       (cont-not-ready 
         (λ(retry tms)
           (declare (ignore retry tms))
-          (error 'not-ready)
+          ∅
           )))
     (labels(
              (retry ()
-               (∀ (mount tms) (λ(tm)(funcall pred (r tm)))
+               (∀ tms (λ(tms)(funcall pred (r tms)))
                  cont-ready
                  (λ()(funcall cont-not-ready #'retry tms))
                  ))

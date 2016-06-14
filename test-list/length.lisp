@@ -16,27 +16,32 @@ See LICENSE.txt
 ;;
   (defun test-ton-0 ()
     (let(
-          (a (mk 'tm-list))
-          (b (mount {1}))
-          (c (mount {1 2}))
-          (d (mount {1 2 3}))
+          (tma (mk 'tm-list))
+          (tmb (mount {1}))
+          (tmc (mount {1 2}))
+          (tmd (mount {1 2 3}))
           )
-      (synch #'mounted {a}
-        (be 'ready-path)
-        (λ(retry tms)
-          (declare (ignore retry))
-          (destructuring-bind (aa) tms
+      (sync (mount {tma tmb tmc tmd})
+        #'is-active
+        (λ()
             (∧
-              (unmounted aa)
-              (singleton b)
-              (not (doubleton b))
-              (not (singleton c))
-              (not (tripleton c))
-              (doubleton c)
-              (not (singleton d))
-              (not (doubleton d))
-              (tripleton d)
-              ))))))
+              (singleton tma)
+              (singleton tmb)
+              (not (doubleton tmb))
+              (not (singleton tmc))
+              (not (tripleton tmc))
+              (doubleton tmc)
+              (not (singleton tmd))
+              (not (doubleton tmd))
+              (tripleton tmd)
+              ))
+        (λ(retry tms)
+          (declare (ignore tms))
+          (as tma 0)
+          (funcall retry)
+          ))))
+
+
   (test-hook test-ton-0)
 
   (defun test-length≥-0 () 

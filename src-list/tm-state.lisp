@@ -40,8 +40,6 @@ These methods may cause state changes:
     (funcall cont-ok)
     )
 
-  (defun parked (tm) (eq (state tm) parked))
-  
   ;; are all entangled machines parked? 
   (defun ∀-parked (tm &optional (cont-true (be t)) (cont-false (be ∅)))  
     (let(
@@ -84,7 +82,9 @@ These methods may cause state changes:
     (setf (state tm) void)
     )
 
+  (defun is-parked (tm) (eq (state tm) parked))
   (defun is-void (tm) (eq (state tm) void))
+  (defun is-active (tm) (eq (state tm) active))
 
 
   ;; If there exists an entangled machine that is void, then all entangled machines are

@@ -56,7 +56,7 @@ See LICENSE.txt
   (defun test-distance-1 ()
     (let*(
            (k0 (mount {1 2 3 4 5}))
-           (k1 (dup k0))
+           (k1 (fork-0 k0))
            )
       (∧
         (distance+n k0 k1 0)
@@ -77,7 +77,7 @@ See LICENSE.txt
   (defun test-location-cmp-0 ()
     (let*(
            (k0 (mount {1 2 3 4 5}))
-           (k1 (dup k0))
+           (k1 (fork-0 k0))
            )
       (∧
         (location-cmp k0 0 (be ∅) (be t) (be ∅))
