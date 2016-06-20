@@ -140,7 +140,7 @@ See LICENSE.txt
       (let(
             (tms (mount {tma-1 tmb-1}))
             )
-        (⟳-when
+        (⟳-loop
           (λ(cont-loop)
             (let(
                   (on-rm-a (on-rightmost tma-1))

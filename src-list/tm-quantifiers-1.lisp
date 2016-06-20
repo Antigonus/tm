@@ -25,7 +25,7 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (⟳-when
+    (⟳-loop
       (λ(cont-loop)
         (w tm (r fill))
         (s-together (mount {tm fill})
@@ -90,7 +90,7 @@ See LICENSE.txt
       )
     (supports-alloc tm
       (λ()
-        (⟳-when
+        (⟳-loop
           (λ(cont-loop)
             (a tm (r fill) 
               (λ()(s fill cont-loop cont-ok))
@@ -111,7 +111,7 @@ See LICENSE.txt
       )
     (supports-alloc tm
       (λ()
-        (⟳-when
+        (⟳-loop
           (λ(cont-loop)
             (as tm (r fill) 
               (λ()(s fill cont-loop cont-ok))

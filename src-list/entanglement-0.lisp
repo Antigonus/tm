@@ -166,7 +166,7 @@ Fork and Entanglement
         (λ()
           (s tm0  ; after step tm0 will not collide with tm
             (λ()
-              (⟳-when
+              (⟳-loop
                 (λ(cont-loop)
                   (∃-collision-0 tm0 es
                     cont-true

@@ -29,7 +29,7 @@ See LICENSE.txt
           (return-from disentangle)
           ))
       (cue-leftmost es)
-      (⟳-when
+      (⟳-loop
         (λ(cont-loop)
           (fsnr es 1
             (λ(e) 

@@ -217,7 +217,7 @@ See LICENSE.txt
       cont-ok
       cont-not-supported 
       )
-    (declare (ignore state cont-not-supported))
+    (declare (ignore cont-not-supported))
     (let*(
            (dealloc-cell (cdr (HA tm)))
            (connection-point (cdr dealloc-cell))

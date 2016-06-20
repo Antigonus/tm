@@ -279,7 +279,7 @@ of the primitives.
                   ;; if spill
                   (as spill dealloc-object
                     (λ()
-                      (d-0 tm state
+                      (d-0 tm
                         (λ()(funcall cont-ok dealloc-object))
                         cont-not-supported
                         ))

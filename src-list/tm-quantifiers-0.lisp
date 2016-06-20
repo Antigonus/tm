@@ -31,7 +31,7 @@ See LICENSE.txt
       (do-work)
       ))
 
-  (defun ⟳-when (work)
+  (defun ⟳-loop (work)
     "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
      single step, whatever such a step may be.  The work function accepts a loop
      continuation function, typically called cont-loop.  When the work function continues
@@ -44,14 +44,14 @@ See LICENSE.txt
       (do-work)
       ))
 
-  (defun ⟳-unless (work)
-    "⟳-unless accepts a work function.  This work function is to take a
+  (defun ⟳-return (work)
+    "⟳-return accepts a work function.  This work function is to take a
      single step, whatever such a step may be.  The work function accepts a loop
      exit function, typically called cont-return.  When the work function continues
      with cont-return, the work function and the loop return.
      "
     (loop
-      (funcall work (λ(&rest vs)(return-from ⟳-unless (values-list vs))))
+      (funcall work (λ(&rest vs)(return-from ⟳-return (values-list vs))))
       ))
 
 
@@ -121,7 +121,7 @@ See LICENSE.txt
       )
     "When returning true, tm head is on the first cell that has an object where pred is true.
     When returning false, tm head is on rightmost, and there was no cell where pred was true."
-    (⟳-when
+    (⟳-loop
       (λ(cont-loop)
         (when 
           (funcall pred tm) 
