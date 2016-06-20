@@ -106,3 +106,7 @@ to deallocate the last cell, need to fix this.
 
 33. change the quantifiers so that the first parms are optional, the first parm is
    the object, and the second is the machine
+
+34. a* versions need to be fixed to be transactional
+
+35. add a manifold machine type, note the comments currently in tm-region.lisp.

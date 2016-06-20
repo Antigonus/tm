@@ -82,9 +82,7 @@ See LICENSE.txt
 
                (:module "src-generators"
                  :components (
-
-                             ;; simple generators 
-                              ;; (:file "tm-line")
+                               (:file "tm-DE")
                                ))
 
                (:module "src-transforms"

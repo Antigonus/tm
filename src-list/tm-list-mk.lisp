@@ -41,21 +41,19 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key mount &allow-other-keys) init-list
+      (setf (entanglements tm) (make-entanglements tm))
+      (setf (parameters tm) ∅)
       (cond
         ((¬ mount)
           (setf (state tm) void)
           (setf (HA tm) ∅)
           (setf (tape tm) ∅)
-          (setf (parameters tm) ∅)
-          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         ((consp mount) 
           (setf (state tm) active)
           (setf (HA tm) mount)
           (setf (tape tm) mount)
-          (setf (parameters tm) ∅)
-          (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
         (t

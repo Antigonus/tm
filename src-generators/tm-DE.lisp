@@ -3,17 +3,12 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  From point of initiation every cell on the tape holds an integer.  The
-  tape is read only.
+  :diffs { diff0  diff1 ...}  
 
-  Leftmost holds an integer we call the 'infimum'.
+  diff0 is the start value
 
-  Given any two neighboring cells, the integer in the right hand neighbor, minus the
-  integer in the left hand neighbor, yeilds a number we call the 'first-difference',
-  represented by Δ.  For tm-line, the first difference is a constant.
-
-  The rightmost cell holds an integer we call the bound.  If the supemum
-  is set to ∅, then the there is no rightmost cell.
+  Does not support allocation or deallocation.
+  When written the head appears to be parked.
 
 |#
 
@@ -22,172 +17,147 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-line (tape-machine)())
-
-  (defstruct tm-line-parms
-    min ; the value for the leftmost cell
-    max ; when ∅ there is no maximum 
-      Δ ; a step increment
-    )
+  (defclass tm-DE (tape-machine)())
 
   (defmethod init 
     (
-      (tm tm-line)
+      (tm tm-DE)
       init-list
       &optional 
       (cont-ok (be t))
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key seed &allow-other-keys) init-list
-      (if
-        (∧
-          seed
-          (≤ (length seed) 3)
-          )
-        (destructuring-bind
-          (&optional (min 0) (max ∅) (Δ 1)) seed
-          (setf (HA tm) min)
-          (setf (tape tm) ∅) ; some generators may create a tape as a cache
-          (setf (parameters tm) (make-tm-line-parms :min min :max max :Δ Δ))
-          (setf (entanglements tm) (make-entanglements tm))
+      (&key diffs &allow-other-keys) init-list
+      (setf (entanglements tm) (make-entanglements tm))
+      (cond
+        ((¬ diffs)
+          (setf (state tm) active)
+          (setf (HA tm) 0)
+          (setf (tape tm) {1 0})
+          (setf (parameters tm) {0 1})
           (funcall cont-ok)
           )
-        (funcall cont-fail)
-        )))
+        ((consp diffs)
+          (setf (state tm) active)
+          (setf (HA tm) (car diffs))
+          (setf (tape tm) (reverse diffs))
+          (setf (parameters tm) diffs)
+          (funcall cont-ok)
+          )
+        (t
+          (funcall cont-fail)
+          ))))
 
 ;;--------------------------------------------------------------------------------
-;; primitive methods
+;; accessing data
 ;;
-  (defmethod r ((tm tm-line)) (HA tm))
-
-  (defmethod w ((tm tm-line) object)
-    (error 'tm-read-only)
-    t
+  (defmethod r-0
+    (
+      (tm tm-DE)
+      state
+      cont-ok
+      cont-parked
+      )
+    (declare (ignore state cont-parked))
+    (funcall cont-ok (HA tm))
     )
- 
-  (defmethod cue-leftmost  ((tm tm-line)) 
-    (setf (HA tm) (tm-line-parms-min (parameters tm)))
-    t
+
+  (defmethod w-0
+    (
+      (tm tm-DE)
+      state
+      object
+      cont-ok
+      cont-parked
+      )
+    (declare (ignore state object cont-ok))
+    (funcall cont-parked)
     )
 
-  (defun heads-on-same-cell-line-0 (tm0 tm1 cont-true cont-false)
+;;--------------------------------------------------------------------------------
+;; absolute head placement
+;;
+  (defmethod cue-leftmost-0
+    (
+      (tm tm-DE)
+      state
+      cont-ok
+      cont-void
+      )
+    (declare (ignore state cont-void))
+    (setf (HA tm) (car (parameters tm)))
+    (setf (tape tm) (reverse (parameters tm)))
+    (funcall cont-ok)
+    )
+
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 tm-DE)
+      state0
+      tm1
+      state1
+      cont-true
+      cont-false
+      cont-parked
+      )
+    (declare (ignore state0 tm1 state1 cont-true cont-parked))
+    (funcall cont-false)
+    )
+  (defmethod heads-on-same-cell-0
+    (
+      tm0
+      state0
+      (tm1 tm-DE)
+      state1
+      cont-true
+      cont-false
+      cont-parked
+      )
+    (declare (ignore tm0 state0 state1 cont-true cont-parked))
+    (funcall cont-false)
+    )
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 tm-DE)
+      state0
+      (tm1 tm-DE)
+      state1
+      cont-true
+      cont-false
+      cont-parked
+      )
+    (declare (ignore state0 state1 cont-parked))
     (if
       (∧
-        (typep tm0 'tm-line)
-        (typep tm1 'tm-line)
-        (eql (HA tm0) (HA tm1))
+        (= (HA tm0) (HA tm1))
+        (equal (tape tm0) (tape tm1))
         )
       (funcall cont-true)
       (funcall cont-false)
       ))
 
-  (defmethod heads-on-same-cell 
+;;--------------------------------------------------------------------------------
+;; head stepping
+;;
+  (defmethod s-0
     (
-      (tm0 tm-line) 
-      (tm1 tape-machine) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      ) 
-    (heads-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
-    )
-
-  (defmethod heads-on-same-cell 
-    (
-      (tm0 tape-machine) 
-      (tm1 tm-line) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      ) 
-    (heads-on-same-cell-line-0 tm0 tm1 cont-true cont-false)
-    )
-
-  (defmethod s
-    (
-      (tm tm-line)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (tm tm-DE)
+      state
+      cont-ok
+      cont-rightmost
       )
-    (let(
-          (max (tm-line-parms-max (parameters tm)))
-          (Δ   (tm-line-parms-Δ (parameters tm)))
+    (let( 
+          (diffs0 (mount (tape tm)))
+          (diffs1 (mk 'tm-list))
+          (sum 0)
           )
-      (if max
-        (let(
-              (threshold (- max Δ))
-              )
-          (if
-            (> (HA tm) threshold)
-            (funcall cont-rightmost)
-            (progn
-              (setf (HA tm) (+ (HA tm) Δ))
-              (funcall cont-ok)
-              )))
-        (progn
-          (setf (HA tm) (+ (HA tm) Δ))
-          (funcall cont-ok)
+      (⟳(λ(cont-loop cont-return)
+          (setf sum (+ sum (r diffs0)))
+          (as diffs1 sum)
+          (s diffs0 cont-loop cont-return)
           ))
+      (setf (HA tm) sum)
+      (setf (tape tm) diffs1)
       ))
 
-  ;; allocate a cell
-  (defmethod a◧
-    (
-      (tm tm-line)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (be ∅))
-      )
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'not-supported) ; this needs to be a continuation ...
-    )
-
-  ;; allocate a cell
-  (defmethod a
-    (
-      (tm tm-line)
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (be ∅))
-      )
-    (declare (ignore tm object cont-ok cont-no-alloc))
-    (error 'not-supported)
-    )
-
-  ;; deallocates the cell just to the right of the head
-  (defmethod d 
-    (
-      (tm tm-line)
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (declare (ignore
-               spill
-               cont-ok 
-               cont-rightmost
-               cont-collision
-               cont-no-alloc
-               ))
-    (funcall cont-not-supported)
-    )
-
-  ;; deallocates the leftmost cell
-   (defmethod d◧-0
-    (
-      (tm tm-line)
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    (declare (ignore cont-ok))
-    (funcall cont-no-supported)
-    )

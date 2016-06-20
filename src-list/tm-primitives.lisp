@@ -161,6 +161,10 @@ All tape machine implmentations must specialize these functions.
   ;; see tm-derived-1  for defun a◧
   ;; the job of this primitive is to add a new leftmost cell to the specified machine
   (defgeneric a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
+  (defmethod a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm state object cont-ok cont-no-alloc))
+    (funcall cont-not-supported)
+    )
 
   (defun a
     (
@@ -180,9 +184,14 @@ All tape machine implmentations must specialize these functions.
 
   (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
 
+  (defmethod a-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm state object cont-ok cont-no-alloc))
+    (funcall cont-not-supported)
+    )
   (defmethod a-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
+
   (defmethod a-0 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
@@ -207,21 +216,31 @@ All tape machine implmentations must specialize these functions.
 ;; Entanglement accounting complicates the swap trick for implementing d◧, so I have made
 ;; it a primitive.
 ;;
-  ;; see tm-derived-1 for defun d◧
-  (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
-  ;; deallocation of a single cell returns the object that was in the cell,
-  ;; but we can't do that in a void space, so we follow cont-not-supported
-  (defmethod d◧-0 (tm (state void) cont-ok cont-not-supported)
-    (declare (ignore cont-ok))
-    (funcall cont-not-supported)
-    )
+  ;; see tm-derived-1 for defun d◧-1
+  ;; when this is called:
+  ;;    state can not be void, but it might be parked or active
+  ;;    there will be no collisions
+  ;;
+    (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
 
-  ;; see tm-derived-1 for defun d
-  (defgeneric d-0 (tm state cont-ok cont-not-supported))
-  (defmethod d-0 (tm (state void) cont-ok cont-not-supported)
-    (declare (ignore cont-ok))
-    (funcall cont-not-supported)
-    )
+    ;; default behavior is to say the operation is not supported
+    (defmethod d◧-0 (tm state cont-ok cont-not-supported)
+      (declare (ignore cont-ok))
+      (funcall cont-not-supported)
+      )
+
+  ;; see tm-derived-1 for defun d-1
+  ;; when this is called:
+  ;;    state must be active
+  ;;    there will be no collisions
+  ;;
+    (defgeneric d-0 (tm cont-ok cont-not-supported))
+    
+    ;; default behavior is to say the operation is not supported
+    (defmethod d-0 (tm cont-ok cont-not-supported)
+      (declare (ignore cont-ok))
+      (funcall cont-not-supported)
+      )
 
 
 ;;--------------------------------------------------------------------------------

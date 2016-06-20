@@ -5,72 +5,99 @@ See LICENSE.txt
 
   Region of Space
 
-    tm-region defines a range of continguous cells from another tape machine's tape. 
-    Because it is based on another tm it is properly a transform.
+    A region is a set of contiguous cells from a tape. These contiguous cells occur on a
+    'base machine'. tm-region defines a tape machine with a region as its tape.  Because
+    the region machine is based on another tm, it is properly a transform.
 
-    Read, write, allocate, etc, just pass through to the base machine.  However, the
-    region's leftmost and rightmost may be different than the leftmost and rightmost
-    of the base machine.
+    Read, write, allocate, etc, on the region machine just pass through to the base
+    machine.  However, the region machine's leftmost and rightmost may be different than
+    the leftmost and rightmost for the base machine.
 
-    A region of space is not to be confused with a subspace. A subspace occurs when a cell
-    holds a sequence or tape machine as an object.  See tm-subspace.lisp.
+    A region of space should not to be conflated with a subspace. In contrast to a region,
+    a subspace occurs when a cell holds a tape machine as an object.  See
+    tm-subspace.lisp.
 
   Address of a Region
 
-    A region is located by a tape machine on the base tape.  The region lies to the 
-    right of the cell the location tape machine's head is on.  If the location machine
-    is in the parked state, then the region begins with the leftmost cell on the base
-    machine tape.
+    A region is located by yet another machine on the base tape. This machine is known as
+    the 'location machine'.  A region lies to the right of the cell the location tape
+    machine's head is on.  If the location machine is in the parked state, then the region
+    begins with the leftmost cell on the base machine tape.
 
-    The smallest region is a void region, which has zero cells. It is because of void
-    regions that we adopted the 'lies to the right of the head of the location machine'
-    convention.
+    The shortest length possible for a region is zero.  A zero length region machine is in
+    the void state.  It is because of void regions that we adopted the 'lies to the right
+    of the head of the location machine' convention.  We might have located a region
+    with its leftmost cell, except that a void region doesn't have a leftmost cell.
 
-    A singleton region has a single cell.  One may now note that #'a and #'d operate on
-    singleton regions rather than directly on cells, as the cell allocated or deleted is
-    to the right of the cell of the cell the head is on for the machine passed in.
-
-    Within a region there is no way to access the cell that has the address being used to
-    locate the region in space.  Hence, operations that make use of the region address
-    are operations that belong to the space, rather than to the region. 
+    A singleton region has a single cell.  One may notice now that we have already been
+    using singleton regions.  #'a may be thought of as a machine that creates a singleton
+    region at the current head location,  while #'d may be thought of as a function that
+    deletes a singleton region located at the current head location.
 
   Initializaiton
 
     A tm-region is intialized with one to three parameters:
 
-    :base is required.  It locates the region within the base space.  The region occurs to
-    the right of the cell the base machine's head is on.  Atypical to initialization, the
-    base is not copied. This is so the location can be moved left should the location cell
-    be deallocated.
+    :location is required.  It locates the region within the base machine tape.  The
+    region occurs to the right of the cell the base machine's head is on.
 
     :mount, if provided, is a list of objects to be allocated to the region using #'a*
 
     :rightmost, if provided, must be on the same tape as the base tape machine.  Its head
     address locates the rightmost cell of the region, this rightmost point must be to the
-    right of the cell specified by :base.  Currently we do not verifiy this. Unlike the
-    location machine, the rightmost machine is in the region.  This has implication, for
-    example the region may not be directly deallocated due to entanglements with the
-    rightmost machine.
+    right of the cell specified by :location.  Currently we do not verifiy this. Unlike
+    the location machine, the rightmost machine, though on the base tape, has its head on
+    a cell that lies within the region.  This has implication.  One example being that the
+    region may not be directly deallocated due to entanglements with the rightmost
+    machine.
 
   Deleting the location cell
 
-    A region is located in space via the base machine.  The region lies just to the 
-    right of the cell the base machine's head is on. 
+    Suppose an operator on the base machine wishes to delete the location cell. The
+    location cell is not in the region, so there can be no collision with machines in the
+    region.  To do this, the operator must first adjust the location of the region to a
+    cell that is not to be deallocated.  When doing so, it can not cause a machine in the
+    region to leave the region.
 
-    Suppose an operator on the base machine wishes to delete the location cell.  To
-    do this, it must first adjust the location of the region to a cell that is not to 
-    be deallocated.  When doing so, it can not cause a machine in the region to 
-    leave the region.
-
-  Void Region
+  Void Regions and Neighbor Relations
 
     A region that is void still has a location.  
 
-    Suppose that two regions are neighbors.  Then the location of the right neighbor
-    region is the rightmost cell of the left neighbor region.  Now suppose the left
-    neighbor region becomes void, this would be illegal, as it would require deleting the
-    cell that another machine's head is on (i.e deleting the right neighbor location
-    marker).
+    If two void regions are located on the same cell, those two void regions have
+    the same location.
+
+    Suppose we have two adjacent regions, thus we have a left neighbor region and a right
+    neighbor region. Notice that the location of the right neighbor region is the
+    rightmost cell of the left neighbor region.
+
+    Now suppose we want to make the left neighbor region void.  There is a problem,
+    because the rightmost cell of the left neighbor region, which is acting as the
+    location of the right neighbor region, is entangled.  We can not deallocte this
+    rightmost cell.  
+
+    Now as mentioned above, we can move the location machine for the right neighbor region
+    to the left one cell, and then delete the rightmost cell of the left neighbor region.
+    However, after doing this we have an ambiguous sitiation.  Both the now void
+    leftneighbor region and the right neighbor region will have the same location.  They
+    are in fact no longer left and right neighbors.  We have lost the order information.
+ 
+    I wonder if this problem is not fundamental to using integer addressing. If we
+    supported fractional addressing, we could maintain the relative order among
+    void regions by giving them fractional addresses wthout moving to the address
+    of the next cell.
+
+    On a related note, there is an analogous problem of putting multiple subspaces within
+    a cell.  This is done by creating a space of subspaces, called a manifold machine, and
+    then including in the cells of the manifold the objects which are subspaces.  We then
+    either have to assume that every contained tape machine is a manifold, or we have to
+    externally keep track of the fact if a machine found as an object is a manifold that
+    in turn holds multiple subspaces, or if it is directly a subspace.
+
+    Hmm, we could also use manifolds to give order to multiple subspaces given at the
+    same location, but the addresses in the manifold are simply a second integer in a
+    pair of addresses - i.e. this is a fractional addressing scheme, though again,
+    we need a bit to know if the fraction is present.  That bit could be the type
+    of machine - a manifold machine type means the contents are a manifold.
 
   Void Base 
 
@@ -78,15 +105,10 @@ See LICENSE.txt
 
   Entanglement
 
-    Base machine entanglements work out because the location, rightmost and head of the
-    region are machines on the base tape.
-
-    Deleting leftmost of the region is the same as calling #'d on the location machine,
-    with the exception of entanglement with region's rightmost marker.  The region 
-    entanglemnt space is spearate from the base machine's entanglement space, so 
-    calling d◧ on the region will dispatch to d◧-0 here. At that point, if the region
-    is singular, we have to do something with the rightmost marker before calling 
-    #'d on the location.
+    The region keeps three machines that are entangled with the base machine.  Those are
+    the location machine, the region machine, and the rightmost cell of the region
+    machine.  The indicated cell of the location machine is not in the region.  The
+    indicated cells for the region machine and the rightmost machine are in the region.
 
 |#
 
@@ -99,8 +121,8 @@ See LICENSE.txt
   (defclass tm-region (tape-machine)())
 
   (defstruct region
-    location ; region lies to the right of this cell
-    rightmost ; a tape machine *on the same tape* with head on the region rightmost 
+    location ; region lies to the right of the indicated cell
+    rightmost ; indicates the rightmost cell of the region
     )
 
   (defmethod init 
@@ -112,59 +134,66 @@ See LICENSE.txt
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key base mount rightmost &allow-other-keys) init-list
+      (&key location rightmost &allow-other-keys) init-list
 
-      (unless base (return-from init (funcall cont-fail)))
+      (unless location (return-from init (funcall cont-fail)))
 
       (cond
         (rightmost
+          (when 
+            mount 
+            (fas* location (mount mount)
+              #'do-nothing
+              (λ()(return-from init cont-fail))
+              ))
+          (setf (parameters tm) 
+            (make-region 
+              :location location
+              :rightmost rightmost
+              ))
           (let(
-                (location base)
-                (leftmost (fork base))
+                (leftmost-region (fork location))
                 )
-            (setf (parameters tm) 
-              (make-region 
-                :location location
-                :rightmost rightmost
-                ))
-            (when mount (a* location (mount mount) cont-ok cont-fail))
-            (s leftmost ; base becomes leftmost after being stepped
+            (s leftmost-region ;; leftmost-region one to right of location
               (λ()
-                (setf (HA tm) leftmost)
+                (setf (state tm) active)
+                (setf (HA tm) leftmost-region)
+                (setf (tape tm) ∅)
                 (setf (entanglements tm) (make-entanglements tm))
                 (funcall cont-ok)
                 )
-              cont-fail ; rightmost was provided, so must be able to step base
+              cont-fail ; rightmost was provided, so must be able to step location
               )))
       
-        (mount
-          (let(
-                (location base)
-                (leftmost (fork base))
-                (tm-data (mount mount))
-                )
-            (as leftmost (r tm-data) ; after step, base is leftmost
-              (λ()
-                (setf (HA tm) leftmost)
-                (let(
-                      (i (fork leftmost)) ; general use iterator
-                      )
-                  (s tm-data (λ()(as* i  tm-data)) #'do-nothing) ; i is rightmost after this
-                  (setf (tape tm) 
-                    (make-region 
-                      :location location
-                      :rightmost i
-                      ))
-                  (setf (entanglements tm) (make-entanglements tm))
-                  (funcall cont-ok)
-                ))
-              cont-fail
-              )))
+        (t ; rightmost was not provided
+          (if 
+            mount 
 
-        (t
-          (change-class tm 'tm-void)
-          (init tm {:tm-type {'tm-region :base base}})
-          )
+            ;; mount data, so just mount and call init again
+            (let(
+                  (rightmost-region (fork location))
+                  )
+              (as* rightmost-region (mount mount)
+                (λ()
+                  (init tm {:location location :rightmost rightmost-region})
+                  (funcall cont-ok)
+                  )
+                cont-fail
+                ))
+
+            ;; no mount data, so region is void
+            (progn
+              (setf (parameters tm) 
+                (make-region 
+                  :location location
+                  :rightmost ∅
+                  ))
+              (setf (state tm) void)
+              (setf (HA tm) ∅)
+              (setf (tape tm) ∅)
+              (setf (entanglements tm) (make-entanglements tm))
+              (funcall cont-ok)
+              )))
         )))
 
 ;;--------------------------------------------------------------------------------

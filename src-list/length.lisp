@@ -140,24 +140,24 @@ See LICENSE.txt
       (let(
             (tms (mount {tma-1 tmb-1}))
             )
-        (⟳ (λ(cont-loop cont-return)
-             (let(
-                   (on-rm-a (on-rightmost tma-1))
-                   (on-rm-b (on-rightmost tmb-1))
-                   )
-               (cond
-                 ((∧ on-rm-a on-rm-b)
-                   (return-from length-cmp (funcall cont-same)))
-                 (on-rm-b
-                   (return-from length-cmp (funcall cont-longer)))
-                 (on-rm-a
-                   (return-from length-cmp (funcall cont-shorter))
-                   )
-                 ))
-             (s-together tms cont-loop cont-return)
-             ))
-        (error 'tm-impossible-to-get-here :text "length-cmp should not be able to get here")
-        )))
+        (⟳-when
+          (λ(cont-loop)
+            (let(
+                  (on-rm-a (on-rightmost tma-1))
+                  (on-rm-b (on-rightmost tmb-1))
+                  )
+              (cond
+                ((∧ on-rm-a on-rm-b)
+                  (return-from length-cmp (funcall cont-same)))
+                (on-rm-b
+                  (return-from length-cmp (funcall cont-longer)))
+                (on-rm-a
+                  (return-from length-cmp (funcall cont-shorter))
+                  )
+                ))
+            (s-together tms cont-loop #'cant-happen)
+            )))))
+
 
 ;;--------------------------------------------------------------------------------
 ;; all possible reduction to a Boolean operator, excluding constants true and false.

@@ -214,7 +214,6 @@ See LICENSE.txt
   (defmethod d-0
     (
       (tm tm-list)
-      (state active)
       cont-ok
       cont-not-supported 
       )

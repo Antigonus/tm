@@ -286,7 +286,7 @@ of the primitives.
                     cont-no-alloc
                     )
                   ;; if not spill
-                  (d-0 tm state
+                  (d-0 tm
                     (λ()(funcall cont-ok dealloc-object))
                     cont-not-supported
                     ))))))

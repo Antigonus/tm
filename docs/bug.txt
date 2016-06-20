@@ -1,81 +1,128 @@
-This test:
+Considerations for unsolved complex bugs ..
 
-(defun test-meta-wrap-0 ()
-  (and
-    (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
-    (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
-    (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
-    ))
+1. The test-meta-wrap fails on second invocation bug:
 
-Passes when invoked the first time.  Fails when invoked the second time.  However, when
-the definition is pasted at the prompt, it passes every time.  I suspect the 'o' symbol
-that is read by the meta-wrap macro.  Perhaps somewhere it is becoming a symbol?  
+    (defun test-meta-wrap-0 ()
+      (and
+        (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
+        (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
+        (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
+        ))
 
-* (test-all)
-          + TEST-UNWRAP-0
-          + TEST-META-WRAP-0
-          + TEST-Q-0
-          + TEST-Q-1
-          + TEST-L-0
-          + TEST-L-1
-          + TEST-L-2
-          + TEST-REMOVE-KEY-PAIR-0
-          + TEST-STATE-0
-          + TEST-STATE-1
-          + TEST-FSNR-0
-          + TEST-D◧-0
-          + TEST-D◧-1
-          + TEST-SI-0
-          + TEST-SI-1
-all 15 passed
-T
-* (test-all)
-          + TEST-UNWRAP-0
-     failed TEST-META-WRAP-0
-          + TEST-Q-0
-          + TEST-Q-1
-          + TEST-L-0
-          + TEST-L-1
-          + TEST-L-2
-          + TEST-REMOVE-KEY-PAIR-0
-          + TEST-STATE-0
-          + TEST-STATE-1
-          + TEST-FSNR-0
-          + TEST-D◧-0
-          + TEST-D◧-1
-          + TEST-SI-0
-          + TEST-SI-1
-------
-failed: 1 of 15
-NIL
-*   (and
-    (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
-    (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
-    (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
-)
+    Passes when invoked the first time.  Fails when invoked the second time.  However, when
+    the definition is pasted at the prompt, it passes every time.  I suspect the 'o' symbol
+    that is read by the meta-wrap macro.  Perhaps somewhere it is becoming a symbol?  
 
-T
-* (test-meta-wrap-0)
+    * (test-all)
+              + TEST-UNWRAP-0
+              + TEST-META-WRAP-0
+              + TEST-Q-0
+              + TEST-Q-1
+              + TEST-L-0
+              + TEST-L-1
+              + TEST-L-2
+              + TEST-REMOVE-KEY-PAIR-0
+              + TEST-STATE-0
+              + TEST-STATE-1
+              + TEST-FSNR-0
+              + TEST-D◧-0
+              + TEST-D◧-1
+              + TEST-SI-0
+              + TEST-SI-1
+    all 15 passed
+    T
+    * (test-all)
+              + TEST-UNWRAP-0
+         failed TEST-META-WRAP-0
+              + TEST-Q-0
+              + TEST-Q-1
+              + TEST-L-0
+              + TEST-L-1
+              + TEST-L-2
+              + TEST-REMOVE-KEY-PAIR-0
+              + TEST-STATE-0
+              + TEST-STATE-1
+              + TEST-FSNR-0
+              + TEST-D◧-0
+              + TEST-D◧-1
+              + TEST-SI-0
+              + TEST-SI-1
+    ------
+    failed: 1 of 15
+    NIL
+    *   (and
+        (equal (meta-wrap '(1 2 3)) '(list (list 1 2 3)))
+        (equal (meta-wrap `(∅ 2 (o (a b) (c d)) 3)) '(list (list ∅ 2) (a b) (c d) (list 3)))
+        (equal (meta-wrap `(∅ 2 (o x))) '(list (list ∅ 2) x))
+    )
 
-NIL
-* 
----
+    T
+    * (test-meta-wrap-0)
 
-hint:
+    NIL
+    * 
+    ---
 
-*  (defun test-meta-wrap-0 ()
-    (meta-wrap `(∅ 2 (o (a b) (c d)) 3))
-)
-WARNING: redefining TM::TEST-META-WRAP-0 in DEFUN
+    hint:
 
-TEST-META-WRAP-0
-* (test-meta-wrap-0)
+    *  (defun test-meta-wrap-0 ()
+        (meta-wrap `(∅ 2 (o (a b) (c d)) 3))
+    )
+    WARNING: redefining TM::TEST-META-WRAP-0 in DEFUN
 
-(LIST (LIST ∅ 2) (A B) (C D) (LIST 3))
-* (test-meta-wrap-0)
+    TEST-META-WRAP-0
+    * (test-meta-wrap-0)
 
-(LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3))
-* (test-meta-wrap-0)
+    (LIST (LIST ∅ 2) (A B) (C D) (LIST 3))
+    * (test-meta-wrap-0)
 
-(LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3) (LIST 3))
-* 
+    (LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3))
+    * (test-meta-wrap-0)
+
+    (LIST (LIST ∅ 2) (A B) (C D) (LIST 3) (LIST 3) (LIST 3))
+    * 
+
+2. An essential service provided by entanglement accounting is to disallow the
+   deallocation of a cell when one or more entangled machines has its head on the
+   cell.  This service assures the structural integrity of the entangled machines.
+   Notice though, when a machine has its head on a cell, but then descends into
+   a subspace of that cell, the entanglement accounting currently does not correctly
+   detect the collision.  
+   
+   Though is this really a bug? It is not possible to ascend out of a subspace, so once in
+   a subspace, a machine is committed to that subspace. Thus the structure for the machine
+   holding the subspace is no longer needed unless we are to ascend back up, and the only
+   way to ascend back up is to leave a checkpoint machine on the cell that was descended
+   into.  That checkpoint machine will then collide with any attempt to deallocate the
+   cell.
+
+   Alas we do still have a pathological situuation.  If there is no check point machine,
+   and perhaps rightfully so, perhaps we never plan to ascend again, when the cell owning
+   the subspace is deallocated, the pointer held in that cell, the one potentially to the
+   leftmost of the tape, is deallocated, so the garbage collector may go forward and
+   happily delete the rest of the tape up to the point that the cell that head is on for
+   the machine mounted on that subspace.
+
+   It follows that before deallocation of a cell that holds a subspace, we must check that
+   no machines are entangled with that subspace.  But this can be problematic, as we
+   currently allow that sequences can define subspaces, and given just the sequence we
+   can't discern if a machine has mounted the sequence.
+
+   A potential fix might be to not allow sequences to define a subspace, but instead
+   require that a subspace be defined by a tape machine.  If the machine is in use the
+   garbage collector won't take it.  As entanglement lists contain the self machine,
+   a machine will not go away just because the cell holding it (as an object) has
+   gone away.
+
+   But does this not raise another problem, it seems to indicate that no machine
+   with entangelement accounting will ever be garbage collected.
+
+   ** So on solution is to have weak references on the entanglement list, and 
+   that only tape machines can appear as subspace objects.
+
+   Consider that we have weak references on the entanglement list.  Consider also that we
+   only allow a tape machine to define a subspace.  Then, consider that we deallocate a
+   cell holding a subspace.  If that subspace is entangled with multiple machines that
+   have a reference to the tape, then we are still ok, as the tape will not get
+   deallocated, so the entangled machine remain structurally in tact.
+

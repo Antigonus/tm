@@ -115,15 +115,20 @@ See LICENSE.txt
     (let(
           (tm0 (mount {1 2 3}))
           (tm1 (mount [a b c]))
+          (tm2 (mount [s t u]))
           )
       (s* tm0)
       (s* tm1)
+      (s* tm2)
       (as* tm0 (mount {4 5 6}))
       (a*  tm1 (mount [e f g]))
-      (and
+      (fas* tm2 (mount [v w x]))
+      (∧
         (= (r tm0) 6)
         (eq (r tm1) 'c)
+        (eq (r tm2) 'u)
         (equal (tape tm0) {1 2 3 4 5 6})
-        (equal (tape tm1) [a b c e f g])
+        (equal (tape tm1) [a b c g f e])
+        (equal (tape tm2) [s t u v w x])
         )))
   (test-hook test-as*-0)

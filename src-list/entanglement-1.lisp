@@ -29,7 +29,8 @@ See LICENSE.txt
           (return-from disentangle)
           ))
       (cue-leftmost es)
-      (⟳(λ(cont-loop cont-return)
+      (⟳-when
+        (λ(cont-loop)
           (fsnr es 1
             (λ(e) 
               (when (eq e tm) 
@@ -39,7 +40,7 @@ See LICENSE.txt
             (λ() ; typical return, index fails because we are on rightmost
               (return-from disentangle)
               ))
-          (s es cont-loop cont-return) ; cont-return case for e not found
+          (s es cont-loop (λ()(return-from disentangle)))
           ))
       ))
 

@@ -87,7 +87,7 @@ of the primitives.
     (let(
           (tm-copy (make-instance (type-of tm-orig)))
           )
-      (a* tm-copy tm-orig
+      (as* tm-copy tm-orig
         (λ()(funcall cont-ok tm-copy))
         cont-not-supported
         cont-no-alloc

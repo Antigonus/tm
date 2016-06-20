@@ -25,18 +25,17 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    (⟳ (λ(cont-loop cont-return)
-         (w tm (r fill))
-         (s-together (mount {tm fill})
-           cont-loop
-           (λ()
-             (if
-               (on-rightmost tm)
-               (funcall cont-rightmost) ;then we hit the end of tape before finishing
-               (funcall cont-return) ;then fill is on rightmost, we are done
-               )))))
-    (funcall cont-ok)
-    )
+    (⟳-when
+      (λ(cont-loop)
+        (w tm (r fill))
+        (s-together (mount {tm fill})
+          cont-loop
+          (λ()
+            (if
+              (on-rightmost tm)
+              (funcall cont-rightmost) ;then we hit the end of tape before finishing
+              (funcall cont-ok) ;then fill is on rightmost, we are done
+              ))))))
 
   (defgeneric s* (tm)
     (:documentation 
@@ -56,12 +55,49 @@ See LICENSE.txt
 
   (defgeneric a* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
     (:documentation 
-      "Allocates new cells to tm until running out of fill data."
+      "Calls #'a repeatedly with successive objects from tm-fill. 
+       tm will not be stepped.  tm-fill will be stepped.
+       The sequence order as it is found on tm-fill will be reversed on tm.
+       "      
       ))
 
   (defgeneric as* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
     (:documentation 
-      "Similar to a*, but moves tm's head to the last cell newly allocated."
+      "Calls #'as repeatedly with successive objects from tm-fill.
+       Both tm and tm-fill will be stepped.
+       "
+      ))
+
+  (defgeneric fas* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
+    (:documentation 
+      "Forks tm, calls #'as on the fork repeatedly with successive objects from tm-fill.
+       tm will not be stepped.
+       tm-fill will be stepped.
+       "
+      ))
+
+  ;; cont-no-alloc is not transactional here ... need to fix the other a* versions too
+  ;; do we want it to be transactional?  But if it did a spot fix it would have to be
+  ;; possible to restart the a* where we left off ..
+  (defmethod a*
+    (
+      (tm tape-machine) 
+      fill
+      &optional
+      (cont-ok (be t))
+      (cont-not-supported (λ()(error 'not-supported)))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    (supports-alloc tm
+      (λ()
+        (⟳-when
+          (λ(cont-loop)
+            (a tm (r fill) 
+              (λ()(s fill cont-loop cont-ok))
+              #'cant-happen
+              cont-no-alloc
+              ))))
+      cont-not-supported
       ))
 
   (defun as*-0 
@@ -73,17 +109,19 @@ See LICENSE.txt
       (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (⟳ (λ(cont-loop cont-return)
-         (as tm (r fill) 
-           (λ()(s fill cont-loop cont-ok))
-           cont-not-supported
-           cont-no-alloc
-           )
-         (funcall cont-return)
-         )))
+    (supports-alloc tm
+      (λ()
+        (⟳-when
+          (λ(cont-loop)
+            (as tm (r fill) 
+              (λ()(s fill cont-loop cont-ok))
+              #'cant-happen
+              cont-no-alloc
+              ))))
+      cont-not-supported
+      ))
 
-
-  (defmethod a*
+  (defmethod fas*
     (
       (tm0 tape-machine) 
       fill
@@ -189,11 +227,7 @@ See LICENSE.txt
     (⟳(λ(cont-loop cont-return)
         (on-rightmost tm
           cont-return
-          (λ()
-            (d-0 tm (state tm)
-              cont-loop 
-              #'cant-happen
-              ))
+          (λ()(d-0 tm cont-loop #'cant-happen))
           ))))
 
   (defmethod d*-1

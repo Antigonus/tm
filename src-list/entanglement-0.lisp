@@ -166,13 +166,12 @@ Fork and Entanglement
         (λ()
           (s tm0  ; after step tm0 will not collide with tm
             (λ()
-              (⟳(λ(cont-loop cont-return)
+              (⟳-when
+                (λ(cont-loop)
                   (∃-collision-0 tm0 es
-                    (λ()(return-from ∃-collision-right (funcall cont-true)))
-                    (λ()(s tm0 cont-loop cont-return))
-                    )))
-              (funcall cont-false)
-              )
+                    cont-true
+                    (λ()(s tm0 cont-loop cont-false))
+                    ))))
             cont-false
             )))))
 

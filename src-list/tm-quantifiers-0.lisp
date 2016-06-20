@@ -14,20 +14,46 @@ See LICENSE.txt
 ;;
   (defun ⟳ (work)
     "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
-     single step, whatever such a step may be.  The work function accepts two
-     continuations.  Typically these are called 'cont-loop', and 'cont-return'.  When the
-     work function continues with cont-loop, it is immediately called again.  When it
-     continues with cont-return, ⟳ returns.
+     single step, whatever such a step may be.  The work function accepts two arguments,
+     both functions, one typically called cont-loop, the other typically called
+     cont-return.  When the work function continues with cont-loop, it is immediately
+     called again.  When the work function returns, or when cont-return is called,
+     both the loop function and ⟳ return.
      "
     (labels(
-             (do-work ()
-               (funcall work
-                 #'do-work
-                 (λ() (return-from ⟳ t))
+             (do-work () 
+               (funcall 
+                 work
+                 (λ()(return-from do-work (funcall #'do-work)))
+                 (λ(&rest vs)(return-from ⟳ (values-list vs)))
                  ))
              )
       (do-work)
       ))
+
+  (defun ⟳-when (work)
+    "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
+     single step, whatever such a step may be.  The work function accepts a loop
+     continuation function, typically called cont-loop.  When the work function continues
+     with cont-loop, it is immediately called again.  When the work function returns
+     so does ⟳.
+     "
+    (labels(
+             (do-work () (funcall work (λ()(return-from do-work (funcall #'do-work)))))
+             )
+      (do-work)
+      ))
+
+  (defun ⟳-unless (work)
+    "⟳-unless accepts a work function.  This work function is to take a
+     single step, whatever such a step may be.  The work function accepts a loop
+     exit function, typically called cont-return.  When the work function continues
+     with cont-return, the work function and the loop return.
+     "
+    (loop
+      (funcall work (λ(&rest vs)(return-from ⟳-unless (values-list vs))))
+      ))
+
 
   ;; This version of ⟳ facilitates the programmer in making the stepping function explicit
   ;; as an argument. The machine to be stepped, and the function to use to step it, are
@@ -95,15 +121,14 @@ See LICENSE.txt
       )
     "When returning true, tm head is on the first cell that has an object where pred is true.
     When returning false, tm head is on rightmost, and there was no cell where pred was true."
-    (⟳ (λ(cont-loop cont-return)
-         (when 
-           (funcall pred tm) 
-           (return-from ∃ (funcall cont-true))
-           )
-         (s tm cont-loop cont-return)
-         ))
-    (funcall cont-false)
-    )
+    (⟳-when
+      (λ(cont-loop)
+        (when 
+          (funcall pred tm) 
+          (return-from ∃ (funcall cont-true))
+          )
+        (s tm cont-loop (λ()(return-from ∃ (funcall cont-false))))
+        )))
 
   ;; There exists an object for which pred is false.
   ;; Same as step-while
@@ -172,7 +197,7 @@ See LICENSE.txt
       (labels(
                (∃*-op () (when (funcall pred tm) (setq result t)))
                )
-        (⟳ (λ(cont-loop cont-return)(∃*-op)(s tm cont-loop cont-return)))
+        (⟳(λ(cont-loop cont-return)(∃*-op)(s tm cont-loop cont-return)))
         (if 
           result
           (funcall cont-true)
@@ -249,10 +274,10 @@ See LICENSE.txt
           )
       (¬∃ tms0 (λ(tms0)(on-rightmost (r tms0)))
         (λ()
-          (⟳ (λ(cont-loop cont-return)
-               (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
-               (s tms1 cont-loop cont-return)
-               ))
+          (⟳(λ(cont-loop cont-return)
+              (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
+              (s tms1 cont-loop cont-return)
+              ))
           (funcall cont-ok 's)
           )
         cont-exists-on-rightmost
