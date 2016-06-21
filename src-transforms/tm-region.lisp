@@ -134,7 +134,7 @@ See LICENSE.txt
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key location rightmost &allow-other-keys) init-list
+      (&key location mount rightmost &allow-other-keys) init-list
 
       (unless location (return-from init (funcall cont-fail)))
 
@@ -197,159 +197,152 @@ See LICENSE.txt
         )))
 
 ;;--------------------------------------------------------------------------------
-;; primitive methods
+;; properties
 ;;
-  (defmethod r ((tm tm-region))
-    (r (HA tm))
+  (defmethod supports-dealloc ;; default behavior
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-false))
+    (funcall cont-true)
+    )
+  (defmethod supports-alloc ;; default behavior
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (declare (ignore cont-false))
+    (funcall cont-true)
     )
 
-  (defun r◧-region (tm)
-    ;; tm-region is not tm-void, so there will be a leftmost cell
-    (r-index (region-location (tape tm)) 1 #'echo #'cant-happen)
+
+;;--------------------------------------------------------------------------------
+;; accessing data
+;;
+  (defmethod r-0 ((tm tm-region) (state active) cont-ok cont-parked)
+    (r-0 (HA tm) active cont-ok cont-parked)
     )
 
-  (defmethod r◧ ((tm tm-region) &optional cont-ok cont-void)
-    (declare (ignore cont-void))
-    (funcall cont-ok (r◧-region tm))
-    )
-
-  (defmethod w ((tm tm-region) object)
-    (w (HA tm) object)
+  (defmethod w-0 ((tm tm-region) (state active) object cont-ok cont-parked)
+    (w-0 (HA tm) active object cont-ok cont-parked)
     t
     )
  
-  (defmethod cue-leftmost  ((tm tm-region)) 
+;;--------------------------------------------------------------------------------
+;; absolute head placement
+;;
+  (defmethod cue-leftmost-0  ((tm tm-region) (state parked) cont-ok cont-void)
     (let(
-          (tm (fork (region-location (tape tm))))
+          (leftmost-region (region-location (parameters tm)))
           )
-      (s tm
-        (λ() (cue-to (HA tm) tm))
-        (λ() (error 'imppossible-to-get-here)) ; the region is not void
+      (s leftmost-region
+        (λ() 
+          (setf (HA tm) leftmost-region)
+          )
+        #'cant-happen
         )))
 
-  (defmethod cue-rightmost  ((tm tm-region)) 
-    (cue-to (HA tm) (region-rightmost (tape tm)))
-    t
-    )
-
-  ;; regions may be nested
-  (defun heads-on-same-cell-region (tm0 tm1 cont-true cont-false)
+  (defmethod cue-leftmost-0  ((tm tm-region) (state active) cont-ok cont-void)
     (let(
-          (base-0 tm0)
-          (base-1 tm1)
+          (leftmost-region (region-location (parameters tm)))
           )
-      (loop
-        (unless (typep base-0 'tm-region) (return))
-        (setf base-0 (HA base-0))
-        )
-      (loop
-        (unless (typep base-1 'tm-region) (return))
-        (setf base-1 (HA base-1))
-        )
-      (heads-on-same-cell base-0 base-1 cont-true cont-false)
+      (s leftmost-region
+        (λ() 
+          (setf (HA tm) leftmost-region)
+          )
+        #'cant-happen
+        )))
+
+  ;; regions cue quickly to rightmost
+  (defmethod cue-rightmost-0  ((tm tm-region) (state active) cont-ok cont-void) 
+    (let(
+          (rightmost-region (region-rightmost (parameters tm)))
+          )
+      (setf (HA tm) rightmost-region)
+      t
       ))
 
-
-  (defmethod heads-on-same-cell 
+;;--------------------------------------------------------------------------------
+;; head location predicate
+;;
+  (defmethod heads-on-same-cell-0 
     (
-      (tm0 tm-region) 
-      (tm1 tape-machine) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      ) 
-    (heads-on-same-cell-region tm0 tm1 cont-true cont-false)
-    )
-
-  (defmethod heads-on-same-cell 
-    (
-      (tm0 tape-machine) 
-      (tm1 tm-region) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      ) 
-    (heads-on-same-cell-region tm0 tm1 cont-true cont-false)
-    )
-
-  (defmethod s
-    (
-      (tm tm-region)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (tm0 tm-region) (state0 active)
+      (tm1 tm-region) (state1 active)
+      cont-true
+      cont-false
+      cont-parked
       )
-    (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
+    (heads-on-same-cell-0 (HA tm0) active (HA tm1) active cont-true cont-false cont-parked)
+    )
+
+;;--------------------------------------------------------------------------------
+;; head stepping
+;;
+  (defmethod s-0 ((tm tm-region) (state active) cont-ok cont-rightmost)
+    (heads-on-same-cell (HA tm) (region-rightmost (parameters tm))
       (λ()(funcall cont-rightmost))
       (λ()
         (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
         )))
 
-  ;; allocate a cell
-  ;;
-  ;; All allocations within the region space are part of the region space, thus
-  ;;  when allocation is made from rightmost, the rightmost bound is pushed out to 
-  ;;  be on the newly allocated cell, etc.
-  ;;
-  ;; Note, tm-region uses multiple heads on the same tape (that of HA, regione-lefmost
-  ;; and region-rightmost, so if array, say, were to emulate allocation by moving data,
-  ;; region would have incorrect behavior, which is one of the reasons we don't do such
-  ;; emulation.
-  ;;
-    (defmethod a
-      (
-        (tm tm-region)
-        object
-        &optional
-        (cont-ok (be t))
-        (cont-no-alloc (λ()(error 'alloc-fail)))
-        )
-      (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
-        (λ()
-          (a (HA tm) object 
-            (λ()
-              (s (region-rightmost (tape tm)) #'do-nothing #'cant-happen)
-              (funcall cont-ok)
-              )
-            cont-no-alloc
-            ))
-        (λ()
-          (a (HA tm) object cont-ok cont-no-alloc)
-          )))
-
-  (defmethod d
+;;--------------------------------------------------------------------------------
+;; cell allocation
+;;
+  (defmethod a◧-0
     (
       (tm tm-region)
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      state
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
       )
-    (heads-on-same-cell (HA tm) (region-rightmost (tape tm))
-      cont-rightmost
-      (λ()
-        (d (HA tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-        )))
+    (a (region-location (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
+    )
 
-  ;; Deallocate the leftmost cell.  We wouldn't be here if the region were void, thus
-  ;; there must be one cell There will be collision when trying to delete the rightmost
-  ;; cell of the region, we leave this situation in tact for now.  It is on the to-do
-  ;; list to fix.
+  (defmethod a-0
+    (
+      (tm tm-region)
+      (state active)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (a (HA tm) object cont-ok cont-not-supported cont-no-alloc)
+    )
+
+;;--------------------------------------------------------------------------------
+;; cell deallocation
+;;
+  ;; state will not be void when this is called
   (defmethod d◧-0
     (
       (tm tm-region)
-      &optional 
-      (cont-ok #'echo)
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    ;; tm is not void (or we wouldn't be here) so location can not be rightmost
-    (d (region-location (tape tm)) ∅
-      cont-ok 
-      cont-rightmost 
+      state
+      cont-ok
       cont-not-supported
-      cont-collision
-      cont-no-alloc)
+      )
+    (d (region-location (parameters tm)) cont-ok cont-not-supported)
     )
+
+  ;; state will be active when this is called
+  (defmethod d-0
+    (
+      (tm tm-region)
+      cont-ok
+      cont-not-supported 
+      )
+    (d-0 (HA tm) cont-ok cont-not-supported)
+    )
+
+;;--------------------------------------------------------------------------------
+;; copying
+;;
+;;  default behavior

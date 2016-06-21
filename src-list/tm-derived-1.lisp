@@ -108,7 +108,7 @@ of the primitives.
     )
   ;; for non-singleton machine, so there is not state change
   ;; all entangled machines share the same tape
-  ;; delete leftmost for one machine, then update the tape for all others
+  ;; add a new leftmost for one machine, then update the tape for all others
   (defun ∀-entanglements-a◧-message (tm cont-ok cont-not-supported)
     (let(
           (es (entanglements tm))

@@ -116,17 +116,40 @@ All tape machine implmentations must specialize these functions.
     (heads-on-same-cell-0 tm0 (state tm0) tm1 (state tm1) cont-true cont-false cont-parked)
     )
   (defgeneric heads-on-same-cell-0 (tm0 state0 tm1 state1 cont-true cont-false cont-parked))
+
+  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 (state1 void) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
+  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 (state1 parked) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
   (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 state1 cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-parked))
+    (funcall cont-false)
+    )
+
+  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 (state1 void) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-false))
+    (funcall cont-parked)
+    )
+  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 (state1 parked) cont-true cont-false cont-parked)
     (declare (ignore tm0 state0 state1 cont-true cont-false))
     (funcall cont-parked)
     )
   (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 state1 cont-true cont-false cont-parked)
-    (declare (ignore tm0 state0 state1 cont-true cont-false))
-    (funcall cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-parked))
+    (funcall cont-false)
+    )
+
+  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 void) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-parked))
+    (funcall cont-false)
     )
   (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 parked) cont-true cont-false cont-parked)
-    (declare (ignore tm0 state0 state1 cont-true cont-false))
-    (funcall cont-parked)
+    (declare (ignore tm0 state0 state1 cont-true cont-parked))
+    (funcall cont-false)
     )
 
 
@@ -141,8 +164,8 @@ All tape machine implmentations must specialize these functions.
       (cont-rightmost (be ∅))
       )
     "If the head is on a cell, and there is a right neighbor, puts the head on the
-       right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
-      "
+     right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
+     "
     (s-0 tm (state tm) cont-ok cont-rightmost)
     )
   (defgeneric s-0 (tm state cont-ok cont-rightmost))
@@ -246,7 +269,7 @@ All tape machine implmentations must specialize these functions.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;
-;; The base copying requies no entanglement accounting, because it is derived.
+;; The base copying requies no entanglement accounting, because that is derived.
 ;; This is for internal use.
 ;;
   (defgeneric cue-to-0

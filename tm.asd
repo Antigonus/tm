@@ -88,9 +88,10 @@ See LICENSE.txt
                (:module "src-transforms"
                  :components (
 
-#|
                              ;; transforms
                                (:file "tm-region")
+#|
+
                                (:file "buffers")
 
                                (:file "tm-depth-mk")
@@ -124,7 +125,7 @@ See LICENSE.txt
 
                (:module "test-generators"
                 :components (
-                             ;; (:file "tm-line")
+                             (:file "tm-DE")
 
                               ))
 
