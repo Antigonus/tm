@@ -187,26 +187,12 @@ See LICENSE.txt
   (defmethod d◧-0
     (
       (tm tm-list)
-      (state active)
       cont-ok
       cont-not-supported
       )
-    (declare (ignore state cont-not-supported))
     (setf (tape tm) (cdr (tape tm)))
     (funcall cont-ok)
     )
-  (defmethod d◧-0
-    (
-      (tm tm-list)
-      (state parked)
-      cont-ok
-      cont-not-supported
-      )
-    (declare (ignore state cont-not-supported))
-    (setf (tape tm) (cdr (tape tm)))
-    (funcall cont-ok)
-    )
-
 
   ;; deallocates the cell just to the right of the head
   ;; entanglement accounting, transition to void, and spilling is handled by the caller

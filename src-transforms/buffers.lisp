@@ -9,7 +9,7 @@ A tm-stack, or a tm-queue, are implemented in regions of space:
 
           rightmost of region
           bottom of the stack
-          enqueue values for the queue with #'a◨s
+          enqueue values for the queue with #'a◨
           |
           |
      L .. R
@@ -20,16 +20,15 @@ A tm-stack, or a tm-queue, are implemented in regions of space:
      dequeue values for the queue or stack with d◧
      enqueue values for the stack with a◧
 
-Note that cue-rightmost is an efficient operation on regions. By
-extention the generic a◨ is efficient.  This is why we use regions for
-the buffer objects.
+Use a tm-region to make a◨ efficient, and thus enqueue of values onto a queue object
+efficient.
 
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;;  tape is stack
+;;  tape machine used as a stack
 ;;
   (defun stack-enqueue (tm object)
     "Pushes an object on to the stack"
@@ -49,11 +48,11 @@ the buffer objects.
     )
 
 ;;--------------------------------------------------------------------------------
-;;  tape is a queue
+;;  tape machine used as a queue
 ;;
   (defun queue-enqueue (tm object)
     "Enqueues object.  Note effiency issues as it refers to rightmost."
-    (a◨s tm object)
+    (a◨ tm object)
     )
 
   (defun queue-dequeue
@@ -68,42 +67,31 @@ the buffer objects.
     )
 
 ;;--------------------------------------------------------------------------------
-;;  queues and stacks as objects of their own
+;;  queues and stacks as types sharing this interface:
 ;;
-  (defclass buffer()
-    ((region
-       :initform
-       (let*(
-              (base (mk 'tm-list))
-              )
-         (as base 'buffer) ; assures that the region location will not be void
-         (mk 'tm-region :base base)
-         )
-      :initarg :region
-      :accessor region
-      )))
-
   (defgeneric enqueue (buffer object))
   (defgeneric dequeue (buffer &optional cont-ok cont-empty))
-
-  ;; defgeneric empty is in length.lisp
-  (defmethod empty 
-    (
-      (buffer buffer)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    (if 
-      (typep (region buffer) 'tm-void)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+  (defgeneric buffer-empty (buffer &optional cont-true cont-false))
+;; (defgeneric print-buffer ..)
 
 ;;--------------------------------------------------------------------------------
 ;; stack
 ;;
-  (defclass stack (buffer)())
+;; stack virtualization layer facilitates the specialization of the
+;; enqueue/dequeue interface.  Another specialization is that of queue
+;;
+  (defclass stack ()
+    (
+      (buffer 
+        :initarg :buffer 
+        :accessor buffer
+        )
+      ))
+
+  ;; stack is not a tm but this works .. see length.lisp
+  (defmethod buffer-empty ((stack stack) &optional (cont-true (be t)) (cont-false (be ∅)))
+    (empty (buffer stack) cont-true cont-false)
+    )
 
   (defmethod dequeue 
     (
@@ -112,7 +100,7 @@ the buffer objects.
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (stack-dequeue (region stack) cont-ok cont-empty)
+    (stack-dequeue (buffer stack) cont-ok cont-empty)
     )
 
   (defmethod enqueue
@@ -120,7 +108,7 @@ the buffer objects.
       (stack stack)
       object
       )
-    (stack-enqueue (region stack) object)
+    (stack-enqueue (buffer stack) object)
     )
     
 ;;--------------------------------------------------------------------------------
@@ -128,7 +116,18 @@ the buffer objects.
 ;;
 ;; queue is represented by tm-h◨,  and tm-h◧ is recovered using (cue-leftmost)
 ;;
-  (defclass queue (buffer)())
+  (defclass queue ()
+    (
+      (buffer 
+        :initarg :buffer 
+        :accessor buffer
+        )
+      ))
+
+  ;; stack is not a tm but this works .. see length.lisp
+  (defmethod buffer-empty ((queue queue) &optional (cont-true (be t)) (cont-false (be ∅)))
+    (empty (buffer queue) cont-true cont-false)
+    )
 
   (defmethod dequeue 
     (
@@ -137,7 +136,7 @@ the buffer objects.
       (cont-ok #'echo)
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    (queue-dequeue (region queue) cont-ok cont-empty)
+    (queue-dequeue (buffer queue) cont-ok cont-empty)
     )
 
   (defmethod enqueue
@@ -145,5 +144,5 @@ the buffer objects.
       (queue queue)
       object
       )
-    (queue-enqueue (region queue) object)
+    (queue-enqueue (buffer queue) object)
     )

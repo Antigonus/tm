@@ -6,6 +6,11 @@ See LICENSE.txt
   This machine's tape is woven in a depth first pattern through
   the base tm interpreted as a tree.
 
+  The base machine passed in is forked.  Hence stepping here will
+  not cause the base machine to step.  One can, however, cue-to
+  this machine.  This was done because we might have multiple depth
+  traversals going simultaneously on the same structure.
+
 |#
 
 (in-package #:tm)
@@ -15,7 +20,7 @@ See LICENSE.txt
 ;;
   (defclass tm-depth (tape-machine)())
 
-  (defstruct tm-depth-parms
+  (defstruct depth
     base ; machine being traversed
     history ; backtrack buffer
     )
@@ -30,15 +35,32 @@ See LICENSE.txt
       (cont-fail (λ()(error 'bad-init-value)))
       )
     (destructuring-bind
-      (&key base &allow-other-keys) init-list
-      (if 
-        base
-        (progn
-          (setf (HA tm) (make-instance 'stack))
-          (setf (tape tm) base)
-          (setf (parameters tm) ∅)
+      (&key base buffer &allow-other-keys) init-list
+      (cond
+        ((∧ base buffer)
+          (setf (parameters tm)
+            (make-depth
+              :base (fork base) ; caller might continue to use the base machine
+              :history (make-instance 'stack :buffer buffer)
+              ))
+          (setf (state tm) active)
+          (setf (HA tm) (fork base))
+          (setf (tape tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
           )
-        (funcall cont-fail)
+        (base
+          (setf (parameters tm)
+            (make-depth
+              :base base
+              :history (make-instance 'stack :buffer (mk 'tm-list))
+              ))
+          (setf (HA tm) (fork base))
+          (setf (tape tm) ∅)
+          (setf (entanglements tm) (make-entanglements tm))
+          (funcall cont-ok)
+          )
+        (t
+          (funcall cont-fail)
+          )
         )))

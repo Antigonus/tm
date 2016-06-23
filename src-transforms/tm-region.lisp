@@ -201,7 +201,7 @@ See LICENSE.txt
 ;;
   (defmethod supports-dealloc ;; default behavior
     (
-      tm
+      (tm tm-region)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
@@ -211,7 +211,7 @@ See LICENSE.txt
     )
   (defmethod supports-alloc ;; default behavior
     (
-      tm
+      (tm tm-region)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
@@ -306,6 +306,11 @@ See LICENSE.txt
     (a (region-location (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
     )
 
+  (defmethod a◨-0 ((tm tm-region) (state active) object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore cont-not-supported))
+    (as (region-rightmost (parameters tm)) object cont-ok cont-no-alloc)
+    )
+
   (defmethod a-0
     (
       (tm tm-region)
@@ -321,16 +326,20 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
-  ;; state will not be void when this is called
+  ;; when this is called, tm state will parked or active, and there will be no collisions
   (defmethod d◧-0
     (
       (tm tm-region)
-      state
       cont-ok
       cont-not-supported
       )
-    (d (region-location (parameters tm)) cont-ok cont-not-supported)
-    )
+    (let(
+          (loc (region-location (parameters tm)))
+          )
+      (if (is-parked loc)
+        (d◧-0 loc cont-ok cont-not-supported)
+        (d-0 loc cont-ok cont-not-supported)
+        )))
 
   ;; state will be active when this is called
   (defmethod d-0
@@ -346,3 +355,4 @@ See LICENSE.txt
 ;; copying
 ;;
 ;;  default behavior
+

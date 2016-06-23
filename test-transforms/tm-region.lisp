@@ -10,13 +10,13 @@ See LICENSE.txt
 (defun test-tm-region-0 ()
   (let*(
         (base-tm (mount [0 1 2 3 4 5 6 7]))
-        (left-machine (dup base-tm))
-        (right-machine (dup base-tm))
+        (location (fork base-tm))
+        (rightmost (fork base-tm))
         )
-    (sn left-machine 3)
-    (sn right-machine 5)
+    (sn location 2)
+    (sn rightmost 5)
     (let(
-          (tm-region (mk 'tm-region left-machine right-machine))
+          (tm-region (mk 'tm-region :location location :rightmost rightmost))
           )
       (∧
         (on-leftmost tm-region)

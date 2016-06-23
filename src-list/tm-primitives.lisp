@@ -241,13 +241,13 @@ All tape machine implmentations must specialize these functions.
 ;;
   ;; see tm-derived-1 for defun d◧-1
   ;; when this is called:
-  ;;    state can not be void, but it might be parked or active
+  ;;    state will be parked or active
   ;;    there will be no collisions
   ;;
-    (defgeneric d◧-0 (tm state cont-ok cont-not-supported))
+    (defgeneric d◧-0 (tm cont-ok cont-not-supported))
 
     ;; default behavior is to say the operation is not supported
-    (defmethod d◧-0 (tm state cont-ok cont-not-supported)
+    (defmethod d◧-0 (tm cont-ok cont-not-supported)
       (declare (ignore cont-ok))
       (funcall cont-not-supported)
       )

@@ -90,13 +90,13 @@ See LICENSE.txt
 
                              ;; transforms
                                (:file "tm-region")
-#|
-
                                (:file "buffers")
 
                                (:file "tm-depth-mk")
                                (:file "tm-depth-primitives")
                                (:file "tm-depth-convert")
+#|
+
 
                                (:file "tm-breadth-mk")
                                (:file "tm-breadth-primitives")
@@ -131,9 +131,10 @@ See LICENSE.txt
 
                (:module "test-transforms"
                 :components (
-#|
                               (:file "tm-region")
                               (:file "buffers")
+#|
+
                               (:file "tm-depth")
                               (:file "tm-breadth")
 |#

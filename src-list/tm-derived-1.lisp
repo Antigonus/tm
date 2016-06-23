@@ -50,22 +50,6 @@ of the primitives.
       (a tm1 object cont-ok cont-no-alloc)
       ))
 
-  (defun a◨s
-    (
-      tm
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    "Allocates a cell to the right of rightmost, and steps to it"
-    (a◨ tm object
-      (λ() (s tm cont-ok #'cant-happen))
-      cont-not-supported
-      cont-no-alloc
-      ))
-
   ;; all entangled machines share the same tape, but typically reference the tape by its
   ;; leftmost cell, so all references to the tape by entangled machines need to be updated
   ;; after a new leftmost cell is added. If the tape is referenced in another manner in
@@ -186,11 +170,11 @@ of the primitives.
         cont-not-supported
         )))
 
-
-  (defgeneric d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
-  (defmethod d◧-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defgeneric d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+  (defmethod d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (declare (ignore tm-state)) ; r◧ takes care of the void case in this implementation
     (r◧ tm
-      (λ(dealloc-object) ; r◧ succeeds
+      (λ(dealloc-object) ; r◧ succeeds, so state will be parked or active
         (singleton tm 
           (λ() ; is singleton-tape, state transitions to void
             (∀-parked tm
@@ -216,7 +200,7 @@ of the primitives.
               ;; if spill 
               (as spill dealloc-object
                 (λ() 
-                  (d◧-0 tm (state tm)
+                  (d◧-0 tm
                     (λ()
                       (∀-entanglements-d◧-message
                         tm
@@ -228,7 +212,7 @@ of the primitives.
                 cont-no-alloc
                 )
               ;; if not spill
-              (d◧-0 tm (state tm)
+              (d◧-0 tm
                 (λ()
                   (∀-entanglements-d◧-message
                     tm
@@ -254,15 +238,15 @@ of the primitives.
     (d-1 tm (state tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
 
-  (defgeneric d-1 (tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
-  (defmethod d-1 (tm (state void) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (declare (ignore tm state spill cont-ok cont-not-supported cont-collision cont-no-alloc))
+  (defgeneric d-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+  (defmethod d-1 (tm (tm-state void) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (declare (ignore tm tm-state spill cont-ok cont-not-supported cont-collision cont-no-alloc))
     (funcall cont-rightmost) ; cont-rightmost follows from a progression of deleting cells from a parked state machine
     )
-  (defmethod d-1 (tm (state parked) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (d◧-1 tm state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defmethod d-1 (tm (tm-state parked) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (d◧-1 tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     )
-  (defmethod d-1 (tm (state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defmethod d-1 (tm (tm-state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (let(
           (tm1 (fork-1 tm))
           )

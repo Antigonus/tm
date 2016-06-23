@@ -1,0 +1,30 @@
+
+1. personality of an object, say 'X' type, is lost when it is inherited into a class,
+hence one can not acces methods for working on the 'X' part of an object.  The solution
+has been to use a slot for holding parent types instead of using inheritance.  The
+object in the slot maintains its type.
+
+2. call next method only works when that method has the same name, and only one next
+method is needed. Not possible are simple co-routine relationships,  where say,  x->y
+and y->x   (child to parent).
+
+3. defgeneric does not allow the definition of optional values on arguments that are
+common to all methods.  We can get around this by having a function, say f, with optional
+argument defaults defined, that then in turn calls a generic, say f-0.
+
+4. dispatch is only on the class type of the argument.  Many people have noted that
+general popositions related to type would be useful.  Here we want dispatch based on
+the value of a state variable.  To force this to happen, we use type to hold the state
+value.  (type-of state) : one of 'void 'parked 'active.  
+
+5. aliasing of interface function names across classes of different types, but can
+only have one type signature.  So we a function called 'empty'  for tape
+machines.  It calls empty-0 while adding (state tm), as per points 3 and 4 above.
+In addition we have a buffers stack and queue.  It is natural to ask if the buffer
+is empty with, say,  (empty buff0),  but as buffers do not have state, and thus goes to
+a funciton to supply the optional defaults, it will fail when (state buff0) is called.
+In general we might want widly different argument lists for a method with the same
+name that is disptached from different class types, but CLOS won't let us.
+
+
+

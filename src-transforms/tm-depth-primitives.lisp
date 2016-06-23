@@ -59,7 +59,7 @@ See LICENSE.txt
           (dequeue-sublist()
             (dequeue history
               (λ(tm0) 
-                (s tm0 ; step past the sublist we just descended into
+                     (s tm0 ; step past the sublist we just descended into
                   (λ()
                     (cue-to tm tm0)
                     (funcall cont-dequeue)
@@ -77,46 +77,62 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
+;; properties
+;;
+;;  we take the deafult and do not support alloc dealloc
+
+
+;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-depth)) (r (tape tm)))
-  (defmethod w ((tm tm-depth) object) (w (tape tm) object))
+  (defmethod r-0 ((tm tm-depth) (state active) cont-ok cont-parked) 
+    (r (HA tm) cont-ok cont-parked)
+    )
+
+  (defmethod w-0 ((tm tm-depth) (state active) object cont-ok cont-parked) 
+    (w (HA tm) object cont-ok cont-parked)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  ;; our tape is never nil, so this returns true
-  (defmethod cue-leftmost  ((tm tm-depth)) 
-    (cue-leftmost (tape tm))
+  ;; leftmost for the traversal is defined as the cell that the base
+  ;; machine is on when the traversal was initialized
+  (defmethod cue-leftmost-0  ((tm tm-depth) (state parked) cont-ok cont-void) 
+    (declare (ignore cont-void))
+    (void (depth-history (parameters tm)))
+    (setf (HA tm) (fork (depth-base (parameters tm))))
     )
 
 ;;--------------------------------------------------------------------------------
 ;;  head location predicates
 ;;
-  (defmethod heads-on-same-cell 
+  (defmethod heads-on-same-cell-0
     (
       (tm0 tm-depth) 
+      (state0 active)
       (tm1 tm-depth) 
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
+      (state1 active)
+      cont-true
+      cont-false
+      cont-parked
       ) 
-    (heads-on-same-cell (tape tm0) (tape tm1) cont-true cont-false)
+    (heads-on-same-cell (HA tm0) (HA tm1) cont-true cont-false cont-parked)
     )
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s
+  (defmethod s-0
     (
       (tm tm-depth)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (state active)
+      cont-ok
+      cont-rightmost
       )
     (s-depth-ru
-      (tape tm)
       (HA tm)
+      (depth-history (parameters tm))
       cont-ok
       cont-ok
       cont-rightmost
@@ -124,52 +140,37 @@ See LICENSE.txt
       ))
 
 ;;--------------------------------------------------------------------------------
-;; cell allocation
+;; copying
 ;;
-  (defmethod a 
+;; The base copying requies no entanglement accounting, because that is derived.
+;; This is for internal use.
+;;
+  (defmethod cue-to-0
     (
-      (tm tm-depth)
-      object 
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (tm-cued tm-depth)
+      (tm-orig tm-depth)
       )
-    (a (tape tm) object cont-ok cont-no-alloc)
+    (setf (state tm-cued) (state tm-orig))
+    (setf (HA tm-cued) (fork (HA tm-orig)))
+    (setf (tape tm-cued) (tape tm-orig))
+    (setf (parameters tm-cued) (parameters tm-orig))
+    tm-cued
     )
 
-;;--------------------------------------------------------------------------------
-;; deallocating cells
-;;
-  ;; deallocates the cell just to the right of the head
-  (defmethod d 
+  (defmethod cue-to-0
     (
-      (tm tm-depth)
-      &optional 
-      spill
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-collision (λ()(error 'dealloc-entangled)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (tm-cued tm-depth)
+      (tm-orig tape-machine)
       )
-    (d (tape tm) spill
-      cont-ok 
-      cont-rightmost
-      cont-not-supported
-      cont-collision
-      cont-no-alloc
-      ))
-
-  ;; deallocates the leftmost cell
-  (defmethod d◧-0
-    (
-      (tm tm-depth)
-      &optional 
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      )
-    (declare (ignore cont-ok))
-    (funcall cont-no-supported)
+    (init tm-cued :base tm-orig)
+    tm-cued
     )
 
+  (defmethod cue-to-0
+    (
+      (tm-cued tape-machine)
+      (tm-orig tm-depth)
+      )
+    (cue-to-0 tm-cued (HA tm-orig))
+    )
 
