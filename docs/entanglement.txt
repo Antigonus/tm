@@ -1,0 +1,43 @@
+
+
+1. Machines that share a tape are said to be 'entangled'.
+
+2. To perform 'entanglement accounting'  means to keep an entanlment list or set, and
+   then to check this list so as to guarantee the integrity of entangled machines.
+
+3. These are the situations where entanglemnt accounting is needed to assure the integrity
+   of entangled machines:
+
+  3.1
+    When a new cell is allocated to the left of the tape, all entangled machines are sent a
+    message so that they may update their tape reference.
+
+  3.2
+    When a cell is deallocated from the left of a tape, all entangled machines are sent a
+    message, so that they may update their tape reference.
+
+  3.3
+    A collision occurs if one machine attempts to deallocate a cell for which an entangled
+    machine has its head on.
+
+    Collisions can only occur between active machines.
+
+4. Notice that all the situations where entanglment accounting is required entail
+   either deallocation of cells, or allocation of a new leftmost cell.
+
+   In a single threaded version,  or where a single thread is guaranteed due to
+   locks, and there is neither deallocation, nor allocation of leftmost, entanglement
+   accounting is not needed.
+
+   In the multithreaded case, if it were not for entanglement accounting, deallocation in
+   one thread, could destroy the integrity of a machine in another thread - even though
+   that other thread has no situations where entanglement accounting is necessary.
+
+5. We can now define 'non-destructive'  programming, as a programming style that neither
+   allocates new leftmost cells, nor deallocates cells, and this is true for all threads
+   of execution.  Entanglement accounting is not needed for non-destructive programming.
+
+
+
+
+

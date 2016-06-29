@@ -9,9 +9,8 @@ See LICENSE.txt
 
 (defun test-buffers-0 ()
   (let*(
-         (base-tm (mount [0 1 2 3 4 5 6 7]))
-         (location (fork base-tm))
-         (rightmost (fork base-tm))
+         (location (mount [0 1 2 3 4 5 6 7]))
+         (rightmost (fork location))
          )
     (sn location 2)
     (sn rightmost 5)
@@ -32,3 +31,4 @@ See LICENSE.txt
         )
         ))))
 (test-hook test-buffers-0)
+

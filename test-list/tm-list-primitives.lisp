@@ -107,3 +107,26 @@ See LICENSE.txt
       (is-void k)
       )))
 (test-hook test-tm-list-d-1)
+
+(defun test-tm-list-d◧-0 ()
+  (let(
+        (a (mount {1 2 3}))
+        )
+    (∧
+      (eq 
+        (d◧ a ∅ (be 'ok) (be 'rightmost) (be 'not-supported) (be 'collision) (be 'no-alloc))
+        'collision
+        )
+      (s a)
+      (= (d◧ a) 1)
+
+      (eq 
+        (d◧ a ∅ (be 'ok) (be 'rightmost) (be 'not-supported) (be 'collision) (be 'no-alloc))
+        'collision
+        )
+      (s a)
+      (= (d◧ a) 2)
+
+      (equal (to-list a) {3})
+      )))
+(test-hook test-tm-list-d◧-0)

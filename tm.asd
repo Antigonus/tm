@@ -78,6 +78,10 @@ See LICENSE.txt
 
                              ;; dataflow
                                (:file "dataflow")
+
+                             ;; printing
+                               (:file "print-machine")
+                               
                                ))
 
                (:module "src-generators"

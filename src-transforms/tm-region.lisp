@@ -197,6 +197,61 @@ See LICENSE.txt
         )))
 
 ;;--------------------------------------------------------------------------------
+;; print
+;;
+  (defun print-indicated (tm0 tm)
+    (heads-on-same-cell tm0 tm
+      (λ()
+        (princ "[")
+        (princ (r tm0))
+        (princ "]")
+        )
+      (λ()
+        (princ (r tm0))
+        )))
+
+  (defmethod print-machine ((tm tm-region) &optional (n 0))
+    (indent n) (princ tm) (nl)
+    (indent n) (princ "state: ") (princ (type-of (state tm)))(nl)
+    (indent n) (princ "location: ") (nl)
+    (print-machine (region-location (parameters tm)) (1+ n))
+    (indent n) (princ "rightmost: ") (nl)
+    (print-machine (region-rightmost (parameters tm)) (1+ n))
+    (indent n) (princ "HA: ") (princ (HA tm)) (nl)
+    (print-machine (HA tm) (1+ n))
+
+    #| calling fork inside print-machine is not a good idea
+    (if (is-void tm)
+      (progn
+        (indent n) 
+        (princ "region: #void")
+        (nl)
+        )
+      (let(
+            (tm0 (fork-0 tm))
+            )
+        (cue-leftmost tm0)
+        (indent n) 
+        (princ "region: ")
+        (print-indicated tm0 tm)
+        (⟳(λ(cont-loop cont-return)
+            (s tm0
+              (λ()
+                (princ " ")
+                (print-indicated tm0 tm)
+                (funcall cont-loop)
+                )
+              cont-return
+              )))
+        (nl)
+        ))
+     |#
+
+    (print-entanglements-0 tm n)
+    )
+
+
+;;--------------------------------------------------------------------------------
 ;; properties
 ;;
   (defmethod supports-dealloc ;; default behavior
@@ -236,33 +291,49 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost-0  ((tm tm-region) (state parked) cont-ok cont-void)
-    (let(
-          (leftmost-region (region-location (parameters tm)))
-          )
-      (s leftmost-region
-        (λ() 
-          (setf (HA tm) leftmost-region)
-          )
-        #'cant-happen
-        )))
 
-  (defmethod cue-leftmost-0  ((tm tm-region) (state active) cont-ok cont-void)
-    (let(
-          (leftmost-region (region-location (parameters tm)))
-          )
-      (s leftmost-region
-        (λ() 
-          (setf (HA tm) leftmost-region)
-          )
-        #'cant-happen
-        )))
+  ;; 1. a parked region is not void, i.e. it has cells
+  ;; 2. a region is part of the base space, hence any machine on the base space has cells
+  ;; 3. location is on the base space, thus it has cells
+  ;; 4. therefore, location can not be void.  (It might be parked or active.)
+  ;;
+  ;; 5. a parked location means that the region starts at leftmost of the base space.
+  ;; 6. both parked machines and non-rightmost active machines can be stepped
+  ;; 7. therefore, if we cue to location, and step, either rightmost continuation, or step happens
+  ;; 8. only a void region can be located at rightmost (as regions lie to the right)
+  ;; 9. note point 1
+  ;; 10. therefore, stepping location will not go to a rightmost continuation
+  ;;
+  ;; 11. for a parked machine has a (HA tm) = ∅.  Hence we must create a new HA to become
+  ;;     active.
+  ;;
+    (defmethod cue-leftmost-0  ((tm tm-region) (state parked) cont-ok cont-void)
+      (let(
+            (location (region-location (parameters tm)))
+            )
+        (setf (HA tm) (fork location))
+        (s (HA tm) cont-ok #'cant-happen)
+        (setf (state tm) active)
+        ))
 
+  ;; same reasoning as for parked state, though starting 'an active region is not void ...'
+  ;;
+    (defmethod cue-leftmost-0  ((tm tm-region) (state active) cont-ok cont-void)
+      (let(
+            (location (region-location (parameters tm)))
+            )
+        (cue-to-0 (HA tm) location)
+        (s (HA tm) cont-ok #'cant-happen)
+        (setf (state tm) active)
+        ))
+
+  ;; (HA tm) is already entangled, so we use cue-to-0
   ;; regions cue quickly to rightmost
   (defmethod cue-rightmost-0  ((tm tm-region) (state active) cont-ok cont-void) 
     (let(
           (rightmost-region (region-rightmost (parameters tm)))
           )
+      (cue-to-0 (HA tm) rightmost-region)
       (setf (HA tm) rightmost-region)
       t
       ))
@@ -291,24 +362,109 @@ See LICENSE.txt
         (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
         )))
 
+
+
+
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
+
+  ;; alloc new leftmost
   (defmethod a◧-0
     (
       (tm tm-region)
-      state
+      (state void)
       object 
       cont-ok
       cont-not-supported
       cont-no-alloc
       )
-    (a (region-location (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
+    (let(
+          (location (region-location (parameters tm)))
+          )
+      ;; if location is initially void, upon success of #'a it moves to parked
+      (a location object
+        (λ()
+          (let( ; we are going to need a rightmost pointer ..
+                (rightmost (fork location)) ; rightmost is now either active or parked
+                )
+            (s rightmost #'do-nothing #'cant-happen) ; we just created a cell to right of location
+            (setf (region-rightmost (parameters tm)) rightmost)
+            (setf (state tm) parked)
+            (funcall cont-ok)
+            ))
+        cont-not-supported
+        cont-no-alloc
+        )))
+
+  (defmethod a◧-0
+    (
+      (tm tm-region)
+      (state parked)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (let(
+          (location (region-location (parameters tm)))
+          )
+      (a location object cont-ok cont-not-supported cont-no-alloc)
+      ))
+
+  (defmethod a◧-0
+    (
+      (tm tm-region)
+      (state active)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (let(
+          (location (region-location (parameters tm)))
+          )
+      (a location object cont-ok cont-not-supported cont-no-alloc)
+      ))
+
+  ;; alloc new rightmost
+  (defmethod a◨-0 
+    (
+      (tm tm-region) 
+      (state active) 
+      object
+      cont-ok
+      cont-not-supported 
+      cont-no-alloc
+      )
+    (as (region-rightmost (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
     )
 
-  (defmethod a◨-0 ((tm tm-region) (state active) object cont-ok cont-not-supported cont-no-alloc)
-    (declare (ignore cont-not-supported))
-    (as (region-rightmost (parameters tm)) object cont-ok cont-no-alloc)
+  ;; same as for an active region
+  (defmethod a◨-0 
+    (
+      (tm tm-region) 
+      (state parked) 
+      object
+      cont-ok
+      cont-not-supported 
+      cont-no-alloc
+      )
+    (as (region-rightmost (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
+    )
+
+  ;; adding a new cell to the right of an empty tape, is the same as
+  ;; adding a new cell to the left of an empty tape
+  (defmethod a◨-0 
+    (
+      (tm tm-region) 
+      (state void) 
+      object
+      cont-ok
+      cont-not-supported 
+      cont-no-alloc
+      )
+    (a◧-0 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
 
   (defmethod a-0
@@ -322,6 +478,32 @@ See LICENSE.txt
       )
     (a (HA tm) object cont-ok cont-not-supported cont-no-alloc)
     )
+
+  (defmethod a-0
+    (
+      (tm tm-region)
+      (state void)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (a◧-0 (HA tm) state object cont-ok cont-not-supported cont-no-alloc)
+    )
+
+  (defmethod a-0
+    (
+      (tm tm-region)
+      (state parked)
+      object 
+      cont-ok
+      cont-not-supported
+      cont-no-alloc
+      )
+    (a◧-0 (HA tm) state object cont-ok cont-not-supported cont-no-alloc)
+    )
+
+
 
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
@@ -341,7 +523,7 @@ See LICENSE.txt
         (d-0 loc cont-ok cont-not-supported)
         )))
 
-  ;; state will be active when this is called
+  ;; state will be active when this is called, there will be no collisions
   (defmethod d-0
     (
       (tm tm-region)
@@ -354,5 +536,48 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;
-;;  default behavior
+  ;; 1. Entanglement accounting for the region is separate from that for the base machine.
+  ;; Hence when we use a region we have two levels of entanglement.  Location, rightmost,
+  ;; and HA are entangled on the base machine.  The tm-region is entangled with itself
+  ;; and any copies made of it.
+  ;;
+  ;; 2. When we make a copy of a tm-region, we reference the same location and rightmost
+  ;; objects that are referenced on the original machine.  However, we must create a new
+  ;; HA, so that the copy may step independently.
+  ;;
+  ;; 3. In tm-derived-2.lisp, fork and cue-to each call cue-to-2 to do the work.  cue-to-2
+  ;; then calls cue-to-0.  The purpose of cue-to-2 is to add the entanglement list to
+  ;; tm-cued.
+  ;; 
+  ;; 4. in tm-derived-0.lisp, fork-0 calls cue-to-0 directly.  The purpose of fork-0 is to
+  ;; provide an efficient fork in situations where entanglement accounting is simply not
+  ;; not needed.  We have made extensive use of this in our library.
+  ;;
+  ;; By definition, cue-to-0 does not do entanglement accounting, it is part of a lower
+  ;; abstraction level.  When we need entanglement accounting, that is added by cue-to-2.
+  ;;
+  ;; Here we define cue-to-0 for tm-region.  As cue-to-0 is making a copy, a new
+  ;; HA must be made [see 2 above]. Here is where we run into an issue.  If we use
+  ;; fork-0 for creating the new HA, then we have proper behavior for fork-0 of the
+  ;; the tm-region, i.e. we don't do any entanglement accounting [see 4 above].  However,
+  ;; when cue-to-0 is called as part of cue-to-2 [see 3 above],  cue-to-2 adds accounting
+  ;; at the tm-region level, but not at the base machine level for HA - this is bad.
+  ;;
+  ;; If instead we use fork to create the new HA, we end up with entanglement accounting
+  ;; for fork-0, which, again, is bad.
+  ;;
+  ;; the solution -> we will add dispatch to cue-to-2 against the tm type, so that
+  ;; machines like tm-region can do proper entanglement accounting.
+  ;;
+    (defmethod cue-to-0
+      (
+        (tm-cued tm-region)
+        (tm-orig tm-region)
+        )
+      (setf (state tm-cued) (state tm-orig))
+      (setf (HA tm-cued) (fork-0 (HA tm-orig)))
+      (setf (parameters tm-cued) (parameters tm-orig))
+      tm-cued
+      )
 
+;;...    (defmethod cue-to-2

@@ -272,6 +272,8 @@ All tape machine implmentations must specialize these functions.
 ;; The base copying requies no entanglement accounting, because that is derived.
 ;; This is for internal use.
 ;;
+
+  ;; see tm-derived-2 for cue-to
   (defgeneric cue-to-0
     (
       tm-cued ; object affected, contents get clobbered
@@ -280,6 +282,7 @@ All tape machine implmentations must specialize these functions.
     (:documentation "Used internally to make copies that have no entanglement accounting.")
     )
 
+  ;; see tm-derived-2 for cue-to
   ;; this will work for many machine types
   (defmethod cue-to-0
     (

@@ -151,7 +151,7 @@ of the primitives.
       (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
       ))
-  ;; for non-singleton machine, so there is not state change
+  ;; for non-singleton machine, so there is no state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
   (defun ∀-entanglements-d◧-message (tm cont-ok cont-not-supported)
@@ -169,6 +169,20 @@ of the primitives.
         cont-ok 
         cont-not-supported
         )))
+
+  (defun d◧-2 (tm dealloc-object cont-ok cont-not-supported cont-collision)
+    (∃-collision◧ tm
+      cont-collision
+      (λ() ;; no collision
+        (d◧-0 tm
+          (λ()
+            (∀-entanglements-d◧-message
+              tm
+              (λ()(funcall cont-ok dealloc-object))
+              cont-not-supported ; an entangled machine claims d◧ is not supported
+              ))
+          cont-not-supported
+          ))))
 
   (defgeneric d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
   (defmethod d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
@@ -199,30 +213,16 @@ of the primitives.
               spill 
               ;; if spill 
               (as spill dealloc-object
-                (λ() 
-                  (d◧-0 tm
-                    (λ()
-                      (∀-entanglements-d◧-message
-                        tm
-                        (λ()(funcall cont-ok dealloc-object))
-                        cont-not-supported ; an entangled machine claims d◧ is not supported
-                        ))
-                    cont-not-supported
-                    ))
+                (λ() (d◧-2 tm dealloc-object cont-ok cont-not-supported cont-collision))
                 cont-no-alloc
                 )
               ;; if not spill
-              (d◧-0 tm
-                (λ()
-                  (∀-entanglements-d◧-message
-                    tm
-                    (λ()(funcall cont-ok dealloc-object))
-                    cont-not-supported ; an entangled machine claims d◧ is not supported
-                    ))
-                cont-not-supported
-                )))))
+              (d◧-2 tm dealloc-object cont-ok cont-not-supported cont-collision)
+              ))))
+
       cont-rightmost ; r◧ fails, tm must be void
       ))
+
 
   (defun d (
              tm 
