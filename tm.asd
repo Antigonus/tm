@@ -43,31 +43,45 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "src-list"
+               (:module "src-gen"
                  :components (
-                             ;; interface definition
-                               (:file "tm-mk-0")
-                               (:file "tm-mk-1")
-                               (:file "tm-primitives")
-                               (:file "tm-derived-0")
-                               (:file "tm-quantifiers-0")
-                               (:file "entanglement-0")
+                               (:file "nd-tm-def")
+                               (:file "nd-tm-mk")
+                               (:file "nd-tm-state")
+                               (:file "nd-tm-primitives")
+                               (:file "nd-tm-derived")
+                               (:file "nd-tm-quantifiers")
+                               (:file "nd-print-machine")
 
-                               (:file "tm-state")
                                (:file "length")
+
+#|
+                               (:file "tm-def.lisp")
+                               (:file "print-machine")
+                               (:file "tm-primitives")
+                               (:file "entanglement")
+                               (:file "entanglement-scope")
+
                                (:file "tm-derived-1")
                                (:file "entanglement-1")
                                (:file "tm-quantifiers-1")
                                (:file "tm-derived-2")
 
                                (:file "tm-subspace")
-                               (:file "convert")
-                               (:file "entanglement-scope")
-
                                (:file "location")
+
+                               (:file "convert")
+
 
                              ;; projective void
                                (:file "tm-void")
+                               |#
+                               ))
+
+
+               (:module "src-list"
+                 :components (
+                             ;; interface definition
 
                              ;; list implementation
                                (:file "tm-list-mk")
@@ -76,13 +90,12 @@ See LICENSE.txt
                                (:file "tm-list-length")
                                (:file "tm-list-convert")
 
-                             ;; dataflow
+#|                             ;; dataflow
                                (:file "dataflow")
 
-                             ;; printing
-                               (:file "print-machine")
-                               
+|#                             
                                ))
+#|
 
                (:module "src-generators"
                  :components (
@@ -91,7 +104,6 @@ See LICENSE.txt
 
                (:module "src-transforms"
                  :components (
-
                              ;; transforms
                                (:file "tm-region")
                                (:file "buffers")
@@ -99,15 +111,11 @@ See LICENSE.txt
                                (:file "tm-depth-mk")
                                (:file "tm-depth-primitives")
                                (:file "tm-depth-convert")
-#|
 
 
                                (:file "tm-breadth-mk")
                                (:file "tm-breadth-primitives")
                                (:file "tm-breadth-convert")
-
-  |#
-
                             ))
 
                (:module "test-list"
@@ -137,13 +145,10 @@ See LICENSE.txt
                 :components (
                               (:file "tm-region")
                               (:file "buffers")
-#|
-
-                              (:file "tm-depth")
-                              (:file "tm-breadth")
-|#
+;;                              (:file "tm-depth")
+;;                              (:file "tm-breadth")
                               ))
-
+|#
 
 #|
 

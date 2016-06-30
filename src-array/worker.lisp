@@ -92,7 +92,7 @@ are treated as tape machines in the body.
         (let(
               (the-lambda {'lambda conts (o body)})
               )
-          (if (singleton bindings) ; if singleton then we have no specified bindings
+          (if (singular bindings) ; if singular then we have no specified bindings
             (as the-defun the-lambda)
             (progn
               (as bindings-at the-lambda)

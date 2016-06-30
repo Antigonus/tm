@@ -29,10 +29,10 @@ See LICENSE.txt
     of the head of the location machine' convention.  We might have located a region
     with its leftmost cell, except that a void region doesn't have a leftmost cell.
 
-    A singleton region has a single cell.  One may notice now that we have already been
-    using singleton regions.  #'a may be thought of as a machine that creates a singleton
+    A singular region has a single cell.  One may notice now that we have already been
+    using singular regions.  #'a may be thought of as a machine that creates a singular
     region at the current head location,  while #'d may be thought of as a function that
-    deletes a singleton region located at the current head location.
+    deletes a singular region located at the current head location.
 
   Initializaiton
 

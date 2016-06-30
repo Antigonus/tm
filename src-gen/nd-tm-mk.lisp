@@ -19,6 +19,9 @@ See LICENSE.txt
   ;; a parked machine has a tape, but no head
   (defparam parked (make-instance 'parked))
 
+  ;; a parked machine has a tape, but no head
+  (defparam abandoned (make-instance 'abandoned))
+
   ;; an active machine has both a tape and a head
   (defparam active (make-instance 'active))
 

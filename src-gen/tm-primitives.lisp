@@ -51,12 +51,16 @@ All tape machine implmentations must specialize these functions.
     )
   (defgeneric r-0 (tm state cont-ok cont-parked))
   (defmethod r-0 (tm (state void) cont-ok cont-parked)
-    (declare (ignore tm state cont-ok))
+    (declare (ignore tm cont-ok))
     (funcall cont-parked)
     )
   (defmethod r-0 (tm (state parked) cont-ok cont-parked)
-    (declare (ignore tm state cont-ok))
+    (declare (ignore tm cont-ok))
     (funcall cont-parked)
+    )
+  (defmethod r-0 (tm (state abandoned) cont-ok cont-parked)
+    (declare (ignore tm cont-ok cont-parked))
+    (error 'operation-on-abandoned)
     )
 
   (defun w 
@@ -79,6 +83,10 @@ All tape machine implmentations must specialize these functions.
     (declare (ignore tm state object cont-ok))
     (funcall cont-parked)
     )
+  (defmethod w-0 (tm (state abandoned) object cont-ok cont-parked)
+    (declare (ignore tm object cont-ok cont-parked))
+    (error 'operation-on-abandoned)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
@@ -98,7 +106,10 @@ All tape machine implmentations must specialize these functions.
     (declare (ignore tm state cont-ok))
     (funcall cont-void)
     )
-
+  (defmethod cue-leftmost-0 (tm (state abandoned) cont-ok cont-void)
+    (declare (ignore tm cont-ok cont-void))
+    (error 'operation-on-abandoned)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; head location predicate
@@ -116,6 +127,15 @@ All tape machine implmentations must specialize these functions.
     (heads-on-same-cell-0 tm0 (state tm0) tm1 (state tm1) cont-true cont-false cont-parked)
     )
   (defgeneric heads-on-same-cell-0 (tm0 state0 tm1 state1 cont-true cont-false cont-parked))
+
+  (defmethod heads-on-same-cell-0 (tm0 (state0 abandoned) tm1 state1 cont-true cont-false cont-parked)
+    (declare (ignore tm0 state1 cont-true cont-false cont-parked))
+    (error 'operation-on-abandoned)
+    )
+  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 abandoned) cont-true cont-false cont-parked)
+    (declare (ignore tm0 state0 cont-true cont-false cont-parked))
+    (error 'operation-on-abandoned)
+    )
 
   (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 (state1 void) cont-true cont-false cont-parked)
     (declare (ignore tm0 state0 state1 cont-true cont-false))
@@ -177,6 +197,10 @@ All tape machine implmentations must specialize these functions.
     (declare (ignore cont-rightmost)); parked machine has at least 1 cell
     (cue-leftmost-0 tm state cont-ok #'cant-happen) 
     )
+  (defmethod s-0 (tm (state abandoned) cont-ok cont-rightmost)
+    (declare (ignore tm cont-ok cont-rightmost)); parked machine has at least 1 cell
+    (error 'operation-on-abandoned)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -187,6 +211,10 @@ All tape machine implmentations must specialize these functions.
   (defmethod a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
+    )
+  (defmethod a◧-0 (tm (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm object cont-ok cont-not-supported cont-no-alloc))
+    (error 'operation-on-abandoned)
     )
 
   (defun a
@@ -214,11 +242,13 @@ All tape machine implmentations must specialize these functions.
   (defmethod a-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
-
   (defmethod a-0 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
-
+  (defmethod a-0 (tm (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm object cont-ok cont-not-supported cont-no-alloc))
+    (error 'operation-on-abandoned)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
@@ -264,7 +294,6 @@ All tape machine implmentations must specialize these functions.
       (declare (ignore cont-ok))
       (funcall cont-not-supported)
       )
-
 
 ;;--------------------------------------------------------------------------------
 ;; copying

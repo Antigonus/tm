@@ -38,7 +38,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
             )))
         cont-mount-failed
         ))
-
+    
   (defun ai
     (
       tm

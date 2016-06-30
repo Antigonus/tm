@@ -13,38 +13,37 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; each tape machine may be in exactly one state
 ;;
-;;  'void' speaks to allocation, and means there are no cells.  'empty' speaks to data and
-;;  means that an existing allocation has no data in it.
+;;  A 'void' machine has no tape, consequently it can have no head address. When voiding
+;;  a machine we typically set the HA and tape to ∅, so that the referenced objects might
+;;  be deallocated.  However, this is not a hard requirement.  Voidness is determined 
+;;  soley by the state.
 ;;
-;;  Typically we do not keep track of what is empty, but rather emulate allocation and
-;;  keep track of void. For example, if we have a fixed array tape, then keeping track
-;;  which cells are empty requires some sort of external structure, but the same external
-;;  structure could be said to be keeping track of allocation, and allocation is a more
-;;  general model, so we do that instead.
+;;  A 'parked' machine has in common with a void machine that it has no head address.
+;;  However, unlike a void machine it does have a tape. When parking a machine we
+;;  typically set the HA to ∅, so that any referenced objet might be deallocated.
 ;;
-;;  As a avoid machine has no tape, it can have no head position. When voiding a machine
-;;  we typically set the tape to null, so that the tape structure will be deallocated.
-;;  Similarly we typically nullify the head state.
+;;  When there is an issue of the head address being accessed in a void machine, the void
+;;  machine will follow cont-parked, just like a parked machine would.  When there is an
+;;  issue of the tape being accessed in a void machine, independent of the head address
+;;  (for example #'d◧), we follow cont-void.
 ;;
-;;  Parked means that we do not have a head state.  Consequently, a parked machine can not
-;;  collide with an entangled machine. A parked machine tape may be non-void. When parking
-;;  a machine we nullify the head state.
+;;  An 'abandoned' machine is one that will not be used anymore. Upon abandoning a
+;;  machine we disentangle it and set its head address, tape, and parameters to ∅.
 ;;
-;;  A void machine is also parked machine, but we only signal the void state. When there
-;;  is an issue of head state being accessed in a void machine, the void machine will
-;;  follow cont-parked, just like a parked machine would.  When there is an issue of the
-;;  tape being accessed independent of the head (for example #'d◧), we follow cont-void.
+;;  An active machine is one that has escaped the boundary case algebra.
 ;;
   (defclass state ()())
+
   (defclass void (state)())
   (defclass parked (state)())
+  (defclass abandoned (state)())
   (defclass active (state)())
 
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-;;  HA holds the head state.  cue-leftmost resets this HA without refering
-;;  to its prior value.  Parked and empty machine nullify the HA slot.
+;;  HA holds the head address.  cue-leftmost resets this HA without refering
+;;  to its prior value.  Parked and empty machines typically nullify the HA slot.
 ;;
 ;;  tape is the stuff that has been added to the container.  This is set to ∅
 ;;  when the machine goes to tm-void. The tape is restored with the function a◧.
@@ -55,9 +54,9 @@ See LICENSE.txt
 ;;
 ;;  entanglments is a list of machines that share the tape.  Note, normally a machine is
 ;;  entangled with itself.  If it happens that a machine is not entangled with itself,
-;;  some tests, such as ∀-parked, may return non-intutive results.
+;;  some functions, such as ∀-parked, might return non-intutive results.
 ;;
-  (defclass tape-machine ()
+  (defclass nd-tape-machine ()
     (
       (state ; state of the machine, type matters not value, one of empty, parked, active
         :initarg :state

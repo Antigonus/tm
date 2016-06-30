@@ -8,16 +8,16 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-  (defun tm-list-singleton (tm0)
+  (defun tm-list-singular (tm0)
     (¬ (cdr (tape tm0)))
     )
 
-  (defmethod singleton-0 ((tm0 tm-list) (state active) cont-true cont-false)
+  (defmethod singular-0 ((tm0 tm-list) (state active) cont-true cont-false)
     (if (¬ (cdr (tape tm0)))
       (funcall cont-true)
       (funcall cont-false)
       ))
-  (defmethod singleton-0 ((tm0 tm-list) (state parked) cont-true cont-false)
+  (defmethod singular-0 ((tm0 tm-list) (state parked) cont-true cont-false)
     (if (¬ (cdr (tape tm0)))
       (funcall cont-true)
       (funcall cont-false)

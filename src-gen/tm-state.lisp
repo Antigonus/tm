@@ -3,19 +3,30 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-These methods may cause state changes:
-  park
-  void
-
-  see tm-derived-1:
+Note:
   a◧ when the tm is void, transitions to parked
-  d◧ when the tm is singleton, and the all entangled machines are parked, transitions to void
+  d◧ when the tm is singular, and the all entangled machines are parked, transitions to void
+  both of these methods are destructive
+
 
 |#
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
-;; tape machine states
+;; general
+;;
+  (defun is-parked (tm) (eq (state tm) parked))
+  (defun is-void (tm) (eq (state tm) void))
+  (defun is-active (tm) (eq (state tm) active))
+
+  ;; technically it is illegal to call this ;-)
+  (defun is-abandoned (tm) (eq (state tm) abandoned))
+
+
+
+;;--------------------------------------------------------------------------------
+;; parking
 ;;
 
   ;; parks the machine
@@ -52,6 +63,10 @@ These methods may cause state changes:
         cont-false
         )))
 
+;;--------------------------------------------------------------------------------
+;; void
+;;
+;;
   (defun void (tm)
     "voids the machine"
     (void-0 tm (state tm))
@@ -82,11 +97,8 @@ These methods may cause state changes:
     (setf (state tm) void)
     )
 
-  (defun is-parked (tm) (eq (state tm) parked))
-  (defun is-void (tm) (eq (state tm) void))
-  (defun is-active (tm) (eq (state tm) active))
 
 
-  ;; If there exists an entangled machine that is void, then all entangled machines are
-  ;; void. If there exists an entangled machine that is singleton, then all entangled
-  ;; machines are singleton.
+;;--------------------------------------------------------------------------------
+;; void
+;;

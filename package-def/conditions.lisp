@@ -71,6 +71,10 @@ See LICENSE.txt
 ;;
 
   ;; tape machine is read only, but someone tried to write to it..
+  (define-condition operation-on-abandoned (error)
+    ((text :initarg :text :reader text)))
+
+  ;; tape machine is read only, but someone tried to write to it..
   (define-condition tm-read-only (error)
     ((text :initarg :text :reader text)))
 

@@ -12,8 +12,8 @@ See LICENSE.txt
 (defun empty     (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (empty-0 tm (state tm) cont-true cont-false)
   )
-(defun singleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-  (singleton-0 tm (state tm) cont-true cont-false)
+(defun singular (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+  (singular-0 tm (state tm) cont-true cont-false)
   )
 (defun doubleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (doubleton-0 tm (state tm) cont-true cont-false)
@@ -24,7 +24,7 @@ See LICENSE.txt
 
 
 (defgeneric empty-0     (tm state cont-true cont-false))
-(defgeneric singleton-0 (tm state cont-true cont-false))
+(defgeneric singular-0 (tm state cont-true cont-false))
 (defgeneric doubleton-0 (tm state cont-true cont-false))
 (defgeneric tripleton-0 (tm state cont-true cont-false))
 
@@ -41,7 +41,7 @@ See LICENSE.txt
   (funcall cont-false)
   )
 
-(defmethod singleton-0 (tm (state void) cont-true cont-false)
+(defmethod singular-0 (tm (state void) cont-true cont-false)
   (declare (ignore tm state cont-true))
   (funcall cont-false)
   )
@@ -54,7 +54,7 @@ See LICENSE.txt
   (funcall cont-false)
   )
 
-(defmethod singleton-0 (tm (state active) cont-true cont-false)
+(defmethod singular-0 (tm (state active) cont-true cont-false)
   (declare (ignore state))
   (let(
         (tm1 (fork-0 tm))
@@ -104,7 +104,7 @@ See LICENSE.txt
   ;; (length tm0) <?> n
   (defmethod length-cmp
     (
-      (tm0 tape-machine)
+      (tm0 nd-tape-machine)
       (n integer)
       &optional 
       (cont-longer (be 'longer))
@@ -126,8 +126,8 @@ See LICENSE.txt
   ;; (length tm0) <?> (length tm1)
   (defmethod length-cmp
     (
-      (tma tape-machine)
-      (tmb tape-machine)
+      (tma nd-tape-machine)
+      (tmb nd-tape-machine)
       &optional 
       (cont-longer (be 'longer))
       (cont-same   (be 'same))

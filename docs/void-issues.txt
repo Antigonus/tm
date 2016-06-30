@@ -1,3 +1,18 @@
+
+;;  'void' speaks to allocation, and means there are no cells.  'empty' speaks to data and
+;;  means that an existing allocation has no data in it.
+;;
+;;  Typically we do not keep track of what is empty, but rather emulate allocation and
+;;  keep track of void. For example, if we have a fixed array tape, then keeping track
+;;  which cells are empty requires some sort of external structure, but the same external
+;;  structure could be said to be keeping track of allocation, and allocation is a more
+;;  general model, so we do that instead.
+
+;; If there exists an entangled machine that is void, then all entangled machines are
+;; void. If there exists an entangled machine that is singleton, then all entangled
+;; machines are singleton.
+
+
 In the prior implementation of tm, that for another language, tms had state, and the state
 determined the set of functions that were available. This state, however, was not the
 'type' of the container, but rather an independent entity.  Here, we are using CLOS

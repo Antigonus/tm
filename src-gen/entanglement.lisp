@@ -31,6 +31,9 @@ Fork
 
 Parked
 
+;;  A parked machine can be entangled with another machine, but it can not collide with an
+;;  entangled machine.
+
   There is no head on the tape for a parked machine, hence it will never have a head on a
   region, and hence it will never trip a region not clear continuation.  However, the
   parked head does indicate a region starting from leftmost on the tape.  We might, for
@@ -46,13 +49,13 @@ Parked
 
 Void
 
-  Only a singleton machine can become void.  (#'d* is considered a repeat of #'d).
-  All machines in an entanglment group for a singleton machine are either parked,
-  or have their head on the singleton cell.
+  Only a singular machine can become void.  (#'d* is considered a repeat of #'d).
+  All machines in an entanglment group for a singular machine are either parked,
+  or have their head on the singular cell.
 
-  If any machine in the entanglement group has its head on the singleton cell then it can
+  If any machine in the entanglement group has its head on the singular cell then it can
   not be deleted, and thus the system can not collapse to void. In the converse, if
-  the system is collapsing to void, then no other machine has its head on the singleton
+  the system is collapsing to void, then no other machine has its head on the singular
   cell.
 
   When it is possible to transition to void, and one of a group of entangled machines

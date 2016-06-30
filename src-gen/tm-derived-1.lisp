@@ -90,7 +90,7 @@ of the primitives.
     (when (¬ (eq tm-message tm0)) (setf (tape tm-message) (tape tm0)))
     (funcall cont-ok)
     )
-  ;; for non-singleton machine, so there is not state change
+  ;; for non-singular machine, so there is not state change
   ;; all entangled machines share the same tape
   ;; add a new leftmost for one machine, then update the tape for all others
   (defun ∀-entanglements-a◧-message (tm cont-ok cont-not-supported)
@@ -151,7 +151,7 @@ of the primitives.
       (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
       ))
-  ;; for non-singleton machine, so there is no state change
+  ;; for non-singular machine, so there is no state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
   (defun ∀-entanglements-d◧-message (tm cont-ok cont-not-supported)
@@ -185,12 +185,18 @@ of the primitives.
           ))))
 
   (defgeneric d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+
+  (defmethod d◧-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (declare (ignore tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+    (error 'operation-on-abandoned)
+    )
+
   (defmethod d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (declare (ignore tm-state)) ; r◧ takes care of the void case in this implementation
     (r◧ tm
       (λ(dealloc-object) ; r◧ succeeds, so state will be parked or active
-        (singleton tm 
-          (λ() ; is singleton-tape, state transitions to void
+        (singular tm 
+          (λ() ; is singular-tape, state transitions to void
             (∀-parked tm
               (λ() ; all parked
                 (if
@@ -208,7 +214,7 @@ of the primitives.
                     )))
               cont-collision ; not all parked
               ))
-          (λ() ; not singleton, so no state change
+          (λ() ; not singular, so no state change
             (if
               spill 
               ;; if spill 
@@ -245,6 +251,10 @@ of the primitives.
     )
   (defmethod d-1 (tm (tm-state parked) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (d◧-1 tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    )
+  (defmethod d-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (declare (ignore tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+    (error 'operation-on-abandoned)
     )
   (defmethod d-1 (tm (tm-state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
     (let(
