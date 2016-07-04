@@ -40,7 +40,7 @@ See LICENSE.txt
   (defclass active (state)())
 
 ;;--------------------------------------------------------------------------------
-;; a tape machine
+;; non-destructive tape machine
 ;;
 ;;  HA holds the head address.  cue-leftmost resets this HA without refering
 ;;  to its prior value.  Parked and empty machines typically nullify the HA slot.
@@ -51,10 +51,6 @@ See LICENSE.txt
 ;;  parameters holds characterizing information unique to the instance.  For example for
 ;;  our integer recurrance generator, it is a struct that holds the min value (start
 ;;  value), the max value, and the increment.
-;;
-;;  entanglments is a list of machines that share the tape.  Note, normally a machine is
-;;  entangled with itself.  If it happens that a machine is not entangled with itself,
-;;  some functions, such as ∀-parked, might return non-intutive results.
 ;;
   (defclass nd-tape-machine ()
     (
@@ -73,10 +69,6 @@ See LICENSE.txt
       (parameters ; for such things as generator that need seed values
         :initarg :parameters
         :accessor parameters
-        )
-      (entanglements ; list of other tape-machines that share the same tape
-        :initarg entanglements
-        :accessor entanglements
         )
       ))
 

@@ -3,8 +3,9 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
- SBCL would not recognize these defclass declarations when in the 
- same file.
+  This is the tape machine model shown to the public.  It provides both destructive
+  and general destructive operations.  In the latter case it assures machine integrity
+  through entanglement accounting.
 
 |#
 
@@ -13,8 +14,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-;;  Entanglments is a list of machines that share the tape.  This is one list that is
-;;  shared by all entangle machines.  Hence, a machine will be entangled with itself.
+;;  entanglments is a list of machines that share the tape.  Note, normally a machine is
+;;  entangled with itself.  If it happens that a machine is not entangled with itself,
+;;  some functions, such as ∀-parked, might return non-intutive results.
 ;;
   (defclass tape-machine (nd-tape-machine)
     (

@@ -51,13 +51,15 @@ See LICENSE.txt
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived")
                                (:file "nd-tm-quantifiers")
+                               (:file "nd-tm-quantified")
                                (:file "nd-print-machine")
+                               (:file "nd-length")
 
-                               (:file "length")
-
-#|
-                               (:file "tm-def.lisp")
+                               (:file "tm-def")
+                               (:file "tm-state")
+                               (:file "entanglement")
                                (:file "print-machine")
+#|
                                (:file "tm-primitives")
                                (:file "entanglement")
                                (:file "entanglement-scope")
@@ -66,6 +68,7 @@ See LICENSE.txt
                                (:file "entanglement-1")
                                (:file "tm-quantifiers-1")
                                (:file "tm-derived-2")
+                               (:file "length")
 
                                (:file "tm-subspace")
                                (:file "location")
@@ -83,6 +86,7 @@ See LICENSE.txt
                  :components (
                              ;; interface definition
 
+#|
                              ;; list implementation
                                (:file "tm-list-mk")
                                (:file "tm-list-primitives")
@@ -90,7 +94,7 @@ See LICENSE.txt
                                (:file "tm-list-length")
                                (:file "tm-list-convert")
 
-#|                             ;; dataflow
+                             ;; dataflow
                                (:file "dataflow")
 
 |#                             

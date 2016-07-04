@@ -1,12 +1,14 @@
 
 
-1. Machines that share a tape are said to be 'entangled'.
+1. Machines that share a tape are said to be 'entangled'.  A solo machine, one that solely
+   owns its tape, will never be entangled.
 
-2. To perform 'entanglement accounting'  means to keep an entanlment list or set, and
-   then to check this list so as to guarantee the integrity of entangled machines.
+2. To perform 'entanglement accounting' means to keep a set or references to entangled
+   machines, and then to check this set so as to guarantee the integrity of entangled
+   machines.
 
 3. These are the situations where entanglemnt accounting is needed to assure the integrity
-   of entangled machines:
+   of non-solo machines:
 
   3.1
     When a new cell is allocated to the left of the tape, all entangled machines are sent a
@@ -21,6 +23,30 @@
     machine has its head on.
 
     Collisions can only occur between active machines.
+
+  3.4
+   (let( (tm-new  (fork tm-orig))))
+
+    When a machine is forked, the newly forked machine must be added to then entanglement
+    list of the tm-orig machine.
+
+  3.4
+    (cue-to tm-cued tm-orig)
+
+    the tm-cued machine must be disentangled with itself, and then entangled with the
+    tm-orig machine.
+
+  3.5
+    forcing a state change (for the boundary calculus) 
+
+    3.5.1 
+    to 'abandoned', as part of the operation for abandoning is to disentagle the
+    machine
+
+    3.5.2
+    to 'void' as voiding one machine must cause all entangled machines to become
+    void.
+
 
 4. Notice that all the situations where entanglment accounting is required entail
    either deallocation of cells, or allocation of a new leftmost cell.

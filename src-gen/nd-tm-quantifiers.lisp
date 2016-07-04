@@ -54,7 +54,6 @@ See LICENSE.txt
       (funcall work (λ(&rest vs)(return-from ⟳-return (values-list vs))))
       ))
 
-
   ;; This version of ⟳ facilitates the programmer in making the stepping function explicit
   ;; as an argument. The machine to be stepped, and the function to use to step it, are
   ;; explicitly provided as arguments.
@@ -244,46 +243,5 @@ See LICENSE.txt
       (q11 #'∃* tm pred)
       (funcall cont-true)
       (funcall cont-false)
-      ))
-
-
-;;--------------------------------------------------------------------------------
-;; stepping multiple times
-;;
-  (defgeneric sn (tm n &optional cont-ok cont-rightmost)
-    (:documentation 
-      "Step n times.  When called, cont-rightmost is passed the current value of n.  For
-       example, if the head is on leftmost, and the tape has two cells, and sn is called
-       with n set to 3, then the step from rightmost continuation will be called with a
-       value of 2.
-      "
-      ))
-
-  (defmethod sn
-    (
-      tm
-      (n integer)
-      &optional 
-      (cont-ok (be t))
-      (cont-rightmost (λ(n)(declare (ignore n)) ∅))
-      )
-    (labels(
-             (count-test()
-               (when (≤ n 0) (return-from sn (funcall cont-ok)))
-               )
-             (work()
-               (decf n)
-               (count-test)
-               (take-step) ; step from rightmost test is built into #'s
-               )
-             (take-step()
-               (s 
-                 tm 
-                 #'work
-                 (λ()(return-from sn (funcall cont-rightmost n)))
-                 ))
-             )
-      (count-test)
-      (take-step)
       ))
 

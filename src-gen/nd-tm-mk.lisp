@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  A new tape machine may be made by calling tm-mk.
+  A new non-destructive tape machine may be made by calling nd-mk.
 
 |#
 
@@ -48,17 +48,18 @@ See LICENSE.txt
 
   (defmethod init 
     (
-      instance 
+      (instance nd-tm-machine)
       init-list
       &optional 
       (cont-ok (be t))
-      (cont-fail (λ() (error 'unrecognized-instance-type)))
+      (cont-fail (λ()(error 'unrecognized-instance-type)))
       )
     (declare (ignore instance init-list cont-ok))
     (funcall cont-fail)
     )
 
-  (defun mk (tm-type &rest init-list)
+  ;; tm-type is nd-tape-machine or derived from nd-tape-machine
+  (defun nd-mk (tm-type &rest init-list)
     (let(
           (instance (make-instance tm-type))
           )

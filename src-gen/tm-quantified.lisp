@@ -13,112 +13,12 @@ See LICENSE.txt
 ;; repeated until end of tape operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  ;; if you want fill to be a single value, make it a singular-affine machine
-  ;; cont-rightmost is called when the fill machine hits rightmost
-  (defgeneric w* (tm fill &optional cont-ok cont-rightmost))
-
-  (defmethod w* 
-    (
-      (tm tape-machine)
-      (fill tape-machine)
-      &optional 
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      )
-    (⟳-loop
-      (λ(cont-loop)
-        (w tm (r fill))
-        (s-together (mount {tm fill})
-          cont-loop
-          (λ()
-            (if
-              (on-rightmost tm)
-              (funcall cont-rightmost) ;then we hit the end of tape before finishing
-              (funcall cont-ok) ;then fill is on rightmost, we are done
-              ))))))
-
-  (defgeneric s* (tm)
-    (:documentation 
-      "This is a synonym for cue-to-rightmost. There is no guarantee that intermediate
-       cells will be visited."
-      ))
-
-  (defmethod s* ((tm tape-machine)) (cue-rightmost tm))
-
-  (defgeneric -s* (tm)
-    (:documentation 
-      "This is a synonym for cue-to-leftmost. There is no guarantee that intermediate
-       cells will be visited."
-      ))
-
-  (defmethod -s*((tm tape-machine))(cue-leftmost tm))
-
-  (defgeneric a* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
-    (:documentation 
-      "Calls #'a repeatedly with successive objects from tm-fill. 
-       tm will not be stepped.  tm-fill will be stepped.
-       The sequence order as it is found on tm-fill will be reversed on tm.
-       "      
-      ))
-
-  (defgeneric as* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
-    (:documentation 
-      "Calls #'as repeatedly with successive objects from tm-fill.
-       Both tm and tm-fill will be stepped.
-       "
-      ))
-
   (defgeneric fas* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
     (:documentation 
       "Forks tm, calls #'as on the fork repeatedly with successive objects from tm-fill.
        tm will not be stepped.
        tm-fill will be stepped.
        "
-      ))
-
-  ;; cont-no-alloc is not transactional here ... need to fix the other a* versions too
-  ;; do we want it to be transactional?  But if it did a spot fix it would have to be
-  ;; possible to restart the a* where we left off ..
-  (defmethod a*
-    (
-      (tm tape-machine) 
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (supports-alloc tm
-      (λ()
-        (⟳-loop
-          (λ(cont-loop)
-            (a tm (r fill) 
-              (λ()(s fill cont-loop cont-ok))
-              #'cant-happen
-              cont-no-alloc
-              ))))
-      cont-not-supported
-      ))
-
-  (defun as*-0 
-    (
-      tm 
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (supports-alloc tm
-      (λ()
-        (⟳-loop
-          (λ(cont-loop)
-            (as tm (r fill) 
-              (λ()(s fill cont-loop cont-ok))
-              #'cant-happen
-              cont-no-alloc
-              ))))
-      cont-not-supported
       ))
 
   (defmethod fas*
@@ -133,20 +33,8 @@ See LICENSE.txt
     (let(
           (tm1 (fork-0 tm0))
           )
-      (as*-0 tm1 fill cont-ok cont-not-supported cont-no-alloc)
+      (as*-1 tm1 fill cont-ok cont-not-supported cont-no-alloc)
       ))
-
-  (defmethod as*
-    (
-      (tm0 tape-machine) 
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (as*-0 tm0 fill cont-ok cont-not-supported cont-no-alloc)
-    )
 
    ;; dealloc single cell functions return on the object in the cell as that is a natural
    ;; flow for single cell operations.  However, for multiple cell operations we use the
@@ -271,12 +159,6 @@ See LICENSE.txt
   (defgeneric an (tm tm-fill count &optional cont-ok cont-rightmost)
     (:documentation 
       "Similar to calling #'a n times on a fork of tm."
-      ))
-
-  (defgeneric asn (tm tm-fill n &optional cont-ok cont-rightmost)
-    (:documentation 
-      "Similar to calling #'as n times. fill is tm that provides initialization
-       data. tm and fill are both stepped n times."
       ))
 
   (defgeneric dn (tm count &optional spill cont-ok cont-rightmost)

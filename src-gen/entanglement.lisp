@@ -128,14 +128,10 @@ Fork and Entanglement
 ;;--------------------------------------------------------------------------------
 ;; are two machines entangled?
 ;;
-  ;; normally entanglement is mutual.  It is possible to use fork-0 or fork-1
-  ;; to create unusual asymtric entanglements.
+  ;; entanglement is mutual
 ` (defun are-entangled (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
-    (∃ (entanglements tm0) (λ(es)(eq (r es) tm1))
-      cont-true
-      cont-false
-      ))
-    
+    (member tm1 (entanglements tm0))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; detecting a collision

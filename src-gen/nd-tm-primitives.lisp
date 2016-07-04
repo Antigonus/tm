@@ -27,7 +27,7 @@ entanglement accounting.
   (defgeneric supports-dealloc (tm &optional cont-true cont-false))
   (defmethod supports-dealloc ;; default behavior
     (
-      tm
+      (tm nd-tape-machine)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
@@ -38,7 +38,7 @@ entanglement accounting.
   (defgeneric supports-alloc (tm &optional cont-true cont-false))
   (defmethod supports-alloc ;; default behavior
     (
-      tm
+      (tm nd-tape-machine)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
@@ -61,15 +61,15 @@ entanglement accounting.
     (r-0 tm (state tm) cont-ok cont-parked)
     )
   (defgeneric r-0 (tm state cont-ok cont-parked))
-  (defmethod r-0 (tm (state void) cont-ok cont-parked)
+  (defmethod r-0 ((tm nd-tape-machine) (state void) cont-ok cont-parked)
     (declare (ignore tm cont-ok))
     (funcall cont-parked)
     )
-  (defmethod r-0 (tm (state parked) cont-ok cont-parked)
+  (defmethod r-0 ((tm nd-tape-machine) (state parked) cont-ok cont-parked)
     (declare (ignore tm cont-ok))
     (funcall cont-parked)
     )
-  (defmethod r-0 (tm (state abandoned) cont-ok cont-parked)
+  (defmethod r-0 ((tm nd-tape-machine) (state abandoned) cont-ok cont-parked)
     (declare (ignore tm cont-ok cont-parked))
     (error 'operation-on-abandoned)
     )
@@ -86,15 +86,15 @@ entanglement accounting.
     (w-0 tm (state tm) object cont-ok cont-parked)
     )
   (defgeneric w-0 (tm state object cont-ok cont-parked))
-  (defmethod w-0 (tm (state void) object cont-ok cont-parked)
+  (defmethod w-0 ((tm nd-tape-machine) (state void) object cont-ok cont-parked)
     (declare (ignore tm state object cont-ok))
     (funcall cont-parked)
     )
-  (defmethod w-0 (tm (state parked) object cont-ok cont-parked)
+  (defmethod w-0 ((tm nd-tape-machine) (state parked) object cont-ok cont-parked)
     (declare (ignore tm state object cont-ok))
     (funcall cont-parked)
     )
-  (defmethod w-0 (tm (state abandoned) object cont-ok cont-parked)
+  (defmethod w-0 ((tm nd-tape-machine) (state abandoned) object cont-ok cont-parked)
     (declare (ignore tm object cont-ok cont-parked))
     (error 'operation-on-abandoned)
     )
@@ -113,17 +113,17 @@ entanglement accounting.
     (cue-leftmost-0 tm (state tm) cont-ok cont-void)
     )
   (defgeneric cue-leftmost-0 (tm state cont-ok cont-void))
-  (defmethod cue-leftmost-0 (tm (state void) cont-ok cont-void)
+  (defmethod cue-leftmost-0 ((tm nd-tape-machine) (state void) cont-ok cont-void)
     (declare (ignore tm state cont-ok))
     (funcall cont-void)
     )
-  (defmethod cue-leftmost-0 (tm (state abandoned) cont-ok cont-void)
+  (defmethod cue-leftmost-0 ((tm nd-tape-machine) (state abandoned) cont-ok cont-void)
     (declare (ignore tm cont-ok cont-void))
     (error 'operation-on-abandoned)
     )
 
 ;;--------------------------------------------------------------------------------
-;; head location predicate
+;; head location
 ;;
   (defun heads-on-same-cell 
     (
@@ -139,46 +139,136 @@ entanglement accounting.
     )
   (defgeneric heads-on-same-cell-0 (tm0 state0 tm1 state1 cont-true cont-false cont-parked))
 
-  (defmethod heads-on-same-cell-0 (tm0 (state0 abandoned) tm1 state1 cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      (state0 abandoned)
+      (tm1 nd-tape-machine)
+      state1 
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state1 cont-true cont-false cont-parked))
     (error 'operation-on-abandoned)
     )
-  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 abandoned) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      state0
+      (tm1 nd-tape-machine)
+      (state1 abandoned)
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 cont-true cont-false cont-parked))
     (error 'operation-on-abandoned)
     )
 
-  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 (state1 void) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      (state0 void)
+      (tm1 nd-tape-machine)
+      (state1 void) 
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-false))
     (funcall cont-parked)
     )
-  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 (state1 parked) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      (state0 void)
+      (tm1 nd-tape-machine)
+      (state1 parked)
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-false))
     (funcall cont-parked)
     )
-  (defmethod heads-on-same-cell-0 (tm0 (state0 void) tm1 state1 cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0 
+    (
+      (tm0 nd-tape-machine)
+      (state0 void) 
+      (tm1 nd-tape-machine)
+      state1
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-parked))
     (funcall cont-false)
     )
 
-  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 (state1 void) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      (state0 parked)
+      (tm1 nd-tape-machine)
+      (state1 void) 
+      cont-true
+      cont-false 
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-false))
     (funcall cont-parked)
     )
-  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 (state1 parked) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      (state0 parked) 
+      (tm1 nd-tape-machine)
+      (state1 parked) 
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-false))
     (funcall cont-parked)
     )
-  (defmethod heads-on-same-cell-0 (tm0 (state0 parked) tm1 state1 cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0 
+    (
+      (tm0 nd-tape-machine)
+      (state0 parked)
+      (tm1 nd-tape-machine)
+      state1
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-parked))
     (funcall cont-false)
     )
 
-  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 void) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      state0
+      (tm1 nd-tape-machine)
+      (state1 void) 
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-parked))
     (funcall cont-false)
     )
-  (defmethod heads-on-same-cell-0 (tm0 state0 tm1 (state1 parked) cont-true cont-false cont-parked)
+  (defmethod heads-on-same-cell-0
+    (
+      (tm0 nd-tape-machine)
+      state0
+      (tm1 nd-tape-machine)
+      (state1 parked) 
+      cont-true
+      cont-false
+      cont-parked
+      )
     (declare (ignore tm0 state0 state1 cont-true cont-parked))
     (funcall cont-false)
     )
@@ -200,15 +290,15 @@ entanglement accounting.
     (s-0 tm (state tm) cont-ok cont-rightmost)
     )
   (defgeneric s-0 (tm state cont-ok cont-rightmost))
-  (defmethod s-0 (tm (state void) cont-ok cont-rightmost)
+  (defmethod s-0 ((tm nd-tape-machine) (state void) cont-ok cont-rightmost)
     (declare (ignore tm state cont-ok))
     (funcall cont-rightmost) ; derived from limiting behavior when in parked state
     )
-  (defmethod s-0 (tm (state parked) cont-ok cont-rightmost)
+  (defmethod s-0 ((tm nd-tape-machine) (state parked) cont-ok cont-rightmost)
     (declare (ignore cont-rightmost)); parked machine has at least 1 cell
     (cue-leftmost-0 tm state cont-ok #'cant-happen) 
     )
-  (defmethod s-0 (tm (state abandoned) cont-ok cont-rightmost)
+  (defmethod s-0 ((tm nd-tape-machine) (state abandoned) cont-ok cont-rightmost)
     (declare (ignore tm cont-ok cont-rightmost)); parked machine has at least 1 cell
     (error 'operation-on-abandoned)
     )
@@ -234,18 +324,20 @@ entanglement accounting.
 
   (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
 
-  (defmethod a-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) state object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
     )
-  (defmethod a-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
-    (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
-    )
-  (defmethod a-0 (tm (state parked) object cont-ok cont-not-supported cont-no-alloc)
-    (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
-    )
-  (defmethod a-0 (tm (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore tm object cont-ok cont-not-supported cont-no-alloc))
     (error 'operation-on-abandoned)
+    )
+  (defmethod a-0 ((tm nd-tape-machine) (state void) object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm state object cont-ok cont-no-alloc))
+    (funcall cont-not-supported)
+    )
+  (defmethod a-0 ((tm nd-tape-machine) (state parked) object cont-ok cont-not-supported cont-no-alloc)
+    (declare (ignore tm state object cont-ok cont-no-alloc))
+    (funcall cont-not-supported)
     )
 

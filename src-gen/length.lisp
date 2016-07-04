@@ -6,12 +6,6 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-;; (length tm0) <?> ( (length tm1) | n )
-(defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
-
-(defun empty     (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-  (empty-0 tm (state tm) cont-true cont-false)
-  )
 (defun singular (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (singular-0 tm (state tm) cont-true cont-false)
   )
@@ -22,24 +16,9 @@ See LICENSE.txt
   (tripleton-0 tm (state tm) cont-true cont-false)
   )
 
-
-(defgeneric empty-0     (tm state cont-true cont-false))
 (defgeneric singular-0 (tm state cont-true cont-false))
 (defgeneric doubleton-0 (tm state cont-true cont-false))
 (defgeneric tripleton-0 (tm state cont-true cont-false))
-
-(defmethod empty-0     (tm (state void) cont-true cont-false)
-  (declare (ignore tm state cont-false))
-  (funcall cont-true)
-  )
-(defmethod empty-0     (tm (state parked) cont-true cont-false)
-  (declare (ignore tm state cont-true))
-  (funcall cont-false)
-  )
-(defmethod empty-0     (tm (state active) cont-true cont-false)
-  (declare (ignore tm state cont-true))
-  (funcall cont-false)
-  )
 
 (defmethod singular-0 (tm (state void) cont-true cont-false)
   (declare (ignore tm state cont-true))
@@ -101,6 +80,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cmp
 ;;
+  ;; (length tm0) <?> ( (length tm1) | n )
+  (defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
+
   ;; (length tm0) <?> n
   (defmethod length-cmp
     (
