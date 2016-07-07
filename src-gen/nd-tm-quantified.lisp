@@ -28,7 +28,7 @@ See LICENSE.txt
 
   (defmethod w* 
     (
-      (tm nd-tm-machine)
+      (tm nd-tape-machine)
       fill
       &optional 
       (cont-ok (be t))
@@ -57,7 +57,7 @@ See LICENSE.txt
        cells will be visited."
       ))
 
-  (defmethod s* ((tm nd-tm-machine)) (cue-rightmost tm))
+  (defmethod s* ((tm nd-tape-machine)) (cue-rightmost tm))
 
   (defgeneric -s* (tm)
     (:documentation 
@@ -65,7 +65,7 @@ See LICENSE.txt
        cells will be visited."
       ))
 
-  (defmethod -s*((tm nd-tm-machine))(cue-leftmost tm))
+  (defmethod -s*((tm nd-tape-machine))(cue-leftmost tm))
 
   (defgeneric sn (tm n &optional cont-ok cont-rightmost)
     (:documentation 
@@ -78,7 +78,7 @@ See LICENSE.txt
 
   (defmethod sn
     (
-      (tm nd-tm-machine)
+      (tm nd-tape-machine)
       (n integer)
       &optional 
       (cont-ok (be t))
@@ -124,7 +124,7 @@ See LICENSE.txt
   ;; possible to restart the a* where we left off ..
   (defmethod a*
     (
-      (tm nd-tm-machine)
+      (tm nd-tape-machine)
       fill
       &optional
       (cont-ok (be t))
@@ -166,7 +166,7 @@ See LICENSE.txt
 
   (defmethod as*
     (
-      (tm0 nd-tm-machine)
+      (tm0 nd-tape-machine)
       fill
       &optional
       (cont-ok (be t))
@@ -189,7 +189,7 @@ See LICENSE.txt
 
   (defmethod asn
     (
-      (tm nd-tm-machine)
+      (tm nd-tape-machine)
       (n integer)
       &optional 
       fill

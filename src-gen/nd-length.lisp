@@ -12,7 +12,7 @@ See LICENSE.txt
 (defgeneric empty-0 (tm state cont-true cont-false))
 (defmethod empty-0
   (
-    (tm nd-tm-machine)
+    (tm nd-tape-machine)
     (state void) 
     cont-true 
     cont-false
@@ -22,7 +22,7 @@ See LICENSE.txt
   )
 (defmethod empty-0
   (
-    (tm nd-tm-machine)
+    (tm nd-tape-machine)
     (state parked)
     cont-true 
     cont-false
@@ -32,7 +32,7 @@ See LICENSE.txt
   )
 (defmethod empty-0
   (
-    (tm nd-tm-machine)
+    (tm nd-tape-machine)
     (state active)
     cont-true 
     cont-false

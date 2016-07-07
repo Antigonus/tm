@@ -26,5 +26,10 @@ a funciton to supply the optional defaults, it will fail when (state buff0) is c
 In general we might want widly different argument lists for a method with the same
 name that is disptached from different class types, but CLOS won't let us.
 
-
-
+6. two siblings both want to have a new generic function with the same name and signature.
+there is no-where to put the declaration.  If I put it in the parent, then the parent
+is responsible for knowing what will be implemented in children.  I don't like this
+as only parent stuff belongs in the parent.  If I put the declaration in one of the
+children, but not the other, then it appars to be missing in the other file.  I have
+to go hunting for it ...   this is related to the aliasing problem - if it were not for
+aliasing I could just declare it in both children.

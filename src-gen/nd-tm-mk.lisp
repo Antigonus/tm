@@ -46,24 +46,15 @@ See LICENSE.txt
 ;;
   (defgeneric init (instance init-list &optional cont-ok cont-fail))
 
-  (defmethod init 
-    (
-      (instance nd-tm-machine)
-      init-list
-      &optional 
-      (cont-ok (be t))
-      (cont-fail (λ()(error 'unrecognized-instance-type)))
-      )
-    (declare (ignore instance init-list cont-ok))
-    (funcall cont-fail)
-    )
-
-  ;; tm-type is nd-tape-machine or derived from nd-tape-machine
   (defun nd-mk (tm-type &rest init-list)
     (let(
           (instance (make-instance tm-type))
           )
-      (init instance init-list)
+      (if 
+        (typep instance 'nd-tape-machine)
+        (init instance init-list)
+        (error 'unrecognized-instance-type)
+        )
       instance
       ))
 

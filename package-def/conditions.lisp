@@ -74,6 +74,13 @@ See LICENSE.txt
   (define-condition operation-on-abandoned (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition attempt-to-copy-solo-machine (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition destructive-op-on-nd-machine (error)
+    ((text :initarg :text :reader text)))
+  
+
   ;; tape machine is read only, but someone tried to write to it..
   (define-condition tm-read-only (error)
     ((text :initarg :text :reader text)))

@@ -3,7 +3,14 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Destrictuve operation primitives for solo machines.
+
+Destructive operation primitives for solo machines.
+
+Even with these destructive operations, solo machines can neither be forked nor
+cue-to'ed. This is because copy operations would cause the tape to become shared.
+Without copying, we can not make temporary variables that have independent head
+movement from the machine they were copied from.  This prevents us from implementing
+some derived methods that do not have side effects,
 
 |#
 
@@ -13,23 +20,20 @@ Destrictuve operation primitives for solo machines.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-
   ;; see tm-derived-1  for defun a◧
   ;; the job of this primitive is to add a new leftmost cell to the specified machine
   (defgeneric a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
-  (defmethod a◧-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
+
+  ;; default behavior, this should be implemented more specifically
+  (defmethod a◧-0 ((tm solo-tape-machine) state object cont-ok cont-not-supported cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
     )
-  (defmethod a◧-0 (tm (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
-    (declare (ignore tm object cont-ok cont-not-supported cont-no-alloc))
-    (error 'operation-on-abandoned)
-    )
 
-  (defmethod a-0 ((tm tape-machine) (state void) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm solo-tape-machine) (state void) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
-  (defmethod a-0 ((tm tape-machine) (state parked) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm solo-tape-machine) (state parked) object cont-ok cont-not-supported cont-no-alloc)
     (a◧-1 tm state object cont-ok cont-not-supported cont-no-alloc)
     )
 
@@ -60,7 +64,7 @@ Destrictuve operation primitives for solo machines.
     (defgeneric d◧-0 (tm cont-ok cont-not-supported))
 
     ;; default behavior is to say the operation is not supported
-    (defmethod d◧-0 (tm cont-ok cont-not-supported)
+    (defmethod d◧-0 ((tm solo-tape-machine) cont-ok cont-not-supported)
       (declare (ignore cont-ok))
       (funcall cont-not-supported)
       )
@@ -73,38 +77,9 @@ Destrictuve operation primitives for solo machines.
     (defgeneric d-0 (tm cont-ok cont-not-supported))
     
     ;; default behavior is to say the operation is not supported
-    (defmethod d-0 (tm cont-ok cont-not-supported)
+    (defmethod d-0 ((tm solo-tape-machine) cont-ok cont-not-supported)
       (declare (ignore cont-ok))
       (funcall cont-not-supported)
       )
 
-;;--------------------------------------------------------------------------------
-;; copying
-;;
-;; The base copying requies no entanglement accounting, because that is derived.
-;; This is for internal use.
-;;
-
-  ;; see tm-derived-2 for cue-to
-  (defgeneric cue-to-0
-    (
-      tm-cued ; object affected, contents get clobbered
-      tm-orig ; remains undisturbed
-      )
-    (:documentation "Used internally to make copies that have no entanglement accounting.")
-    )
-
-  ;; see tm-derived-2 for cue-to
-  ;; this will work for many machine types
-  (defmethod cue-to-0
-    (
-      tm-cued 
-      (tm-orig tape-machine)
-      )
-    (setf (state tm-cued) (state tm-orig))
-    (setf (HA tm-cued) (HA tm-orig))
-    (setf (tape tm-cued) (tape tm-orig))
-    (setf (parameters tm-cued) (parameters tm-orig))
-    tm-cued
-    )
 

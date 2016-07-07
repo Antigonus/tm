@@ -22,32 +22,6 @@ entanglement accounting.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; properties
-;;
-  (defgeneric supports-dealloc (tm &optional cont-true cont-false))
-  (defmethod supports-dealloc ;; default behavior
-    (
-      (tm nd-tape-machine)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    (declare (ignore cont-true))
-    (funcall cont-false)
-    )
-  (defgeneric supports-alloc (tm &optional cont-true cont-false))
-  (defmethod supports-alloc ;; default behavior
-    (
-      (tm nd-tape-machine)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    (declare (ignore cont-true))
-    (funcall cont-false)
-    )
-
-;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
   (defun r
@@ -312,32 +286,30 @@ entanglement accounting.
       object
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
      it to the right of the cell the head is currently on.  The newly allocated cell will
      be initialized with the given object.
      "
-    (a-0 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
+    (a-0 tm (state tm) object cont-ok cont-no-alloc)
     )
 
-  (defgeneric a-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
+  (defgeneric a-0 (tm state object cont-ok cont-no-alloc))
 
-  (defmethod a-0 ((tm nd-tape-machine) state object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) state object cont-ok cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
     )
-  (defmethod a-0 ((tm nd-tape-machine) (state abandoned) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) (state abandoned) object cont-ok cont-no-alloc)
     (declare (ignore tm object cont-ok cont-not-supported cont-no-alloc))
     (error 'operation-on-abandoned)
     )
-  (defmethod a-0 ((tm nd-tape-machine) (state void) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) (state void) object cont-ok cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
     )
-  (defmethod a-0 ((tm nd-tape-machine) (state parked) object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a-0 ((tm nd-tape-machine) (state parked) object cont-ok cont-no-alloc)
     (declare (ignore tm state object cont-ok cont-no-alloc))
     (funcall cont-not-supported)
     )
-

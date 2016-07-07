@@ -13,27 +13,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-list (tape-machine)())
+  (defclass solo-tm-list (solo-tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;; making tm-list machines from other objects
 ;;
-  (defun make-entanglements (tm-first)
-    (let(
-          (entanglements (make-instance 'tm-list))
-          (first-cell (cons tm-first ∅))
-          )
-      (setf (state entanglements) active)
-      (setf (HA entanglements) first-cell)
-      (setf (tape entanglements) first-cell)
-      (setf (parameters entanglements) ∅)
-      (setf (entanglements entanglements) ∅)
-      entanglements
-      ))
-
   (defmethod init 
     (
-      (tm tm-list)
+      (tm solo-tm-list)
       init-list 
       &optional
       (cont-ok (be t))
@@ -41,7 +28,6 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key mount &allow-other-keys) init-list
-      (setf (entanglements tm) (make-entanglements tm))
       (setf (parameters tm) ∅)
       (cond
         ((¬ mount)
@@ -60,17 +46,3 @@ See LICENSE.txt
           (funcall cont-fail)
           ))))
     
-  (defmethod mount
-    (
-      (sequence cons)
-      &optional
-      (cont-ok #'echo) 
-      (cont-fail (λ()(error 'mount-failed)))
-      )
-    (let(
-          (instance (make-instance 'tm-list))
-          )
-      (init instance {:mount sequence}
-        (λ()(funcall cont-ok instance))
-        cont-fail
-        )))

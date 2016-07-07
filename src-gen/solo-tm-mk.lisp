@@ -11,17 +11,13 @@ See LICENSE.txt
 |#
 
   ;; tm-type is tape-machine, or derived from tape-machine
-  (defun mk (tm-type &rest init-list)
+  (defun solo-mk (tm-type &rest init-list)
     (let(
           (instance (make-instance tm-type))
           )
-      (if
-        (typep instance 'tape-machine)
-        (progn
-          (setf (entanglements instance) ∅)
-          (setf (adjoin instance (entanglements instance)))
-          (init instance init-list)
-          )
+      (if 
+        (typep instance 'solo-tape-machine)
+        (init instance init-list)
         (error 'unrecognized-instance-type)
         )
       instance

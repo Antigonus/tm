@@ -19,94 +19,55 @@ the last release
 10. should modify #'L, i.e. {},  to recognize repeated symbols and only evaluate
     them once.  This could be done by wrapping the current #'L with a let.
 
+    wonder, .. square brackets to make machines  and curly for lists?
+    or square brackets for vectors ...  quote ... really?
 
 11. need to add name spaces for test-hook, and then have (test-all) run everything
 independent of the names space, and (test-all 'space) to run only the given name
 space
 
-12. return values for some of the tape ops needs to be thought through and made
-consistent.  E.g. cue-leftmost in the doc string says it returns the original
-tape machine, yet most functions return true when they successfully operate
-on state.  And, in addition, currently some of the cue-leftmost implementations
-return t, rather than tm.  
-
-.. if we return true from cue-leftmost, that implies
-that there might be an implementation that returns false, which means that
-we should be testing the return value - which means that we should instead
-of continuations to be consistent with the rest of our lambda calculus style
-approach to conditions.  I.e. cue-leftmost should be taking continuations
-and returning nothing (to be consistent with access to state variables),
-.. return tm for convenience?
-
 13. removed the affine versions, need to add an affine transform, when
 passed a projective machine, turns it into an affine one.  .. the old
 affine machine are sitting in scratch
-
-14.  The test-meta-unwrap test often fails after a debug session, yet the definition when
- run by itself passes, so I'm guessing it is a namespace issue with 'o'.  It is defined in
- tm, but not sure compares are always in tm.
-
-15.  Change the generators must go void when they are empty.
 
 16. unmount of void is a little funny, it is dispatched from type tm-void, but
 then must determine how to make various void object ...  perhaps
 the fall of the end case should just return nil, should this somehow dispatch
 so folks can define their nil sequence cases?
 
-17. add exception unwind handling on routines that modify tms in the library,
-so that tms are never left in intermediate states.
-
-*18.  deallocate leftmost in tm-derived would be more useful if  type-of returned
-enough information for rebuilding the object (intervals need bounds, arrays size, etc.)
-or if some other mechanism got that information in place.
-
-19 tm-interval limits are currently not checked to be void
-
-20. weak pointers on the entanglement list
-
-21. update cue-to and dup to dispatched methods as otherwise regions won't dup.  finish
-entanglements.lisp and replace current calls to entangled - as that applies to tapes not
-cells.
-
 22. #'a need to expand out cont-no-alloc to the two cases rightmost and not-supported
+  did this, now want to undo it ... unsuported ops should simply not disptatch, we
+  dont' want to implement child interfaces saying 'unsupported' as that presumes
+  we know what future child interfaces are going to be
 
 23. add somethign to the manual about functional programming (state machines),  state
 variables,  and transactional behavior for tm functions (so that state doesn't change
 when state transitions are not taken) .. about region and cell addresses, note
 copy to new list doe snot have the problem and it is also transactional
 
-24. the cont-no-alloc on #'a is actaully cont-not-supported,  there should also
-be a cont-no-alloc continuation for when heap allocation fails.
-
-25. change ∃ to generic method so that we can dispatch the weak version with
-clean up.
-
-26. need to add cont-void-access to read and write
-
-27. add r-address to read a cell by address - what happens to the address space
-when a cell is deallocated?  do cells get new addresses?  or keep the old ones?
-
-28. transforms, tm-depth, tm-breadth .. what is there parked and void and back
-behavior .. currently tm-depth and tm-breadth can not be parked or voided.
-
-29. umount should descend into subspaces (not leave any tms)
-
 30. with-dups should keep a enganglements list pointer for the bottom of
   the dups stack, and then just pop them all off in one step at the end.
   The current approach is built from existing functions just to get
   the functionality in place.
 
-31. d◧-0 on region will collide with the rightmost marker when attempting
-to deallocate the last cell, need to fix this.
+29. some sort of issue with mount and subspaces ... should descend into subspaces (not leave any tms)
+
+    ...add a manifold machine type, note the comments currently in tm-region.lisp.
 
 32.
   ;; behavior is not transactional, all machines update even when one or more cont-not-supported
   ;; need to check support first
   (defun ∀-entanglements-d◧-0 (tm cont-ok cont-not-supported)
 
+  all api functions should either be transactional or return state for continuing
+  .. I don't think we quite have that yet
+
 33. change the quantifiers so that the first parms are optional, the first parm is
-   the object, and the second is the machine
+   the object, and the second is the machine .. there is something a little funny
+   about passing the list into the predicate, as usually we already have the list,
+   hence would just like to leave the predicate without parms ... but sometimes
+   the list is created with an expression, so then it is useful to have it passed
+   in.  Most predicates don't need the list, they just want the read object.
+   key parms?
 
-34. a* versions need to be fixed to be transactional
 
-35. add a manifold machine type, note the comments currently in tm-region.lisp.
