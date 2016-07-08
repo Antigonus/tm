@@ -29,19 +29,18 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
-    (a◨-0 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
+    (a◨-0 tm (state tm) object cont-ok cont-no-alloc)
     )
-  (defgeneric a◨-0 (tm state object cont-ok cont-not-supported cont-no-alloc))
-  (defmethod a◨-0 (tm (state void) object cont-ok cont-not-supported cont-no-alloc)
+  (defgeneric a◨-0 (tm state object cont-ok cont-no-alloc))
+  (defmethod a◨-0 (tm (state void) object cont-ok cont-no-alloc)
     (declare (ignore state))
     ;; ironic, allocating to rightmost from void is the same as allocating to leftmost
     (a◧ tm object cont-ok cont-no-alloc)
     )
-  (defmethod a◨-0 (tm state object cont-ok cont-not-supported cont-no-alloc)
+  (defmethod a◨-0 (tm state object cont-ok cont-no-alloc)
     (declare (ignore state))
     (let(
           (tm1 (fork-0 tm))
@@ -61,23 +60,21 @@ of the primitives.
       object
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a cell to the left of leftmost (thus becoming the new leftmost)."
-    (a◧-1 tm (state tm) object cont-ok cont-not-supported cont-no-alloc)
+    (a◧-1 tm (state tm) object cont-ok cont-no-alloc)
     )
 
   ;; this is a message sent to all entangled machines to tell them that tm0
   ;; has been had a new leftmost cell added to the tape.
-  (defun a◧-message (tm-receiver tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
-    (a◧-message-0 tm-receiver (state tm-receiver) tm0 cont-ok cont-not-supported)
+  (defun a◧-message (tm-receiver tm0 &optional (cont-ok (be t))))
+    (a◧-message-0 tm-receiver (state tm-receiver) tm0 cont-ok)
     )
-  (defgeneric a◧-message-0 (tm-receiver state tm0 cont-ok cont-not-supported))
+  (defgeneric a◧-message-0 (tm-receiver state tm0 cont-ok))
   ;; this is typically all that has to be done, but special machines might do something
   ;; different.
-  (defmethod a◧-message-0 (tm-receiver (state void) tm0 cont-ok cont-not-supported)
-    (declare (ignore cont-not-supported))
+  (defmethod a◧-message-0 (tm-receiver (state void) tm0 cont-ok))
     (when (¬ (eq tm-receiver tm0))
       (setf (state tm-receiver) (state tm0)) ; typically will be parked
       (setf (HA tm-receiver) (HA tm0))
@@ -85,31 +82,29 @@ of the primitives.
       )
     (funcall cont-ok)
     )
-  (defmethod a◧-message-0 (tm-message state tm0 cont-ok cont-not-supported)
-    (declare (ignore cont-not-supported))
+  (defmethod a◧-message-0 (tm-message state tm0 cont-ok)
     (when (¬ (eq tm-message tm0)) (setf (tape tm-message) (tape tm0)))
     (funcall cont-ok)
     )
   ;; for non-singular machine, so there is not state change
   ;; all entangled machines share the same tape
   ;; add a new leftmost for one machine, then update the tape for all others
-  (defun ∀-entanglements-a◧-message (tm cont-ok cont-not-supported)
+  (defun ∀-entanglements-a◧-message (tm cont-ok)
     (let(
           (es (entanglements tm))
           )
       (if es
         (progn
           (cue-leftmost es)
-          (∀* es (λ(es)(a◧-message (r es) tm)) cont-ok cont-not-supported)
+          (∀* es (λ(es)(a◧-message (r es) tm)) cont-ok)
           )
         (funcall cont-ok)
         )))
 
-  (defgeneric a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc))
-  (defmethod a◧-1 (tm state object cont-ok cont-not-supported cont-no-alloc)
+  (defgeneric a◧-1 (tm state object cont-ok cont-no-alloc))
+  (defmethod a◧-1 (tm state object cont-ok cont-no-alloc)
     (a◧-0 tm state object
-      (λ()(∀-entanglements-a◧-message tm cont-ok cont-not-supported))
-      cont-not-supported
+      (λ()(∀-entanglements-a◧-message tm cont-ok))
       cont-no-alloc
       ))
 
@@ -128,25 +123,23 @@ of the primitives.
               spill 
               (cont-ok #'echo)
               (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-              (cont-not-supported (λ()(error 'not-supported)))
               (cont-collision (λ()(error 'dealloc-entangled)))
               (cont-no-alloc (λ()(error 'alloc-fail)))
               )
     "The leftmost cell is deallocated independent of where the head is located."
-    (d◧-1 tm (state tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (d◧-1 tm (state tm) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     )
 
   ;; this is a message sent to each entangled machine to tell it that d◧ was called on the
   ;; machine given as the tm0 in the args list.  This is used when tm0 remains active after
   ;; removing the leftmost cell.
-  (defun d◧-message (tm-message tm0 &optional (cont-ok (be t)) (cont-not-supported (be ∅)))
-    (d◧-message-0 tm-message (state tm-message) tm0 cont-ok cont-not-supported)
+  (defun d◧-message (tm-message tm0 &optional (cont-ok (be t)))
+    (d◧-message-0 tm-message (state tm-message) tm0 cont-ok)
     )
-  (defgeneric d◧-message-0 (tm-message state tm0 cont-ok cont-not-supported))
+  (defgeneric d◧-message-0 (tm-message state tm0 cont-ok))
   ;; this is typically all that has to be done, but special machines might do something
   ;; different.
-  (defmethod d◧-message-0 (tm-message state  tm0 cont-ok cont-not-supported)
-    (declare (ignore cont-not-supported))
+  (defmethod d◧-message-0 (tm-message state  tm0 cont-ok)
     (when (¬ (eq tm-message tm0))
       (setf (tape tm-message) (tape tm0))
       (funcall cont-ok)
@@ -154,7 +147,7 @@ of the primitives.
   ;; for non-singular machine, so there is no state change
   ;; all entangled machines share the same tape
   ;; delete leftmost for one machine, then update the tape for all others
-  (defun ∀-entanglements-d◧-message (tm cont-ok cont-not-supported)
+  (defun ∀-entanglements-d◧-message (tm cont-ok)
     (let(
           (es (entanglements tm))
           )
@@ -167,10 +160,9 @@ of the primitives.
             (d◧-message (r es) tm)
             ))
         cont-ok 
-        cont-not-supported
         )))
 
-  (defun d◧-2 (tm dealloc-object cont-ok cont-not-supported cont-collision)
+  (defun d◧-2 (tm dealloc-object cont-ok cont-collision)
     (∃-collision◧ tm
       cont-collision
       (λ() ;; no collision
@@ -179,19 +171,17 @@ of the primitives.
             (∀-entanglements-d◧-message
               tm
               (λ()(funcall cont-ok dealloc-object))
-              cont-not-supported ; an entangled machine claims d◧ is not supported
               ))
-          cont-not-supported
           ))))
 
-  (defgeneric d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+  (defgeneric d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-collision cont-no-alloc))
 
-  (defmethod d◧-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (declare (ignore tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+  (defmethod d◧-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
+    (declare (ignore tm spill cont-ok cont-rightmost cont-collision cont-no-alloc))
     (error 'operation-on-abandoned)
     )
 
-  (defmethod d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defmethod d◧-1 (tm tm-state spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     (declare (ignore tm-state)) ; r◧ takes care of the void case in this implementation
     (r◧ tm
       (λ(dealloc-object) ; r◧ succeeds, so state will be parked or active
@@ -219,11 +209,11 @@ of the primitives.
               spill 
               ;; if spill 
               (as spill dealloc-object
-                (λ() (d◧-2 tm dealloc-object cont-ok cont-not-supported cont-collision))
+                (λ() (d◧-2 tm dealloc-object cont-ok cont-collision))
                 cont-no-alloc
                 )
               ;; if not spill
-              (d◧-2 tm dealloc-object cont-ok cont-not-supported cont-collision)
+              (d◧-2 tm dealloc-object cont-ok cont-collision)
               ))))
 
       cont-rightmost ; r◧ fails, tm must be void
@@ -236,27 +226,26 @@ of the primitives.
              spill 
              (cont-ok #'echo)
              (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-             (cont-not-supported (λ()(error 'not-supported)))
              (cont-collision (λ()(error 'dealloc-entangled)))
              (cont-no-alloc (λ()(error 'alloc-fail)))
              )
     "Deallocate the cell just to the right of the head. (A region of length 1.)"
-    (d-1 tm (state tm) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+    (d-1 tm (state tm) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     )
 
-  (defgeneric d-1 (tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
-  (defmethod d-1 (tm (tm-state void) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (declare (ignore tm tm-state spill cont-ok cont-not-supported cont-collision cont-no-alloc))
+  (defgeneric d-1 (tm tm-state spill cont-ok cont-rightmost cont-collision cont-no-alloc))
+  (defmethod d-1 (tm (tm-state void) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
+    (declare (ignore tm tm-state spill cont-ok cont-collision cont-no-alloc))
     (funcall cont-rightmost) ; cont-rightmost follows from a progression of deleting cells from a parked state machine
     )
-  (defmethod d-1 (tm (tm-state parked) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (d◧-1 tm tm-state spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defmethod d-1 (tm (tm-state parked) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
+    (d◧-1 tm tm-state spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     )
-  (defmethod d-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
-    (declare (ignore tm spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc))
+  (defmethod d-1 (tm (tm-state abandoned) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
+    (declare (ignore tm spill cont-ok cont-rightmost cont-collision cont-no-alloc))
     (error 'operation-on-abandoned)
     )
-  (defmethod d-1 (tm (tm-state active) spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+  (defmethod d-1 (tm (tm-state active) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     (let(
           (tm1 (fork-1 tm))
           )
@@ -275,14 +264,12 @@ of the primitives.
                     (λ()
                       (d-0 tm
                         (λ()(funcall cont-ok dealloc-object))
-                        cont-not-supported
                         ))
                     cont-no-alloc
                     )
                   ;; if not spill
                   (d-0 tm
                     (λ()(funcall cont-ok dealloc-object))
-                    cont-not-supported
                     ))))))
         cont-rightmost
         )))

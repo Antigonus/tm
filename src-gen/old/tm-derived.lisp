@@ -3,34 +3,49 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-These functions derived from non-destructive primitives. 
+These functions derive the remainder of the tape-machine interface while using only the
+primitives from tm-primitives.  
 
 There is no functional need for a new tape machine implementation to specialize these
-functions.  
+functions.  Still, some implementations will want to specialize these functions for
+performance reasons.
+
+Because these are built upon the primitives, they can only be tested against implementations
+of the primitives.
 
 
 |#
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; copying
-;;  
-  (defun cue-to (tm-cued tm-orig)
-    "The tm-cued machine will be change-class'ed to the same type as tm-orig, share the
-     same tape and parameters, but maintain an independent head. This new head will be set
-     on the same cell as that of tm-orig. cue-to returns tm-cued. This facilitates
-     interchangable calls with mk-cue-to.
-     "
-    (cue-to-0 tm-cued tm-orig (state tm-orig))
-    )
+;; tape-machine copying
+;;   we need a layer 0 with no entanglement accounting in order to implement the
+;;   entanglement list functions sans circular references.
+;;
+  ;; cue-to-0 is primitive
 
-  (defun mk-cue-to (tm-orig)
-    "Make a new tape machine, then cue-to tm-orig.
-     Returns the new machine.
+  (defun fork-1 (tm-orig)
+    "Returns a machine that is a fork of another, but the returned machine
+     does not appear in its own entanglements list.
      "
-    (mk-cue-to-0 tm-orig (state tm-orig))
-    )
+    (let(
+          (tm-cued (make-instance (type-of tm-orig)))
+          )
+      (cue-to-0 tm-cued tm-orig)
+      (setf (entanglements tm-cued) (entanglements tm-orig))
+      tm-cued ; tm-cued does not appear in its own entanglements list
+      ))
 
+  (defun fork-0 (tm-orig)
+    "Returns a machine that is a fork of another, but without entanglement accounting.
+    "
+    (let(
+          (tm-cued (make-instance (type-of tm-orig)))
+          )
+      (cue-to-0 tm-cued tm-orig)
+      (setf (entanglements tm-cued) ∅)
+      tm-cued
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write
@@ -45,55 +60,49 @@ functions.
     "read leftmost cell of the tape"
     (r◧-0 tm (state tm) cont-ok cont-void)
     )
-  (defgeneric r◧-0 (tm tm-state cont-ok cont-void))
-  (defmethod r◧-0  (tm (tm-state void) cont-ok cont-void)
-    (declare (ignore tm cont-ok))
+  (defgeneric r◧-0 (tm state cont-ok cont-void))
+  (defmethod r◧-0  (tm (state void) cont-ok cont-void)
+    (declare (ignore tm state cont-ok))
     (funcall cont-void)
     )
-  (defmethod r◧-0  ((tm nd-tape-machine) (tm-state active) cont-ok cont-void)
+  (defmethod r◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (mk-cue-to-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-leftmost tm1)
       (r tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
       ))
-  (defmethod r◧-0  ((tm nd-tape-machine) (tm-state parked) cont-ok cont-void)
-    (r◧-0 tm active cont-ok cont-void)
-    )
 
   (defun w◧
     (
       tm
-      object
       &optional
       (cont-ok #'echo)
       (cont-void (λ()(error 'access-void)))
       )
     "read leftmost cell of the tape"
-    (w◧-0 tm (state tm) object cont-ok cont-void)
+    (w◧-0 tm (state tm) cont-ok cont-void)
     )
-  (defgeneric w◧-0 (tm tm-state object cont-ok cont-void))
-  (defmethod w◧-0  (tm (tm-state void) cont-ok cont-void)
-    (declare (ignore tm cont-ok))
+  (defgeneric w◧-0 (tm state cont-ok cont-void))
+  (defmethod w◧-0  (tm (state void) cont-ok cont-void)
+    (declare (ignore tm state cont-ok))
     (funcall cont-void)
     )
-  (defmethod w◧-0  ((tm nd-tape-machine) (tm-state active) object cont-ok cont-void)
+  (defmethod w◧-0  (tm state cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (mk-cue-to-0 tm))
+          (tm1 (fork-0 tm))
           )
       (cue-leftmost tm1)
-      (w tm1 object cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
+      (w tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
       ))
-  (defmethod w◧-0  ((tm nd-tape-machine) (tm-state parked) object cont-ok cont-void)
-    (w◧-0 tm active object cont-ok cont-void)
-    )
+
 
 ;;--------------------------------------------------------------------------------
-;; location
+;; These are primitives for the generic implementation of location.  They must have
+;; specializations.
 ;;  
-...
   (defun on-leftmost 
     (
       tm
@@ -137,4 +146,6 @@ functions.
           )
       (s tm1 cont-false cont-true)
       ))
+
+
 

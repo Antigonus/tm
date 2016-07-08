@@ -45,21 +45,39 @@ See LICENSE.txt
 
                (:module "src-gen"
                  :components (
+                               (:file "tm-def")
+                               (:file "tm-mk")
+                               (:file "tm-state")
+                               (:file "tm-primitives")
+                               (:file "tm-derived")
+                               (:file "tm-quantifiers")
+                               (:file "tm-quantified")
+                               (:file "print-machine")
+                               (:file "length")
+
+                               ;; includes functions that require cue-to
                                (:file "nd-tm-def")
-                               (:file "nd-tm-mk")
-                               (:file "nd-tm-state")
                                (:file "nd-tm-primitives")
-                               (:file "nd-tm-derived")
-                               (:file "nd-tm-quantifiers")
+                               (:file "nd-tm-derived") 
+                               (:file "nd-tm-subspace")
                                (:file "nd-tm-quantified")
-                               (:file "nd-print-machine")
-                               (:file "nd-length")
+
+                               ;; includes destructive functions
+                               (:file "solo-tm-def")
+                               (:file "solo-tm-state")
+                               (:file "solo-tm-primitives")
+                               (:file "solo-tm-derived")
+
+                               ;; a solo-tm implemenation
+                               (:file "list-solo-tm-def")
+                               (:file "list-solo-tm-primitives")
+
+#|
 
                                (:file "tm-def")
                                (:file "tm-state")
                                (:file "entanglement")
                                (:file "print-machine")
-#|
                                (:file "tm-primitives")
                                (:file "entanglement")
                                (:file "entanglement-scope")
