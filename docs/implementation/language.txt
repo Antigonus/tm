@@ -10,8 +10,9 @@
 
       m move data, no allocation or deallocation of cells, requires fill
 
-      f fork, returns a machine with the same tape, but an independent head.  When the
-        tape is a code stream, this is similar to Unix fork.
+      e entangle, we operate on an entangled copy of the machine operand
+
+      ☥ returns an entangled copy on a new thread
 
 syntax of derived functions:
 

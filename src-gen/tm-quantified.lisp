@@ -104,7 +104,7 @@ See LICENSE.txt
       (take-step)
       ))
 
-  (defgeneric a* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
+  (defgeneric a* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'a repeatedly with successive objects from tm-fill. 
        tm will not be stepped.  tm-fill will be stepped.
@@ -112,7 +112,7 @@ See LICENSE.txt
        "      
       ))
 
-  (defgeneric as* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
+  (defgeneric as* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'as repeatedly with successive objects from tm-fill.
        Both tm and tm-fill will be stepped.
@@ -128,20 +128,16 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (supports-alloc tm
-      (λ()
-        (⟳-loop
-          (λ(cont-loop)
-            (a tm (r fill) 
-              (λ()(s fill cont-loop cont-ok))
-              #'cant-happen
-              cont-no-alloc
-              ))))
-      cont-not-supported
-      ))
+    (⟳-loop
+      (λ(cont-loop)
+        (a tm (r fill) 
+          (λ()(s fill cont-loop cont-ok))
+          #'cant-happen
+          cont-no-alloc
+          ))))
+
 
   (defun as*-1
     (
@@ -149,20 +145,15 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (supports-alloc tm
-      (λ()
-        (⟳-loop
-          (λ(cont-loop)
-            (as tm (r fill) 
-              (λ()(s fill cont-loop cont-ok))
-              #'cant-happen
-              cont-no-alloc
-              ))))
-      cont-not-supported
-      ))
+    (⟳-loop
+      (λ(cont-loop)
+        (as tm (r fill) 
+          (λ()(s fill cont-loop cont-ok))
+          #'cant-happen
+          cont-no-alloc
+          ))))
 
   (defmethod as*
     (
@@ -170,10 +161,9 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (as*-1 tm0 fill cont-ok cont-not-supported cont-no-alloc)
+    (as*-1 tm0 fill cont-ok cont-no-alloc)
     )
 
 
@@ -181,7 +171,7 @@ See LICENSE.txt
 ;; repeated by count operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric asn (tm n &optional fill cont-ok cont-rightmost cont-not-supported cont-no-alloc)
+  (defgeneric asn (tm n &optional fill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to calling #'as n times. fill provides initialization
        data. tm and fill are both stepped n times."
@@ -195,28 +185,20 @@ See LICENSE.txt
       fill
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (supports-alloc tm
-      (λ()
-        (labels(
-                 (do-work()
-                   (when (≤ n 0) (return-from asn (funcall cont-ok)))
-                   (as tm (r fill)
-                     (λ()
-                       (s fill #'do-work (λ()(funcall cont-rightmost n)))
-                       )
-                     #'cant-happen
-                     cont-no-alloc
-                     )
-                   (decf n)
-                   )
-                 )
-          (do-work)
-          ))
-      cont-not-supported
-      ))
+    (loop repeat n do
+      (r fill
+        (λ(object)
+          (as tm object 
+            (λ()(s fill
+                  #'do-nothing
+                  (λ()(return-from an (funcall cont-rightmost tm1 n)))
+                  ))
+            (λ()(return-from an (funcall cont-no-alloc tm1 n)))
+            ))
+        (λ()(return-from an (funcall cont-rightmost tm1 n)))
+        ))))
 
 
 

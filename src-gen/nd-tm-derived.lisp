@@ -15,22 +15,38 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defun cue-to (tm-cued tm-orig)
-    "The tm-cued machine will be change-class'ed to the same type as tm-orig, share the
-     same tape and parameters, but maintain an independent head. This new head will be set
-     on the same cell as that of tm-orig. cue-to returns tm-cued. This facilitates
-     interchangable calls with mk-cue-to.
+  (defun entangle (tm-recycled tm-orig)
+    "The tm-recycled machine will be change-class'ed to the same type as tm-orig, set to
+     share the same tape and parameters, but will maintain an independent head. This new
+     head will be set on the same cell as that of tm-orig. Entangle returns
+     tm-recycled. This facilitates interchangable calls with mk-entangle.
      "
-    (cue-to-0 tm-cued tm-orig (state tm-orig))
+    (entangle-0 tm-recycled tm-orig (state tm-orig))
     )
 
-  (defun mk-cue-to (tm-orig)
-    "Make a new tape machine, then cue-to tm-orig.
+  (defun mk-entangled (tm-orig)
+    "Make a new tape machine.  Entangles it with tm-orig.
      Returns the new machine.
      "
-    (mk-cue-to-0 tm-orig (state tm-orig))
+    (mk-entangled-0 tm-orig (state tm-orig))
     )
 
+  (defun mk-shallow-copy
+    (tm-orig
+      &optional
+      (cont-ok #'echo)
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    "Returns a new machine that has its own tape, but references the same objects as
+     tm-orig.  The returned machine is not entangled with tm-orig.
+     "
+    (let(
+          (tm-copy (make-instance (type-of tm-orig)))
+          )
+      (as* tm-copy tm-orig
+        (λ()(funcall cont-ok tm-copy))
+        cont-no-alloc
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write
@@ -93,7 +109,6 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;  
-...
   (defun on-leftmost 
     (
       tm
@@ -115,7 +130,7 @@ functions.
     )
   (defmethod on-leftmost-0 (tm (state active) cont-true cont-false)
     (let(
-          (tm1 (fork-0 tm))
+          (tm1 (mk-cue-to tm))
           )
       (cue-leftmost tm1)
       (heads-on-same-cell tm1 tm cont-true cont-false)
@@ -133,8 +148,39 @@ functions.
   (defgeneric on-rightmost-0 (tm cont-true cont-false))
   (defmethod on-rightmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (fork-0 tm))
+          (tm1 (mk-cue-to tm))
           )
       (s tm1 cont-false cont-true)
       ))
 
+;;--------------------------------------------------------------------------------
+;; cell allocation
+;;
+;; Allocated cells must be initialized.  The initialization value is provided
+;; directly or though a fill machine.
+;;
+  (defun a◨
+    (
+      tm
+      object
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
+      )
+    "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
+    (a◨-0 tm (state tm) object cont-ok cont-no-alloc)
+    )
+  (defgeneric a◨-0 (tm state object cont-ok cont-no-alloc))
+  (defmethod a◨-0 (tm (state void) object cont-ok cont-no-alloc)
+    (declare (ignore state))
+    ;; ironic, allocating to rightmost from void is the same as allocating to leftmost
+    (a◧ tm object cont-ok cont-no-alloc)
+    )
+  (defmethod a◨-0 (tm state object cont-ok cont-no-alloc)
+    (declare (ignore state))
+    (let(
+          (tm1 (mk-cue-to tm))
+          )
+      (cue-rightmost tm1)
+      (a tm1 object cont-ok cont-no-alloc)
+      ))

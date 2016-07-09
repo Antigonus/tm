@@ -10,8 +10,8 @@ There is no functional need for a new tape machine implementation to specialize 
 functions.  Still, some implementations will want to specialize these functions for
 performance reasons.
 
-Because these are built upon the primitives, they can only be tested against implementations
-of the primitives.
+Because these are built upon the primitives, they can only be tested against
+implementations of the primitives.
 
 
 |#

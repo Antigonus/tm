@@ -24,10 +24,11 @@ new tape machine implementation to specialize them.
     )
   (defmethod cue-rightmost-0 ((tm tape-machine) (state parked) cont-ok cont-void)
     (declare (ignore state cont-void))
-    (cue-leftmost tm) ; this unparks the head
-    (cue-rightmost tm)
-    (funcall cont-ok)
-    )
+    (cue-leftmost-0 tm parked
+      (λ()(cue-rightmost-0 tm active cont-ok #'cant-happen))
+      #'cant-happen
+      ))
+
   ;; Do not want to depend on quantifiers, so I built the loop.
   ;; Might be that we should throw a computationally complex warning
   (defmethod cue-rightmost-0 ((tm tape-machine) (state active) cont-ok cont-void)

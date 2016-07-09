@@ -59,8 +59,8 @@ See LICENSE.txt
                                (:file "nd-tm-def")
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
-                               (:file "nd-tm-subspace")
                                (:file "nd-tm-quantified")
+                               (:file "nd-tm-subspace")
 
                                ;; includes destructive functions
                                (:file "solo-tm-def")
