@@ -1,4 +1,0 @@
-for i in `ls *.lisp` ; do \
-  sed -f fix.sed $i > $i.tmp; \
-  mv $i.tmp $i; \
-done
