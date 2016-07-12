@@ -15,20 +15,20 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defun entangle (tm-recycled tm-orig)
-    "The tm-recycled machine will be change-class'ed to the same type as tm-orig, set to
-     share the same tape and parameters, but will maintain an independent head. This new
-     head will be set on the same cell as that of tm-orig. Entangle returns
-     tm-recycled. This facilitates interchangable calls with mk-entangle.
+  (defun recycle-entangled-with (tm-to-be-recycled tm-orig)
+    "Like mk-entangled-with, but we initialize tm-to-be-recycled rather than creating a new
+     instance.  This operation plays a role in stepping across heterogenous types, such as
+     occurs in step into for subspaces.
      "
-    (entangle-0 tm-recycled tm-orig (state tm-orig))
+    (recycle-entangled-with-0 tm-to-be-recycled tm-orig (state tm-orig))
     )
 
-  (defun mk-entangled (tm-orig)
-    "Make a new tape machine.  Entangles it with tm-orig.
-     Returns the new machine.
+  (defun mk-entangled-with (tm-orig)
+    "Make a new tape machine. Initializes the new machine by entangling it
+     with tm-orig.  An entangled machine shares a tape, but has an independent
+     head. Returns the new machine.
      "
-    (mk-entangled-0 tm-orig (state tm-orig))
+    (mk-entangled-with-0 tm-orig (state tm-orig))
     )
 
   (defun mk-shallow-copy
@@ -37,8 +37,9 @@ functions.
       (cont-ok #'echo)
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "Returns a new machine that has its own tape, but references the same objects as
-     tm-orig.  The returned machine is not entangled with tm-orig.
+    "Makes a new tape machine.  Initializes the tape with a copy of the
+     tape found in tm-orig.  The new tape references the same objects at the
+     tm-orig tape.  The new machine is not entangled with the tm-orig machine.
      "
     (let(
           (tm-copy (make-instance (type-of tm-orig)))
@@ -47,6 +48,8 @@ functions.
         (λ()(funcall cont-ok tm-copy))
         cont-no-alloc
         )))
+
+   ;; recycle-shallow-copy .. hmmm
 
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write
@@ -69,7 +72,7 @@ functions.
   (defmethod r◧-0  ((tm nd-tape-machine) (tm-state active) cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (mk-cue-to-0 tm))
+          (tm1 (mk-entangled-with-0 tm))
           )
       (cue-leftmost tm1)
       (r tm1 cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -97,7 +100,7 @@ functions.
   (defmethod w◧-0  ((tm nd-tape-machine) (tm-state active) object cont-ok cont-void)
     (declare (ignore cont-void))
     (let(
-          (tm1 (mk-cue-to-0 tm))
+          (tm1 (mk-entangled-with-0 tm))
           )
       (cue-leftmost tm1)
       (w tm1 object cont-ok #'cant-happen) ; cue-leftmost would have unparked the head
@@ -105,6 +108,27 @@ functions.
   (defmethod w◧-0  ((tm nd-tape-machine) (tm-state parked) object cont-ok cont-void)
     (w◧-0 tm active object cont-ok cont-void)
     )
+
+;;--------------------------------------------------------------------------------
+;; stepping with a boundary, boundaries are inclusive
+;;
+  (defun s≠ 
+    (
+      tm0
+      tm1
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      (cont-bound (be ∅))
+      )
+    "tm0 and tm1 are on the same tape.  Step tm0 unless it is equal to tm1.
+     If tm0 reaches rightmost, but it still isn't on the same cell as tm1
+     then cont-rightmost.
+    "
+    (heads-on-same-cell tm0 tm1
+      cont-bound
+      (λ()(s tm0 cont-ok cont-rightmost))
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; location
@@ -130,7 +154,7 @@ functions.
     )
   (defmethod on-leftmost-0 (tm (state active) cont-true cont-false)
     (let(
-          (tm1 (mk-cue-to tm))
+          (tm1 (mk-entangled-with tm))
           )
       (cue-leftmost tm1)
       (heads-on-same-cell tm1 tm cont-true cont-false)
@@ -148,7 +172,7 @@ functions.
   (defgeneric on-rightmost-0 (tm cont-true cont-false))
   (defmethod on-rightmost-0 (tm cont-true cont-false)
     (let(
-          (tm1 (mk-cue-to tm))
+          (tm1 (mk-entangled-with tm))
           )
       (s tm1 cont-false cont-true)
       ))
@@ -179,7 +203,7 @@ functions.
   (defmethod a◨-0 (tm state object cont-ok cont-no-alloc)
     (declare (ignore state))
     (let(
-          (tm1 (mk-cue-to tm))
+          (tm1 (mk-entangled-with tm))
           )
       (cue-rightmost tm1)
       (a tm1 object cont-ok cont-no-alloc)

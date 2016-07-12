@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;
   (defgeneric eas* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
     (:documentation 
-      "calls #'as repeatedly on a mk-cue-to of tm filling with successive objects from tm-fill.
+      "calls #'as repeatedly on a mk-entangled-with of tm filling with successive objects from tm-fill.
        tm will not be stepped.  tm-fill will be stepped.
        "
       ))
@@ -30,7 +30,7 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (let(
-          (tm1 (mk-cue-to tm0))
+          (tm1 (mk-entangled-with tm0))
           )
       (as*-1 tm1 fill cont-ok cont-not-supported cont-no-alloc)
       ))
@@ -41,7 +41,7 @@ See LICENSE.txt
 ;;
   (defgeneric an (tm tm-fill count &optional cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
-      "Similar to calling #'a n times on a mk-cue-to of tm."
+      "Similar to calling #'a n times on a mk-entangled-with of tm."
       ))
 
   (defmethod an
@@ -55,7 +55,7 @@ See LICENSE.txt
       (cont-no-alloc (λ(tm1 n)(declare (ignore tm1 n)(error 'alloc-fail))))
       )
     (let(
-          (tm1 (mk-cue-to tm))
+          (tm1 (mk-entangled-with tm))
           )
       (loop repeat n do
         (r fill

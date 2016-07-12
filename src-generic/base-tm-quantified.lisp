@@ -22,12 +22,8 @@ See LICENSE.txt
       &optional
       cont-ok
       cont-rightmost-tm
-      &rest ⋯
-      )
-    (:documentation
-      "Reads fill, and rights tm, steps, and repeats, until fill hits rightmost,
-       then follows cont-ok.  Should tm hit rightmost first, then cont-rightmost-tm.
-       "
+      cont-parked-tm
+      cont-parked-fill
       ))
 
   (defmethod w* 
@@ -37,9 +33,15 @@ See LICENSE.txt
       &optional 
       (cont-ok (be t))
       (cont-rightmost-tm (be ∅))
-      &rest ⋯
+      (cont-parked-tm (λ()(error 'parked-head-use)))
+      (cont-parked-fill  (λ()(error 'parked-head-use)))
       )
-    (w tm (r fill))
+    (w 
+      tm 
+      (r fill #'do-nothing (λ()(return-from w* (funcall cont-parked-fill))))
+      #'do-nothing
+      (λ()(return-from w* (funcall cont-parked-tm)))
+      )
     (⟳-loop(λ(cont-loop)
              (s fill
                (λ()(s tm

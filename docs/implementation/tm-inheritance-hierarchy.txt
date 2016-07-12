@@ -1,0 +1,69 @@
+
+
+      tape machine
+        /     \
+       /       \
+    solo      non-destructive
+       \       /
+        \     /
+         multi
+           |
+        threaded
+
+and the transform:
+
+   (mk-stateful tm) --> stateful
+
+...
+
+stateful will wrap a tm, so it is a transform
+
+if one machine in an entanglement group becomes void, then all do.  So the stateful
+transform must have access to the entanglements list.  Multi introduced the entanglements
+list for collision detection. 
+
+The intention was that stateful could wrap any machine, but going to void then must have
+different behavior for multi (use entanglements list) and solo.  Non-destructive has no
+operations that can cause a machine to become void.
+
+If stateful wraps different type machines, then different interfaces are available
+looking through it depending upon which machine has been wrapped ... so say, stateful
+provides a full API all the way to threaded.  Then if one uses the API while wrapping
+a machine that doesn't implement one of the functions called out, then an exception
+will occur for the missing routine.
+
+Yes, we can pass the base machine into functions so that dispatch will give us
+different flavors of handling statefulness depending on the type of the base.**
+
+
+...
+
+can multi be a transform?  
+
+in fact it can, we know, becuase the current implementation does collision detection
+outside of the function call.
+
+Transforms present the same API as for other tape machines. 
+
+A transform type will have a slot for the base machine, and then addiitonal
+slots as needed by the transform.  By having a slot for the base machine,
+we still know the base machine's type, and thus can call it's interface. If
+we instead had inherited, the only way to get to its interface is through a
+one to one correpondence between methods known as call-next-method.
+
+A transform must implement all primitive functions, as it is not part of the
+inheritance chain, there will be no alternatives higher up the chain to chose from.
+
+But this doesn't fit multi, as it must only need implement those functions that are
+affected by the existance of multiple heads.  We can instead inherit from solo and
+non-destruct, and add a slot for the entanglement list.  Then only need to provide
+specializations for those functions that are affected.  Multi is more suited as a
+specialization than as s transform.
+
+...
+Threaded is a more complex multi,  seems we have two choices for multi transforms.
+We might need to make threaded the same level as multi, also inheriting from solo and
+non-destructive.
+
+...
+

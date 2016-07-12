@@ -12,30 +12,30 @@ Additional non-destructive primitives.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defgeneric entangle-0 (tm-recycled tm-orig tm-orig-state))
+  (defgeneric recycle-entangled-with-0 (tm-recycle tm-orig tm-orig-state))
 
-  (defmethod entangle-0 (tm-recycled (tm-orig nd-tape-machine) (tm-orig-state abandoned))
-    (declare (ignore tm-recycled tm-orig tm-orig-state))
+  (defmethod recycle-entangled-with-0 (tm-recycle (tm-orig nd-tape-machine) (tm-orig-state abandoned))
+    (declare (ignore tm-recycle tm-orig tm-orig-state))
     (error 'operation-on-abandoned)
     )
 
   ;; this will work for many machines
-  (defmethod entangle-0 (tm-recycled (tm-orig nd-tape-machine) tm-orig-state)
-    (change-class tm-recycled (type-of tm-orig))
-    (setf (state tm-recycled) (state tm-orig))
-    (setf (HA tm-recycled) (HA tm-orig))
-    (setf (tape tm-recycled) (tape tm-orig))
-    (setf (parameters tm-recycled) (parameters tm-orig))
-    tm-recycled
+  (defmethod recycle-entangled-with-0 (tm-recycle (tm-orig nd-tape-machine) tm-orig-state)
+    (change-class tm-recycle (type-of tm-orig))
+    (setf (state tm-recycle) (state tm-orig))
+    (setf (HA tm-recycle) (HA tm-orig))
+    (setf (tape tm-recycle) (tape tm-orig))
+    (setf (parameters tm-recycle) (parameters tm-orig))
+    tm-recycle
     )
 
-  (defgeneric mk-entangled-0 (tm-orig tm-orig-state))
+  (defgeneric mk-entangled-with-0 (tm-orig tm-orig-state))
 
-  (defmethod mk-entangled-0 ((tm-orig nd-tape-machine) (tm-orig-state abandoned))
+  (defmethod mk-entangled-with-0 ((tm-orig nd-tape-machine) (tm-orig-state abandoned))
     (error 'operation-on-abandoned)
     )
 
-  (defmethod mk-entangled-0 ((tm-orig nd-tape-machine) tm-orig-state)
+  (defmethod mk-entangled-with-0 ((tm-orig nd-tape-machine) tm-orig-state)
     (let(
           (instance (make-instance (type-of tm-orig)))
           )

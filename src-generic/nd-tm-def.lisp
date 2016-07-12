@@ -3,10 +3,12 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  This machine does not implement any destructive operations.  (See
-  docs/concept/tape-sharing-hazards.txt).  Hence we can define cue-to and mk-cue-to for
-  nd-tape-machines.
+  No destrictuve operations.
+  Yes, copy operations.
 
+  Because there are no destructive operations it is safe to use machines
+  that are entangled.  (Entangled machines have independent heads, but share
+  a tape.)
 
 |#
 

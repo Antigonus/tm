@@ -26,12 +26,12 @@ and rightmost, etc. apply to the subspace (not the original tape).
         (if 
           (typep subspace 'tape-machine)
           (progn
-            (cue-to tm subspace)
+            (recycle-entangled-with tm subspace)
             (funcall cont-ok)
             )
           (mount subspace
             (λ(new-tm) ; should mark new-tm readonly, except we don't support that yet
-              (cue-to tm new-tm)
+              (recycle-entangled-with tm new-tm)
               (funcall cont-ok)
               )
             cont-mount-failed
@@ -71,7 +71,7 @@ and rightmost, etc. apply to the subspace (not the original tape).
       )
     "#'ai then step into the subspace"
     (ai tm object
-      (λ()(cue-to tm (r tm))(funcall cont-ok))
+      (λ()(recycle-entangled-with tm (r tm))(funcall cont-ok))
       cont-mount-fail
       cont-no-alloc
       ))

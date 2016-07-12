@@ -101,7 +101,46 @@ See LICENSE.txt
 ;; cell deallocation
 ;;
 
-  (defmethod d-0 (tm (tm-state void) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
-    (declare (ignore tm tm-state spill cont-ok cont-collision cont-no-alloc))
-    (funcall cont-rightmost) ; cont-rightmost follows from a progression of deleting cells from a parked state machine
-    )
+  ;; state is active when this is called
+  ;; deallocates next-cell, spills and returns its contents
+  (defmethod d-0 (tm spill cont-ok cont-rightmost cont-no-alloc)
+    (declare (ignore cont-no-alloc))
+    (if
+      (cdr (HA tm))
+      (let*(
+             (dealloc-cell (cdr (HA tm)))
+             (spill-object (car dealloc-cell))
+             )
+        (as spill spill-object
+          (λ()
+            (rplacd (HA tm) (cdr dealloc-cell))
+            (funcall cont-ok spill-object)
+            )
+          cont-no-alloc
+          ))
+      (funcall cont-rightmost)
+      ))
+
+  ;; state is parked or active when this is called
+  ;; deallocates cell at the leftmost of the tape
+  (defmethod d◧-0 (tm spill cont-ok cont-no-alloc)
+    (declare (ignore cont-no-alloc))
+    (let*(
+           (dealloc-cell (tape tm))
+           (spill-object (car dealloc-cell))
+           )
+      (as spill spill-object
+        (λ()
+          (if
+            (cdr (tape tm))
+            (progn
+              (setf (tape tm) (cdr dealloc-cell))
+              (funcall cont-ok spill-object)
+              )
+            (progn
+              (setf (state tm) void)
+              (setf (HA tm) ∅)
+              (setf (tape tm) ∅)
+              )))
+        cont-no-alloc
+        )))

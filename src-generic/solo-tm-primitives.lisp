@@ -6,7 +6,7 @@ See LICENSE.txt
 
 Destructive operations are allowed on solo machines.
 
-Even with these destructive operations, solo machines can not be cue-to or mk-cue-to.
+Even with these destructive operations, solo machines can not be recycle-entangled-with or mk-entangled-with.
 This is because copy operations would cause the tape to become shared.  Without copying,
 we can not make temporary variables that have independent head movement from the machine
 they were copied from.  This prevents us from implementing some derived methods that 
@@ -40,31 +40,24 @@ exist for nd-tape-machines.
 ;; the object from the deallocated cell is moved to it, preferably the former. 
 ;;
 ;; d must have transactional behavior, i.e. the cell is only dealloced if all goes well,
-;; otherwise d makes no structural changes. 
+;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
+;; reallocation to spill fails
 ;;
-;; There are multiple reasons deallocation might fail a) because there is nothing
-;; to deallocate,  b) because the tape does not support structural changes c) because
-;; a machine has a head on the dealloc cell.
-;;
-;; d will also fail if spill is not nil, and reallocation to spill fails
-;;
-;; Entanglement accounting complicates the swap trick for implementing d◧, so I have made
-;; it a primitive.
-;;
-  ;; see tm-derived-1 for defun d◧-1
-  ;; when this is called:
-  ;;    state will be parked or active
-  ;;    there will be no collisions
-  ;;
-    (defgeneric d◧-0 (tm cont-ok ))
-
-
   ;; see tm-derived-1 for defun d-1
   ;; when this is called:
-  ;;    state must be active
-  ;;    there will be no collisions
+  ;;    state is active
+  ;;    there are no collisions
   ;;
-    (defgeneric d-0 (tm cont-ok ))
+    (defgeneric d-0 (tm spill cont-ok cont-rightmost cont-no-alloc))
+
+  ;; see tm-derived-1 for defun d◧-1
+  ;; when this is called:
+  ;;    state is parked or active
+  ;;    there are no collisions
+  ;;
+    (defgeneric d◧-0 (tm spill cont-ok cont-rightmost cont-no-alloc))
+
+
     
 
 

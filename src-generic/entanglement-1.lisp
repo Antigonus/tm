@@ -14,7 +14,7 @@ See LICENSE.txt
 ;;
   (defun disentangle (tm)
     "Removes tm from the associated entanglements set. This is done, for example, 
-     in the cue-to function to release the instance for reuse.
+     in the recycle-entangled-with function to release the instance for reuse.
      "
     (let(
           (es (entanglements tm)) ; es must be type tm-list
