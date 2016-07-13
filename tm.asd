@@ -43,36 +43,34 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "src-gen"
+               (:module "src-generic"
                  :components (
                                (:file "tm-def")
                                (:file "tm-mk")
-                               (:file "tm-state")
                                (:file "tm-primitives")
                                (:file "tm-derived")
                                (:file "tm-quantifiers")
                                (:file "tm-quantified")
-                               (:file "print-machine")
-                               (:file "length")
+                               (:file "tm-print")
 
-                               ;; includes functions that require cue-to
+                               ;; no destructive functions, but allows copies
                                (:file "nd-tm-def")
+#|
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
                                (:file "nd-tm-quantified")
                                (:file "nd-tm-subspace")
+                               (:file "length")
+                               (:file "location")
 
-                               ;; includes destructive functions
+                               ;; includes destructive functions, but not copies
                                (:file "solo-tm-def")
-                               (:file "solo-tm-state")
                                (:file "solo-tm-primitives")
                                (:file "solo-tm-derived")
 
                                ;; a solo-tm implemenation
                                (:file "list-solo-tm-def")
                                (:file "list-solo-tm-primitives")
-
-#|
 
                                (:file "tm-def")
                                (:file "tm-state")

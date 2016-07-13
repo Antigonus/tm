@@ -8,22 +8,6 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; tape machine states
-;;
-
-  ;; a void machine has no tape and no head
-  (defparam void (make-instance 'void))
-
-  ;; a parked machine has a tape, but no head
-  (defparam parked (make-instance 'parked))
-
-  ;; a parked machine has a tape, but no head
-  (defparam abandoned (make-instance 'abandoned))
-
-  ;; an active machine has both a tape and a head
-  (defparam active (make-instance 'active))
-
-;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified type to hold the specified objects
 ;;
 ;;  init-list is a keyword list.  
@@ -39,7 +23,7 @@ See LICENSE.txt
       ))
 
 ;;--------------------------------------------------------------------------------
-;;  given a sequence return a tape machine over that sequence
+;;  given a sequence, returns a tape machine over that sequence
 ;;    sequences are things we can step into, and that tree traversal will
 ;;    consider to be something to traverse.
 ;;

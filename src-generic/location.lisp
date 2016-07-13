@@ -34,14 +34,13 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    (let(
-          (tm1 (fork-0 tm0))
-          )
-      (cue-leftmost tm1)
-      (s tm1
-        (λ() (heads-on-same-cell tm0 tm1 cont-true cont-false))
-        cont-false
-        )))
+    (with-mk-entangled tm0
+      (λ(tm1)
+        (cue-leftmost tm1)
+        (s tm1
+          (λ() (heads-on-same-cell tm0 tm1 cont-true cont-false))
+          cont-false
+          ))))
 
 
   (defgeneric on+n (tm n &optional cont-true cont-false)
@@ -61,15 +60,14 @@ See LICENSE.txt
       ((< n 0) (funcall cont-false)) ; the head is never left of leftmost !
       ((= n 0) (on-leftmost tm0 cont-true cont-false))
       (t
-        (let(
-              (tm1 (fork-0 tm0))
-              )
-          (cue-leftmost tm1)
-          (sn tm1 n
-            (λ()(heads-on-same-cell tm0 tm1 cont-true cont-false))
-            cont-false
-            )))
-      ))
+        (with-mk-entangled tm0
+          (λ(tm1)
+            (cue-leftmost tm1)
+            (sn tm1 n
+              (λ()(heads-on-same-cell tm0 tm1 cont-true cont-false))
+              cont-false
+              )))
+        )))
 
 ;; on rightmost -1  (s tm) would be on rightmost
   (defgeneric on-rightmost-1 (tm &optional cont-true cont-false))
@@ -82,12 +80,11 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    (let(
-          (tm1 (fork-0 tm0))
-          )
-      (s tm1)
-      (on-rightmost tm1 cont-true cont-false)
-      ))
+    (with-mk-entangled tm0
+      (λ(tm1)
+        (s tm1)
+        (on-rightmost tm1 cont-true cont-false)
+        )))
 
   ;; n will typically be negative
   (defgeneric on-rightmost+n (tm n &optional cont-true cont-false))
@@ -104,14 +101,13 @@ See LICENSE.txt
       ((> n 0) (funcall cont-false)) ; the head is never right of rightmost
       ((= n 0) (on-rightmost tm0 cont-true cont-false))
       (t
-        (let(
-              (tm1 (fork-0 tm0))
-              )
-          (sn tm1 (- n)
-            (λ()(on-rightmost tm1 cont-true cont-false))
-            cont-false
-            )))
-      ))
+        (with-mk-entangled tm0
+          (λ(tm1)
+            (sn tm1 (- n)
+              (λ()(on-rightmost tm1 cont-true cont-false))
+              cont-false
+              )))
+        )))
    
 
   ;; assigns a natural number to each head location
@@ -122,20 +118,22 @@ See LICENSE.txt
 
   ;; specialized version might be a lot faster
   (defmethod address ((tm0 tape-machine))
-    (let(
-          (tm1 (mount tm0))
-          (address 0)
-          )
-      (⟳(λ(cont-loop cont-return)
-          (heads-on-same-cell tm1 tm0
-            cont-return
-            (λ() 
-              (s tm1
-                (λ()(incf address) (funcall cont-loop))
-                #'cant-happen
-                )))))
-      address
-      ))
+    (with-mk-entangled tm0
+      (λ(tm1)
+        (cue-leftmost tm1)
+        (let(
+              (address 0)
+              )
+          (⟳(λ(cont-loop cont-return)
+              (heads-on-same-cell tm1 tm0
+                cont-return
+                (λ() 
+                  (s tm1
+                    (λ()(incf address) (funcall cont-loop))
+                    #'cant-happen
+                    )))))
+          address
+          ))))
 
 ;;--------------------------------------------------------------------------------
 ;; relative location
@@ -153,13 +151,12 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    (let(
-          (fk0 (fork-0 tm0))
-          )
-      (s fk0
-        (λ() (heads-on-same-cell fk0 tm1 cont-true cont-false))
-        cont-false
-        )))
+    (with-mk-entangled tm0
+      (λ(fk0)
+        (s fk0
+          (λ() (heads-on-same-cell fk0 tm1 cont-true cont-false))
+          cont-false
+          ))))
 
   (defgeneric distance+n (tm0 tm1 n &optional cont-true cont-false)
     (:documentation
@@ -183,13 +180,12 @@ See LICENSE.txt
         (heads-on-same-cell tm0 tm1 cont-true cont-false)
         )
       (t
-        (let(
-              (fk0 (fork-0 tm0))
-              )
-          (sn fk0 n
-            (λ() (heads-on-same-cell fk0 tm1 cont-true cont-false))
-            cont-false
-            )))))
+        (with-mk-entangled tm0
+          (λ(fk0)
+            (sn fk0 n
+              (λ() (heads-on-same-cell fk0 tm1 cont-true cont-false))
+              cont-false
+              ))))))
 
   ;; distance from tm0 on the left, to tm1 on the right
   (defgeneric distance (tm0 tm1)

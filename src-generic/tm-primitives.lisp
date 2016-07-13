@@ -50,14 +50,13 @@ parameters.
     (
       tm
       &optional 
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      cont-ok
+      cont-rightmost
       )
     (:documentation
       "If the head is on a cell, and there is a right neighbor, puts the head on the
        right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
-       ")
-    )
+       "))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -67,12 +66,12 @@ parameters.
       tm
       object
       &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      cont-ok
+      cont-no-alloc
       )
     (:documentation
     "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
      it to the right of the cell the head is currently on.  The newly allocated cell will
      be initialized with the given object.
-     "
-      ))
+     "))
+      

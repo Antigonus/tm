@@ -39,6 +39,7 @@ See LICENSE.txt
       (cont-rightmost-tm (be ∅))
       &rest ⋯
       )
+    (declare (ignore ⋯))
     (w tm (r fill))
     (⟳-loop(λ(cont-loop)
              (s fill
@@ -51,7 +52,7 @@ See LICENSE.txt
 
   (defgeneric s* (tm)
     (:documentation 
-      "This is a synonym for recycle-entangled-with-rightmost. There is no guarantee that intermediate
+      "This is a synonym for cue-to-rightmost. There is no guarantee that intermediate
        cells will be visited."
       ))
 
@@ -59,50 +60,13 @@ See LICENSE.txt
 
   (defgeneric -s* (tm)
     (:documentation 
-      "This is a synonym for recycle-entangled-with-leftmost. There is no guarantee that intermediate
+      "This is a synonym for cue-to-leftmost. There is no guarantee that intermediate
        cells will be visited."
       ))
 
   (defmethod -s*((tm tape-machine))(cue-leftmost tm))
 
-  (defgeneric sn (tm n &optional cont-ok cont-rightmost)
-    (:documentation 
-      "Step n times.  When called, cont-rightmost is passed the current value of n.  For
-       example, if the head is on leftmost, and the tape has two cells, and sn is called
-       with n set to 3, then the step from rightmost continuation will be called with a
-       value of 2.
-      "
-      ))
-
-  (defmethod sn
-    (
-      (tm tape-machine)
-      (n integer)
-      &optional 
-      (cont-ok (be t))
-      (cont-rightmost (λ(n)(declare (ignore n)) ∅))
-      )
-    (labels(
-             (count-test()
-               (when (≤ n 0) (return-from sn (funcall cont-ok)))
-               )
-             (work()
-               (decf n)
-               (count-test)
-               (take-step) ; step from rightmost test is built into #'s
-               )
-             (take-step()
-               (s 
-                 tm 
-                 #'work
-                 (λ()(return-from sn (funcall cont-rightmost n)))
-                 ))
-             )
-      (count-test)
-      (take-step)
-      ))
-
-  (defgeneric a* (tm tm-fill &optional cont-ok cont-no-alloc)
+  (defgeneric a* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'a repeatedly with successive objects from tm-fill. 
        tm will not be stepped.  tm-fill will be stepped.
@@ -110,7 +74,7 @@ See LICENSE.txt
        "      
       ))
 
-  (defgeneric as* (tm tm-fill &optional cont-ok cont-no-alloc)
+  (defgeneric as* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'as repeatedly with successive objects from tm-fill.
        Both tm and tm-fill will be stepped.
@@ -132,7 +96,6 @@ See LICENSE.txt
       (λ(cont-loop)
         (a tm (r fill) 
           (λ()(s fill cont-loop cont-ok))
-          #'cant-happen
           cont-no-alloc
           ))))
 
@@ -149,7 +112,6 @@ See LICENSE.txt
       (λ(cont-loop)
         (as tm (r fill) 
           (λ()(s fill cont-loop cont-ok))
-          #'cant-happen
           cont-no-alloc
           ))))
 
@@ -169,6 +131,31 @@ See LICENSE.txt
 ;; repeated by count operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
+  (defgeneric sn (tm n &optional cont-ok cont-rightmost)
+    (:documentation 
+      "Step n times.  When called, cont-rightmost is passed the current value of n.  For
+       example, if the head is on leftmost, and the tape has two cells, and sn is called
+       with n set to 3, then the step from rightmost continuation will be called with a
+       value of 2.
+      "
+      ))
+
+  (defmethod sn
+    (
+      (tm tape-machine)
+      (n integer)
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (λ(n)(declare (ignore n)) ∅))
+      )
+    (loop repeat n do
+      (s tm
+        #'do-nothing
+        (λ()(funcall cont-rightmost n))
+        ))
+    (funcall cont-ok)
+    )
+
   (defgeneric asn (tm n &optional fill cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to calling #'as n times. fill provides initialization
@@ -191,12 +178,14 @@ See LICENSE.txt
           (as tm object 
             (λ()(s fill
                   #'do-nothing
-                  (λ()(return-from an (funcall cont-rightmost tm1 n)))
+                  (λ()(return-from asn (funcall cont-rightmost tm1 n)))
                   ))
-            (λ()(return-from an (funcall cont-no-alloc tm1 n)))
+            (λ()(return-from asn (funcall cont-no-alloc tm1 n)))
             ))
-        (λ()(return-from an (funcall cont-rightmost tm1 n)))
-        ))))
+        (λ()(return-from asn (funcall cont-rightmost tm1 n)))
+        ))
+    (funcall cont-ok)
+    )
 
 
 

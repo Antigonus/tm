@@ -8,7 +8,7 @@ new tape machine implementation to specialize them.
 
 
 |#
-(in-package #:tm0)
+(in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; cueing
@@ -20,7 +20,6 @@ new tape machine implementation to specialize them.
 
   ;; step does not move forward from rightmost, rather takes the rightmost continuation
   (defmethod cue-rightmost ((tm tape-machine))
-    (declare (ignore state cont-void))
     (labels(
              (work() (s tm #'work #'do-nothing))
              )

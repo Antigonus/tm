@@ -1,37 +1,3 @@
-#|
-Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
-Released under the MIT License (MIT)
-See LICENSE.txt
-
-These generic functions are defined only in terms of the solo-tm-primitives.
-
-
-|#
-(in-package #:tm)
-
-;;--------------------------------------------------------------------------------
-;; cell allocation
-;;
-;; Allocated cells must be initialized.  The initialization value is provided
-;; directly or though a fill machine.
-;;
-
-  ;; allocate new leftmost cell
-  (defun a◧
-    (
-      tm
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    "Allocates a cell to the left of leftmost (thus becoming the new leftmost)."
-    (a◧-0 tm (state tm) object cont-ok cont-no-alloc)
-    )
-
-;;--------------------------------------------------------------------------------
-;; cell deallocation
-;;
   (defun d (
              tm 
              &optional 
@@ -198,5 +164,3 @@ These generic functions are defined only in terms of the solo-tm-primitives.
        (funcall cont-collision)
        (d◧-0 tm spill cont-ok cont-no-alloc)
        ))
-
-

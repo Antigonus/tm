@@ -29,11 +29,10 @@ See LICENSE.txt
       (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (let(
-          (tm1 (mk-entangled-with tm0))
-          )
-      (as*-1 tm1 fill cont-ok cont-not-supported cont-no-alloc)
-      ))
+    (with-mk-entangled tm
+      (λ(tm1)
+        (as*-1 tm1 fill cont-ok cont-not-supported cont-no-alloc)
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations
@@ -54,21 +53,20 @@ See LICENSE.txt
       (cont-rightmost (λ(tm1 n)(declare (ignore tm1 n)(be ∅))))
       (cont-no-alloc (λ(tm1 n)(declare (ignore tm1 n)(error 'alloc-fail))))
       )
-    (let(
-          (tm1 (mk-entangled-with tm))
-          )
-      (loop repeat n do
-        (r fill
-          (λ(object)
-            (a tm1 object 
-              (λ()(s fill
-                    #'do-nothing
-                    (λ()(return-from an (funcall cont-rightmost tm1 n)))
-                    ))
-              (λ()(return-from an (funcall cont-no-alloc tm1 n)))
-              ))
-          (λ()(return-from an (funcall cont-rightmost tm1 n)))
-          ))))
+    (with-mk-entangled tm
+      (λ(tm1)
+        (loop repeat n do
+          (r fill
+            (λ(object)
+              (a tm1 object 
+                (λ()(s fill
+                      #'do-nothing
+                      (λ()(return-from an (funcall cont-rightmost tm1 n)))
+                      ))
+                (λ()(return-from an (funcall cont-no-alloc tm1 n)))
+                ))
+            (λ()(return-from an (funcall cont-rightmost tm1 n)))
+            )))))
           
 
 

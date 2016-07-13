@@ -6,11 +6,11 @@ See LICENSE.txt
 
 Destructive operations are allowed on solo machines.
 
-Even with these destructive operations, solo machines can not be recycle-entangled-with or mk-entangled-with.
-This is because copy operations would cause the tape to become shared.  Without copying,
-we can not make temporary variables that have independent head movement from the machine
-they were copied from.  This prevents us from implementing some derived methods that 
-exist for nd-tape-machines.
+Even with these destructive operations, solo machines can not be recycle-entangled-with or
+mk-entangled-with.  This is because copy operations would cause the tape to become shared.
+Without copying, we can not make temporary variables that have independent head movement
+from the machine they were copied from.  This prevents us from implementing some derived
+methods that exist for nd-tape-machines.
 
 
 |#
