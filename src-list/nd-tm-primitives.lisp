@@ -27,33 +27,18 @@ Additional non-destructive primitives.
        "
       ))
 
-  (defgeneric mk-shallow-copy
+;;--------------------------------------------------------------------------------
+;; head location
+;;
+;;  having two machines to compare means that we must have made a copy at some point
+;;
+  (defgeneric heads-on-same-cell
     (
-      tm-orig
+      tm0
+      tm1 
       &optional
-      cont-ok
-      cont-no-alloc
-      )
-    (:documentation
-      "Makes a new tape machine.  Initializes the tape with a copy of the tape found in
-       tm-orig.  The new tape references the same objects as the tm-orig tape.  Because it
-       has its own tape, the new machine is not entangled with the tm-orig machine.
-       "
+      cont-true
+      cont-false
+      &rest ⋯
       ))
-
-  ;; will work for most machines
-  (defmethod mk-shallow-copy
-    (
-      (tm-orig tape-machine)
-      &optional
-      (cont-ok #'echo)
-      (cont-no-alloc (λ()(error 'alloc-fail)))
-      )
-    (let(
-          (tm-copy (make-instance (type-of tm-orig)))
-          )
-      (as* tm-copy tm-orig
-        (λ()(funcall cont-ok tm-copy))
-        cont-no-alloc
-        )))
-
+    

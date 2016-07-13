@@ -28,7 +28,6 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key mount &allow-other-keys) init-list
-      (setf (parameters tm) ∅)
       (cond
         ((∧ mount (consp mount))
           (setf (HA tm) mount)

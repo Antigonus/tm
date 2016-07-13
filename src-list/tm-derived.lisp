@@ -21,7 +21,7 @@ new tape machine implementation to specialize them.
   ;; step does not move forward from rightmost, rather takes the rightmost continuation
   (defmethod cue-rightmost ((tm tape-machine))
     (labels(
-             (work() (s tm #'work #'do-nothing))
+             (work() (s tm #'work (be t)))
              )
       (work)
       ))
@@ -32,55 +32,76 @@ new tape machine implementation to specialize them.
 ;; Allocated cells must be initialized.  The initialization value is provided
 ;; directly or though a fill machine.
 ;;
-  (defun as
+  (defgeneric as
     (
       tm
+      object
+      &optional
+      cont-ok
+      cont-no-alloc
+      )
+    (:documentation
+      "Like #'a, but tm is stepped to the new cell
+      "))
+
+  (defmethod as
+    (
+      (tm tape-machine)
       object
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "Like #'a, but tm is stepped to the new cell"
     (a tm object 
       (λ()(s tm cont-ok #'cant-happen))
       cont-no-alloc
       ))
 
-  ;; append with contract that head is at rightmost
-  (defun a&h◨ 
+  (defgeneric a&h◨ 
     (
-      tm 
+      tm
+      object
+      &optional
+      cont-ok
+      cont-no-alloc
+      )
+    (:documentation
+      "#'a with a contract that the head is on rightmost.
+      "))
+
+  (defmethod a&h◨ 
+    (
+      (tm tape-machine)
       object
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "#'a with a contract that the head is on rightmost."
-    (a&h◨-0 tm object cont-ok cont-no-alloc)
-    )
-  (defgeneric a&h◨-0 (tm object cont-ok cont-no-alloc))
-  ;; some specializations can make better use of this contract
-  (defmethod a&h◨-0 ((tm tape-machine) object cont-ok cont-no-alloc)
-    (a tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
+    ;; specializations might make better use of the contract
+    (a tm object cont-ok cont-no-alloc)
     )
 
-  ;; append, and head is at rightmost, then step
-  (defun a&h◨s
+  (defgeneric as&h◨ 
     (
-      tm 
+      tm
+      object
+      &optional
+      cont-ok
+      cont-no-alloc
+      )
+    (:documentation
+      "#'as with a contract that the head is on rightmost.
+      "))
+
+  (defmethod as&h◨ 
+    (
+      (tm tape-machine)
       object
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "#'as with a contract that the head is on rightmost."
-    (a&h◨-0 tm object cont-ok cont-no-alloc)
+    ;; specializations might make better use of the contract
+    (as tm object cont-ok cont-no-alloc)
     )
-  (defgeneric a&h◨s-0 (tm object cont-ok cont-no-alloc))
-  ;; some specializations can make better use of this contract
-  (defmethod a&h◨s-0 ((tm tape-machine) object cont-ok cont-no-alloc)
-    (as tm object (λ()(s tm)(funcall cont-ok)) cont-no-alloc)
-    )
-
-
 

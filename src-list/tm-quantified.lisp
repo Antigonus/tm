@@ -170,7 +170,7 @@ See LICENSE.txt
       fill
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc (λ(tm n)(declare (ignore tm n))(error 'alloc-fail)))
       )
     (loop repeat n do
       (r fill
@@ -178,11 +178,11 @@ See LICENSE.txt
           (as tm object 
             (λ()(s fill
                   #'do-nothing
-                  (λ()(return-from asn (funcall cont-rightmost tm1 n)))
+                  (λ()(return-from asn (funcall cont-rightmost tm n)))
                   ))
-            (λ()(return-from asn (funcall cont-no-alloc tm1 n)))
+            (λ()(return-from asn (funcall cont-no-alloc tm n)))
             ))
-        (λ()(return-from asn (funcall cont-rightmost tm1 n)))
+        (λ()(return-from asn (funcall cont-rightmost tm n)))
         ))
     (funcall cont-ok)
     )

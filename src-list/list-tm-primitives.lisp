@@ -5,6 +5,9 @@ See LICENSE.txt
 
 |#
 
+(in-package #:tm)
+
+
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
@@ -16,6 +19,7 @@ See LICENSE.txt
   (defmethod w ((tm list-tm) object &rest ⋯)
     (declare (ignore ⋯))
     (setf (car (HA tm)) object)
+    t
     )
 
 ;;--------------------------------------------------------------------------------
@@ -24,61 +28,18 @@ See LICENSE.txt
   (defmethod cue-leftmost ((tm list-tm) &rest ⋯)
     (declare (ignore ⋯)) 
     (setf (HA tm) (tape tm))
+    t
     )
 
-;;--------------------------------------------------------------------------------
-;; head location
-;;
-  (defmethod heads-on-same-cell
-    (
-      (tm0 list-tm)
-      (tm1 list-tm)
-      &optional
-      cont-true
-      cont-false
-      &rest ⋯
-      )
-    (declare (ignore ⋯)) 
-    (if (eq (HA tm0) (HA tm1))
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
-
-  (defmethod heads-on-same-cell
-    (
-      (tm0 list-tm)
-      tm1
-      &optional
-      cont-true
-      cont-false
-      &rest ⋯
-      )
-    (declare (ignore cont-true ⋯)) 
-    (funcall cont-false)
-    )
-
-  (defmethod heads-on-same-cell
-    (
-      tm0
-      (tm1 list-tm)
-      &optional
-      cont-true
-      cont-false
-      &rest ⋯
-      )
-    (declare (ignore cont-true ⋯)) 
-    (funcall cont-false)
-    )
-    
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defgeneric s
+  (defmethod s
     (
       (tm list-tm)
       &optional 
-      cont-ok
-      cont-rightmost
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
       )
     (if 
       (cdr (HA tm))
@@ -97,13 +58,13 @@ See LICENSE.txt
       (tm list-tm)
       object
       &optional
-      cont-ok
-      cont-no-alloc
+      (cont-ok (be t))
+      (cont-no-alloc (be ∅))
       )
     (declare (ignore cont-no-alloc))
     (let(
           (next-cell (cdr (HA tm)))
           )
-      (setf (HA tm) (cons object next-cell))
+      (rplacd (HA tm) (cons object next-cell))
       (funcall cont-ok)
       ))

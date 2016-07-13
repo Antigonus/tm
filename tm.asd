@@ -43,7 +43,7 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "src-generic"
+               (:module "src-list"
                  :components (
                                (:file "tm-def")
                                (:file "tm-mk")
@@ -52,6 +52,10 @@ See LICENSE.txt
                                (:file "tm-quantifiers")
                                (:file "tm-quantified")
                                (:file "tm-print")
+
+                               (:file "list-tm-mk")
+                               (:file "list-tm-primitives")
+                               (:file "list-tm-derived")
 
                                ;; no destructive functions, but allows copies
                                (:file "nd-tm-def")
@@ -97,24 +101,25 @@ See LICENSE.txt
                                |#
                                ))
 
-
-               (:module "src-list"
-                 :components (
-                             ;; interface definition
-
+               (:module "test-list"
+                :components (
+                              (:file "list-tm")
 #|
-                             ;; list implementation
-                               (:file "tm-list-mk")
-                               (:file "tm-list-primitives")
-                               (:file "tm-list-derived")
-                               (:file "tm-list-length")
-                               (:file "tm-list-convert")
+                              (:file "tm-state")
+                              
+                              (:file "tm-derived")
+                              (:file "tm-subspace")
+                              (:file "tm-quantifiers")
 
-                             ;; dataflow
-                               (:file "dataflow")
+                              (:file "length")
+                              (:file "location")
 
-|#                             
-                               ))
+                              (:file "tm-list-mk")
+                              (:file "tm-list-primitives")
+                              (:file "tm-list-derived")
+|#
+                              ))
+
 #|
 
                (:module "src-generators"
@@ -138,21 +143,6 @@ See LICENSE.txt
                                (:file "tm-breadth-convert")
                             ))
 
-               (:module "test-list"
-                :components (
-                              (:file "tm-state")
-                              
-                              (:file "tm-derived")
-                              (:file "tm-subspace")
-                              (:file "tm-quantifiers")
-
-                              (:file "length")
-                              (:file "location")
-
-                              (:file "tm-list-mk")
-                              (:file "tm-list-primitives")
-                              (:file "tm-list-derived")
-                              ))
 
 
                (:module "test-generators"
