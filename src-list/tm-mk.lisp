@@ -12,7 +12,7 @@ See LICENSE.txt
 ;;
 ;;  init-list is a keyword list.  
 ;;
-  (defgeneric init (instance init-list &optional cont-ok cont-fail))
+  (defgeneric init (instance init-list &optional cont-ok cont-fail &rest ⋯))
 
   (defun mk (tm-type &rest init-list)
     (let(

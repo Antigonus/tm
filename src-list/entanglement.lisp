@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Operations on the entanglement list.
+We know that entanglements is a solo-tm
 
 |#
 
@@ -14,7 +14,7 @@ Operations on the entanglement list.
 ;;
   ;; entanglement is mutual
 ` (defun are-entangled (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
-    (member tm1 (entanglements tm0))
+    (∃ (entanglements tm1) (λ(es)(eq (r es) tm0)))
     )
 
 ;;--------------------------------------------------------------------------------

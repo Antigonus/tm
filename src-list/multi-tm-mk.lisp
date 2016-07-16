@@ -9,8 +9,6 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-(defgeneric init-multi (instance init-list &optional cont-ok cont-fail))
-
 (defmethod init
   (
     (instance multi-tape-machine)
@@ -18,14 +16,18 @@ See LICENSE.txt
     &optional 
     cont-ok 
     cont-fail
+    &rest
+    ⋯
     )
-  (setf (entanglements instance) (mk 'solo-tm-list))
-
-  ;; adds self to the entanglements list
-  (a (entanglements instance) instance
-    (λ()
-      (init-multi instance init-list cont-ok cont-fail)
+  (destructuring-bind ⋯
+    (
+      (cont-no-alloc-entanglements (λ()(error 'alloc-fail)))
       )
-    cont-fail
+
+    (setf (entanglements instance) (mk 'list-solo-tm))
+
+    ;; adds self to the entanglements list
+    (a (entanglements instance) instance #'do-nothing cont-no-alloc-entanglements) 
+    (call-next-method)
     ))
 

@@ -13,9 +13,10 @@ See LICENSE.txt
 ;; repeated until end of tape operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric eas* (tm tm-fill &optional cont-ok cont-not-supported cont-no-alloc)
+  (defgeneric eas* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
-      "calls #'as repeatedly on a mk-entangled-with of tm filling with successive objects from tm-fill.
+      "calls #'as repeatedly on a mk-entangled copy of tm, filling
+       with successive objects from tm-fill.
        tm will not be stepped.  tm-fill will be stepped.
        "
       ))
@@ -26,12 +27,11 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-not-supported (λ()(error 'not-supported)))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (with-mk-entangled tm
+    (with-mk-entangled tm0
       (λ(tm1)
-        (as*-1 tm1 fill cont-ok cont-not-supported cont-no-alloc)
+        (as* tm1 fill cont-ok cont-no-alloc)
         )))
 
 ;;--------------------------------------------------------------------------------
@@ -50,23 +50,22 @@ See LICENSE.txt
       (n integer)
       &optional 
       (cont-ok (be t))
-      (cont-rightmost (λ(tm1 n)(declare (ignore tm1 n)(be ∅))))
-      (cont-no-alloc (λ(tm1 n)(declare (ignore tm1 n)(error 'alloc-fail))))
+      (cont-rightmost (λ(tm1 n)(declare (ignore tm1 n))(be ∅)))
+      (cont-no-alloc (λ(tm1 n)(declare (ignore tm1 n))(error 'alloc-fail)))
       )
     (with-mk-entangled tm
       (λ(tm1)
         (loop repeat n do
-          (r fill
-            (λ(object)
-              (a tm1 object 
-                (λ()(s fill
-                      #'do-nothing
-                      (λ()(return-from an (funcall cont-rightmost tm1 n)))
-                      ))
-                (λ()(return-from an (funcall cont-no-alloc tm1 n)))
-                ))
-            (λ()(return-from an (funcall cont-rightmost tm1 n)))
-            )))))
+          (a tm1 (r fill)
+            (λ()(s fill
+                  #'do-nothing
+                  (λ()(return-from an (funcall cont-rightmost tm1 n)))
+                  ))
+            (λ()(return-from an (funcall cont-no-alloc tm1 n)))
+            ))))
+    (funcall cont-ok)
+    )
+        
           
 
 

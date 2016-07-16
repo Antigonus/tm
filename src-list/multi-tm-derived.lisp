@@ -16,7 +16,7 @@ Adds entaglement accounting in to destructive operations and copies.
 ;;
 
   ;; this is a message sent to all entangled machines to tell them that tm0
-  ;; has a new leftmost cell added to the tape.
+  ;; has a new leftmost added to the tape.
   (defun a◧-message (tm-receiver tm0 &optional (cont-ok (be t))))
     (a◧-message-0 tm-receiver (state tm-receiver) tm0 cont-ok)
     )
@@ -61,8 +61,8 @@ Adds entaglement accounting in to destructive operations and copies.
 ;;
   ;; as for a◧, we assume that the tape is referenced through its lefmost cell.  When this
   ;; is not true for a given implementation, that implementation will have to further
-  ;; specify d◧-1.  So, when we deallocate the leftmost cell of a tape, we have to update
-  ;; the tape reference in all of the entangled machines.  Message, if the leftmost cell is
+  ;; specify d◧-1.  So, when we deallocate the leftmost of a tape, we have to update
+  ;; the tape reference in all of the entangled machines.  Message, if the leftmost is
   ;; the last cell on the tape, we have to transition to void, and thus up date the state
   ;; recorded in the entangled machines.
   (defun d◧ (
@@ -74,13 +74,13 @@ Adds entaglement accounting in to destructive operations and copies.
               (cont-collision (λ()(error 'dealloc-entangled)))
               (cont-no-alloc (λ()(error 'alloc-fail)))
               )
-    "The leftmost cell is deallocated independent of where the head is located."
+    "The leftmost is deallocated independent of where the head is located."
     (d◧-1 tm (state tm) spill cont-ok cont-rightmost cont-collision cont-no-alloc)
     )
 
   ;; this is a message sent to each entangled machine to tell it that d◧ was called on the
   ;; machine given as the tm0 in the args list.  This is used when tm0 remains active after
-  ;; removing the leftmost cell.
+  ;; removing the leftmost.
   (defun d◧-message (tm-message tm0 &optional (cont-ok (be t)))
     (d◧-message-0 tm-message (state tm-message) tm0 cont-ok)
     )

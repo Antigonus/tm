@@ -53,36 +53,47 @@ See LICENSE.txt
                                (:file "tm-quantified")
                                (:file "tm-print")
 
+                               (:file "list-tm-def")
                                (:file "list-tm-mk")
                                (:file "list-tm-primitives")
                                (:file "list-tm-derived")
 
-                               ;; no destructive functions, but allows copies
+                               ;; no destructive functions, but allows entangle copy functions
                                (:file "nd-tm-def")
-#|
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
+                               (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
-                               (:file "nd-tm-subspace")
                                (:file "length")
                                (:file "location")
 
-                               ;; includes destructive functions, but not copies
+                               (:file "list-nd-tm-def")
+                               (:file "list-nd-tm-primitives")
+
+                               ;; includes destructive functions, but no entangle copy functions
                                (:file "solo-tm-def")
                                (:file "solo-tm-primitives")
-                               (:file "solo-tm-derived")
+                               (:file "solo-tm-quantified")
 
                                ;; a solo-tm implemenation
                                (:file "list-solo-tm-def")
                                (:file "list-solo-tm-primitives")
 
-                               (:file "tm-def")
-                               (:file "tm-state")
+
+                               ;; includes destructive functions, and entangle copy functions
+                               (:file "multi-tm-def")
+                               (:file "multi-tm-mk")
+#|
+                               (:file "multi-tm-primitives")
+
                                (:file "entanglement")
+
                                (:file "print-machine")
                                (:file "tm-primitives")
                                (:file "entanglement")
                                (:file "entanglement-scope")
+
+                               (:file "nd-tm-subspace") ; issues with 'manifold'
 
                                (:file "tm-derived-1")
                                (:file "entanglement-1")

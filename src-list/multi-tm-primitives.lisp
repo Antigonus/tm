@@ -3,19 +3,13 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-A solo tape machine is the sole user of its tape.  There are no other heads on the 
-tape, save for that of the solo machine.  Consequently one does not have to worry
-about either collisions or other machines having a reference to the same tape.
+Multi must specialize entangled copy operations so that they add the new or recycled copy
+instance to the entanglement list.  The entanglement scope operation must be redefined to
+remove the scoped entangled copy from the entanglement list (to distentangle it).
 
-Consequently, destructive operations are allowed on solo machines.  
-
-Even with these destructive operations, solo machines can not be recycle-entangled or
-mk-entangled.  This is because such operations would cause the tape to become shared,
-and thus negate our no collisions and no shared tape reference properites.
-
-Without entangled copyies, we can not make temporary variables that have independent head
-movement from the machine they were copied from.  This prevents us from implementing some
-derived methods that exist for nd-tape-machines.
+Multi must specialize the deallocation operations to check for a collision and if it finds
+one to take the cont-collision continuation instead of performing the deallocation.
+Changes to the tape reference must be broadcast to all entangled machines.
 
 
 |#

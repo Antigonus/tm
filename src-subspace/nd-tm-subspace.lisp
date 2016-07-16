@@ -69,7 +69,7 @@ This is copied from tm-region.lisp:
         (if 
           (typep subspace 'tape-machine)
           (progn
-            (recycle-entangled-with tm subspace)
+            (recycle-entangled-with subspace tm)
             (funcall cont-ok)
             )
           (mount subspace
@@ -130,7 +130,7 @@ This is copied from tm-region.lisp:
               (cont-collision (λ()(error 'dealloc-entangled)))
               (cont-no-alloc (λ()(error 'alloc-fail)))
               )
-    "Object is subspace. Deletes the leftmost cell of the subspace."
+    "Object is subspace. Deletes the subspace leftmost."
     (r tm
       (λ(subspace)
         (if 

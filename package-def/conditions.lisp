@@ -117,7 +117,7 @@ See LICENSE.txt
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition dealloc-entangled (error)
+  (define-condition dealloc-collision (error)
     ((text :initarg :text :reader text)))
 
   (define-condition malformed-entanglements (error)

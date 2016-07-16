@@ -9,12 +9,6 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-
-;;--------------------------------------------------------------------------------
-;; a specialization
-;;
-  (defclass list-tm (tape-machine)())
-
 ;;--------------------------------------------------------------------------------
 ;; making list machines from other objects
 ;;
@@ -25,7 +19,10 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-fail (λ()(error 'bad-init-value)))
+      &rest
+      ⋯
       )
+    (declare (ignore ⋯))
     (destructuring-bind
       (&key mount &allow-other-keys) init-list
       (cond

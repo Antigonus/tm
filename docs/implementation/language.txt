@@ -10,7 +10,8 @@
 
       m move data, no allocation or deallocation of cells, requires fill
 
-      e entangle, we operate on an entangled copy of the machine operand
+      e entangle, we operate on an entangled copy of the machine operand instead of the
+        the machine itself
 
       ☥ returns an entangled copy on a new thread
 

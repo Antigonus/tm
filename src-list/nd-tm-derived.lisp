@@ -16,12 +16,12 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  ;; this becomes more interesting when we have entanglement accounting
   (defgeneric with-mk-entangled (tm continuation)
     (:documentation
       "Calls continuation with a locally scoped entangled copy of tm.
        "))
 
+  ;; this becomes more interesting when we have entanglement accounting
   (defmethod with-mk-entangled
     (
       (tm nd-tape-machine)
@@ -39,7 +39,7 @@ functions.
 ;;
   (defgeneric r◧ (tm &rest ⋯)
     (:documentation
-      "read leftmost cell of the tape
+      "Read leftmost.
       "
       ))
 
@@ -53,7 +53,7 @@ functions.
 
   (defgeneric w◧ (tm object &rest ⋯)
     (:documentation
-      "writes leftmost cell of the tape
+      "Write leftmost.
       "
       ))
 
@@ -113,7 +113,7 @@ functions.
       cont-false
       )
     (:documentation
-      "tm head is on the leftmost cell.
+      "tm head is on leftmost.
       "))
 
   (defmethod on-leftmost 

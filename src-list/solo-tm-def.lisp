@@ -7,7 +7,7 @@ See LICENSE.txt
   no copy operations.
 
   Because solo machines can not be copied, they are never entangled with other machines.
-  Hence, it is safe to perform destructive operations on a solo machine.
+  Hence, it is safe to perform destructive operations on solo machines.
 
 |#
 
