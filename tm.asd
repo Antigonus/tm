@@ -81,35 +81,20 @@ See LICENSE.txt
 
 
                                ;; includes destructive functions, and entangle copy functions
+                               (:file "entanglement")
                                (:file "multi-tm-def")
                                (:file "multi-tm-mk")
-#|
                                (:file "multi-tm-primitives")
+                               (:file "multi-tm-derived")
 
-                               (:file "entanglement")
-
-                               (:file "print-machine")
-                               (:file "tm-primitives")
-                               (:file "entanglement")
-                               (:file "entanglement-scope")
-
-                               (:file "nd-tm-subspace") ; issues with 'manifold'
-
-                               (:file "tm-derived-1")
-                               (:file "entanglement-1")
-                               (:file "tm-quantifiers-1")
-                               (:file "tm-derived-2")
-                               (:file "length")
-
-                               (:file "tm-subspace")
-                               (:file "location")
-
-                               (:file "convert")
+                               (:file "list-multi-tm-def")
 
 
-                             ;; projective void
-                               (:file "tm-void")
-                               |#
+;;  (:file "threaded-tm-def")
+;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
+;;                               (:file "tm-subspace")
+;;                               (:file "convert")
+
                                ))
 
                (:module "test-list"

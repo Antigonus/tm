@@ -33,3 +33,4 @@ as only parent stuff belongs in the parent.  If I put the declaration in one of 
 children, but not the other, then it appars to be missing in the other file.  I have
 to go hunting for it ...   this is related to the aliasing problem - if it were not for
 aliasing I could just declare it in both children.
+

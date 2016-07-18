@@ -16,18 +16,17 @@ See LICENSE.txt
     &optional 
     cont-ok 
     cont-fail
-    &rest
-    ⋯
+    &rest ⋯
     )
-  (destructuring-bind ⋯
+  (destructuring-bind
     (
+      &optional
       (cont-no-alloc-entanglements (λ()(error 'alloc-fail)))
       )
-
+    ⋯
     (setf (entanglements instance) (mk 'list-solo-tm))
-
-    ;; adds self to the entanglements list
-    (a (entanglements instance) instance #'do-nothing cont-no-alloc-entanglements) 
-    (call-next-method)
-    ))
+    (entangle instance
+      (λ()(call-next-method instance int-list cont-ok cont-fail))
+      cont-no-alloc-entanglements
+      )))
 

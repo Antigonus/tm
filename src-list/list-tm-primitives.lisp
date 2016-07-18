@@ -16,11 +16,45 @@ See LICENSE.txt
     (car (HA tm))
     )
 
+  (defmethod esr
+    (
+      (tm list-tm)
+      &optional 
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'step-from-rightmost)))
+      &rest ⋯
+      )
+    (declare (ignore ⋯))
+    (if
+      (cdr (HA tm))
+      (funcall cont-ok (cadr (HA tm)))
+      (funcall cont-rightmost)
+      ))
+
   (defmethod w ((tm list-tm) object &rest ⋯)
     (declare (ignore ⋯))
     (setf (car (HA tm)) object)
     t
     )
+
+  (defmethod esw
+    (
+      (tm list-tm)
+      object
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      &rest ⋯
+      )
+    (declare (ignore ⋯))
+    (if
+      (cdr (HA tm))
+      (progn
+        (setf (cadr (HA tm)) object)
+        (funcall cont-ok)
+        )
+      (funcall cont-rightmost)
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement

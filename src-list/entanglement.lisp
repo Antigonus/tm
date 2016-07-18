@@ -9,35 +9,57 @@ We know that entanglements is a solo-tm
 
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
-;; are two machines entangled?
+;; adding and removing from the list
 ;;
-  ;; entanglement is mutual
-` (defun are-entangled (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
-    (∃ (entanglements tm1) (λ(es)(eq (r es) tm0)))
-    )
+  (defun entangle (tm &optional (cont-ok (be t)) (cont-no-alloc (λ()(error 'alloc-fail))))
+    "Adds tm into its own entanglement list. This is typically done as part
+     of making tm
+    "
+    (declare (ignore cont-no-alloc))
+    (let(
+          (es (entanglements tm)) ; we know that es is a solo list
+          )
+      (adjoin tm (tape es))
+      (setf (HA es) (tape es))
+      (funcall cont-ok)
+      ))
+
+  (defun disentangle (tm)
+    "Removes tm from its entanglement list.  This is typically done before 
+    tm is abandoned.
+    "
+    (let(
+          (es (entanglements tm))
+          )
+      (cue-leftmost es)
+      (if (eq (r◧ es) tm)
+        (s es
+          (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
+          (setf (entanglements tm) ∅)
+          )
+        (∃ es
+          (λ(es)
+            (esr es
+              (λ(object)
+                (if (eq object tm)
+                  (d es ∅ #'echo #'cant-happen)
+                  ∅
+                  ))
+              (be ∅)
+              ))))))
+
 
 ;;--------------------------------------------------------------------------------
 ;; detecting a collision
 ;;
-  (defun collision (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
+  (defun collide (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
     "tm0 and tm1 are distinct machines, and have their heads on the same cell."
     (if
-      (∧
-        (¬ (eq tm0 tm1))
-        (heads-on-same-cell tm0 tm1)
-        )
-      (funcall cont-true)
+      (eq tm0 tm1)
       (funcall cont-false)
-      ))
-
-  (defun ∃-collision-0 (tm es &optional (cont-true (be t)) (cont-false (be ∅)))
-    "tm collides with one of the machines listed on es."
-    (unless es (return-from ∃-collision-0 (funcall cont-false)))
-    (cue-leftmost es)
-    (∃ es (λ(e)(collision tm (r e)))
-      cont-true
-      cont-false
+      (heads-on-same-cell tm0 tm1 cont-true cont-false)
       ))
 
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
@@ -45,40 +67,49 @@ We know that entanglements is a solo-tm
     (let(
           (es (entanglements tm))
           )
-      (∃-collision-0 tm es cont-true cont-false)
-      ))
-
-  (defun ∃-collision-right (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-    "an entangled machine has its head on a cell to the right of the cell tm's head is on
-    "
-    (let(
-          (es (entanglements tm))
-          (tm0 (fork-0 tm))
-          )
-      (unless es (return-from ∃-collision-right (funcall cont-false)))
-      (∃-collision-0 tm es
-        cont-true
-        (λ()
-          (s tm0  ; after step tm0 will not collide with tm
-            (λ()
-              (⟳-loop
-                (λ(cont-loop)
-                  (∃-collision-0 tm0 es
-                    cont-true
-                    (λ()(s tm0 cont-loop cont-false))
-                    ))))
+      (if es
+        (progn
+          (cue-leftmost es)
+          (∃ es (λ(es)(∧ (not (eq (r es) tm)) (heads-on-same-cell (r es) tm)))
+            cont-true
             cont-false
-            )))))
-
-  (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-    "an entangled machine is on leftmost."
-    (let(
-          (es (entanglements tm))
-          )
-      (unless es (return-from ∃-collision◧ (funcall cont-false)))
-      (cue-leftmost es)
-      (∃ es (λ(e)(on-leftmost (r e)))
-        cont-true
-        cont-false
+            ))
+        (funcall cont-false)
         )))
 
+  (defun ∃-collision-right-neighbor (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    "There exists in the entanglement list, a machine that has its head on
+     tm's right neighbor.
+    "
+      (with-mk-entangled tm
+        (λ(tms1)
+          (s tms1
+            (λ()(∃-collision tms1 cont-true cont-false))
+            cont-false
+            ))))
+              
+  (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    "There exists in the entanglement list, a machine that has its head on leftmost."
+    (let(
+          (es (entanglements tm))
+          )
+      (if es
+        (progn
+          (cue-leftmost es)
+          (∃ es (λ(es)(on-leftmost (r es)))
+            cont-true
+            cont-false
+            ))
+        (funcall cont-false)
+        )))
+
+;;--------------------------------------------------------------------------------
+;; updating the tape
+;;
+    (defun ∀-entanglements-update-tape (tm)
+      (cue-leftmost (entanglements tm))
+      (∀ (entanglements tm)
+        (λ(es)
+          (setf (tape (r es)) (tape tm))
+          t
+          )))

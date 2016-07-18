@@ -56,7 +56,10 @@ parameters.
 ;; accessing data
 ;;
   (defgeneric r (tm &rest ⋯))
+  (defgeneric esr (tm &optional cont-ok cont-rightmost &rest ⋯))
+
   (defgeneric w (tm object &rest ⋯))
+  (defgeneric esw (tm object &optional cont-ok cont-rightmost &rest ⋯))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement

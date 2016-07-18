@@ -19,8 +19,7 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-fail (λ()(error 'bad-init-value)))
-      &rest
-      ⋯
+      &rest ⋯
       )
     (declare (ignore ⋯))
     (destructuring-bind

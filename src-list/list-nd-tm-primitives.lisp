@@ -13,40 +13,26 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defmethod mk-entangled
-    (
-      (tm-orig list-nd-tm)
-      )
-    (let(
-          (tm1 (make-instance 'list-nd-tm))
-          )
-      (setf (HA tm1) (HA tm-orig))
-      (setf (tape tm1) (tape tm-orig))
-      tm1
-      ))
-
-  (defmethod recycle-entangled
-    (
-      (tm-orig list-nd-tm)
-      tm-to-be-recycled 
-      )
-    (change-class tm-to-be-recycled (type-of tm-orig))
-    (setf (HA tm-to-be-recycled) (HA tm-orig))
-    (setf (tape tm-to-be-recycled) (tape tm-orig))
-    tm-to-be-recycled
+  (defmethod init-entangled ((tm1 list-nd-tm) tm-orig)
+    (setf (HA tm1) (HA tm-orig))
+    (setf (tape tm1) (tape tm-orig))
     )
-
 
 ;;--------------------------------------------------------------------------------
 ;; head location
 ;;
+;;
+
+  ;; Though entangled copy function is not directly called in heads-on-same-cell, a copy
+  ;; is implied because the function accepts two state machines that share a tape, tm0 and
+  ;; tm1.
   (defmethod heads-on-same-cell
     (
       (tm0 list-nd-tm)
       (tm1 list-nd-tm)
       &optional
-      cont-true
-      cont-false
+      (cont-true (be t))
+      (cont-false (be ∅))
       &rest ⋯
       )
     (declare (ignore ⋯)) 
@@ -60,8 +46,8 @@ See LICENSE.txt
       (tm0 list-nd-tm)
       tm1
       &optional
-      cont-true
-      cont-false
+      (cont-true (be t))
+      (cont-false (be ∅))
       &rest ⋯
       )
     (declare (ignore cont-true ⋯)) 
@@ -73,8 +59,8 @@ See LICENSE.txt
       tm0
       (tm1 list-nd-tm)
       &optional
-      cont-true
-      cont-false
+      (cont-true (be t))
+      (cont-false (be ∅))
       &rest ⋯
       )
     (declare (ignore cont-true ⋯)) 
