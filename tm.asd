@@ -82,10 +82,10 @@ See LICENSE.txt
 
                                ;; includes destructive functions, and entangled copy functions
                                (:file "entanglement")
-                               (:file "multi-tm-def")
-                               (:file "multi-tm-mk")
-                               (:file "multi-tm-primitives")
-                               (:file "multi-tm-derived")
+                               (:file "ea-tm-def")
+                               (:file "ea-tm-mk")
+                               (:file "ea-tm-primitives")
+                               (:file "ea-tm-derived")
 
                                (:file "list-multi-tm-def")
 

@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Make multi-tape-machine lists.
+  Make ea-tape-machine lists.
 
 |#
 
@@ -13,6 +13,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass list-multi-tm (multi-tape-machine list-solo-tm list-nd-tm)())
+  (defclass list-ea-tm (ea-tape-machine list-solo-tm list-nd-tm)())
 
     

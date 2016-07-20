@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defmethod init
   (
-    (instance multi-tape-machine)
+    (instance ea-tape-machine)
     init-list
     &optional 
     cont-ok 

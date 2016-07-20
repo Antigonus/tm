@@ -14,7 +14,7 @@ See LICENSE.txt
   ;; more specialized than one found in nd-tm-derived.lisp
   (defmethod with-mk-entangled
     (
-      (tm multi-tape-machine)
+      (tm ea-tape-machine)
       continuation
       )
     (let(
@@ -26,7 +26,7 @@ See LICENSE.txt
         )))
 
   ;; more specialized than one found in nd-tm-primitives.lisp
-  (defmethod init-entangled ((tm1 multi-tape-machine) tm-orig)
+  (defmethod init-entangled ((tm1 ea-tape-machine) tm-orig)
     (setf (entanglements tm1) (entanglements tm-orig))
     (entangle tm1)
     (call-next-method tm1 tm-orig)
@@ -39,7 +39,7 @@ See LICENSE.txt
   ;; add a new leftmost
   (defmethod a◧
     (
-      (tm multi-tape-machine)
+      (tm ea-tape-machine)
       object
       &optional
       (cont-ok  (be t))
@@ -53,7 +53,7 @@ See LICENSE.txt
 ;; cell deallocation
 ;;
   (defmethod d (
-                  (tm multi-tape-machine)
+                  (tm ea-tape-machine)
                   &optional 
                   spill 
                   (cont-ok #'echo)
@@ -73,7 +73,7 @@ See LICENSE.txt
         )))
       
   (defmethod d◧ (
-                   (tm multi-tape-machine)
+                   (tm ea-tape-machine)
                    &optional 
                    spill 
                    (cont-ok #'echo)

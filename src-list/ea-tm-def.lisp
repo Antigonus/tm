@@ -7,7 +7,7 @@ See LICENSE.txt
   yes copy operations.
 
   Introduces 'entanglement accounting' to facilitate both destructive operations and
-  multiple machine son the same tape. Entanglement accounting includes both collision
+  multiple machines on the same tape. Entanglement accounting includes both collision
   detection between entangled machines, and tape reference updates.
 
   The generic interface is extended by the introduction of functions that both perform
@@ -26,7 +26,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass multi-tape-machine (nd-tape-machine solo-tape-machine)
+  (defclass ea-tape-machine (nd-tape-machine solo-tape-machine)
     (
       (entanglements ; list of tape-machines that share the tape
         :initarg entanglements
