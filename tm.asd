@@ -58,7 +58,7 @@ See LICENSE.txt
                                (:file "list-tm-primitives")
                                (:file "list-tm-derived")
 
-                               ;; no destructive functions, but allows entangle copy functions
+                               ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-def")
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
@@ -70,7 +70,7 @@ See LICENSE.txt
                                (:file "list-nd-tm-def")
                                (:file "list-nd-tm-primitives")
 
-                               ;; includes destructive functions, but no entangle copy functions
+                               ;; includes destructive functions, but no entangled copy functions
                                (:file "solo-tm-def")
                                (:file "solo-tm-primitives")
                                (:file "solo-tm-quantified")
@@ -80,7 +80,7 @@ See LICENSE.txt
                                (:file "list-solo-tm-primitives")
 
 
-                               ;; includes destructive functions, and entangle copy functions
+                               ;; includes destructive functions, and entangled copy functions
                                (:file "entanglement")
                                (:file "multi-tm-def")
                                (:file "multi-tm-mk")

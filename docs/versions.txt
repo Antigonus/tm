@@ -1,31 +1,53 @@
+--------------------------------------------------------------------------------
 v0.1
-Initial release.
 
-No boundary arithmetic.
-No entanglement accounting.
+  Initial release.
 
-v0.5
+  No boundary calculus
+  No entanglement accounting.
 
-Two or more machines that share the same tape are said to be 'entangled'.  This version
-implements listener lists so that entangled machines can know about each other. If
-two or more entangled machines have their heads on the same cell, they are said to
-have 'collided'.  Unlike for a real tape machine, a collision is not necessarily a
-bad thing.
 
-We check the entanglements before deallocating a cell.  If there is a collision then
-we take a cont-collision from the dealloc routine.  Hence, we can now complete our
-proof that tape machines maintain integrity through operations on the interface.
+--------------------------------------------------------------------------------
+v0.7
 
-With this version a machine may start out as void, and then transition to another machine
-type when the first cell is allocated, and transition back to void when the last cell is
-deallocated.
+  1. copies, entangled machines, and destructive operations
 
-I think it is instructive to examine the complexity of deallocating a cell.  Deallocation
-requires a listener list, it might cause the container to become void, and it has more
-continuation options than any other function.  The code added between v0.1 to v0.5 is just
-to support safe deallocation.  This is the complexity that is avoided when using a
-non-destructive programming style.
+    We say that two machines are 'entangled' when they share a tape.  When two machines
+    share a tape there can be hazards, for exmample, should one machine delete the cell that
+    the head of another machine is on, it breaks the other machine.  Hence, in version 0.1
+    we did not support entangled machines.  In version v0.7 we support them, both within a
+    single thread, and between threads.
 
-Also notice another problem with deallocating a cell.  The deallocation function takes a
-region address, but reading the cell requires a cell address.  Hence, reading and reacting
-by deleting the cell requires having two references.
+    v0.7 introduces a more sophisticated tape machine model, one where there is a hierarchy
+    of machines.
+
+    The parent of the hiearchy is the tape machine.  It supports a shallow copy, where a new
+    tape machine is made with a new tape, but does not have an entangled copy, where a copy
+    would share the same tape with the original.  It also does not have destructive
+    operations.
+
+    Inherited from the tape machine, the 'solo tape machine' also does not support entangled
+    copy, but it does support destructive operations. Destructive operations are safe
+    because there can only be one head on a given tape.
+
+    Also inherited from the tape machine is the 'nd tape machine', which supports only
+    non-destructive operations.  Because this machine only performs non-destrucive
+    operations, entangled copy operations are safe, and thus included.
+
+    tape-machine, solo-tape-machine, and nd-tape-machine have no added overhead.  The 'solo
+    head' or 'non-destrucive operations only' disciplines are sufficient for making the new
+    operations copy operations or destructive operations safe, respectively.  Though it is
+    an either-or situation, either allow destructive operations, or have entangled copy, but
+    not both.
+
+    The multi-tape-machine is derived in diamond inheritance from solo-tape-machine and
+    nd-tape-machine. The multi-tape machine supports both entangled copy operations leading
+    to mulitple heads on one tape and destructive operations.  This comes at the expense of
+    a new slot in the machine referring to a shared listener list, and the extra operations to
+    perform 'entanglement accounting' so as to avoid hazards.
+
+    The threaded-tape machine takes multi-tape one step further and allows that tape
+    machines may be shared both within a thread (as per multi-tape-machine), and between
+    threads.
+
+  2. boundary calculus
