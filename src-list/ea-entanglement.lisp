@@ -9,6 +9,19 @@ We know that entanglements is a solo-tm
 
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; resource contexts
+;;
+  (defgeneric use-entanglements (tm continuation))
+
+  ;; this gets more interesting when threads are introduced
+  (defmethod use-entanglements
+    (
+      (tm ea-tape-machine)
+      continuation
+      )
+    (funcall continuation (entanglements tm))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; adding and removing from the list
@@ -18,37 +31,35 @@ We know that entanglements is a solo-tm
      of making tm
     "
     (declare (ignore cont-no-alloc))
-    (let(
-          (es (entanglements tm)) ; we know that es is a solo list
-          )
-      (adjoin tm (tape es))
-      (setf (HA es) (tape es))
-      (funcall cont-ok)
-      ))
+    (use-entanglements tm
+      (λ(es)
+        (adjoin tm (tape es))
+        (setf (HA es) (tape es))
+        (funcall cont-ok)
+        )))
 
   (defun disentangle (tm)
     "Removes tm from its entanglement list.  This is typically done before 
     tm is abandoned.
     "
-    (let(
-          (es (entanglements tm))
-          )
-      (cue-leftmost es)
-      (if (eq (r◧ es) tm)
-        (s es
-          (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
-          (setf (entanglements tm) ∅)
-          )
-        (∃ es
-          (λ(es)
-            (esr es
-              (λ(object)
-                (if (eq object tm)
-                  (d es ∅ #'echo #'cant-happen)
-                  ∅
-                  ))
-              (be ∅)
-              ))))))
+    (use-entanglements tm
+      (λ(es)
+        (cue-leftmost es)
+        (if (eq (r◧ es) tm)
+          (s es
+            (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
+            (setf (entanglements tm) ∅)
+            )
+          (∃ es
+            (λ(es)
+              (esr es
+                (λ(object)
+                  (if (eq object tm)
+                    (d es ∅ #'echo #'cant-happen)
+                    ∅
+                    ))
+                (be ∅)
+                )))))))
 
 
 ;;--------------------------------------------------------------------------------
@@ -64,18 +75,17 @@ We know that entanglements is a solo-tm
 
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "tm collides with an entangled machine."
-    (let(
-          (es (entanglements tm))
-          )
-      (if es
-        (progn
-          (cue-leftmost es)
-          (∃ es (λ(es)(∧ (not (eq (r es) tm)) (heads-on-same-cell (r es) tm)))
-            cont-true
-            cont-false
-            ))
-        (funcall cont-false)
-        )))
+    (use-entanglements tm
+      (λ(es)
+        (if es
+          (progn
+            (cue-leftmost es)
+            (∃ es (λ(es)(∧ (not (eq (r es) tm)) (heads-on-same-cell (r es) tm)))
+              cont-true
+              cont-false
+              ))
+          (funcall cont-false)
+          ))))
 
   (defun ∃-collision-right-neighbor (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "There exists in the entanglement list, a machine that has its head on
@@ -90,26 +100,24 @@ We know that entanglements is a solo-tm
               
   (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "There exists in the entanglement list, a machine that has its head on leftmost."
-    (let(
-          (es (entanglements tm))
-          )
-      (if es
-        (progn
-          (cue-leftmost es)
-          (∃ es (λ(es)(on-leftmost (r es)))
-            cont-true
-            cont-false
-            ))
-        (funcall cont-false)
-        )))
+    (use-entanglements tm
+      (λ(es)
+        (if es
+          (progn
+            (cue-leftmost es)
+            (∃ es (λ(es)(on-leftmost (r es)))
+              cont-true
+              cont-false
+              ))
+          (funcall cont-false)
+          ))))
 
 ;;--------------------------------------------------------------------------------
 ;; updating the tape
 ;;
     (defun ∀-entanglements-update-tape (tm)
-      (cue-leftmost (entanglements tm))
-      (∀ (entanglements tm)
+      (use-entanglements tm
         (λ(es)
-          (setf (tape (r es)) (tape tm))
-          t
+          (cue-leftmost es)
+          (∀ es (λ(es)(setf (tape (r es)) (tape tm)) t))
           )))

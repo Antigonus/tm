@@ -1,4 +1,4 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 v0.1
 
   Initial release.
@@ -32,22 +32,23 @@ v0.7
 
     Also inherited from the tape machine is the 'nd tape machine', which supports only
     non-destructive operations.  Because this machine only performs non-destrucive
-    operations, entangled copy operations are safe, and thus included.
+    operations, entangled copy operations are safe, and thus are included.
 
-    tape-machine, solo-tape-machine, and nd-tape-machine have no added overhead.  The 'solo
-    head' or 'non-destrucive operations only' disciplines are sufficient for making the new
-    operations copy operations or destructive operations safe, respectively.  Though it is
-    an either-or situation, either allow destructive operations, or have entangled copy, but
+    tape-machine, solo-tape-machine, and nd-tape-machine have no added overhead.  The
+    'solo head' or 'non-destrucive operations only' disciplines are sufficient for making
+    the new copy operations or destructive operations safe, respectively.  Though it is an
+    either-or situation, either allow destructive operations, or have entangled copy, but
     not both.
 
-    The multi-tape-machine is derived in diamond inheritance from solo-tape-machine and
-    nd-tape-machine. The multi-tape machine supports both entangled copy operations leading
-    to mulitple heads on one tape and destructive operations.  This comes at the expense of
-    a new slot in the machine referring to a shared listener list, and the extra operations to
-    perform 'entanglement accounting' so as to avoid hazards.
+    The ea-tape-machine is derived in diamond inheritance from solo-tape-machine and
+    nd-tape-machine. 'ea' stands for entanglement accounting.  The ea-tape-machine
+    supports both entangled copy operations leading to mulitple heads on one tape and
+    destructive operations.  This comes at the expense of a new slot in the machine
+    referring to a shared listener list, and the extra operations to perform 'entanglement
+    accounting' so as to avoid hazards.
 
-    The threaded-tape machine takes multi-tape one step further and allows that tape
-    machines may be shared both within a thread (as per multi-tape-machine), and between
-    threads.
+    The ts-tape-machine is a furhter specialization that supports tape sharing both within
+    a thread (as per ea-tape-machine), and between threads. 'ts' stands for thread
+    support.  This comes with the additional overhead of maintaining locks.
 
   2. boundary calculus

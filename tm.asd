@@ -81,16 +81,16 @@ See LICENSE.txt
 
 
                                ;; includes destructive functions, and entangled copy functions
-                               (:file "entanglement")
+                               (:file "ea-entanglement")
                                (:file "ea-tm-def")
                                (:file "ea-tm-mk")
                                (:file "ea-tm-primitives")
                                (:file "ea-tm-derived")
 
-                               (:file "list-multi-tm-def")
+                               (:file "list-ea-tm-def")
 
 
-;;  (:file "threaded-tm-def")
+;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")

@@ -38,13 +38,13 @@ Interface
    4. solo-tm of references to the entangled machines
 
    Has these methods:
-   1. with-entanglement
-   2. with-head-motion
+   1. use-entanglement
+   2. use-head-motion
 
-  with-entanglements accepts a work function.  It runs the function.  The function may use
+  use-entanglements accepts a work function.  It runs the function.  The function may use
   the entanglements list in a coherent manner.
 
-  with-head-motion accepts work function. It runs the function.  The function may move the
+  use-head-motion accepts work function. It runs the function.  The function may move the
   tape head without causing entanglement accounting to become incoherent.
 
 --------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Implementation
 
   Note that locks are released during condition-wait.
 
-  with-entanglements:
+  use-entanglements:
 
     acquire entanglement-lock
       acquire counter-lock
@@ -61,7 +61,7 @@ Implementation
       release counter-lock
     release entanglement-lock
 
-  with-head-motion:
+  use-head-motion:
 
     acquire entanglement-lock
       acquire counter-lock
@@ -92,7 +92,7 @@ Notes:
   Also entanglement use functions are unnecessarily serialized when no destructive
   operations are involved.
 
-  the with-head-motion blocks on the entanglement-lock to assure that entanglement
+  the use-head-motion blocks on the entanglement-lock to assure that entanglement
   object operations will be coherent.  
   
 
