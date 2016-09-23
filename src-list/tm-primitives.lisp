@@ -11,8 +11,15 @@ the parent.  Hence we include a &rest parameter that children may take advantage
 adding more continuations.  These should be called out in a destructuring bind immediately
 after the call.
 
-Note that '⋯' is a single character that we use as a variable name for holding the rest
-parameters.
+Note that '⋯' is a single unicode character which I employ as the name of the variable
+that holds the rest list.
+
+note esr stands for: entangled copy the iterator passed in, step the new iterator, and
+read from it.  In otherwords, read the object in the right neighbor cell. It was necessary
+to make esr and esw primitive operations because, by definition, a region exists to the
+right of the cell the head is on, and regions are native objects.  Note, that no entangled
+copy operation is defined for the tm-primitive type, the 'e' is just part of the name of these
+functions.
 
 |#
 
@@ -99,3 +106,30 @@ parameters.
      be initialized with the given object.
      "))
       
+;;--------------------------------------------------------------------------------
+;; location
+;;  
+  (defgeneric on-leftmost 
+    (
+      tm
+      &optional
+      cont-true
+      cont-false
+      )
+    (:documentation
+      "tm head is on leftmost.
+      "))
+
+  (defgeneric on-rightmost
+    (
+      tm
+      &optional
+      cont-true
+      cont-false
+      )
+    (:documentation
+      "tm head is on the rightmost cell.
+      "
+      ))
+
+

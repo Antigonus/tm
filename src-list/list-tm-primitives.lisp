@@ -102,3 +102,32 @@ See LICENSE.txt
       (rplacd (HA tm) (cons object next-cell))
       (funcall cont-ok)
       ))
+
+;;--------------------------------------------------------------------------------
+;; location
+;;  
+  (defmethod on-leftmost 
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (if
+      (eq (HA tm) (tape tm))
+      (funcall cont-true)
+      (funcall cont-false)
+      ))
+
+  (defmethod on-rightmost
+    (
+      tm
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      )
+    (if
+      (¬ (cdr (HA tm)))
+      (funcall cont-true)
+      (funcall cont-false)
+      ))

@@ -34,3 +34,7 @@ children, but not the other, then it appars to be missing in the other file.  I 
 to go hunting for it ...   this is related to the aliasing problem - if it were not for
 aliasing I could just declare it in both children.
 
+7. Want to test the generic interface implementation though we have a more specific
+list implemenation.  Currently we have no other implementations, and we need at least
+one real implementation for a test to run.  There appears no way short of tearing into
+CLOS to tell it to use the generic interface version.

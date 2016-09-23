@@ -147,62 +147,9 @@ performance.
       (λ()(s tm0 cont-ok cont-rightmost))
       ))
 
-;;--------------------------------------------------------------------------------
-;; location
-;;  
-  (defgeneric on-leftmost 
-    (
-      tm
-      &optional
-      cont-true
-      cont-false
-      )
-    (:documentation
-      "tm head is on leftmost.
-      "))
-
-  (defmethod on-leftmost 
-    (
-      tm
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    (with-mk-entangled tm
-      (λ(tm1)
-        (cue-leftmost tm1)
-        (heads-on-same-cell tm1 tm cont-true cont-false)
-        )))
-
-  (defgeneric on-rightmost
-    (
-      tm
-      &optional
-      cont-true
-      cont-false
-      )
-    (:documentation
-      "tm head is on the rightmost cell.
-      "
-      ))
-
-  (defmethod on-rightmost
-    (
-      tm
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    (with-mk-entangled tm
-      (λ(tm1)
-        (s tm1 cont-false cont-true)
-        )))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
-;;
-;; Allocated cells must be initialized.  The initialization value is provided
-;; directly or through a fill machine.
 ;;
   (defgeneric a◨
     (

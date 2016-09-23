@@ -1,0 +1,58 @@
+
+
+generic                    tape-machine(tm-def)
+|                             /           \
+.       nd-tape-machine(nd-tm-def)       solo-tape-machine(solo-tm-def)
+.                              \          /
+                           ea-tape-machine(ea-tm-def)
+
+
+
+                    [tape-machine]
+                                \
+list                           list-tm(list-tm-def)
+|                              /                   \
+.                             /                     \
+     [nd-tape-machine]       /  [solo-tape-machine]  \
+                  \         /               \         \
+           list-nd-tm(list-nd-tm-def)   list-solo-tm(list-solo-tm-def)
+                            \                        /
+                             \                      /
+         [ea-tape-machine]    \                    /   
+                         \     \                  /    
+                          list-ea-tm(list-ea-tm-def)
+
+-------
+tape-machine has two slots, HA and tape
+ea-tape-machine adds the slot 'entanglements'
+
+no other types add slots.
+
+-------
+The types tape-machine, nd-tape-machine, solo-type-machine, and ea-tape-machine
+are defined independent of container implementation (aka are generic)
+
+The types list-tm, list-nd-tm, list-solo-tm, and list-ea-tm are defined over
+lists.
+
+The hierarchy for the list implementation is analogous to the generic one.  The
+difference being that dispatch checks for a generic implemenation of a function
+with the correct type signature before generalizing.
+
+As an example, consider dispatch of a function called with a list-ea-tm object.
+If there is a signature match on list-ea-tm, then that function is called. Then if
+there is a match on the generic ea-tape-machine, that function is called.  Then if
+there is a match on list-nd-tm, then on list-solo-tm, those will be called.  But what
+next? The inheritance hierarchy runs deeper. Should write a test for this ..
+
+Note that the generic ea-tape-machine employs the list-solo-tm.  The entanglements
+list had to be incarnate.  Hence the generic interface and the list implemenation
+are not independent which is why they are in the same directory.
+
+------
+
+In this latest turn I have made statefulness a transform.  Most all users will
+want stateful containers.
+
+
+

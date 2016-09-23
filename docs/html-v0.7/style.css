@@ -1,0 +1,191 @@
+﻿
+/* general ----------------------------------------*/
+
+  html, input, textarea, select, button{
+      color:#000000;
+      margin:0;	
+  }
+
+
+  .clear{
+          clear:both;
+  }
+
+  img{
+          border:0;
+  }
+
+
+/* anchors ----------------------------------------*/
+
+  a{
+      text-decoration:none;
+  }
+
+  a:visited{
+      color:#004276;
+      text-decoration:none;
+  }
+
+  a:hover{
+      color:#67C8FF;
+  }
+
+
+/* Title  ----------------------------------------*/
+
+  div.title-page{
+      position:relative;
+      margin:20pt;
+      padding:20pt;
+      max-width: 340pt;
+      background-color:#f5f5dc;
+
+      font-family: "Comic Sans MS", Helvetica, cursive, sans-serif;
+      font-style: normal;
+      font-variant: normal;
+  }
+
+  div.title{
+      font-size:18pt;
+  }
+
+  div.author{
+      font-size:14pt;
+  }
+
+  div.license{
+      margin-left:20pt;
+      margin-right:20pt;
+      font-size:10pt;
+  }
+
+
+
+
+/* Table of Contents ----------------------------------------*/
+
+  div.toc{
+      position:relative;
+      margin:20pt;
+      padding:20pt;
+      max-width: 340pt;
+      background-color:#f5f5dc;
+  }
+
+
+/* article structure ----------------------------------------*/
+
+  div.page{
+      display: flex;
+      padding: 0;
+      margin: 0;
+  }
+
+
+  article{
+      position:relative;
+      margin:20pt;
+      padding:20pt;
+      max-width: 340pt;
+/*      min-height: 500pt; */
+      background-color:#f5f5dc;
+
+      font-family: "Comic Sans MS", Helvetica, cursive, sans-serif;
+      font-style: normal;
+      font-variant: normal;
+      font-size:11pt;
+  }
+
+  pre{
+      font-size: 8pt;
+  }
+  code{
+      font-size: 8pt;
+  }
+
+  p{
+      font-size: 10pt;
+      text-align:justify;
+  }
+
+
+  h1{
+      font-size: 14pt;
+      color:darkred;
+  }
+  h2{
+      font-size: 12pt;
+      color:darkred;
+  }
+                 
+
+  body{
+      background-color:#0f0f2f;
+  }
+
+
+/* header  ----------------------------------------*/
+
+  div.center {
+    max-width:420pt;
+    text-align: center;
+    }
+
+  header {
+      padding:5pt
+      background-color: #3f3f7f;
+  }
+
+  ul.nav {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+  }
+
+  li.nav {
+      float: left;
+  }
+
+  li.nav a {
+      display: block;
+      color: #f5f5dc;
+      text-align: center;
+      padding: 7px 8px;
+      text-decoration: none;
+  }
+
+  li.nav a:hover {
+      background-color: #3f3f7f
+  }
+
+  ul.pagination {
+      display: inline-block;
+      padding: 0;
+      margin: 0;
+  }
+
+  ul.pagination li {
+      display: inline;
+  }
+
+  ul.pagination li a {
+      float: left;
+      padding: 2px 5px;
+      color: #f5f5dc;
+      text-decoration: none;
+      transition: background-color .3s;
+      border: 1px solid #d0d0d0;
+  }
+
+  ul.pagination li a.active {
+      background-color: #4CAF50;
+      color: white;
+      border: 1px solid #4CAF50;
+  }
+
+  ul.pagination li a:hover:not(.active) {background-color: #d0d0d0;}
+
+
+

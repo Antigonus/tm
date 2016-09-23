@@ -34,3 +34,13 @@ See LICENSE.txt
           (funcall cont-fail)
           ))))
     
+  (defmethod mount
+    (
+      (sequence cons)
+      &optional 
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
+      )
+    (mk 'list-tm :mount sequence cont-ok cont-fail)
+    )
+

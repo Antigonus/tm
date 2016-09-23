@@ -25,8 +25,8 @@ See LICENSE.txt
       &rest ⋯
       )
     (:documentation
-      "Reads fill, and rights tm, steps, and repeats, until fill hits rightmost,
-       then follows cont-ok.  Should tm hit rightmost first, then cont-rightmost-tm.
+      "Reads fill, and writes tm, steps both, and repeats until fill passes rightmost;
+       it then follows cont-ok.  Should tm hit rightmost first, then cont-rightmost-tm.
        "
       ))
 
@@ -44,7 +44,7 @@ See LICENSE.txt
     (⟳-loop(λ(cont-loop)
              (s fill
                (λ()(s tm
-                     (λ()(w tm cont-loop #'cant-happen))
+                     (λ()(w tm (r fill))(funcall cont-loop))
                      cont-rightmost-tm
                      ))
                cont-ok
@@ -66,19 +66,14 @@ See LICENSE.txt
 
   (defmethod -s*((tm tape-machine))(cue-leftmost tm))
 
+  ;; note the fill data will be reversed at the tm insert point
+  ;; use as* to fill without reversal
   (defgeneric a* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'a repeatedly with successive objects from tm-fill. 
        tm will not be stepped.  tm-fill will be stepped.
        The sequence order as it is found on tm-fill will be reversed on tm.
        "      
-      ))
-
-  (defgeneric as* (tm fill &optional cont-ok cont-no-alloc)
-    (:documentation 
-      "Calls #'as repeatedly with successive objects from tm-fill.
-       Both tm and tm-fill will be stepped.
-       "
       ))
 
   ;; cont-no-alloc is not transactional here ... need to fix the other a* versions too
@@ -98,6 +93,13 @@ See LICENSE.txt
           (λ()(s fill cont-loop cont-ok))
           cont-no-alloc
           ))))
+
+  (defgeneric as* (tm fill &optional cont-ok cont-no-alloc)
+    (:documentation 
+      "Calls #'as repeatedly with successive objects from tm-fill.
+       Both tm and tm-fill will be stepped.
+       "
+      ))
 
 
   (defun as*-1
@@ -148,20 +150,25 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (λ(n)(declare (ignore n)) ∅))
       )
-    (loop repeat n do
-      (s tm
-        #'do-nothing
-        (λ()(funcall cont-rightmost n))
-        ))
-    (funcall cont-ok)
-    )
+    (⟳-loop(λ(cont-loop)
+             (if
+               (> n 0)
+               (s tm
+                 (λ()(decf n)(funcall cont-loop))
+                 (λ()(funcall cont-rightmost n))
+                 )
+               (funcall cont-ok) 
+               ))))
 
-  (defgeneric asn (tm n &optional fill cont-ok cont-rightmost cont-no-alloc)
+
+  (defgeneric asn (tm n &optional fill cont-ok cont-rightmost-fill cont-no-alloc)
     (:documentation 
       "Similar to calling #'as n times. fill provides initialization
        data. tm and fill are both stepped n times."
       ))
 
+  ;; interesting that the fill iterator is one ahead, pointing at the next
+  ;; thing to be written.  Thus this routine does not maintain inclusive bounds.
   (defmethod asn
     (
       (tm tape-machine)
@@ -169,23 +176,22 @@ See LICENSE.txt
       &optional 
       fill
       (cont-ok (be t))
-      (cont-rightmost (be ∅))
+      (cont-rightmost-fill (λ(cnt)(declare (ignore cnt))∅))
       (cont-no-alloc (λ(tm n)(declare (ignore tm n))(error 'alloc-fail)))
       )
-    (loop repeat n do
-      (r fill
-        (λ(object)
-          (as tm object 
-            (λ()(s fill
-                  #'do-nothing
-                  (λ()(return-from asn (funcall cont-rightmost tm n)))
-                  ))
-            (λ()(return-from asn (funcall cont-no-alloc tm n)))
-            ))
-        (λ()(return-from asn (funcall cont-rightmost tm n)))
-        ))
-    (funcall cont-ok)
-    )
+    (⟳-loop(λ(cont-loop)
+             (if
+               (> n 0)
+               (as tm (r fill)
+                 (λ()
+                   (s fill 
+                     (λ()(decf n) (funcall cont-loop)) 
+                     (λ()(funcall cont-rightmost-fill n))
+                     ))
+                 cont-no-alloc
+                 )
+               (funcall cont-ok)
+               ))))
 
 
 

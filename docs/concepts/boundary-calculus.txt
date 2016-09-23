@@ -5,7 +5,7 @@ expect these changes to be reflected in all references to the machine.  Now if w
 that a tape machine be made with at least one element, then tape machines that capture
 results can not be created until at least one result is produced.
 
-Now suppose that a function is producing results has a tape machine parameter, what
+Now suppose a function that is producing results has a tape machine parameter, what
 do we pass as this parameter?  If we have produced prior results, then the parameter
 can be the tape machine, but what if we have not produced prior results?
 
@@ -26,7 +26,7 @@ a state variable that affects which function gets called based on its value.
 
 There was an initial C++ implementation that used a state variable to direct dispatch.  In
 the CLOS implementation I initially tried to create void as a type, and then to embedd
-information as to the type machine to transition to one an object was added within one of
+information as to the type machine to transition to when an object was added within one of
 the unused slots.  However, this inconsistent use of slots caught up with me when I
 started implementing higher order types, such as the region.  Consequently I have moved to
 a state model in the CLOS implementation also.  This has relieved the code from a number

@@ -71,61 +71,39 @@ they belong to.
 ;;;--------------------------------------------------------------------------------
 ;;; src-1
 ;;;     
-    ;; parking
+    ;;tm-def
     ;;
-      #:parked
-      #:not-parked
-      #:has-tape
-      #:park
+      #:tape-machine ; class
 
     ;;tm-mk
     ;;
-      #:tape-machine ; class
       #:init
       #:mk
       #:mount
 
     ;;tm-primitives
     ;;
+      #:mk-shallow-copy
       #:r
+      #:esr
       #:w
-      #:heads-on-same-cell
-      #:so
+      #:esw
+      #:cue-leftmost
       #:s
       #:a
-      #:d
 
-    ;;tm-derived - more than just a primitive interface
+    ;;tm-derived
     ;;
-      #:cue-to
-      #:dup
-
-      #:ws
-      #:r-index
-      #:w-index
-
       #:cue-rightmost
-      #:cue-leftmost
-
-      #:on-leftmost
-      #:on-rightmost
-
-      #:s≠ 
-
-      #:a◧
       #:as
       #:a&h◨
-      #:a&h◨s
-      #:-a
-      #:-a-s
+      #:as&h◨
 
-      #:d◧
-
-      #:m  
-
-    ;; quantifiers
+    ;;tm-quantifiers
     ;;
       #:⟳
+      #:⟳-loop
+      #:⟳-return
       #:⟳-work-step
 
       #:∃
@@ -138,33 +116,65 @@ they belong to.
       #:¬∃*
       #:∀*
 
-      #:s-together
-      
-      #:w*
-      #:s*
-      #:-s*
-      #:a*
-      #:as*
-      #:d*
+    ;;nd-tm-def
+    ;;
+      #:nd-tape-machine ; class
 
-      #:sn
+    ;;nd-tm-primitives
+    ;;
+      #:init-entangled
+      #:heads-on-same-cell
+
+    ;;nd-tm-derived
+    ;;
+      #:mk-entangled
+      #:recycle-entangled
+      #:with-mk-entangled
+      #:r◧
+      #:w◧
+      #:s≠
+      #:on-leftmost
+      #:on-rightmost
+      #:a◨
+
+    ;;nd-tm-quantifiers
+    ;;
+      #:s-together
+      #:esnr
+      #:esnw
+
+    ;;nd-tm-quantified
+    ;;
+      #:eas*
       #:an
-      #:asn
+
+    ;;solo-tm-def
+    ;;
+      #:solo-tape-machine ; class
+     
+    ;;solo-tm-primitives
+    ;;
+      #:a◧
+      #:d
+      #:d◧
+
+    ;;solo-tm-primitives
+    ;;
+      #:d*
+      #:d◧*
       #:dn
 
-    ;;tm-subspace
+    ;;ea-tm-def
     ;;
-      #:si
-      #:ai
-      #:ais
-      #:di
+      #:ea-tape-machine
+      
+    ;;ea-tm-primitives
+    ;;
+    ;; adds no new generic functions
 
-    ;;tm-convert
+    ;;ea-tm-derived
     ;;
-      #:unmount
-      #:to-list
-      #:to-array-adj
-      #:to-array
+    ;; adds no new generic functions
 
     ;; location
     ;;
@@ -201,63 +211,6 @@ they belong to.
 
       #:length-of
 
-    ;; data-structures
-    ;;
-      #:stack-enqueue
-      #:stack-dequeue
-
-      #:queue-enqueue
-      #:queue-dequeue
-
-      #:buffer
-      #:enqueue
-      #:dequeue
-      #:empty
-
-      #:stack
-      #:queue
-
-    ;; fundamental machines
-    ;;
-      #:tm-void
-      #:tm-singular
-
-      #:tm-interval
-
-      #:tm-mk-void
-      #:tm-mk-singular
-      #:tm-mk-interval
-
-    ;; tm-line
-    ;;
-      #:tm-line
-
-    ;; tm-list-primitives
-    ;;
-      #:tm-list
-      #:tm-mk-list
-
-    ;; buffer
-    ;;
-      #:stack-list
-      #:mk-stack-list
-      #:queue-list
-      #:mk-queue-list
-
-    ;; tree
-    ;;  
-      #:tm-tree
-
-      #:tm-depth ;class
-      #:tm-depth-list ;class
-      #:s-depth-ru
-      #:s-depth ; not yet written
-
-      #:tm-breadth ;class
-      #:tm-breadth-list ;class
-      #:s-breadth
-
-      #:tm-transform
 
     ;; dataflow
     ;;

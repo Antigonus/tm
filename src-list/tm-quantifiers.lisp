@@ -15,7 +15,7 @@ See LICENSE.txt
   (defun ⟳ (work)
     "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
      single step, whatever such a step may be.  The work function accepts two arguments,
-     both functions, one typically called cont-loop, the other typically called
+     both functions, the first typically called cont-loop, the second typically called
      cont-return.  When the work function continues with cont-loop, it is immediately
      called again.  When the work function returns, or when cont-return is called,
      both the loop function and ⟳ return.
@@ -36,7 +36,7 @@ See LICENSE.txt
      single step, whatever such a step may be.  The work function accepts a loop
      continuation function, typically called cont-loop.  When the work function continues
      with cont-loop, it is immediately called again.  When the work function returns
-     so does ⟳.
+     so does ⟳-loop.
      "
     (labels(
              (do-work () (funcall work (λ()(return-from do-work (funcall #'do-work)))))

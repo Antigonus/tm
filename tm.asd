@@ -62,13 +62,17 @@ See LICENSE.txt
                                (:file "nd-tm-def")
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
+#|
+
                                (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
                                (:file "length")
                                (:file "location")
+|#
 
                                (:file "list-nd-tm-def")
                                (:file "list-nd-tm-primitives")
+#|
 
                                ;; includes destructive functions, but no entangled copy functions
                                (:file "solo-tm-def")
@@ -88,7 +92,7 @@ See LICENSE.txt
                                (:file "ea-tm-derived")
 
                                (:file "list-ea-tm-def")
-
+|#
 
 ;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
@@ -99,20 +103,31 @@ See LICENSE.txt
 
                (:module "test-list"
                 :components (
-                              (:file "list-tm")
+                              ;; generic interface tests
+                              (:file "list-tm-primitives")
+                              (:file "tm-derived")
+                              (:file "tm-quantifiers")
+                              (:file "tm-quantified")
+
+                              (:file "list-nd-tm-primitives")
+                              (:file "nd-tm-derived")
+                              
+;;;                              (:file "nd-tm-derived")
+
 #|
+
+                              (:file "tm-list-primitives")
+                              (:file "tm-list-derived")
+
+                              (:file "list-tm")
                               (:file "tm-state")
                               
-                              (:file "tm-derived")
                               (:file "tm-subspace")
                               (:file "tm-quantifiers")
 
                               (:file "length")
                               (:file "location")
 
-                              (:file "tm-list-mk")
-                              (:file "tm-list-primitives")
-                              (:file "tm-list-derived")
 |#
                               ))
 

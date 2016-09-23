@@ -41,62 +41,10 @@ See LICENSE.txt
       ))
   (test-hook test-¬∀-0) 
 
-  (defun test-d*-0 ()
-    (let*(
-           (tm0 (mk 'tm-list))
-           (tm1 (mount {1 2 3}))
-           (tm2 (mount {4 5 6}))
-           )
-      (park tm1)
-      (∧
-        (d* tm0)
-        (d* tm1)
-        (d* tm2)
-        (is-void tm0)
-        (is-void tm1)
-        (equal (unmount tm2) {4})
-        )))
-  (test-hook test-d*-0)
-
-  (defun test-sn-0 ()
-    (let*(
-           (y '(1 3 6 5))
-           (tmy (mount y))
-           )
-      (and
-        (sn tmy 2
-          (λ()(= (r tmy) 6))
-          (be ∅)
-          )
-        (sn tmy 27
-          (be ∅)
-          (λ(cnt)
-            (and (= (r tmy) 5) (= cnt 26))
-            )))))
-  (test-hook test-sn-0)
-
-  (defun test-sn-1 ()
-    (let(
-          (k0 (mount (list 10 11 12)))
-          (k1 (mount (list 13 14 15)))
-          )
-      (∧
-        (= (r k0) 10)
-        (sn k0 1)
-        (= (r k0) 11)
-        (= (sn k0 22 (be ∅) #'echo) 21)
-
-        (= (r k1) 13)
-        (sn k1 2)
-        (= (r k1) 15)
-        (sn k1 1 (be ∅) (be t))
-        )))
-  (test-hook test-sn-1)
-
   (defun test-⟳-0 ()
     (let(
           (tm-src (mount [a b c]))
-          (tm-dst (mk 'tm-list))
+          (tm-dst (mount {1}))
           )
       (labels(
                (worker (cont-ok cont◨)
@@ -107,28 +55,7 @@ See LICENSE.txt
                    ))
                )
         (⟳ #'worker)
-        (equal (tape tm-src) (tape tm-dst))
+        (equal (tape tm-src) (cdr (tape tm-dst)))
         )))
   (test-hook test-⟳-0)
 
-  (defun test-as*-0 ()
-    (let(
-          (tm0 (mount {1 2 3}))
-          (tm1 (mount [a b c]))
-          (tm2 (mount [s t u]))
-          )
-      (s* tm0)
-      (s* tm1)
-      (s* tm2)
-      (as* tm0 (mount {4 5 6}))
-      (a*  tm1 (mount [e f g]))
-      (fas* tm2 (mount [v w x]))
-      (∧
-        (= (r tm0) 6)
-        (eq (r tm1) 'c)
-        (eq (r tm2) 'u)
-        (equal (tape tm0) {1 2 3 4 5 6})
-        (equal (tape tm1) [a b c g f e])
-        (equal (tape tm2) [s t u v w x])
-        )))
-  (test-hook test-as*-0)

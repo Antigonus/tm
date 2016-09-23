@@ -1,7 +1,9 @@
 
 
- Continuations are listed as optional so that they may have defaults.  We set
- the default continuations to directly return a value.  In this manner the default
- behavior for a function with continuations is to be like an old style function that
- does not have continues, but returns a single value. 
+ Continuations are listed as optional so that they may have defaults.  We set the default
+ for these optional arguments to directly return values.  In this manner the default
+ behavior for a function with continuations the same as that of an old style function
+ that does not have continuations.
+
+
 

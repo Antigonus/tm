@@ -1,0 +1,1935 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>TM - User Manual</title>
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta lang="en-US"/>
+	<meta name="created" content="2016-03-28T11:07:52.454883632"/>
+	<meta name="revised" content="2016-04-10T11:52:11Z"/>
+
+</head>
+
+<body>
+
+
+  <a name="Introduction"></a>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction" class="active">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+  </header>
+
+
+<div class="page">
+
+  <article>
+    <section>
+      <h1>Introduction</h1>
+
+      <p>
+        This is a formalized iteratation library for Common Lisp.
+
+      <p>
+        The tape machine may be used to access and traverse through the objects in a
+        container.  Loop constructs follow naturally as quanitification operations on
+        containers.  Unlike for the standard library loop structure, after exiting a loop,
+        the unprocessed parts of lists are still accessible.  Unlike for stream libraries,
+        the tape machine has random access capabilities between continuation limits.
+
+      <p>
+        By the term <i>formalized</i> I mean that the iteration model is constructed from
+        formal concepts, most that have been well studied in computation theory. Basically
+        the tape machine is a hybrid between a Turing Machine and a Lambda Calculus, with
+        the Turing machine used for iteration in a limited region, and then invoking
+        continuation functions, lambdas, for extending bounds.  I make the claim that
+        there are no library architectural limitations for working with arbitrary long
+        containers.
+
+      <p>
+        If for no other reason, the formal derivation is useful because it guides the
+        terminology.  As it turns out, there is an explosion in the number of end cases
+        when dealing with containers and generalized iteration.  Our formalism provides a
+        language for talking about them.
+
+    </section>
+  </article>
+</div>
+
+  <a name="Concepts"></a>
+  <header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts" class="active">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+  </header>
+
+
+<div class="page">
+
+  <article>
+    <section>
+      <h1>Basic Concepts</h1>
+
+      <p>
+        In Pascal's calculator and Babbage's computer the alignment between one of the
+        imprinted digit values encircling a gear and an index needle was said to indicate the value of
+        a digit.  Then an array of such gears and index pointers were said to indicate the
+        values of the multiple digits that made up a number.  
+
+      <p>
+        Contemporary computers create an abstraction in an analogous manner, where a more
+        than threshold amount of charge existing in a memory cell is said to indicate
+        a <i>one</i> and a less than threshold amount is said to indicate a <i>zero</i>,
+        thus indicating the value of a single binary digit, or bit.  Bits are then arrayed
+        to create words, which typically represent integers.
+
+      <p>
+        At the next abstraction level up words are then arrayed.  An address decoder is
+        placed on top of such an array.  An address decoder is a circuit that creates a
+        correspondence between an input word called the <i>address</i>, and the location
+        of another word in the array.  In this manner the address decoder gives our
+        container topological properties such neighboring words, and ordering among
+        words. Note that in this context a word is an allocation unit, not a value.  We
+        address memory cells, not the data in them.  Thus such a container forms a sort of
+        fabric, which we abstract into the concept of address space.
+
+      <p>
+        The prior two paragraphs summarize my partially complete "Memory Book" which may
+        be found on my website.  The take away here is that the interface between
+        computation and information is the address space, so address spaces are of
+        fundamental importance. In mathematics the fundamental address space is the set, in
+        computing it depends on the language used.  In the C language, all pointers can
+        be interpreted as arrays of objects that have a given type (a given layout in
+        memory, a given format) simply by applying the [·] operator.  Lisp is also built
+        upon a fundamental container type, the <i>list</i>, with access through <i>car</i>
+        and <i>cdr</i>. 
+
+      <p>
+        Lisp programmers came to realize that containers of differing implementations have
+        similar properties, and thus could be used through a common interface.  They now
+        speak of <i>sequences</i> instead of lists, where a sequence can be either an
+        array or a list.  C++ programmers came to a similar realization, and with the
+        advent of the Standard Template Library, pointers evolved to general iterators.
+        Once incremented, a pointer points to the next element in an array, and once
+        incremented, an iterator points to the next member of the STL container.
+
+      <p>
+        However, the distillation of computing to that of the processing of data in
+        sequence predates C, Lisp, and Fortran for that matter.  The Turing Machine is an
+        abstraction of a computing machine built from a state controller, a read-write
+        head, and a tape.  The tape is a memory constructed of a array of cells.  The head
+        can be moved to a neighbor cell, no differently than moving a pointer or an
+        iterator using the '++' and '--' operator.  Though there is a salient difference
+        between these paradigms in that the Turing Machine has been formalized.
+
+      <p>
+        In <i>Elements of the Theory of Computation</i> Christos Papdimitriou builds
+        computation theory up from founding assumptions, while characterizing successively
+        more powerful computing paradigms, arriving finally at the Turing Machine. The
+        Turing Machine has limitations, such as not being able be used to solve
+        the <i>halting problem</i>, but he can not identifiy a stronger computing
+        paradigm.  In a dual approach Lambda Calculus can be used to establish the same
+        theorems.  What we know from these formalisms is that all Turing Complete
+        computing approaches employ a potentially open series of finite computations,
+        performed over a potentially unbounded memory, where that memory need only have
+        one topological property, that of a every cell, save one, having two distinct
+        neighbors.  (It can be held that an exceptional cell is a start cell, and has only
+        one neighbor.)
+
+      <p>
+        Presented in this library is a container type based on the Turing Machine
+        abstraction.  Though the container is bounded, upon striking a bound a
+        continuation function is executed, and that continuation function may overcome
+        the bound, or perhaps take some other actions. We call our container a <i>tape
+        machine</i>, and often abbreviate it as <i>tm</i>. For example, to step an
+        iterator, one calls the function #'s and passes it a tape machine instance and two
+        functions.  Here the two functions are called <i>cont-ok</i>
+        and <i>cont-rightmost</i>:
+
+      <pre>
+        <code>
+          (s tm cont-ok cont-rightmost)
+        </code>
+      </pre>
+
+      <p>
+        The function name, #'s, stands for 'step'.  The tape machine, <i>tm</i>, is a
+        combination of iterator and container, and #'s causes the internal iterator to
+        step.  This is analogous to the container being a Turing Machine tape, the internal
+        iterator a tape head, and the program, which is external to our container,
+        providing the control.  The concept of state is more complicated.  To the extent
+        that the external program does not keep state, state is encompassed by the
+        location of the internal iterator in the container, and the values held in the
+        container.
+
+      <p>
+        Note that <i>cont-ok</i> Stands for "continue OK", while <i>cont-rightmost</i>
+        stands for "continue from rightmost".  At any point in time our container will
+        typically have a bounded size.  When this bound is struck, we call <i>cont-rightmost</i>
+        so that the program has an opportunity to overcome this bound, and implement
+        Turing Complete behavior.
+
+        <pre>
+          <code>
+            (s tm
+              (λ()(print "everything went well"))
+              (λ()(print "go get more data!"))
+            )
+          </code>
+        </pre>
+
+      <p>
+        Functions with continuations are guaranteed never to exit directly, but instead to
+        follow at least one of the continuations.  Currently there are no multi-threaded
+        exits, so each library function will follow exactly one continuation.  This may
+        change in the future.  A continued function typically will not have only one
+        continuation, as that would be identical to calling the base function and the
+        continuation function in succession.
+
+      <p>
+        For convenience we provide some general purpose continuation functions.  One of
+        these is the function #'be, which returns a function that returns a given
+        value. Hence,
+
+      <pre>
+        <code>
+          (s tm (be t) (be ∅))
+        </code>
+      </pre>
+
+      <p>
+        will return true should the step succeed, and return ∅ should it not. When used in
+        this manner, #'s will almost surely be followed by a test of the return value,
+        and this test will almost surely be doing the same work that was done inside the
+        function in order to to detect the end condition.  So one of the things we hope to
+        accomplish with this library, is to eliminate this sort of redundant testing.
+
+      <p>
+        Tape machines can also be implemented over functions rather than containers.  So
+        for example, we could have a tape machine that represents the natural numbers.
+        Each time it is stepped it just goes to the next integer.  In which case there
+        would be no rightmost cell, so we might write:
+
+      <pre>
+        <code>
+          (s natural-number-generator 
+            #'do-nothing
+            (λ()(error 'this-cant-happen))
+          )
+        </code>
+      </pre>
+
+      <p>
+        Here #'do-nothing is a stub that simply returns. After it returns we move on to
+        the next form in the progn. Though the continuation does nothing, the step
+        function has done something, because it stepped
+        the <i>natural-number-generator</i>. As for the rightmost continuation, if we ever
+        hit a bound, then there is a bug in the <i>natural-number-generator</i>, so we
+        signal an error.  Note that continuations are functions, and this continuation
+        takes no arguments, so the error call must be wrapped in a lambda.  (It is a
+        common mistake for beginning users of the library to put form that evaluates to
+        a value due to being an argument, rather than putting an argument that evaluates
+        to a function.)
+
+      <p>
+        Tape machine library functions make all end cases explicit, typically with a
+        continuation argument.  We suspect this will simplify analysis tools and make life
+        easier for programmers.  It is one of our objectives that code written using tape
+        machines will be more amenable to formal analysis.  We discuss this further in
+        another chapter.  We believe we have achieved this quality without sacrificing
+        performance.
+
+
+      <p>
+        Like #'s above, many of the tape machine functions are single letters.  This
+        facilitates stringing them together to create compound access functions, in
+        analogy to lisp's car and cdr access language (cadr, caddr, etc.).  See my paper
+        "Towards a Better Understanding of CAR, CDR, CADR and the Others".  The access
+        language is then extended into a general out of band signaling pattern matching
+        language that works on arbitrarily long data types. See the chapter on that
+        subject [better to look at the source code, the doc is still being ginned up].
+
+      <p>
+        In 2003 I designed a configurable high performance processor for Quickturn
+        Technologies (which was only one of the multiple processor designs being done by
+        the company).  The processor had a unique two dimensional microcode.  Instead of
+        having a fixed pipeline that ran instructions, the first dimension of the
+        microcode configured the available ALUs into a pipe appropriate for the given
+        task, be it a correlation filter, matrix processing, etc.  The second dimension of
+        the microcode implemented the instruction set over the configured ALUs.
+
+      <p>
+        I wrote an assembler for the processor, but what was missing was a high level
+        programming paradigm.  The Tape machine combined with a special kind of function
+        called a <i>worker</i> provides this paradigm in this library.  A worker function
+        is defined to accept one or more tape machines, and to produce values for one or
+        more tape machines.  Then each call of the worker takes few or no arguments,
+        rather it pulls data as needed from the configured source tape machine(s). Per
+        call it does one unit of work. It then writes the result(s) to the destination
+        tape machine(s). In the absence of dedicated hardware, a worker appears much like
+        a function that was derived by currying away its constant tape machine arguments.
+        See the chapter on workers for more information.
+        
+    </section>
+  </article>
+</div>
+
+
+        <a name="Unicode"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode" class="active">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Unicode Usage</h1>
+
+        <p>
+          For your convenience there is a file "emacs-keys" in the docs directory of the
+          distribution which sets the C-x g <i>name</i> SPC to enter the characters used
+          in the library.  Here 'name' is a nickname. (I would have preferred to have
+          modified the existing C-x 8 so that such a nickname followed by a space would
+          enter a character, but when delving into the emacs library I found it to be
+          rather 'unicode technical'. Perhaps someone can help with this.)
+
+        <p>
+          So to type the character capital delta when emacs-keys is loaded, type C-x
+          g D SPC. Actually Δ occurs twice in Unicode, once as capital delta, and once as
+          a symbol for 'increment' in mathematics.  We consider the increment version
+          to only be there for typography purposes.  We only use capital delta, even
+          when it is for an increment variable.
+
+        <p>
+          I've limited the use of Unicode to things that 'probably would have been this
+          way had Unicode been around before', conventional notation, and to a couple of
+          symbol extensions that were needed to facilitate the tm access language.
+
+        <p> In the file src-1/fundamental.lisp find synonym bindings for the usual
+          operators and common symbols such as ∧, ∨, ≥, ≤, λ, ∅, etc.  
+
+        <p>
+          There are three characters used in the library for which there are currently no
+          synonyms.  We use the character '◧' as shorthand for 'leftmost'.  This is
+          because it looks like a little tape with the inked over cell being the leftmost
+          cell. In the same manner the character '◨' is shorthand for rightmost. 
+
+        <p>
+          These symbols are used on the single name access language functions as
+          modifiers meaning to operate on rightmost or leftmost rather than the cell
+          the head is on, or, to specify contracts with the programmer of the sort: "this
+          function is only called when the cell is on rightmost."  (Note, operators
+          on cells are such things as allocation and deallocation, and these are distinct
+          from operators on objects, such as addition and subtraction.)
+
+        <p>
+          As we had symbols for leftmost and rightmost I also started using them generally
+          to mean leftmost or rightmost wherever that was convenient.  For example,
+          to shorten up the names of continuations so that argument lists would fit
+          on a line.
+
+        <p>
+          As a third symbol I introduced, ⟳ for 'do'.  Initially this was because all of
+          the loop words were already used, but it turns out to work nicely because the
+          first argument is often a function that steps, so it looks like a modifier
+          meaning repeat stepping, and in fact that is what it is.
+
+    </section>
+  </article>
+</div>
+
+
+      <a name="Nomenclature"></a>
+
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature" class="active">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+<div class="page">
+  <article>
+    <section>
+      <h1>Nomenclature and Conventions</h1>
+
+        <p>
+          A myriad of terms now exist in computer science for talking about memory and end
+          cases, but still some things have no conventional terms.  Hence, I feel it is
+          important to provide a consistent nomenclature for use when talking about the
+          tape machine library.
+
+        <p>
+          A tape machine has a <i>tape</i>, an <i>indicator head</i> (or
+          just <i>head</i>), and a <i>function interface</i>.  
+
+        <p>
+          The tape consists of an array of one or more <i>cell</i>(s). Each cell contains
+          exactly one <i>object</i>. An object is either a) a <i>subspace</i> or b) a data
+          blob that one hopes has some meaning for the tape machine user. Spaces are
+          discussed in the chapter "Spaces".
+     
+        <p>
+          Typically when a tape machine tape has two or more cells, all cells, potentially
+          except for two, have two neighbors.  A <i>left neighbor</i> and a <i>right
+          neighbor</i>.  The two potentially special cells are called
+          <i>leftmost</i>, which has only a right neighbor, and <i>rightmost</i>, which
+          has only a left neighbor. However there are other possible topologies.  For
+          example the tape may be an abstraction that is maintained through function
+          calls, in which case the tape might not have a leftmost or rightmost.  A tape
+          may be circular, or even have with loops. We consider a variation with a park
+          cell in the chapter on "Dataflow".
+
+        <p>
+          The <i>leftmost object</i> is the object in the leftmost cell, etc.
+
+        <p>
+          The terminology of <i>left</i> and <i>right</i> stem from the convention in
+          mathematics for number lines.  Here the cell addresses fall on a number line.
+          Going right on the number line leads to higher addresses, and going left to
+          lower addresses.
+
+        <p>
+          A one cell machine represents a singularity in our system, as the one cell
+          might be defined to be any combination of being its own left neighbor, being its
+          own right neighbor, being leftmost and/or being rightmost. We provide
+          two such examples in the library, <i>tm-singular-affine</i>, where a one cell
+          machine tape has no leftmost or rightmost, and the one cell is both its own left
+          neighbor and right neighbor,  and <i>tm-singular-projective</i> where the
+          one cell is both rightmost and leftmost.
+
+        <p>
+          At any given time the indicator head is either <i>parked</i> or it is <i>on</i>
+          exactly one cell.  We say <i>indicator</i> head, rather than the more
+          conventional <i>read-write</i> head, because reading and writing are part of the
+          function interface.  The purpose of the indicator head is to locate a cell.  The
+          object in the indicated cell is called the <i>indicated object</i>, or
+          the <i>object indicated by the head</i>. 
+
+        <p>
+          Putting the head on a specific cell is to <i>cue</i> the head.  Four cue
+          functions are defined in the library: <i>park</i>, <i>cue-leftmost</i>,
+          <i>cue-to</i>, and <i>cue-rightmost</i>.  <i>Cue-to</i> cues the head to the
+          same tape and location as for another tape machine.  A related
+          function <i>dup</i> both makes a new tape machine and cues it to another
+          machine.  Yet another function <i>mount</i> can be used to mount a sequence or a
+          the tape from anther tape machine. With these functions it is possible to put
+          more than one head on the same tape.  Having multiple heads on one tape leads to
+          potential hazards when combined with structural operations.  This is discussed
+          in the chapter, "Issues".
+
+        <p>
+          Heads are either <i>stepped</i>, <i>cued</i>, or <i>parked</i>. We do not apply
+          other motion verbs to heads.  In contrast, objects are said to be <i>moved</i>.
+          A head is not a tape machine, but it is unambiguous to say "step a tape
+          machine". This actually means to step the tape machine's head. However, if one
+          says that "a tape machine <i>moved</i>", that means that said tape machine was
+          an object, initially it was in one cell, but then it was moved to another
+          cell. This distinction between the connotations of stepping and moving becomes
+          particularly important after the introduction of "spaces".
+
+        <p>
+          The function interface consists of <i>primitive</i> and <i>derived</i>
+          functions.  Primitive functions are those with no generic implementation.  A new
+          tape machine may be defined by providing an implementation for the primitive
+          functions, and that would be sufficient as the derived functions have generic
+          implementations in terms of the primitive functions. There are many derived
+          functions including those for handling subspaces, for quantification and
+          repetition, and for compound operations.
+
+        <p>
+          In this implementation, tape-machine is a class with two slots.  One slot is
+          called, <i>HA</i> which stands for head address, and the other slot is
+          called <i>tape</i>.  Should the tape machine be mounted on a sequence, the tape
+          slot is set to the sequence, and HA holds the location in the sequence.  For an
+          array HA will be the index for the current cell.  For a list HA will be the
+          current cons cell. Derived classes make do with just these two slots, which
+          assures that we can consistently <i>cue-to</i> back and forth between
+          tape-machine types.
+
+        <p>
+          We have two functions for making tape machines, one is <i>tm-mk</i> and the
+          other is <i>mount</i>. The function <i>mount</i> takes a sequence and then tries
+          to match that up with the best tape machine implementation for the type of
+          sequence. Where as <i>tm-mk</i> accepts a tape machine class and an
+          initialization value, and then tries to produce an initialized tape machine of
+          the specified class type.  The function <i>unmount</i> accepts a tape machine
+          and returns the mounted tape. (Note that mount can also be passed another tape
+          machine, in which case it returns a new machine that is mounted on the same
+          tape.)
+
+        <p>
+          Modifications to head location or to the tape contents are said to
+          be <i>stateful</i>.  Modifications that add or remove cells from the tape are
+          said to be <i>structural</i>.  (Adding cells to the tape is
+          called <i>allocation</i>.  Removing cells from the tape is
+          called <i>deallocation</i>.)  We know from experience that programs that only
+          modify state tend to be simpler than those that modify structure. Yet there
+          always seem to be cases, such as gathering results, where structural changes
+          are the most convenient type.  Even Scheme allows one to use a cons cell
+          to lengthen a list, albeit only from one end.
+
+        <p>
+          We use inclusive bounds so we don't need to represent addresses that are outside
+          of our address space. 
+
+          <p>
+          The typical coding form is to do some work, and then to step. If
+          the machine head is on rightmost, then we do something appropriate.
+
+    </section>
+  </article>
+</div>  
+
+        <a name="List"></a>
+
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode" >2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List" class="active">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+<div class="page">
+  <article>
+      <section>
+        <h1> List Making Functions</h1>
+
+        <p>
+          Because of our method of continuations, and our adoption of workers, we have
+          ended up with some extended argument lists. Also because of our allocate and
+          deallocate options on the tape machine, we end up with some clean, but
+          destructive operations.  In order to reduce these burdens to some extent,
+          in the TM library we provide two macros to make list creation a little bit
+          easier.  We call them 'q' or [...], and 'L' or {...}.
+
+          <h2>q or [...]</h2>
+
+        <p>
+          In Lisp a quoted list is taken as being literal.  However the result of
+          modifying a literal is undefined, and often leads to bad results.  Hence we
+          provide the macro <i>q</i> which returns a quoted list which is not a literal.
+
+          <pre><sample>
+              * (q a b c)
+              (A B C)
+          </sample></pre>
+
+        <p>
+          To make non-literal quoting easier to use we have defined a reader macro over brackets.
+
+          <pre><sample>
+              * [a b c]
+              (A B C)
+          </sample></pre>
+            
+
+        <h2>L or {...}</h2>
+
+        <p>
+        When a form enclosed in parentheses, ( ... ), is evaluated the head is taken as the
+        name of a function, looked up and called.  The list members are also evaluated,
+        and then passed as operands to said function.  If we don't want the head treated
+        specially, but rather just want to define a list, we can trick the evaluator into
+        giving us a list by padding the list with a front item of #'list, which is the
+        function to create a list.
+
+        <pre><sample>
+            * (list 1 2 (+ 1 2))
+            (1 2 3)
+        </sample></pre>
+
+        <p>
+        We have defined a macro called <i>L</i> that like list, creates a list, but which
+        also has some extra functionality.
+
+        <pre><sample>
+           * (L 1 2 (+ 1 2))
+           (1 2 3)
+        </sample></pre>
+
+        <p>
+        We also provide a reader macro over braces.
+
+        <pre><sample>
+            * { 1 2 (+ 1 2)}
+            (1 2 3)
+        </sample></pre>
+
+        <p>
+        If the apparent function open, #'o, appears inside of a call to L, then the
+        arguments of the #'o function are included directly in the resulting list:
+
+        <pre><sample>
+            * (defvar a {1 2 3})
+            A
+
+            * (defvar b {4 5 6})
+            B
+
+            * {a (o b)}
+            ((1 2 3) 4 5 6)
+        </sample></pre>
+        
+        <p>
+        Quoted non-literals can also occur within such an <i>L</i> list:
+
+        <pre><sample>
+            * {a (o b) [a b]}
+            ((1 2 3) 4 5 6 (A B))
+
+            * {a (o b) (o [a b])}
+            ((1 2 3) 4 5 6 A B)
+        </sample></pre>
+
+        <p>
+        <i>L</i> is a little bit like quasiquote turned inside out.  Where
+        as the default in quasiquote is to quote items, and a comma operator
+        turns that off,  the default in <i>L</i> is to evaluate items, and
+        a <i>q</i> operator turns that off.   Quasiquote has an @ marker
+        to open up lists, while <i>L</i> has an <i>o</i> operator to open
+        up lists.
+
+        <p>
+        Note however, inside of a quasiquote we could get in trouble if
+        the name of a variable starts with an @ character.  If such a variable
+        appears after a comma, quasi quote will consider the variable name
+        without the @ sign is to be opened and included.  This is an example
+        of where 'in-band signaling' causes us to have to make rules to leave
+        values out of our data set (or in this case a character out of variable
+        names).
+
+        <p>
+        There is no analogous problem with <i>o</i> operator because it appears
+        within the function channel.
+        
+    </section>
+  </article>
+</div>
+
+        <a name="Stepping"></a>
+
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode" >2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping" class="active">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Stepping </h1>
+
+        <p>
+          Here is a simple program that makes use of a tape machine.
+
+          <pre><code>
+              (let(
+                    (a-tape-machine (mount {1 2 3}))
+                    )
+                (print (r a-tape-machine))
+                (s a-tape-machine)
+                (print (r a-tape-machine))
+                (s a-tape-machine)
+                (print (r a-tape-machine))
+                (s a-tape-machine)
+                )
+          </code></pre>
+
+        <p>
+          When run it produces:
+
+          <pre><sample>
+              1 
+              2 
+              3 
+              NIL
+          </sample></pre>
+
+        <p>
+          #'mount accepts a sequence and returns a tape machine.  Different sequences
+          will result in different types of tape machines, but that is typically of
+          little importance, as all tape machine share the same function interface.
+          After a sequence is mounted, the tape machine head will be on leftmost.
+
+        <p>
+          #'r is a function that accepts a tape machine and returns the indicated object.
+          #'w does the inverse operation.  It accepts a tape machine and an object, and
+          then writes the object into the indicated cell.  Hence, the first <code>(print
+          (r a-tape-machine))</code> will print the number 1.
+
+        <p>
+          #'s moves the tape head to the right neighbor cell, so the second <code>(print
+            (r a-tape-machine))</code> will print the number 2. Etc.  Note we do not
+            provide any continuation function arguments to #'s.  They are optional, and
+            the defaults are <code>(be t)</code> and <code>(be ∅)</code>.  That is why at
+            the final step, when stepping fails, the program returns NIL.  (The printer is
+            not aware of our alias ∅, so it prints NIL.)
+
+        <p>
+          Now it would be more convenient to use a loop to implement this logic.
+
+          <pre><code>
+              (let(
+                    (a-tape-machine (mount {1 2 3}))
+                    )
+                (⟳ (λ(cont-loop cont-return)
+                      (print (r a-tape-machine))
+                      (s a-tape-machine cont-loop cont-return)
+                      )))
+          </code></pre>
+
+        <p>
+          And this time the output is:
+
+          <pre><sample>
+              1 
+              2 
+              3 
+              T
+          </sample></pre>
+
+        <p>
+          In this case the return value comes from loop, and the loop returns T.  In fact
+          the default function for the cont-rightmost parameter never runs, instead the
+          provided function for <i>cont-return</i> runs.
+
+        <p>
+          In general we follow this paradigm, first doing some work, then stepping.  In
+          the loop these two operations are performed repeatedly until stepping fails.  Be
+          careful when writing TM programs to not be anxious to apply loop operators.
+          Instead, prefer to implement functions that do one unit of work, and move the
+          looping to a higher level. If you are concerned about the function call overhead
+          then declare it as an inline function. 
+
+        <p>
+          Notice that unlike the standard loops in Lisp where the location information
+          used in iteration is gone after we exit from the loop, we still have the tape
+          machine after the loop exits.  We could, for example, cue-leftmost, and process
+          the same data again.  When multiple tape machines are involved in a loop, we
+          will know where each left off when the loop terminates.  We have a special form
+          for looping multiple machines in a transactional manner (i.e they all step or
+          none do), it is called <i>⟳-together</i>.
+
+        <p>
+          Another kind of loop is the quantifier.  All the looping forms are
+          defined in the file src-1/tm-quantifiers.  We provide the two main
+          quantifiers, #'∃  and #'∀, and the complement variations of them.
+
+        <p>
+          The existence quantifier, #'∃ accepts a tape machine and a predicate.  It
+          starts at leftmost, then steps right cell by cell until the predicate
+          is true.  Should the end of the tape be reached, then the quantification
+          is false.  Because some work can be done inside the predicate function,
+          this is the same thing as loop until.  
+         
+        <p>
+          The universal quantifier, #'∀ also accepts a tape machine and a predicate.  It
+          starts at leftmost, and steps right for as long as the predicate remains true.
+          This is the same thing as a while loop.  This quantifier returns false should an
+          exception be found, or returns true should the end of the tape be reached.
+
+        <p>
+          When called this function will return true:
+
+<pre><code>
+  (defun test-∃-0 ()
+    (let*(
+           (y {1 2 {3 4} 5})
+           (ytm (mount y))
+           )
+      (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
+      (equal (r ytm) '(3 4))
+      ))
+</code></pre>
+
+    </section>
+  </article>
+</div>
+
+        <a name="Working"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode" >2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working" class="active">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Working</h1>
+
+        <p>
+          Here is a simple program that creates a fresh list by squaring
+          the items in a source list.
+
+          <pre><code>
+             (let(
+                  (source (mount {1 2 3}))
+                  (destination (tm-mk 'tm-list))
+                  )
+               (⟳ (λ(cont-loop cont-return)
+                    (as destination (expt (r source) 2))
+                    (s source cont-loop cont-return)
+                    ))
+               (unmount destination)
+             )
+          </code></pre>
+
+          <p>
+          When run it produces:
+
+          <pre><sample>
+              (1 4 9)              
+          </sample></pre>
+
+        <p>
+          The function #'tm-mk is a more primitive form of #'mount.  Where as mount
+          accepts a sequence, and returns the most appropriate type of tape machine,
+          #'tm-mk requires the user to specify the tape machine type.  It also accepts an
+          optional list of initialization parameters.  The initialization parameters can
+          be of any type that is supported by the #'tm-mk methods.  If no initialization
+          parameter is supplied, as is the case here, a tape machine is created with an
+          empty tape and a parked head.
+
+        <p>
+          The function #'a allocates a new cell just to the right of the head, and
+          it initializes that cell with the object specified in the call. In this
+          example this is the square of the number specified on the source.  #'as
+          is a compound command.  The compound contains allocate and step.  So in
+          our example here, after the call to #'as the head will be on the newly
+          allocated cell. We can repeat the call to #'as and grow the length of the
+          tape. The nice part about this approach, as unlike using the conventional
+          cons cell at the front, the element order in the destination list will be
+          the same as the element order in the source list.
+          
+        <p>
+          #'unmount is the inverse of #'mount.  It returns the tape, and as it is the last
+          statement in our code, it provides the return value.  Should this output then be
+          evaluated, we will have a list.  Alternatively we could have returned <code>(cdr
+          (unmount destination))</code> and the head of the returned list would be the
+          number 1.
+
+        <p>
+          A <i>worker</i> is a program type.  Any program that accepts input from a source
+          tape machine, and then produces output on a destination tape machine, and does
+          so one step at a time, is a <i>worker</i>.  The worker in this example is
+          <i>(as destination (expt (r source) 2))</i>.  The amount of work done upon each
+          call to the worker is <i>one unit of work</i>.
+
+        <p>
+          Notice, that each time we call a worker its source and destination machine
+          arguments are the same.  These can be curried away.  Or put another way, we
+          might think of a worker as being connected into the program rather than as
+          accepting arguments that evaluate to values upon each call.  We provide a macro
+          for creating a worker connection function.  This macro does the currying, or the
+          connecting, whichever way you want to think about it.
+
+<pre><code>
+(defmacro def-worker (name src dst state conts &body body) ...)
+
+src := tape-machine-name | (tape-machine-name ..) | ()
+dst := tape-machine-name | (tape-machine-name ..) | ()
+state := symbol | (symbol ..) | ()
+conts := contination-name | (continuation-name ..) | ()
+
+tape-machine-name := symbol (evaluates to a tape machine)
+contination-name := symbol  (evaluates to a continuation function)
+
+</code></pre>
+
+          <p>
+          <i>name</i> is a symbol, and is the name of the resulting connection
+          function.  The connection function will be used to get a worker
+          function, and that worker function will takes no arguments.
+
+          <p>
+          <i>src</i> is either a symbol that will evaluate to a
+          source tape machine, a list of such symbols, or an empty set of
+          parentheses, ie. an empty list.  When <i>src</i> is a symbol, the connection
+          function will accept a single tape machine as a first argument.  When
+          <i>src</i> is specified as a list, then the connector expects a list of tape
+          machines as a first argument.  The list will be deconstructed, so the programmer
+          may use &optional, &rest, and other such parameter keywords when specifying the
+          list of symbols.  When <i>src</i> is an empty set of parentheses, the connection
+          function does not have a src parameter, it is skipped.  The other parameters are
+          handled in an analogous way.  See src-2/worker.lisp for the macro definition.
+
+          <p>
+          Here is a simple example of defining a worker.
+
+          <pre><code>
+            (def-worker counter tm-src () boxed-counter ()
+              (s tm-src
+                (λ()(incf (unbox boxed-counter)) t)
+                (be ∅)
+                ))
+          </pre></code>
+
+        <p>
+          Here the connection function is called <i>counter</i>.  The connection
+          function will take a single source tape machine, it does not accept
+          any destination tape machines.  It accepts a single state variable.  As
+          this function does not write to a destination machine, its purpose is
+          solely to evolve the state.
+
+        <p>
+          Each unit of work here evolves the state by incrementing the counter.  We
+          require that all variables be passed by reference, which is the default in Lisp
+          for complex objects, but alas, not for integers.  Hence we pass the counter "in
+          a box".  Box is defined in src-0/functions.lisp.
+
+        <p>
+          This function returns true when called:
+
+          <pre><code>
+            (defun test-worker-1 ()
+              (let*(
+                    (tm (mount {0 1 2 3}))
+                    (cnt 0)
+                    (worker (counter tm (box cnt)))
+                    )
+                  (∧
+                    (= cnt 0)
+                    (funcall worker)
+                    (= cnt 1)
+                    (funcall worker)
+                    (= cnt 2)
+                    (funcall worker)
+                    (= cnt 3)
+                    (¬ (funcall worker))
+                    )
+                  ))
+          </pre></code>
+
+        <p>
+          We call #'counter to connect the worker.  After this each call to the
+          worker does one unit of work.  In the last term of the conjunction
+          the worker refuses to do anymore work, and returns false.  We use
+          not, ¬, to cause the term to be true.
+
+        <p>
+          The worker in this example does not conform to our convention of
+          continuing end cases. Also it would be better to produce a result
+          so as to simplify the test.  Here is a conforming implementation:
+
+<pre><code>
+(def-worker counter-2 tm-src tm-dst boxed-counter (cont-ok cont-◨)
+  (as tm-dst (unbox boxed-counter))
+  (s tm-src 
+    (λ()
+      (incf (unbox boxed-counter)) 
+      (funcall cont-ok)
+      )
+    cont-◨
+    ))
+ </pre></code>
+
+        <p>
+          Here we have used our abbreviations of ◨ to stands for 'rightmost', so cont-◨ is
+          read as "continue rightmost".  Each time the worker is called there is
+          a new unprocessed value on the source tape machine waiting.  In this case
+          we just push it to the destination machine.  Then we step, if we find that
+          stepping is not possible, then we call cont-◨. Once the worker has called
+          cont-◨ either it will not be called again, because the work is done, or
+          new data will be placed on the tape machine.  
+
+        <p>
+          Note that we applied the #'incf inside the ok continuation of the step.  This is
+          a demonstration of our convention of using inclusive bounds.  In this manner no
+          false step is taken at the end, so the counter will never exceed in size the
+          maximum index that would be needed to index the input tape. However,
+          if it were the case that the tape was to be loaded with more data and the
+          operation continued, we would need to adjust the count to keep it in
+          synch, before continuing our operation.
+
+        <p>
+          The following function returns true:
+          
+<pre><code>
+  (defun test-worker-2 ()
+    (let*(
+          (tm-src (mount {0 1 2 3}))
+          (tm-dst (tm-mk 'tm-list))
+          (cnt 0)
+          (worker (counter-2 tm-src tm-dst (box cnt)))
+          )
+       (⟳ (λ(cont-loop cont-return)
+            (funcall worker cont-loop cont-return)
+            ))
+        (∧
+          (= cnt 3)
+          (equal
+             (unmount tm-src)
+             (unmount tm-dst)
+             ))))
+</pre></code>
+
+
+    </section>
+  </article>
+</div>
+
+        <a name="Spaces"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces" class="active">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Spaces </h1>
+
+        <p>
+        A space is a place to put one or more objects.  It has two components, cells to
+        hold object(s), and an addressing mechanism.  The addressing mechanism allows us
+        to associate a symbol with a cell in the space. If the set of addressing symbols
+        have topological properties, then those properties then apply to the space.  For
+        example, if we use natural numbers as the symbols associated to cells as a
+        definition for addressing, then because natural numbers have an order
+        relationship, the cells have neighbors.  It follows that each tape machine defines
+        a space, and each tape machine type defines a type of space.
+
+        <h2> Void </h2> 
+
+        <p>
+        Void space is something that shares some of the properties of other spaces, but
+        lacks the property being able to recall that which has been written.  We have two
+        interpretations of void.  One is based on a infinite dilution, and the other that
+        a void space having no volume, and thus can not not be written in the first place.
+        We call the infinite dilution model <i>affine</i>, and the can't hold
+        anything <i>projective</i>. (These terms are derived from the limiting case of the
+        interpretation of infinity on a number line, as that number line holds address
+        the number line has fewer and fewer, and eventually no addresses.)
+
+        <p>
+        In the colloquial void affine is the <i>bit bucket</i>.  One can step a
+        tm-void-affine machine, write to it, and do anything defined on the machine
+        interface, but reading always returns ∅.
+
+        <p>
+        The void-projective machine is a kind of ∅ machine. Any attempt to read it or
+        write it will result in an error.  All operations are boundary operations, for
+        example stepping will result in rightmost continuation.
+
+
+        <h2> Singular Projective </h2>
+
+        <p>
+        The projective singular space, <i>tm-singular-projective</i>, has only one cell on
+        its tape. It shares the property of other spaces in being finite and having
+        boundaries, but it lacks expansiveness.  The one cell is both the leftmost and
+        rightmost cell, so any attempt to step from it results in a continuation call. Any
+        attempts to expand the space using an allocation operation, results in
+        a <i>cont-no-alloc</i> call.  In fact it behaves just like a tape machine mounted
+        on a one element fixed array.
+
+        <p>
+        Using a singular projective space is a good way to assert that a tape has
+        exactly one value.
+
+        <h2> Singular Affine </h2>
+
+        <p>
+        The affine singular space, <i>tm-singular-affine</i> has one cell, and the right
+        neighbor of that cell is the cell itself.  The left neighbor of this one cell, is
+        also the cell itself.  This is the same as saying the tape is unbounded in both
+        directions, and that all cells are simply a window into a single value, or that
+        all cells hold a reference to the same value.  Stepping, allocating, and
+        deallocating from singular affine will always be <i>cont-ok</i>.
+
+        <p>
+          The singular affine space collapses the tape machine type into a regular
+          variable.
+
+        <h2>Region </h2>
+
+        <p>
+        <i>tm-region</i> is a tape machine with a finite tape, i.e. one that has a
+        defined leftmost and rightmost cell, and this finite tape is a portion of another
+        machine's tape.  <i>tm-region</i> is initialized from two other tape machines.
+        One with its head on the region leftmost, and one with its head on the region
+        rightmost.
+
+        <p>
+        The following function returns true:
+
+        <pre><code>
+          (defun test-tm-region-0 ()
+            (let*(
+                  (base-tm (mount [0 1 2 3 4 5 6 7]))
+                  (left-machine (dup base-tm))
+                  (right-machine (dup base-tm))
+                  )
+              (sn left-machine 3)
+              (sn right-machine 5)
+              (let*(
+                     (an-region 
+                       (make-region 
+                         :leftmost left-machine 
+                         :rightmost right-machine
+                         ))
+                     (tm-region (tm-mk 'tm-region an-region))
+                     )
+                (∧
+                  (on-leftmost tm-region)
+                  (= (r tm-region) 3)
+                  (s tm-region)
+                  (= (r tm-region) 4)
+                  (s tm-region)
+                  (= (r tm-region) 5)
+                  (on-rightmost tm-region)
+                  (¬ (s tm-region))
+                  )
+                  )))
+        </code></pre>
+
+        <p>
+          The function <i>dup</i> accepts a tape machine and returns another tape machine
+          that shares the same tape and has a head on the same cell.  It is useful for
+          setting check points to come back to.  In this context it is used to create
+          markers for the leftmost and rightmost of the region. The function #'sn
+          steps <i>n</i> times.  The region tape machine is initialized from a structure
+          that has two fields (two slots in Lisp argot) one for each inclusive bound of the
+          region space.
+          
+        <p>
+          The function #'a allocates a new cell to the right of the cell that the head is
+          on.  When the head is on the rightmost of the region, the allocated cell
+          remains in the region. A region is a self contained space, and given an
+          region machine there is no way to detect that the region is part of a larger
+          space. If that information is needed it should be saved when the region is
+          created, or derived from the space that contains the region.
+
+        <h2>Subspace </h2>
+
+        <p>
+          A subspace is a tape machine created from an object that is found in the cell of
+          another space. We provide a number of functions in the library for making use of
+          subspaces.  The base function is "step into", #'si.  #'si takes as an argument a
+          tape machine and it has two continuations,
+          <i>cont-ok</i> and <i>cont-mount-failed</i>.  #'si will continue with
+          <i>cont-ok</i> if the object in the cell that the tape is on, i.e. the indicated
+          object, can be mounted.  #'mount is a generic interface, and so this is the same
+          to say that #'si will succeed if an corresponding method for the object type has
+          been defined for #'mount.
+
+        <p>
+          This function returns true:
+
+          <pre><code>
+           (defun test-si-0 ()
+             (let*(
+                    (y '(1 2 (3 4) 5))
+                    (ytm (tm-mk 'tm-list y))
+                    )
+               (s ytm)
+               (s ytm)
+               (si ytm)
+               (eql (r ytm) 3)
+               ))
+          </code></pre>
+
+        <p>
+          Once in a subspace, the leftmost cell is the leftmost of the subspace, the
+          rightmost the rightmost of the subspace, etc.  As for region spaces there is
+          no way from within the subspace to detect the existence of the superspace. Hence
+          in order to step back out of the subspace one first uses #'dup to get a copy of
+          the tape machine before stepping in, and then steps in while using either copy,
+          and resumes later in the superspace with the other copy.  See src-1/tm-depth and
+          src-1/tm-breadth, the tree traversal transforms, for examples.
+
+
+    </section>
+  </article>
+</div>
+
+        <a name="Initializing"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing" class="active">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Initializing Tape Machines </h1>
+
+        <h2> Empty = ∅ -- Was Impractical for General Use</h2>
+
+        <p>
+          One of the approaches we have tried for handling initialization was to use ∅ to
+          represent a tape machine until the first allocation call provided an object to
+          initialize the machine against.  This had the nice attribute that all tape
+          machines had valid data that could be read, so the read function required
+          neither continuation function arguments, nor code to throw an error.
+
+        <p>
+          However, we ran into a problem.  While tape machines are passed by reference, ∅
+          is passed by value.  Hence a function that might provide the first data value
+          could not actually initialize the machine, except local to the function.  We
+          considered splitting tape machine user functions into <i>first call</i> version
+          and <i>next call</i> versions, but sometimes it is unclear who produces the
+          first value or when it is produced.  Furthermore some functions take multiple
+          tape machine inputs. So the approach was deemed impractical for general use.
+
+        <h2> Empty Machines Have a Padding Cell -- Caused Complications</h2>
+
+        <p>
+          Another approach we tried out was to give an empty machine a padding cell.
+          We even put a value in the padding cell to mark the tape type.  This approach
+          had some drawbacks. 
+
+        <p>
+          Firstly, it was not possible to distinguish a machine with a padding cell from a
+          machine with one real cell, so we had to rely on the programmer to correctly
+          account for such machines, and to carry an awareness of that accounting into
+          the debug phase.
+
+          Secondly, the choice of padding cell became more complicated when we moved
+          beyond the basic machines.  Say for example, what if the tape type meant that
+          cells hold tape machines.  Then the padding cell needs to hold a tape machine,
+          but that machine needs to be initialized.  As another example, suppose the tape
+          cells had to hold large objects, are we to set aside memory just so we can
+          represent an empty machine?  That seems counter intuitive.
+
+          Thirdly, the padding cells had to be removed before an unmounted tape could be
+          used, as often the rest of the Lisp world did not need the object in the padding
+          cell.  Again this place a burden on the programmer to properly account for this.
+
+
+        <h2> Void with Tape Subspace -- Our Current Model </h2>
+
+        <p>
+          Our current model is that all tape machines have two connected internal spaces.
+          One space is void projective, and the other space is defined by the tape.
+          Should the tape be ∅, then that second space is not present. One might say
+          that the void projective space is a place to <i>park</i> the tape head.
+
+        <p>
+          Because void projective spaces do not require initialization we can
+          create such a tape machine before initialization data is available.
+          The tape head for such a machine will be in the void space, and the
+          tape space will not be present.
+
+        <p>
+          If the head is in the void space when #'a is called, we follow an
+          internally defined cont-no-alloc continuation. In this continuation the machine
+          allocates and initializes a cell at the leftmost of the tape space. If the tape
+          space is empty, it will become singular projective.  If it is not empty, then it
+          becomes longer with the addition of a new leftmost cell.
+
+        <p>
+          In an analogous manner, if the head is in the void space and it is stepped, that
+          step internally invokes the cont-rightmost continuation for the void space, and
+          in that continuation, if the tape space exists, we step the head into the tape
+          space and put it on leftmost.  If the tape space does not exist, then we invoke
+          the cont-rightmost function supplied by the user in the step call.
+
+        <p>
+          In this manner we have created a hierarchy of spaces, with the tape space being
+          a subspace to the void space.  As for other subspaces, once the head is in the
+          subspace, there is no way to detect the presence of the superspace. Stepping
+          left from leftmost of the subspace invokes cont-leftmost, and stepping right
+          from rightmost invokes cont-rightmost, etc.
+
+        <p>
+          If left stepping or allocation is defined for the machine, then we create a dual
+          system for stepping or allocating to the left.
+
+        <p>
+          Within the tape space, primitive allocation occurs to the right of the cell the
+          head is on.  Hence the cell the head is on becomes an attachment cell for new
+          cells.  When we gather new outputs from a function, these outputs then appear to
+          the right of the attachment cell.  Hence the primary mode of use for gathering
+          outputs is that the attachment cell is not read or written, but rather it is
+          just attached to.  Take for example our stack implementation when the tape
+          machine is mounted on a list. Pushing (enqueue) something on the stack
+          allocates a cell to the right of the attachment cell.  Pulling from (dequeue)
+          the stack causes the cell to the right of the attachment cell to be deallocated.
+          The stack never reads from nor writes to the attachment cell.
+
+        <p>
+          These continuation definitions for the void projective space set up a morphism
+          between the head being in the void space and the head being placed on an
+          attachment cell. In both cases, creating a new allocation will put the cell in a
+          place that is reached by taking a step.  In both cases we do not expect the
+          attachment point itself to be read or written.  In the case of the void
+          projective space, such a read or write will be an error, in the case of an
+          attachment point, one would be writing outside of the structure being attached
+          (such as in the stack example of the prior paragraph).
+
+        <p>
+          Hence, with this approach the user may use an un-initialized machine for capturing
+          output, just as he would use an initialized one.  He or she need not predict the
+          arrival of a first result, nor have to handle first results in a special manner.
+          Unlike in the padding approach, uninitialized machines can be recognized by
+          using the <i>parked</i> or <i>empty</i> predicates, and they do not carry unused
+          allocations.
+
+          <br>
+          
+          <img src="tape machine.png" width="375pt">
+
+  </article>
+</div>
+
+        <a name="Generators"></a>
+
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators" class="active">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Generators </h1>
+
+        <p>
+          A generator is a tape machine that produces values despite having never been
+          written to or initialized with the values.  It may be initialized with some seed
+          parameters.  Typically such machines have no rightmost, rather on each step will
+          just make yet another cell value available.
+
+        <p>
+          Perhaps the simplest generator would be a tm-singular-affine machine initialized
+          with a value.  This would be a constant generator.
+
+          <h2> tm-line </h2>
+
+        <p>
+          This is soon to be replaced with a more flexible generator.
+
+        <p>
+          <i>tm-line</i> is a tape machine that takes as an initialization an initial
+          value, an inclusive bounding value - or nil, and an increment.  It then sums the
+          increment into the initial value upon each step to the right.  Thus it
+          successively produces a sequence of numbers.
+
+        <p>
+          The following function returns true:
+
+          <pre><code>
+              (defun test-tm-line-0 ()
+                (let(
+                      (tm-src (tm-mk 'tm-line (make-line :bound 5)))
+                      (tm-dst (tm-mk 'tm-list))
+                      )
+                  (⟳ (λ(cont-loop cont-return)
+                       (as tm-dst (r tm-src))
+                       (s tm-src cont-loop cont-return)
+                       ))
+                  (equal
+                    (cdr (to-list tm-dst))
+                    [0 1 2 3 4 5]
+                    )
+                  ))
+          </code></pre>
+        
+
+    </section>
+  </article>
+</div>
+
+        <a name="Transforms"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms" class="active">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Transforms </h1>
+
+        <p>
+          Tape machine transforms are tape machines that bind to other tape machines and
+          provide the information in the base tape machine though in a different manner.
+
+        <p>
+          Currently we provide three tape machine
+          transforms.  <i>tm-depth</i>, and <i>tm-breadth</i>.
+
+        <p>
+          <i>tm-depth</i> is initialized with another tape machine.  When step, #'s, is
+          called, <i>tm-depth</i> follows a depth first traversal of the base machine.
+          I.e. whenever it encounters an object that can be mounted, it pushes a duplicate,
+          mounts the object, and steps into it.  When it reaches the end of a subspace it
+          pops off the prior check point and continues from there.  The user just sees
+          the depth first traversal as through it were linear.
+
+        <p>
+          <i>tm-breadth</i> is initialized with another tape machine. #'s follows a
+          breadth first traversal through the base machine.
+
+    </section>
+  </article>
+</div>
+
+        <a name="Issues"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues" class="active">11</a></li>
+        <li><a href="#Errors">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Issues </h1>
+
+        <p>
+          Changes to the head location or the contents of cell on the tape are said to
+          be <i>stateful</i> changes.  Changes to the number of cells on the tape are said
+          to be <i>structural</i> changes.  The two ways to change structure are through
+          allocation and deallocation.  Some tape machines can not go through structural
+          changes, for example those that mount fixed arrays.
+
+        <p>
+          When there are no structural changes, then, in theory it is not possible to
+          break a tape machine.  What we mean by break, is that it is not possible when
+          using calls to the interface to make it such that a tape machine does not
+          respond in the manner defined by the interface functions. I say in theory,
+          because this is the intention of the architectural design.  It is possible that
+          this intention has not been translated into a perfect design or perfect
+          implementation.
+
+        <p>
+          In a second scenario, one with a single head on a tape, i.e. when the function
+          #'dup has never been called, in theory it is also not possible to break a tape
+          machine - even in the presence of structure changing operations.  Allocate and
+          Deallocate have been carefully designed so as to achieve this property.
+
+        <p>
+          Even in the presence of multiple heads and structural changes, tape machines still
+          can not be broken if those operations are used while checking for and avoiding
+          hazards.  One example of this is the implementation of <i>tm-region</i>.  So
+          what are the hazards?
+
+        <h2> Deletion of the Cell the Head is on Hazard</h2>                  
+
+        <p>
+          So now we have the case where #'dup has been called, and structural changes are
+          allowed.  One of the duplicates could be used used to deallocate a cell
+          indicated by the head of the other duplicate.  This is very easy to set up.
+          Just dup a tape machine, step one of the duplicates, and call deallocate on the
+          other.  The behavior of a tape machine with an indicated cell that has been
+          deallocated is undefined, for good reason, as we are not sure what will happen,
+          but are fairly sure it will often be bad.
+
+        <p>
+          We rely on the programmer to maintain a contract with us that he will never
+          write code that leaves a tape machine head dangling in such a manner.  We did
+          consider a programmed solution, but it does not seem right for Lisp, it is
+          discussed in the next section.
+
+        <h2> Fix for Multiple Heads and Structure Change Hazard <br>
+          ... and why it was not implemented
+        </h2>
+
+
+        <p>
+          The fix is to add a third slot to the tape machine class. In this third
+          slot we have list or references to tape machines that have a head on the
+          tape.  Then upon applying a destructive change to the tape, we check the
+          head locations for all the listeners, and if there is a conflict we
+          take a conflict continuation path.
+
+        <p>
+          I did not implement this, at least on this version of the library, because
+          of the manner in which memory allocation is done in Lisp.  In Lisp when
+          we are done using something, the garbage collector sees that, and the unused
+          stuff goes away.  So, if we put a tape machine on a listener list, it
+          always looks used, and it never goes away. 
+          
+        <p>
+          We can introduce a destructor that must be called to explicitly release a tape
+          machine, but that would go against conventional programming practices in Lisp.
+
+        <p>
+          There appears to be some tricky ways around all this, but those are too involved
+          to implement at the current level of developer engagement ;-) .. i.e. it looks
+          like too much work for me at this time.
+
+      <h2> Allocation on Arrays </h2>
+
+        <p>
+          In Lisp we have two types of arrays to think about, the extendable array
+          and the fixed array. 
+
+        <p>
+          Allocation requires creating a new cell to the right of the current
+          cell. If we are at the rightmost cell, then we can move the fill pointer
+          of the extendable array, and we have an allocation.  Conversely, if
+          we are one away from rightmost, we can deallocate by moving the fill
+          pointer back. 
+          
+        <p>
+          For a fixed array, we do not have a fill pointer, so we will instantly just
+          take <i>cont-no-alloc</i>.
+
+        <p>
+          When the head is in the middle of the array, allocation can be accomplished
+          by moving all the objects found to the right of the head to the right,
+          and then bumping up the fill pointer.  We refer to this technique as
+          <i>emulating allocation</i>.
+
+        <p>
+          If there are multiple heads on the tape we run into a problem with
+          emulating allocation.  When we move the objects right as part of an
+          operation on one tape machine, the object in the cell the head is
+          on changes for all other tape machines with heads further to the right.
+
+        <p>
+          The problem with emulating allocation on arrays when there are multiple
+          tape heads can also be fixed with a listener list, as discussed above.
+
+        <p> But why perform emulated allocation when there is a move function, #'m that is
+          more suited for manipulating data in arrays?  By definition when objects are
+          moved right with the move function, the object in a particular cell to the right
+          will change.  Also by definition, objects that fall off the end are just thrown
+          away, so #'m even works on fixed length arrays. (If the programmer wants to keep
+          objects that would fall of the end, he or she can copy them first.  We do not
+          need an explicit copy function, as write, #'w, already accepts an initialization
+          object, and #'w* accepts an initialization machine, and thus is a copy
+          function.)
+
+      <h2> Data Movement Over Lists </h2>
+
+        <p>
+          When only one tape head is involved, data movement can be efficiently
+          emulated over a list by allocating a new cell to the right, and deallocating
+          rightmost.  However, when there are multiple heads involved, we run
+          into the problem that the objects in the cells under those heads does
+          not change, which is an specified behavior for #'m.
+
+        <p>
+          When the mounted list is singly linked, employing a listener list will not help
+          with the problem of multiple heads, because to make it look like data moved
+          right, the other machine heads would have to step left, which is not implemented.
+
+      <h2> Design Decision about the Listener List </h2>
+
+        <p>
+          Due to the considerations explained above, for this version of the tape machine
+          library it seems to make most sense to use tape machine type specific functions
+          for making cells available for use, and analogous operations, with the exception
+          of allowing rightmost allocation on extendable arrays.  The type of the tape can
+          be checked by unmounting and then using typeof or typep.
+
+        <p>
+          In the presence of multiple tape heads and destructive operations, we suggest
+          that the programmer provide at least a sketch of a proof as to why hazards will
+          not occur, or that that a tool is used to attempt to check this automatically
+          (it may not be possible in general).  Also note, the tape machine library did
+          not create container use hazards, rather it is only formalizing their
+          description.
+
+      <h2> Multithreaded, Multiple Heads, and Structural Changes </h2>
+
+        <p>
+          The above remarks apply.  In addition structural changes typically will have
+          to be thread mutually exclusive.
+
+
+    </section>
+  </article>
+</div>
+    
+
+        <a name="Errors"></a>
+<header>
+    <ul class="nav">
+      <li class="nav"><a href="index.html">Top</a></li>
+      <li class="nav"><a href="toc.html">Table of Contents</a></li>
+    </ul>
+    <div class="center">
+      <ul class="pagination">
+        <li><a href="#Introduction">0</a></li>
+        <li><a href="#Concepts">1</a></li>
+        <li><a href="#Unicode">2</a></li>
+        <li><a href="#Nomenclature">3</a></li>
+        <li><a href="#List">4</a></li>
+        <li><a href="#Stepping">5</a></li>
+        <li><a href="#Working">6</a></li>
+        <li><a href="#Spaces">7</a></li>
+        <li><a href="#Initializing">8</a></li>
+        <li><a href="#Generators">9</a></li>
+        <li><a href="#Transforms">10</a></li>
+        <li><a href="#Issues">11</a></li>
+        <li><a href="#Errors" class="active">12</a></li>
+        <li><a href="dictionary/Package-TM-list.html">R</a></li>
+      </ul>
+    </div>
+</header>
+
+<div class="page">
+  <article>
+      <section>
+        <h1> Error Sources and Handling </h1>
+
+        <h2> Error Sources </h2>
+
+        <p>
+          Computing consists of operation and decision making.  A function is stateless
+          message acceptor that performs operations and makes decisions. It may also
+          generate new messages.  Because a function is stateless, each symbol it receives
+          on its input is handled independently from all the symbols that came before it
+          in the message stream. Hence, it is more specific to say that a function is a
+          symbol manipulator.
+
+        <p>
+          When most of the symbols presented to a function cause the internal decision
+          gates to be set one way, while one or a few cause them to be set another way, we
+          say that those few symbols represent <i>end cases</i>.  End cases annoy
+          programmers because they defy a programmer's sense of efficiency.  Why do as
+          much programming work for a few symbols, as for the lion's share of the others?
+          Often times we use Shannon factorization to handle end cases, which is to say we
+          write code that handles the bulk of the inputs, and then branch elsewhere to
+          handle the end cases.  Not properly recognizing and handling end cases is
+          a common source of program bugs.
+
+        <p>
+          In addition to not handling end cases correctly, programmers might also
+          make other mistakes and produce malformed code.  And even well formed code
+          might fail to implement the requirements.
+
+        <p>
+          Much of programming shadows mathematics or other formalisms. However computation
+          has limitations, and it is often not possible, or at least not practical, to
+          create computational isomorphisms for these formal systems.  This means that
+          programs might have divergent behavior.  When a program diverges beyond what
+          is considered to be good approximation, it has failed.  Of course, it is
+          good behavior for a program to tell the user when it has diverged.  When a
+          program does this we say it is <i>trustworthy</i>.  When a program always
+          delivers convergent results, we say it is <i>reliable</i>.
+
+        <p>
+          As Gödel pointed out, any formal system of sufficient complexity will either
+          have inconsistencies or there will be things that can not be expressed.  For
+          example, we know that a Turing Machine can not provide a solution to the halting
+          problem.  This means, for example, if we have a compiler component who's job is
+          to look at functions in source code and to decide if they will return or not,
+          that this component will sometimes fail, even if it was written bug free.  Now
+          here is an interesting question, can such a program be trustworthy by telling us
+          when it is going to fail?
+
+        <p>
+          Even aside from formalism, programs run on real hardware, and sometimes
+          the world throws curve balls, such as data not arriving, bits being corrupted, or
+          hardware failing. In digital computing we go to great lengths to prevent such
+          things from piercing the lower levels of communication protocols, or to be
+          detected before a program is run.
+
+
+        <h2> When to Continue, When to Throw </h2>
+
+        <p>
+          With a programming library we can only hope to facilitate programmers in their
+          attempt to write trustworthy and reliable code.  This facility comes in the form
+          of syntax for control flows.  As one example, by providing direct support for
+          Shannon Factorization.
+
+        <p>
+          Decisions result in changes in control flow.  This is true whether the decision
+          is offsetting end case work, detecting an error, or is just part of processing
+          data.  Typically we write functions to solve a focused problem, and then defer
+          the end cases.  In TM we provide function continuations to support this
+          approach.  In this paradigm we do not throw errors or conditions for such end
+          cases, at least not directly.  If the programmer cares to throw an error, he or
+          she does that from within the continuation.
+
+        <p>
+          We do throw errors for things that should not have happened if our program
+          design had been correct as intended.  For example, falling off of the bottom of
+          a case form, when we believed all cases had been addressed.
+
+        <p>
+          The library author can not know how a library function will be used. It may be
+          obvious to the user that certain end cases can not occur.  These continuations
+          sometimes default to error messages.  Continuations that would represent a
+          failure if taken, but believed to never be taken, should be capped off with a
+          function that throws an error.  It is surprising how often 'this-cant-happen gets
+          thrown.  Often it is due to small edits where the ramifications were not
+          thought through.
+
+        <p>
+          We keep a number of contracts with the user of the library.  For example, we
+          agree with the user that he or she will only try to #'mount basic sequences that
+          are known to the library.  When such contracts are broken, we may throw an
+          error.  Often contracts are recursive, i.e. the library user relied upon other
+          contracts (including the library authors), so there is a high probability of
+          broken contracts.
+
+        <p>
+          An example of such a contract with the Common Lisp TM library is that of not
+          allocating new cells on fixed array tape machine types.  Though the programmer
+          requires that his function never be passed a fixed array tape machine, it still
+          might happen.  When it does the allocation routine will take a cont-no-alloc
+          continuation, and that will lead to an error being thrown, something like
+          'you-promised-not-to-do this.  In contrast, if there was no contract, or the
+          contract was not trusted, the cont-no-alloc path would do something to emulate
+          the allocation on the array type machine, perhaps by moving objects around.
+
+        <h2> Data Flow Support</h2>
+
+        <p>
+          In a dataflow model of computation, in front of each function there is a
+          synchronizer that collects tokens and inputs.  When a matched set of tokens is
+          found, the input set is then dispatched to the function.  We provide such
+          synchronizers to be used as guard checks for inputs and to be used in
+          multithreaded environments.
+
+        <p>
+          For example, the function #'synch, accepts a number of tape machines, a
+          predicate, or a list of predicates.  The single predicate is applied to all input
+          tape machines, or the predicates in a list are matched up in order.  If all the
+          predicates are true, then the function takes a cont-ready continuation,
+          otherwise it takes cont-not-ready.  The cont-not-ready branch may do any number
+          of things, including fixing the problem and retrying the #'synch call.  A common
+          use of #'synch is to check that none of the input machines are parked.  This
+          sets an obvious proof target, as in this case if the condition of a parked input
+          tape machine can't happen, the synch call is not needed.
+        
+  </article>
+</div>
+
+
+
+</body>
+</html>
