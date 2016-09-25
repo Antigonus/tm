@@ -30,20 +30,21 @@ See LICENSE.txt
 
    (defmethod d*
      (
-       tm
+       (tm solo-tape-machine)
        &optional 
        spill 
        (cont-ok (be t))
        (cont-no-alloc (λ()(error 'alloc-fail)))
        )
-     (⟳-loop(λ(cont-loop)
-       (d
-         tm
-         spill
-         cont-loop
-         cont-ok
-         cont-no-alloc
-         ))))
+     (⟳-loop
+       (λ(cont-loop)
+         (d
+           tm
+           spill
+           (λ(object)(declare (ignore object)) (funcall cont-loop))
+           cont-ok
+           cont-no-alloc
+           ))))
 
    (defgeneric d◧*
      (
@@ -66,7 +67,7 @@ See LICENSE.txt
 
    (defmethod d◧*
      (
-       tm
+       (tm solo-tape-machine)
        &optional 
        spill 
        (cont-collision (be t))
@@ -79,7 +80,7 @@ See LICENSE.txt
        (d◧
          tm
          spill
-         cont-loop
+         (λ(object)(declare (ignore object)) (funcall cont-loop))
          cont-collision ; cont-collision - hit the cell the head was on
          cont-no-alloc
          ))))
@@ -87,7 +88,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations
 ;;
-  (defgeneric dn (tm count &optional spill cont-ok cont-rightmost)
+  (defgeneric dn (tm count &optional spill cont-ok cont-rightmost cont-no-alloc)
     (:documentation
       "Given a tape machine and a natural number.
       Like repeating d count times, but specialized versions might be more efficient.
@@ -96,22 +97,26 @@ See LICENSE.txt
 
   (defmethod dn
     (
-      (tm tape-machine)
+      (tm solo-tape-machine)
       (n integer)
       &optional 
       spill
       (cont-ok (be t))
       (cont-rightmost (be ∅))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (labels(
              (do-work()
                (when (≤ n 0) (return-from dn (funcall cont-ok)))
                (d tm spill 
-                 #'do-work
+                 (λ(object)
+                   (declare (ignore object))
+                   (decf n)
+                   (funcall #'do-work)
+                   )
                  (λ()(return-from dn (funcall cont-rightmost n)))
-                 )
-               (decf n)
-               )
+                 cont-no-alloc
+                 ))
              )
       (do-work)
       ))

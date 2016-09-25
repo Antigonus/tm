@@ -12,38 +12,37 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; stepping multiple machines in unison
 ;;
+;; all step, or none step.
+;;
 ;; love the null case.  If there are no tms to step, then there does not
 ;; exist a tm that stepped, so we should return ∅.  On the other hand, if there
 ;; are no tms to step, then no tm failed to step, so we should return true. 
-;; We avoid this end case by requiring that tms be non-void.
+;; ... at the level of implementation here in src-list, machines are not
+;; stateful, so we can not pass in a void machine.
 ;;
   (defun s-together 
     (
-      tms ; tms holds tape machines, tms is not moved, but the constituent machines are
+      tms ; objects are tms to be stepped
       &optional
-      (cont-ok #'echo)
-      (cont-exists-on-rightmost (be ∅))
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
       )
-    "s-together is passed a non-void list of tape machines.
-    Each time s-together is called, all machines in the list are stepped.
-    If any of the machines can not be stepped, then none of the machines are stepped.
-    cont-exists-end is called with an iterator on the first of the tms that could not
+    "s-together is passed a tm that has other tape machines as objects.
+    Each time s-together is called, the constituent machines are stepped.  If any of the
+    machines can not be stepped, then none of the machines are stepped.  When
+    cont-rightmost is taken, tms will be left pointing at the first machine that could not
     be stepped.
     "
-    (with-mk-entangled tms
-      (λ(tms0)
-        (with-mk-entangled tms
-          (λ(tms1)
-            (¬∃ tms0 (λ(tms0)(on-rightmost (r tms0)))
-              (λ()
-                (⟳(λ(cont-loop cont-return)
-                    (s (r tms1) #'do-nothing (λ()(error 'tm-impossible-to-get-here)))
-                    (s tms1 cont-loop cont-return)
-                    ))
-                (funcall cont-ok 's)
-                )
-              cont-exists-on-rightmost
-              ))))))
+    (cue-leftmost tms)
+    (¬∃ tms (λ(tms)(on-rightmost (r tms)))
+      (λ() 
+        (cue-leftmost tms)
+        (∨ (∀ tms (λ(tms)(s (r tms)))) (funcall #'cant-happen))
+        (funcall cont-ok)
+        )
+      cont-rightmost
+      ))
+
 
 ;;--------------------------------------------------------------------------------
 ;; indexed read and write
@@ -58,7 +57,7 @@ See LICENSE.txt
       )
     (:documentation
       " This is an indexed read operation.  It makes an entangled copy of 'tm', 
-        steps it 'index' places, then reads it.
+        steps it 'index' times, then reads it.
       "
       ))
 
@@ -73,15 +72,15 @@ See LICENSE.txt
     (with-mk-entangled tm
       (λ(tm1)
         (sn tm1 index
-          (λ()(r tm1 cont-ok #'cant-happen))
+          (λ()(funcall cont-ok (r tm1)))
           (λ(n)(funcall cont-rightmost n))
           ))))
 
   (defgeneric esnw 
     (
       tm
-      object
       index
+      object
       &optional
       cont-ok
       cont-rightmost
@@ -95,8 +94,8 @@ See LICENSE.txt
   (defmethod esnw 
     (
       tm
-      object
       index
+      object
       &optional
       (cont-ok (be t))
       (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))

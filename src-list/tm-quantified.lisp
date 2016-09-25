@@ -68,6 +68,7 @@ See LICENSE.txt
 
   ;; note the fill data will be reversed at the tm insert point
   ;; use as* to fill without reversal
+  ;; use eas* to fill forward without moving tm (requires at least nd-tm)
   (defgeneric a* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'a repeatedly with successive objects from tm-fill. 

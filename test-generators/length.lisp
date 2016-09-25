@@ -16,10 +16,10 @@ See LICENSE.txt
 ;;
   (defun test-ton-0 ()
     (let(
-          (tma (mk 'tm-list))
-          (tmb (mount {1}))
-          (tmc (mount {1 2}))
-          (tmd (mount {1 2 3}))
+          (tma (mk 'list-nd-tm)) ; can't make stateful machine yet ...
+          (tmb (mk 'list-nd-tm :mount {1}))
+          (tmc (mk 'list-nd-tm :mount {1 2}))
+          (tmd (mk 'list-nd-tm :mount {1 2 3}))
           )
       (sync (mount {tma tmb tmc tmd})
         #'is-active

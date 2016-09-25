@@ -38,7 +38,7 @@ See LICENSE.txt
 ;; repeated by count operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric an (tm tm-fill count &optional cont-ok cont-rightmost cont-no-alloc)
+  (defgeneric an (tm count tm-fill &optional cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to calling #'a n times on a mk-entangled-with of tm."
       ))
@@ -46,25 +46,17 @@ See LICENSE.txt
   (defmethod an
     (
       (tm nd-tape-machine)
-      fill
       (n integer)
+      fill
       &optional 
       (cont-ok (be t))
       (cont-rightmost (λ(tm1 n)(declare (ignore tm1 n))(be ∅)))
       (cont-no-alloc (λ(tm1 n)(declare (ignore tm1 n))(error 'alloc-fail)))
       )
     (with-mk-entangled tm
-      (λ(tm1)
-        (loop repeat n do
-          (a tm1 (r fill)
-            (λ()(s fill
-                  #'do-nothing
-                  (λ()(return-from an (funcall cont-rightmost tm1 n)))
-                  ))
-            (λ()(return-from an (funcall cont-no-alloc tm1 n)))
-            ))))
-    (funcall cont-ok)
-    )
+      (λ(tm1) (asn tm1 n fill cont-ok cont-rightmost cont-no-alloc))
+      ))
+
         
           
 

@@ -93,7 +93,7 @@ See LICENSE.txt
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (be ∅))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-no-alloc))
     (let(

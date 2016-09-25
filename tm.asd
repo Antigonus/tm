@@ -62,17 +62,11 @@ See LICENSE.txt
                                (:file "nd-tm-def")
                                (:file "nd-tm-primitives")
                                (:file "nd-tm-derived") 
-#|
-
                                (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
-                               (:file "length")
-                               (:file "location")
-|#
 
                                (:file "list-nd-tm-def")
                                (:file "list-nd-tm-primitives")
-#|
 
                                ;; includes destructive functions, but no entangled copy functions
                                (:file "solo-tm-def")
@@ -82,7 +76,7 @@ See LICENSE.txt
                                ;; a solo-tm implemenation
                                (:file "list-solo-tm-def")
                                (:file "list-solo-tm-primitives")
-
+#|
 
                                ;; includes destructive functions, and entangled copy functions
                                (:file "ea-entanglement")
@@ -111,30 +105,19 @@ See LICENSE.txt
 
                               (:file "list-nd-tm-primitives")
                               (:file "nd-tm-derived")
-                              
-;;;                              (:file "nd-tm-derived")
+                              (:file "nd-tm-quantifiers")
+                              (:file "nd-tm-quantified")
 
-#|
-
-                              (:file "tm-list-primitives")
-                              (:file "tm-list-derived")
-
-                              (:file "list-tm")
-                              (:file "tm-state")
-                              
-                              (:file "tm-subspace")
-                              (:file "tm-quantifiers")
-
-                              (:file "length")
-                              (:file "location")
-
-|#
+                              (:file "list-solo-tm-primitives")
+                              (:file "solo-tm-quantified")
                               ))
 
 #|
 
                (:module "src-generators"
                  :components (
+                               (:file "length")
+                               (:file "location")
                                (:file "tm-DE")
                                ))
 
@@ -158,6 +141,9 @@ See LICENSE.txt
 
                (:module "test-generators"
                 :components (
+                              (:file "length")
+                              (:file "location")
+
                              (:file "tm-DE")
 
                               ))

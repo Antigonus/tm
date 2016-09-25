@@ -15,8 +15,8 @@ See LICENSE.txt
       (tm list-solo-tm)
       object
       &optional
-      cont-ok
-      cont-no-alloc
+      (cont-ok (be t))
+      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (declare (ignore cont-no-alloc))
     (setf (tape tm) (cons object (tape tm)))
@@ -44,13 +44,19 @@ See LICENSE.txt
              (dealloc-cell (cdr (HA tm)))
              (spill-object (car dealloc-cell))
              )
-        (as spill spill-object
-          (λ()
+        (if spill
+          (as spill spill-object
+            (λ()
+              (rplacd (HA tm) (cdr dealloc-cell))
+              (funcall cont-ok spill-object)
+              )
+            cont-no-alloc
+            )
+          (progn
             (rplacd (HA tm) (cdr dealloc-cell))
             (funcall cont-ok spill-object)
-            )
-          cont-no-alloc
-          ))
+            )))
+
       (funcall cont-rightmost)
       ))
 
@@ -73,11 +79,12 @@ See LICENSE.txt
              (dealloc-cell (tape tm))
              (spill-object (car dealloc-cell))
              )
-        (as spill spill-object
-          (λ()
-            (setf (tape tm) (cdr dealloc-cell))
-            (funcall cont-ok spill-object)
-            )
-          cont-no-alloc
-          ))))
+        (when spill
+          (as spill spill-object
+            (λ()
+              (setf (tape tm) (cdr dealloc-cell))
+              (funcall cont-ok spill-object)
+              )
+            cont-no-alloc
+            )))))
 

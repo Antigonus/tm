@@ -6,11 +6,11 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defgeneric singular (tm &optional cont-true cont-false))
+(defgeneric singleton (tm &optional cont-true cont-false))
 (defgeneric doubleton (tm &optional cont-true cont-false))
 (defgeneric tripleton (tm &optional cont-true cont-false))
 
-(defmethod singular (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+(defmethod singleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (with-mk-entangled tm
     (λ(tm1)
       (cue-leftmost tm1)
