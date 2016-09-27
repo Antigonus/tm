@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-mk-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {7 2 -3}))
+         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
          (tm1 (mk-entangled tm0))
          )
     (∧
@@ -28,8 +28,8 @@ See LICENSE.txt
 
 (defun test-recycle-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {7 2 -3}))
-         (tm1 (mk 'list-nd-tm :mount {11 22 33}))
+         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
+         (tm1 (mk 'list-nd-tm {:mount {11 22 33}}))
          (tm2 (mk-entangled tm0))
          )
     (∧
@@ -50,8 +50,8 @@ See LICENSE.txt
 
 (defun test-r◧-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {7 2 -3}))
-         (tm1 (mk 'list-nd-tm :mount {11 22 33}))
+         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
+         (tm1 (mk 'list-nd-tm {:mount {11 22 33}}))
          (tm2 (mk-entangled tm0))
          )
     (∧
@@ -65,7 +65,7 @@ See LICENSE.txt
 
 (defun test-s≠-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
          (tm1 (mk-entangled tm0))
          )
     (∧
@@ -79,7 +79,7 @@ See LICENSE.txt
 
 (defun test-s≠-1 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
          (tm1 (mk-entangled tm0))
          )
     (∧
@@ -93,7 +93,7 @@ See LICENSE.txt
 
 (defun test-a◨ ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
          (tm1 (mk-entangled tm0))
          )
     (∧

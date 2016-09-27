@@ -49,7 +49,7 @@ tape machine, so we will do so there.
       object
       &optional
       cont-ok ;  (be t)
-      cont-no-alloc ; (λ()(error 'alloc-fail)))
+      cont-no-alloc ; #'alloc-fail)
       )
     (:documentation
       "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
@@ -74,7 +74,7 @@ tape machine, so we will do so there.
                   spill 
                   cont-ok ; #'echo
                   cont-rightmost ;(λ()(error 'dealloc-on-rightmost))
-                  cont-no-alloc ;(λ()(error 'alloc-fail))
+                  cont-no-alloc ;#'alloc-fail
                   &rest ⋯
                   )
     (:documentation
@@ -92,7 +92,7 @@ tape machine, so we will do so there.
                    spill 
                    cont-ok ; #'echo
                    cont-collision ; (λ()(error 'dealloc-collision))
-                   cont-no-alloc ; (λ()(error 'alloc-fail))
+                   cont-no-alloc ; #'alloc-fail
                    )
     (:documentation
       "Deallocates leftmost.

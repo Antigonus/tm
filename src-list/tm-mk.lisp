@@ -14,12 +14,19 @@ See LICENSE.txt
 ;;
   (defgeneric init (instance init-list &optional cont-ok cont-fail &rest ⋯))
 
-  (defun mk (tm-type &rest init-list)
+  (defun mk
+    (
+      tm-type
+      init-list
+      &optional
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-no-alloc #'alloc-fail))
+    (declare (ignore cont-no-alloc)) ; need to fix this
     (let(
           (instance (make-instance tm-type))
           )
-      (init instance init-list)
-      instance
+      (init instance init-list cont-ok cont-fail)
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -29,7 +36,7 @@ See LICENSE.txt
 ;;
 ;;  tm-derived provides a mount for tape machines (similar to fork but cues to leftmost)
 ;;
-  (defgeneric mount (sequence &optional cont-ok cont-fail))
+  (defgeneric mount (sequence &optional cont-ok cont-fail cont-no-alloc))
 
   (defmethod mount
     (
@@ -37,8 +44,9 @@ See LICENSE.txt
       &optional 
       (cont-ok #'echo)
       (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
+      (cont-no-alloc #'alloc-fail)
       )
-    (declare (ignore sequence cont-ok))
+    (declare (ignore sequence cont-ok cont-no-alloc))
     (funcall cont-fail)
     )
 

@@ -34,7 +34,7 @@ See LICENSE.txt
        &optional 
        spill 
        (cont-ok (be t))
-       (cont-no-alloc (λ()(error 'alloc-fail)))
+       (cont-no-alloc #'alloc-fail)
        )
      (⟳-loop
        (λ(cont-loop)
@@ -71,7 +71,7 @@ See LICENSE.txt
        &optional 
        spill 
        (cont-collision (be t))
-       (cont-no-alloc (λ()(error 'alloc-fail)))
+       (cont-no-alloc #'alloc-fail)
        &rest
        ⋯
        )
@@ -81,8 +81,8 @@ See LICENSE.txt
          tm
          spill
          (λ(object)(declare (ignore object)) (funcall cont-loop))
-         cont-collision ; cont-collision - hit the cell the head was on
          cont-no-alloc
+         cont-collision ; cont-collision - hit the cell the head was on
          ))))
 
 ;;--------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ See LICENSE.txt
       spill
       (cont-ok (be t))
       (cont-rightmost (be ∅))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (labels(
              (do-work()

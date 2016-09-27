@@ -16,7 +16,7 @@ See LICENSE.txt
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
     (setf (tape tm) (cons object (tape tm)))
@@ -26,7 +26,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
-
   (defmethod d 
     (
       (tm list-solo-tm)
@@ -34,7 +33,7 @@ See LICENSE.txt
       spill 
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       &rest ⋯
       )
     (declare (ignore ⋯))
@@ -62,15 +61,16 @@ See LICENSE.txt
 
   ;; We depend on the fact that the head must be on some cell.
   ;; It follows that if there is only one cell, it is leftmost, and the head is on it.
-  ;; As we don't delete the cell with the head on it, the last cell can not be deleted.
+  ;; As we refuse to delete the cell with the head on it, the last cell can not be deleted.
+  ;; Consequently we can never have a cont-rightmost.
   (defmethod d◧
     (
       (tm list-solo-tm)
       &optional
       spill 
       (cont-ok #'echo)
+      (cont-no-alloc #'alloc-fail)
       (cont-collision (λ()(error 'dealloc-collision)))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     (if
       (eq (HA tm) (tape tm))

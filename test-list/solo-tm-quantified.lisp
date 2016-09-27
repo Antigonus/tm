@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-d*-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3}))
-         (tm1 (mk 'list-solo-tm :mount {-100}))
+         (tm0 (mk 'list-solo-tm {:mount {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:mount {-100}}))
          )
     (∧
       (d* tm0 tm1)
@@ -24,8 +24,8 @@ See LICENSE.txt
 
 (defun test-d◧*-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3}))
-         (tm1 (mk 'list-solo-tm :mount {-100}))
+         (tm0 (mk 'list-solo-tm {:mount {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:mount {-100}}))
          )
     (∧
       (sn tm0 2)
@@ -39,8 +39,8 @@ See LICENSE.txt
 
 (defun test-dn-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3 4 5}))
-         (tm1 (mk 'list-solo-tm :mount {-100}))
+         (tm0 (mk 'list-solo-tm {:mount {1 2 3 4 5}}))
+         (tm1 (mk 'list-solo-tm {:mount {-100}}))
          )
     (∧
       (s tm0)

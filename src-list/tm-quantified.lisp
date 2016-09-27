@@ -86,7 +86,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (⟳-loop
       (λ(cont-loop)
@@ -109,7 +109,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (⟳-loop
       (λ(cont-loop)
@@ -124,7 +124,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (as*-1 tm0 fill cont-ok cont-no-alloc)
     )

@@ -76,17 +76,15 @@ See LICENSE.txt
                                ;; a solo-tm implemenation
                                (:file "list-solo-tm-def")
                                (:file "list-solo-tm-primitives")
-#|
 
                                ;; includes destructive functions, and entangled copy functions
-                               (:file "ea-entanglement")
                                (:file "ea-tm-def")
+                               (:file "ea-entanglement")
                                (:file "ea-tm-mk")
                                (:file "ea-tm-primitives")
                                (:file "ea-tm-derived")
 
                                (:file "list-ea-tm-def")
-|#
 
 ;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
@@ -110,11 +108,13 @@ See LICENSE.txt
 
                               (:file "list-solo-tm-primitives")
                               (:file "solo-tm-quantified")
+
+                              (:file "ea-tm-derived")
                               ))
 
 #|
 
-               (:module "src-generators"
+               (:module "src-generators" 
                  :components (
                                (:file "length")
                                (:file "location")

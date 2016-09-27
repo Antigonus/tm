@@ -170,7 +170,7 @@ performance.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
     (with-mk-entangled tm

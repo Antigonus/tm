@@ -27,7 +27,7 @@ See LICENSE.txt
       fill
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (with-mk-entangled tm0
       (λ(tm1)

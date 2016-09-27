@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-We know that entanglements is a solo-tm
+The entanglements slot for ea-tm holds a list-solo-tm.
 
 |#
 
@@ -12,6 +12,8 @@ We know that entanglements is a solo-tm
 ;;--------------------------------------------------------------------------------
 ;; resource contexts
 ;;
+  ;; resource lock for the entanglements list
+  ;; note multiple-threads.txt in the docs directory
   (defgeneric use-entanglements (tm continuation))
 
   ;; this gets more interesting when threads are introduced
@@ -26,7 +28,8 @@ We know that entanglements is a solo-tm
 ;;--------------------------------------------------------------------------------
 ;; adding and removing from the list
 ;;
-  (defun entangle (tm &optional (cont-ok (be t)) (cont-no-alloc (λ()(error 'alloc-fail))))
+  ;; note init has separate code to accomplish this same thing
+  (defun self-entangle (tm &optional (cont-ok (be t)) (cont-no-alloc #'alloc-fail))
     "Adds tm into its own entanglement list. This is typically done as part
      of making tm
     "
@@ -38,14 +41,14 @@ We know that entanglements is a solo-tm
         (funcall cont-ok)
         )))
 
-  (defun disentangle (tm)
-    "Removes tm from its entanglement list.  This is typically done before 
+  (defun self-disentangle (tm)
+    "Removes tm from its own entanglement list.  This is typically done before 
     tm is abandoned.
     "
     (use-entanglements tm
       (λ(es)
         (cue-leftmost es)
-        (if (eq (r◧ es) tm)
+        (if (eq (r es) tm)
           (s es
             (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
             (setf (entanglements tm) ∅)

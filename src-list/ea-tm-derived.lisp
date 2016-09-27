@@ -3,7 +3,6 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-
 |#
 (in-package #:tm)
 
@@ -22,16 +21,15 @@ See LICENSE.txt
           )
       (unwind-protect
         (funcall continuation tm1)
-        (disentangle tm1)
+        (self-disentangle tm1)
         )))
 
   ;; more specialized than one found in nd-tm-primitives.lisp
   (defmethod init-entangled ((tm1 ea-tape-machine) tm-orig)
     (setf (entanglements tm1) (entanglements tm-orig))
-    (entangle tm1)
+    (self-entangle tm1) ; adds tm1 to the entanglement list
     (call-next-method tm1 tm-orig)
     )
-
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -43,7 +41,7 @@ See LICENSE.txt
       object
       &optional
       (cont-ok  (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (call-next-method tm object cont-ok cont-no-alloc)
     (∀-entanglements-update-tape tm)
@@ -58,7 +56,7 @@ See LICENSE.txt
                   spill 
                   (cont-ok #'echo)
                   (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-                  (cont-no-alloc (λ()(error 'alloc-fail)))
+                  (cont-no-alloc #'alloc-fail)
                   &rest ⋯
                   )
     (destructuring-bind
@@ -69,7 +67,7 @@ See LICENSE.txt
        ⋯
       (∃-collision-right-neighbor tm
         cont-collision
-        (call-next-method tm spill cont-ok cont-rightmost cont-no-alloc)
+        (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
         )))
       
   (defmethod d◧ (
@@ -78,11 +76,14 @@ See LICENSE.txt
                    spill 
                    (cont-ok #'echo)
                    (cont-collision (λ()(error 'dealloc-collision)))
-                   (cont-no-alloc (λ()(error 'alloc-fail)))
+                   (cont-no-alloc #'alloc-fail)
                    )
     (∃-collision◧ tm
       cont-collision
-      (progn
+      (λ()
         (call-next-method tm spill cont-ok cont-collision cont-no-alloc)
         (∀-entanglements-update-tape tm)
         )))
+
+    
+

@@ -48,7 +48,7 @@ functions.
       (tm-orig tape-machine)
       &optional
       (cont-ok #'echo)
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (let(
           (tm-copy (make-instance (type-of tm-orig)))

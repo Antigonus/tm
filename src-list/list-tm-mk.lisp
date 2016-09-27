@@ -17,7 +17,7 @@ See LICENSE.txt
       (tm list-tm)
       init-list 
       &optional
-      (cont-ok (be t))
+      (cont-ok #'echo)
       (cont-fail (λ()(error 'bad-init-value)))
       &rest ⋯
       )
@@ -28,7 +28,7 @@ See LICENSE.txt
         ((∧ mount (consp mount))
           (setf (HA tm) mount)
           (setf (tape tm) mount)
-          (funcall cont-ok)
+          (funcall cont-ok tm)
           )
         (t
           (funcall cont-fail)
@@ -40,7 +40,8 @@ See LICENSE.txt
       &optional 
       (cont-ok #'echo)
       (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
+      (cont-no-alloc #'alloc-fail)
       )
-    (mk 'list-tm :mount sequence cont-ok cont-fail)
+    (mk 'list-tm {:mount sequence} cont-ok cont-fail cont-no-alloc)
     )
 

@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-ea-a◧-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3}))
+         (tm0 (mk 'list-ea-tm {:mount {1 2 3}}))
          )
     (with-mk-entangled tm0
       (λ(tm1)
@@ -26,8 +26,8 @@ See LICENSE.txt
 
 (defun test-ea-d-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3 4}))
-         (tm1 (mk 'list-solo-tm :mount {-100}))
+         (tm0 (mk 'list-ea-tm {:mount {1 2 3 4}}))
+         (tm1 (mk 'list-ea-tm {:mount {-100}}))
          )
     (with-mk-entangled tm0
       (λ(tm2)
@@ -62,14 +62,14 @@ See LICENSE.txt
           (on-rightmost tm0)
           (on-rightmost tm2)
           (on-leftmost tm0)
-          (= (d tm0 ∅ (be 'ok) (be 'rm) (be 'na)) 'rm)
+          (eq (d tm0 ∅ (be 'ok) (be 'rm) (be 'na)) 'rm)
           )))))
 (test-hook test-ea-d-0)
 
 (defun test-ea-d◧-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm :mount {1 2 3}))
-         (tm1 (mk 'list-solo-tm :mount {-100}))
+         (tm0 (mk 'list-ea-tm {:mount {1 2 3}}))
+         (tm1 (mk 'list-ea-tm {:mount {-100}}))
          )
     (with-mk-entangled tm0
       (λ(tm2)
@@ -77,7 +77,7 @@ See LICENSE.txt
           (s tm0)
           (¬ (on-leftmost tm0))
 
-          (= (d◧ tm0 tm1  (be 'ok) (be 'rm) (be 'na) (be 'c)) 'c)
+          (eq (d◧ tm0 tm1  (be 'ok) (be 'na) (be 'c)) 'c)
           (s tm2)
 
           (d◧ tm0 tm1)
@@ -90,6 +90,6 @@ See LICENSE.txt
           (on-leftmost tm0)
           (on-leftmost tm2)
           (on-rightmost tm1)
-          (= (d◧ tm0 ∅  (be 'ok) (be 'rm) (be 'na) (be 'c) 'c)
+          (eq (d◧ tm0 ∅  (be 'ok) (be 'na) (be 'c)) 'c)
           )))))
 (test-hook test-ea-d◧-0)

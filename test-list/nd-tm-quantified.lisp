@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-eas*-0 ()
   (let*(
-         (tm (mk 'list-nd-tm :mount { 7  2  -3 -8}))
-         (tm-fill (mk 'list-nd-tm :mount {77 22 -33}))
+         (tm (mk 'list-nd-tm {:mount { 7  2  -3 -8}}))
+         (tm-fill (mk 'list-nd-tm {:mount {77 22 -33}}))
          )
     (∧
       (s tm)
@@ -24,8 +24,8 @@ See LICENSE.txt
 
 (defun test-an-0 ()
   (let*(
-         (tm (mk 'list-nd-tm :mount {7 9 11}))
-         (fill (mk 'list-nd-tm :mount {21 23 25}))
+         (tm (mk 'list-nd-tm {:mount {7 9 11}}))
+         (fill (mk 'list-nd-tm {:mount {21 23 25}}))
          )
     (∧
       (an tm 2 fill)

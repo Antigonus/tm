@@ -3,11 +3,13 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-At this time there are no primitives for ea-tape-machine.  What would normally
-be primtive are instead derived with generic code.  See ea-tm-derived.lisp
+Primitives are generic interface items that must be implemented.  A list container, an
+array container, etc. each would have to implement the primitve for that container
+type.
 
-Hence, once the lower level machines are defined, to have an ea-tm-machine,
-one simply declares one.  See ea-tm-mk.lisp
+In contrast, derived functions are built upon the primitives.  A programmer who wants to
+create a tape machine based on a new container type need not implement derived methods, as
+the generic version will work (by calling the correct primitives).
 
 |#
 

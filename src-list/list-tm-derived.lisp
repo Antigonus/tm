@@ -15,7 +15,7 @@ See LICENSE.txt
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
     (rplacd (HA tm) (cons object ∅))
@@ -28,7 +28,7 @@ See LICENSE.txt
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
     (rplacd (HA tm) (cons object ∅))

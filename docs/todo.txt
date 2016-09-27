@@ -71,3 +71,8 @@ copy to new list doe snot have the problem and it is also transactional
    key parms?
 
 
+34. mk needs to implement the call to cont-no-alloc when make-instance fails
+to allocate from the heap.  Currently we just assume there will be no problem, thus
+there would be a system error thrown instead.
+
+

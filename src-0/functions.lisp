@@ -35,6 +35,7 @@ See LICENSE.txt
 ;; fundamental errors as functions
 ;;
   (defun cant-happen () (error 'impossible-to-get-here))
+  (defun alloc-fail () (error 'alloc-fail)) ;; for memory allocation failure
 
 ;;--------------------------------------------------------------------------------
 ;; pass a value in a box  (via dmitry_vk stack exchange)

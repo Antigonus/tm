@@ -50,7 +50,7 @@ new tape machine implementation to specialize them.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     (a tm object 
       (λ()(s tm cont-ok #'cant-happen))
@@ -75,7 +75,7 @@ new tape machine implementation to specialize them.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     ;; specializations might make better use of the contract
     (a tm object cont-ok cont-no-alloc)
@@ -99,7 +99,7 @@ new tape machine implementation to specialize them.
       object
       &optional
       (cont-ok (be t))
-      (cont-no-alloc (λ()(error 'alloc-fail)))
+      (cont-no-alloc #'alloc-fail)
       )
     ;; specializations might make better use of the contract
     (as tm object cont-ok cont-no-alloc)

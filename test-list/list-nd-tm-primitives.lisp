@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-heads-on-same-cell-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm :mount {7 2 -3}))
+         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
          (tm1 (make-instance 'list-nd-tm))
          )
     (init-entangled tm1 tm0)
