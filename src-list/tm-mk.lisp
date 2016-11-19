@@ -12,12 +12,25 @@ See LICENSE.txt
 ;;
 ;;  init-list is a keyword list.  
 ;;
-  (defgeneric init (instance init-list &optional cont-ok cont-fail &rest ⋯))
+  (defgeneric init (instance init-value &optional cont-ok cont-fail &rest ⋯))
+
+  (defmethod init 
+    (
+      tm
+      init-value
+      &optional
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'bad-init-value)))
+      &rest ⋯
+      )
+    (declare (ignore ⋯ cont-ok))
+    (funcall cont-fail)
+    )
 
   (defun mk
     (
       tm-type
-      init-list
+      init-value
       &optional
       (cont-ok #'echo)
       (cont-fail (λ()(error 'bad-init-value)))
@@ -26,27 +39,7 @@ See LICENSE.txt
     (let(
           (instance (make-instance tm-type))
           )
-      (init instance init-list cont-ok cont-fail)
+      (init instance init-value cont-ok cont-fail)
       ))
 
-;;--------------------------------------------------------------------------------
-;;  given a sequence, returns a tape machine over that sequence
-;;    sequences are things we can step into, and that tree traversal will
-;;    consider to be something to traverse.
-;;
-;;  tm-derived provides a mount for tape machines (similar to fork but cues to leftmost)
-;;
-  (defgeneric mount (sequence &optional cont-ok cont-fail cont-no-alloc))
-
-  (defmethod mount
-    (
-      sequence 
-      &optional 
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
-      (cont-no-alloc #'alloc-fail)
-      )
-    (declare (ignore sequence cont-ok cont-no-alloc))
-    (funcall cont-fail)
-    )
 

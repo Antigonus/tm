@@ -11,9 +11,9 @@ See LICENSE.txt
 
 (defun test-list-tm-0 ()
   (let*(
-         (tm0 (mk 'list-tm {:mount {1}}))
-         (tm1 (mount {7 2 -3}))
-         (tm2 (mk (type-of tm0) {:mount {2 3}}))
+         (tm0 (mk 'list-tm {1}))
+         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm2 (mk (type-of tm0) {2 3}))
          )
     (∧
       (on-leftmost tm0)
@@ -30,14 +30,13 @@ See LICENSE.txt
 
 (defun test-list-tm-1 ()
   (let*(
-         (tm0 (mk 'list-tm {:mount {1}}))
+         (tm0 (mk 'list-tm {1}))
          (tm1 (make-instance 'list-tm))
-         (tm2 (mk (type-of tm0) {:mount {2 3}}))
+         (tm2 (mk (type-of tm0) {2 3}))
          )
     (∧
-      (init tm1 {:mount {7 2 -3}} (be t) (be ∅))
-      (init tm1 {:mount 7} (be ∅) (be t))
-      (init tm1 {:a-parm 7} (be ∅) (be t))
+      (init tm1 {7 2 -3} (be t) (be ∅))
+      (init tm1 7 (be ∅) (be t))
 
       (= (r tm0) 1)
       (= (r tm1) 7)
@@ -54,9 +53,9 @@ See LICENSE.txt
 
 (defun test-list-tm-2 ()
   (let*(
-         (tm0 (mk 'list-tm {:mount {1}}))
-         (tm1 (mount {7 2 -3}))
-         (tm2 (mk (type-of tm0) {:mount {2 3}}))
+         (tm0 (mk 'list-tm {1}))
+         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm2 (mk (type-of tm0) {2 3}))
          )
     (∧
       (on-rightmost tm0)
@@ -73,7 +72,7 @@ See LICENSE.txt
 
 (defun test-list-tm-3 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (on-leftmost tm1)
@@ -89,7 +88,7 @@ See LICENSE.txt
 
 (defun test-list-tm-4 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (s tm1)
@@ -107,7 +106,7 @@ See LICENSE.txt
   (let*(
          (tm1 (make-instance 'list-tm))
          )
-    (init tm1 {:mount {7 2 -3}})
+    (init tm1 {7 2 -3})
     (∧
       (on-leftmost tm1)
       (a tm1 21)

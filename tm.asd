@@ -43,7 +43,7 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "src-list"
+               (:module "src-list" ; both the list and generic interface
                  :components (
                                (:file "tm-def")
                                (:file "tm-mk")
@@ -66,6 +66,7 @@ See LICENSE.txt
                                (:file "nd-tm-quantified")
 
                                (:file "list-nd-tm-def")
+                               (:file "list-nd-tm-mk")
                                (:file "list-nd-tm-primitives")
 
                                ;; includes destructive functions, but no entangled copy functions
@@ -80,11 +81,11 @@ See LICENSE.txt
                                ;; includes destructive functions, and entangled copy functions
                                (:file "ea-tm-def")
                                (:file "ea-entanglement")
-                               (:file "ea-tm-mk")
                                (:file "ea-tm-primitives")
                                (:file "ea-tm-derived")
 
                                (:file "list-ea-tm-def")
+                               (:file "list-ea-tm-mk")
 
 ;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'

@@ -9,12 +9,6 @@ non-destructive operation primitives
 
 (in-package #:tm)
 
-;;--------------------------------------------------------------------------------
-;; copying
-;;  
-  ;; wonder if this just should be a keyword option for init
-  (defgeneric init-entangled (tm1 tm-orig)) ; tm1 and tm-orig will have the same type
-
 
 ;;--------------------------------------------------------------------------------
 ;; head location

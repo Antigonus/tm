@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-mk-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
-         (tm1 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {7 2 -3}))
+         (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (eq (tape tm0) (tape tm1))
@@ -28,14 +28,14 @@ See LICENSE.txt
 
 (defun test-recycle-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
-         (tm1 (mk 'list-nd-tm {:mount {11 22 33}}))
-         (tm2 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {7 2 -3}))
+         (tm1 (mk 'list-nd-tm {11 22 33}))
+         (tm2 (mk 'list-nd-tm tm0))
          )
     (∧
       (eq (tape tm0) (tape tm2))
       (¬ (eq (tape tm1) (tape tm2)))
-      (recycle-entangled tm1 tm2)
+      (init tm2 tm1)
       (¬ (eq (tape tm0) (tape tm2)))
       (eq (tape tm1) (tape tm2))
 
@@ -50,9 +50,9 @@ See LICENSE.txt
 
 (defun test-r◧-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
-         (tm1 (mk 'list-nd-tm {:mount {11 22 33}}))
-         (tm2 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {7 2 -3}))
+         (tm1 (mk 'list-nd-tm {11 22 33}))
+         (tm2 (mk 'list-nd-tm tm0))
          )
     (∧
       (= (r◧ tm0) 7)
@@ -65,8 +65,8 @@ See LICENSE.txt
 
 (defun test-s≠-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
-         (tm1 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (sn tm0 3)
@@ -79,8 +79,8 @@ See LICENSE.txt
 
 (defun test-s≠-1 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
-         (tm1 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (s tm1)
@@ -93,8 +93,8 @@ See LICENSE.txt
 
 (defun test-a◨ ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {3 5 7 9 11}}))
-         (tm1 (mk-entangled tm0))
+         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (a◨ tm1 13)

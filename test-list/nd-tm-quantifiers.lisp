@@ -11,9 +11,9 @@ See LICENSE.txt
 
 (defun test-s-together-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount { 7  2  -3 -8}}))
-         (tm1 (mk 'list-nd-tm {:mount {77 22 -33}}))
-         (tms (mount {tm0 tm1}))
+         (tm0 (mk 'list-nd-tm { 7  2  -3 -8}))
+         (tm1 (mk 'list-nd-tm {77 22 -33}))
+         (tms (mk 'list-tm {tm0 tm1}))
          )
     (∧
       (s-together tms)
@@ -30,7 +30,7 @@ See LICENSE.txt
 
 (defun test-esnr-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount { 7  2  -3 -8}}))
+         (tm0 (mk 'list-nd-tm { 7  2  -3 -8}))
          )
     (∧
       (= (esnr tm0 2) -3)

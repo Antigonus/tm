@@ -13,23 +13,16 @@ See LICENSE.txt
   ;; more specialized than one found in nd-tm-derived.lisp
   (defmethod with-mk-entangled
     (
-      (tm ea-tape-machine)
+      (tm0 ea-tape-machine)
       continuation
       )
     (let(
-          (tm1 (mk-entangled tm))
+          (tm1 (mk (type-of tm0) tm0))
           )
       (unwind-protect
         (funcall continuation tm1)
         (self-disentangle tm1)
         )))
-
-  ;; more specialized than one found in nd-tm-primitives.lisp
-  (defmethod init-entangled ((tm1 ea-tape-machine) tm-orig)
-    (setf (entanglements tm1) (entanglements tm-orig))
-    (self-entangle tm1) ; adds tm1 to the entanglement list
-    (call-next-method tm1 tm-orig)
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation

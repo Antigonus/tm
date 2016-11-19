@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-tm-derived-0 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (on-leftmost tm1)
@@ -28,7 +28,7 @@ See LICENSE.txt
 
 (defun test-tm-derived-1 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (= (r tm1) 7)
@@ -52,7 +52,7 @@ See LICENSE.txt
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-2 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (cue-rightmost tm1)
@@ -70,7 +70,7 @@ See LICENSE.txt
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-3 ()
   (let*(
-         (tm1 (mount {7 2 -3}))
+         (tm1 (mk 'list-tm {7 2 -3}))
          )
     (∧
       (cue-rightmost tm1)

@@ -11,8 +11,8 @@ See LICENSE.txt
 
   (defun test-w*-0 ()
     (let*(
-           (tm (mount {7 9 11}))
-           (fill (mount {21 23 25}))
+           (tm (mk 'list-tm {7 9 11}))
+           (fill (mk 'list-tm {21 23 25}))
            )
       (∧
         (w* tm fill)
@@ -28,7 +28,7 @@ See LICENSE.txt
 
   (defun test-s*-0 ()
     (let*(
-           (tm0 (mount {7 9 11}))
+           (tm0 (mk 'list-tm {7 9 11}))
            )
       (∧
         (on-leftmost tm0)
@@ -44,8 +44,8 @@ See LICENSE.txt
 
   (defun test-a*-0 ()
     (let*(
-           (tm (mount {7 9 11}))
-           (fill (mount {21 23 25}))
+           (tm (mk 'list-tm {7 9 11}))
+           (fill (mk 'list-tm {21 23 25}))
            )
       (∧
         (a* tm fill)
@@ -59,8 +59,8 @@ See LICENSE.txt
 
   (defun test-as*-0 ()
     (let*(
-           (tm (mount {7 9 11}))
-           (fill (mount {21 23 25}))
+           (tm (mk 'list-tm {7 9 11}))
+           (fill (mk 'list-tm {21 23 25}))
            )
       (∧
         (as* tm fill)
@@ -71,13 +71,13 @@ See LICENSE.txt
 
   (defun test-as*-1 ()
     (let(
-          (tm0 (mount {1 2 3}))
-          (tm1 (mount [a b c]))
+          (tm0 (mk 'list-tm {1 2 3}))
+          (tm1 (mk 'list-tm [a b c]))
           )
       (s* tm0)
       (s* tm1)
-      (as* tm0 (mount {4 5 6}))
-      (a*  tm1 (mount [e f g]))
+      (as* tm0 (mk 'list-tm {4 5 6}))
+      (a*  tm1 (mk 'list-tm [e f g]))
       (∧
         (= (r tm0) 6)
         (eq (r tm1) 'c)
@@ -89,7 +89,7 @@ See LICENSE.txt
   (defun test-sn-0 ()
     (let*(
            (y '(1 3 6 5))
-           (tmy (mount y))
+           (tmy (mk 'list-tm y))
            )
       (and
         (sn tmy 2
@@ -105,8 +105,8 @@ See LICENSE.txt
 
   (defun test-sn-1 ()
     (let(
-          (k0 (mount (list 10 11 12)))
-          (k1 (mount (list 13 14 15)))
+          (k0 (mk 'list-tm (list 10 11 12)))
+          (k1 (mk 'list-tm (list 13 14 15)))
           )
       (∧
         (= (r k0) 10)
@@ -123,8 +123,8 @@ See LICENSE.txt
 
   (defun test-asn-0 ()
     (let*(
-           (tm (mount {7 9 11}))
-           (fill (mount {21 23 25}))
+           (tm (mk 'list-tm {7 9 11}))
+           (fill (mk 'list-tm {21 23 25}))
            )
       (∧
         (asn tm 2 fill)

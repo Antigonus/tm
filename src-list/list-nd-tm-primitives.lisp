@@ -11,14 +11,6 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; copying
-;;  
-  (defmethod init-entangled ((tm1 list-nd-tm) tm-orig)
-    (setf (HA tm1) (HA tm-orig))
-    (setf (tape tm1) (tape tm-orig))
-    )
-
-;;--------------------------------------------------------------------------------
 ;; head location
 ;;
 ;;

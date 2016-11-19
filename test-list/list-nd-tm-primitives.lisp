@@ -11,10 +11,10 @@ See LICENSE.txt
 
 (defun test-heads-on-same-cell-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {:mount {7 2 -3}}))
+         (tm0 (mk 'list-nd-tm {7 2 -3}))
          (tm1 (make-instance 'list-nd-tm))
          )
-    (init-entangled tm1 tm0)
+    (init tm1 tm0)
     (∧
       (s tm0)
       (¬ (heads-on-same-cell tm0 tm1))

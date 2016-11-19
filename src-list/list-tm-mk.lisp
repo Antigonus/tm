@@ -3,7 +3,9 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Make list machines.
+  Make list-tm machines. Typically the tm will be a list-nd-tm or a list-solo-tm
+  object, and then this gets called due to the inheritance structure.
+  
 
 |#
 
@@ -15,33 +17,16 @@ See LICENSE.txt
   (defmethod init 
     (
       (tm list-tm)
-      init-list 
+      (init-value cons)
       &optional
       (cont-ok #'echo)
       (cont-fail (λ()(error 'bad-init-value)))
       &rest ⋯
       )
-    (declare (ignore ⋯))
-    (destructuring-bind
-      (&key mount &allow-other-keys) init-list
-      (cond
-        ((∧ mount (consp mount))
-          (setf (HA tm) mount)
-          (setf (tape tm) mount)
-          (funcall cont-ok tm)
-          )
-        (t
-          (funcall cont-fail)
-          ))))
-    
-  (defmethod mount
-    (
-      (sequence cons)
-      &optional 
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'mount-unrecognized-sequence-type)))
-      (cont-no-alloc #'alloc-fail)
-      )
-    (mk 'list-tm {:mount sequence} cont-ok cont-fail cont-no-alloc)
+    (declare (ignore ⋯ cont-fail))
+    (setf (HA tm) init-value)
+    (setf (tape tm) init-value)
+    (funcall cont-ok tm)
     )
+    
 
