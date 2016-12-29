@@ -15,7 +15,7 @@ See LICENSE.txt
   (defgeneric a◧
     (
       tm
-      object
+      instance
       &optional
       cont-ok ;  (be t)
       cont-no-alloc ; #'alloc-fail)
@@ -31,7 +31,7 @@ See LICENSE.txt
 ;;
 ;; Spill can be ∅, in which case we just drop the deallocated cell.  When spill is not ∅,
 ;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
-;; the object from the deallocated cell is moved to it, preferably the former. 
+;; the instance from the deallocated cell is moved to it, preferably the former. 
 ;;
 ;; d must have transactional behavior, i.e. the cell is only dealloced if all goes well,
 ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
@@ -49,9 +49,9 @@ See LICENSE.txt
     (:documentation
       "Deallocate the right neighbor of the cell the head is on.
        I.e. deallocates a region of length 1 located to the right of the head.
-       Returns the object from the deallocated cell.
+       Returns the instance from the deallocated cell.
        If spill is not ∅, the deallocated cell is moved to spill, or a new
-       cell is allocated to spill and the object reference is moved there.
+       cell is allocated to spill and the instance reference is moved there.
       "
       ))
 
@@ -65,9 +65,9 @@ See LICENSE.txt
                    )
     (:documentation
       "Deallocates leftmost.
-       Returns the object from the deallocated cell.
+       Returns the instance from the deallocated cell.
        If spill is not ∅, the deallocated cell is moved to spill, or a new
-       cell is allocated to spill and the object reference is moved there.
+       cell is allocated to spill and the instance reference is moved there.
       "
       ))
 

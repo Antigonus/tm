@@ -16,14 +16,14 @@ see notes in tm-smooth header
     (r (r (tape tm)))
     )
 
-  (defmethod w ((tm tm-aggregate) object)
+  (defmethod w ((tm tm-aggregate) instance)
     (if 
-      (typep object 'tape-machine)
-      (call-next-method tm object)
-      (error 'object-not-tape-machine)
+      (typep instance 'tape-machine)
+      (call-next-method tm instance)
+      (error 'instance-not-tape-machine)
       ))
 
-  (defmethod w ((tm tm-smooth) object)
+  (defmethod w ((tm tm-smooth) instance)
     (w (r (tape tm)))
     t
     )
@@ -73,26 +73,26 @@ see notes in tm-smooth header
   (defmethod a 
     (
       (tm tm-aggregate)
-      object 
+      instance 
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
     (if 
-      (typep object 'tape-machine)
-      (call-next-method tm object cont-ok cont-no-alloc)
-      (error 'object-not-tape-machine)
+      (typep instance 'tape-machine)
+      (call-next-method tm instance cont-ok cont-no-alloc)
+      (error 'instance-not-tape-machine)
       ))
 
   (defmethod a 
     (
       (tm tm-smooth)
-      object 
+      instance 
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
-    (declare (ignore tm object cont-ok))
+    (declare (ignore tm instance cont-ok))
     (funcall cont-no-alloc)
     )
 

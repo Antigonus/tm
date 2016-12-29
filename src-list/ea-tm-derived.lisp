@@ -31,12 +31,12 @@ See LICENSE.txt
   (defmethod a◧
     (
       (tm ea-tape-machine)
-      object
+      instance
       &optional
       (cont-ok  (be t))
       (cont-no-alloc #'alloc-fail)
       )
-    (call-next-method tm object cont-ok cont-no-alloc)
+    (call-next-method tm instance cont-ok cont-no-alloc)
     (∀-entanglements-update-tape tm)
     )
 

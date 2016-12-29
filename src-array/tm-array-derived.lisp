@@ -31,7 +31,7 @@ See LICENSE.txt
         )
       )
     (let(
-          (read-index (+ index (HA tm)))
+          (read-index (+ index (head tm)))
           )
       (if
         (> read-index (rightmost-index tm))
@@ -42,7 +42,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-rightmost ((tm tm-array)) (setf (HA tm) (rightmost-index tm)))
+  (defmethod cue-rightmost ((tm tm-array)) (setf (head tm) (rightmost-index tm)))
 
 ;;--------------------------------------------------------------------------------
 ;;  tape-machine properties
@@ -55,7 +55,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (if
-      (= (HA tm0) (rightmost-index tm0))
+      (= (head tm0) (rightmost-index tm0))
       (funcall cont-true)
       (funcall cont-false)
       ))

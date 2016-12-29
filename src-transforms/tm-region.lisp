@@ -14,7 +14,7 @@ See LICENSE.txt
     the leftmost and rightmost for the base machine.
 
     A region of space should not to be conflated with a subspace. In contrast to a region,
-    a subspace occurs when a cell holds a tape machine as an object.  See
+    a subspace occurs when a cell holds a tape machine as an instance.  See
     tm-subspace.lisp.
 
   Address of a Region
@@ -41,7 +41,7 @@ See LICENSE.txt
     :location is required.  It locates the region within the base machine tape.  The
     region occurs to the right of the cell the base machine's head is on.
 
-    :mount, if provided, is a list of objects to be allocated to the region using #'a*
+    :mount, if provided, is a list of instances to be allocated to the region using #'a*
 
     :rightmost, if provided, must be on the same tape as the base tape machine.  Its head
     address locates the rightmost cell of the region, this rightmost point must be to the
@@ -88,9 +88,9 @@ See LICENSE.txt
 
     On a related note, there is an analogous problem of putting multiple subspaces within
     a cell.  This is done by creating a space of subspaces, called a manifold machine, and
-    then including in the cells of the manifold the objects which are subspaces.  We then
+    then including in the cells of the manifold the instances which are subspaces.  We then
     either have to assume that every contained tape machine is a manifold, or we have to
-    externally keep track of the fact if a machine found as an object is a manifold that
+    externally keep track of the fact if a machine found as an instance is a manifold that
     in turn holds multiple subspaces, or if it is directly a subspace.
 
     Hmm, we could also use manifolds to give order to multiple subspaces given at the
@@ -157,7 +157,7 @@ See LICENSE.txt
             (s leftmost-region ;; leftmost-region one to right of location
               (λ()
                 (setf (state tm) active)
-                (setf (HA tm) leftmost-region)
+                (setf (head tm) leftmost-region)
                 (setf (tape tm) ∅)
                 (setf (entanglements tm) (make-entanglements tm))
                 (funcall cont-ok)
@@ -189,7 +189,7 @@ See LICENSE.txt
                   :rightmost ∅
                   ))
               (setf (state tm) void)
-              (setf (HA tm) ∅)
+              (setf (head tm) ∅)
               (setf (tape tm) ∅)
               (setf (entanglements tm) (make-entanglements tm))
               (funcall cont-ok)
@@ -217,8 +217,8 @@ See LICENSE.txt
     (print-machine (region-location (parameters tm)) (1+ n))
     (indent n) (princ "rightmost: ") (nl)
     (print-machine (region-rightmost (parameters tm)) (1+ n))
-    (indent n) (princ "HA: ") (princ (HA tm)) (nl)
-    (print-machine (HA tm) (1+ n))
+    (indent n) (princ "head: ") (princ (head tm)) (nl)
+    (print-machine (head tm) (1+ n))
 
     #| calling fork inside print-machine is not a good idea
     (if (is-void tm)
@@ -280,11 +280,11 @@ See LICENSE.txt
 ;; accessing data
 ;;
   (defmethod r-0 ((tm tm-region) (state active) cont-ok cont-parked)
-    (r-0 (HA tm) active cont-ok cont-parked)
+    (r-0 (head tm) active cont-ok cont-parked)
     )
 
-  (defmethod w-0 ((tm tm-region) (state active) object cont-ok cont-parked)
-    (w-0 (HA tm) active object cont-ok cont-parked)
+  (defmethod w-0 ((tm tm-region) (state active) instance cont-ok cont-parked)
+    (w-0 (head tm) active instance cont-ok cont-parked)
     t
     )
  
@@ -304,15 +304,15 @@ See LICENSE.txt
   ;; 9. note point 1
   ;; 10. therefore, stepping location will not go to a rightmost continuation
   ;;
-  ;; 11. for a parked machine has a (HA tm) = ∅.  Hence we must create a new HA to become
+  ;; 11. for a parked machine has a (head tm) = ∅.  Hence we must create a new head to become
   ;;     active.
   ;;
     (defmethod cue-leftmost-0  ((tm tm-region) (state parked) cont-ok cont-void)
       (let(
             (location (region-location (parameters tm)))
             )
-        (setf (HA tm) (fork location))
-        (s (HA tm) cont-ok #'cant-happen)
+        (setf (head tm) (fork location))
+        (s (head tm) cont-ok #'cant-happen)
         (setf (state tm) active)
         ))
 
@@ -322,19 +322,19 @@ See LICENSE.txt
       (let(
             (location (region-location (parameters tm)))
             )
-        (cue-to-0 (HA tm) location)
-        (s (HA tm) cont-ok #'cant-happen)
+        (cue-to-0 (head tm) location)
+        (s (head tm) cont-ok #'cant-happen)
         (setf (state tm) active)
         ))
 
-  ;; (HA tm) is already entangled, so we use cue-to-0
+  ;; (head tm) is already entangled, so we use cue-to-0
   ;; regions cue quickly to rightmost
   (defmethod cue-rightmost-0  ((tm tm-region) (state active) cont-ok cont-void) 
     (let(
           (rightmost-region (region-rightmost (parameters tm)))
           )
-      (cue-to-0 (HA tm) rightmost-region)
-      (setf (HA tm) rightmost-region)
+      (cue-to-0 (head tm) rightmost-region)
+      (setf (head tm) rightmost-region)
       t
       ))
 
@@ -349,17 +349,17 @@ See LICENSE.txt
       cont-false
       cont-parked
       )
-    (heads-on-same-cell-0 (HA tm0) active (HA tm1) active cont-true cont-false cont-parked)
+    (heads-on-same-cell-0 (head tm0) active (head tm1) active cont-true cont-false cont-parked)
     )
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
   (defmethod s-0 ((tm tm-region) (state active) cont-ok cont-rightmost)
-    (heads-on-same-cell (HA tm) (region-rightmost (parameters tm))
+    (heads-on-same-cell (head tm) (region-rightmost (parameters tm))
       (λ()(funcall cont-rightmost))
       (λ()
-        (s (HA tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
+        (s (head tm) cont-ok #'cant-happen) ; we just filtered out the rightmost case
         )))
 
 
@@ -374,7 +374,7 @@ See LICENSE.txt
     (
       (tm tm-region)
       (state void)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
@@ -383,7 +383,7 @@ See LICENSE.txt
           (location (region-location (parameters tm)))
           )
       ;; if location is initially void, upon success of #'a it moves to parked
-      (a location object
+      (a location instance
         (λ()
           (let( ; we are going to need a rightmost pointer ..
                 (rightmost (fork location)) ; rightmost is now either active or parked
@@ -401,7 +401,7 @@ See LICENSE.txt
     (
       (tm tm-region)
       (state parked)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
@@ -409,14 +409,14 @@ See LICENSE.txt
     (let(
           (location (region-location (parameters tm)))
           )
-      (a location object cont-ok cont-not-supported cont-no-alloc)
+      (a location instance cont-ok cont-not-supported cont-no-alloc)
       ))
 
   (defmethod a◧-0
     (
       (tm tm-region)
       (state active)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
@@ -424,7 +424,7 @@ See LICENSE.txt
     (let(
           (location (region-location (parameters tm)))
           )
-      (a location object cont-ok cont-not-supported cont-no-alloc)
+      (a location instance cont-ok cont-not-supported cont-no-alloc)
       ))
 
   ;; alloc new rightmost
@@ -432,12 +432,12 @@ See LICENSE.txt
     (
       (tm tm-region) 
       (state active) 
-      object
+      instance
       cont-ok
       cont-not-supported 
       cont-no-alloc
       )
-    (as (region-rightmost (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
+    (as (region-rightmost (parameters tm)) instance cont-ok cont-not-supported cont-no-alloc)
     )
 
   ;; same as for an active region
@@ -445,12 +445,12 @@ See LICENSE.txt
     (
       (tm tm-region) 
       (state parked) 
-      object
+      instance
       cont-ok
       cont-not-supported 
       cont-no-alloc
       )
-    (as (region-rightmost (parameters tm)) object cont-ok cont-not-supported cont-no-alloc)
+    (as (region-rightmost (parameters tm)) instance cont-ok cont-not-supported cont-no-alloc)
     )
 
   ;; adding a new cell to the right of an empty tape, is the same as
@@ -459,48 +459,48 @@ See LICENSE.txt
     (
       (tm tm-region) 
       (state void) 
-      object
+      instance
       cont-ok
       cont-not-supported 
       cont-no-alloc
       )
-    (a◧-0 tm state object cont-ok cont-not-supported cont-no-alloc)
+    (a◧-0 tm state instance cont-ok cont-not-supported cont-no-alloc)
     )
 
   (defmethod a-0
     (
       (tm tm-region)
       (state active)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
       )
-    (a (HA tm) object cont-ok cont-not-supported cont-no-alloc)
+    (a (head tm) instance cont-ok cont-not-supported cont-no-alloc)
     )
 
   (defmethod a-0
     (
       (tm tm-region)
       (state void)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
       )
-    (a◧-0 (HA tm) state object cont-ok cont-not-supported cont-no-alloc)
+    (a◧-0 (head tm) state instance cont-ok cont-not-supported cont-no-alloc)
     )
 
   (defmethod a-0
     (
       (tm tm-region)
       (state parked)
-      object 
+      instance 
       cont-ok
       cont-not-supported
       cont-no-alloc
       )
-    (a◧-0 (HA tm) state object cont-ok cont-not-supported cont-no-alloc)
+    (a◧-0 (head tm) state instance cont-ok cont-not-supported cont-no-alloc)
     )
 
 
@@ -530,7 +530,7 @@ See LICENSE.txt
       cont-ok
       cont-not-supported 
       )
-    (d-0 (HA tm) cont-ok cont-not-supported)
+    (d-0 (head tm) cont-ok cont-not-supported)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -538,12 +538,12 @@ See LICENSE.txt
 ;;
   ;; 1. Entanglement accounting for the region is separate from that for the base machine.
   ;; Hence when we use a region we have two levels of entanglement.  Location, rightmost,
-  ;; and HA are entangled on the base machine.  The tm-region is entangled with itself
+  ;; and head are entangled on the base machine.  The tm-region is entangled with itself
   ;; and any copies made of it.
   ;;
   ;; 2. When we make a copy of a tm-region, we reference the same location and rightmost
-  ;; objects that are referenced on the original machine.  However, we must create a new
-  ;; HA, so that the copy may step independently.
+  ;; instances that are referenced on the original machine.  However, we must create a new
+  ;; head, so that the copy may step independently.
   ;;
   ;; 3. In tm-derived-2.lisp, fork and cue-to each call cue-to-2 to do the work.  cue-to-2
   ;; then calls cue-to-0.  The purpose of cue-to-2 is to add the entanglement list to
@@ -557,13 +557,13 @@ See LICENSE.txt
   ;; abstraction level.  When we need entanglement accounting, that is added by cue-to-2.
   ;;
   ;; Here we define cue-to-0 for tm-region.  As cue-to-0 is making a copy, a new
-  ;; HA must be made [see 2 above]. Here is where we run into an issue.  If we use
-  ;; fork-0 for creating the new HA, then we have proper behavior for fork-0 of the
+  ;; head must be made [see 2 above]. Here is where we run into an issue.  If we use
+  ;; fork-0 for creating the new head, then we have proper behavior for fork-0 of the
   ;; the tm-region, i.e. we don't do any entanglement accounting [see 4 above].  However,
   ;; when cue-to-0 is called as part of cue-to-2 [see 3 above],  cue-to-2 adds accounting
-  ;; at the tm-region level, but not at the base machine level for HA - this is bad.
+  ;; at the tm-region level, but not at the base machine level for head - this is bad.
   ;;
-  ;; If instead we use fork to create the new HA, we end up with entanglement accounting
+  ;; If instead we use fork to create the new head, we end up with entanglement accounting
   ;; for fork-0, which, again, is bad.
   ;;
   ;; the solution -> we will add dispatch to cue-to-2 against the tm type, so that
@@ -575,7 +575,7 @@ See LICENSE.txt
         (tm-orig tm-region)
         )
       (setf (state tm-cued) (state tm-orig))
-      (setf (HA tm-cued) (fork-0 (HA tm-orig)))
+      (setf (head tm-cued) (fork-0 (head tm-orig)))
       (setf (parameters tm-cued) (parameters tm-orig))
       tm-cued
       )

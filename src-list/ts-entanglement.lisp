@@ -34,7 +34,7 @@ See LICENSE.txt
   (defmethod use-head
     (
       (tm ts-tape-machine)
-      continuation  ; will be called with tm as we need the (HA tm) reference to be intact
+      continuation  ; will be called with tm as we need the (head tm) reference to be intact
       )
     (let(
           (ent-obj (entanglements tm))

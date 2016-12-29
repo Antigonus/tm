@@ -10,7 +10,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making list machines from other objects
+;; making list machines from other instances
 ;;
 
   ;; the init-value as a cons cell falls back to list-tm version.
@@ -28,7 +28,7 @@ See LICENSE.txt
         &rest ⋯
         )
       (declare (ignore ⋯ cont-fail))
-      (setf (HA tm) (HA init-value))
+      (setf (head tm) (head init-value))
       (setf (tape tm) (tape init-value))
       (funcall cont-ok tm)
       )

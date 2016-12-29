@@ -13,13 +13,13 @@ See LICENSE.txt
   (defmethod a◧
     (
       (tm list-solo-tm)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
-    (setf (tape tm) (cons object (tape tm)))
+    (setf (tape tm) (cons instance (tape tm)))
     (funcall cont-ok)
     )
 
@@ -38,22 +38,22 @@ See LICENSE.txt
       )
     (declare (ignore ⋯))
     (if
-      (cdr (HA tm))
+      (cdr (head tm))
       (let*(
-             (dealloc-cell (cdr (HA tm)))
-             (spill-object (car dealloc-cell))
+             (dealloc-cell (cdr (head tm)))
+             (spill-instance (car dealloc-cell))
              )
         (if spill
-          (as spill spill-object
+          (as spill spill-instance
             (λ()
-              (rplacd (HA tm) (cdr dealloc-cell))
-              (funcall cont-ok spill-object)
+              (rplacd (head tm) (cdr dealloc-cell))
+              (funcall cont-ok spill-instance)
               )
             cont-no-alloc
             )
           (progn
-            (rplacd (HA tm) (cdr dealloc-cell))
-            (funcall cont-ok spill-object)
+            (rplacd (head tm) (cdr dealloc-cell))
+            (funcall cont-ok spill-instance)
             )))
 
       (funcall cont-rightmost)
@@ -73,17 +73,17 @@ See LICENSE.txt
       (cont-collision (λ()(error 'dealloc-collision)))
       )
     (if
-      (eq (HA tm) (tape tm))
+      (eq (head tm) (tape tm))
       (funcall cont-collision)
       (let*(
              (dealloc-cell (tape tm))
-             (spill-object (car dealloc-cell))
+             (spill-instance (car dealloc-cell))
              )
         (when spill
-          (as spill spill-object
+          (as spill spill-instance
             (λ()
               (setf (tape tm) (cdr dealloc-cell))
-              (funcall cont-ok spill-object)
+              (funcall cont-ok spill-instance)
               )
             cont-no-alloc
             )))))

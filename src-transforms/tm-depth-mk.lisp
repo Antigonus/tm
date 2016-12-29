@@ -44,7 +44,7 @@ See LICENSE.txt
               :history (make-instance 'stack :buffer buffer)
               ))
           (setf (state tm) active)
-          (setf (HA tm) (fork base))
+          (setf (head tm) (fork base))
           (setf (tape tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)
@@ -55,7 +55,7 @@ See LICENSE.txt
               :base base
               :history (make-instance 'stack :buffer (mk 'tm-list))
               ))
-          (setf (HA tm) (fork base))
+          (setf (head tm) (fork base))
           (setf (tape tm) ∅)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)

@@ -31,11 +31,11 @@ See LICENSE.txt
 ;;
   (defclass tape-machine ()
     (
-      (HA ; locates a cell on the tape
-        :initarg :HA 
-        :accessor HA
+      (head ; locates a cell on the tape
+        :initarg :head 
+        :accessor head
         )
-      (tape ; a sequence of cells, each that may hold an object
+      (tape ; a sequence of cells, each that may hold an instance
         :initarg :tape
         :accessor tape
         )

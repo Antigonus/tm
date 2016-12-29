@@ -29,7 +29,7 @@ See LICENSE.txt
            (¬ (adjustable-array-p init))
            )
           (setf (tape instance) init)
-          (setf (HA instance) 0)
+          (setf (head instance) 0)
           instance
           )
 

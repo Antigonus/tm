@@ -33,7 +33,7 @@ duplicate computation when tape is set explicitly.
             )
         (setf (aref an-array 0) 'array)
         (setf (tape instance) an-array)
-        (setf (HA instance) 0)
+        (setf (head instance) 0)
         instance
         )
 
@@ -47,7 +47,7 @@ duplicate computation when tape is set explicitly.
              (adjustable-array-p init)
              )
             (setf (tape instance) init)
-            (setf (HA instance) 0)
+            (setf (head instance) 0)
             instance
             )
 
@@ -63,7 +63,7 @@ duplicate computation when tape is set explicitly.
                 :adjustable t
                 :initial-contents init
                 ))
-            (setf (HA instance) 0)
+            (setf (head instance) 0)
             instance
             )
 
@@ -87,8 +87,8 @@ duplicate computation when tape is set explicitly.
       (funcall cont-ok 
         (if 
           (adjustable-array-p sequence) 
-          (make-instance 'tm-array-adj :tape sequence :HA 0)
-          (make-instance 'tm-array :tape sequence :HA 0)
+          (make-instance 'tm-array-adj :tape sequence :head 0)
+          (make-instance 'tm-array :tape sequence :head 0)
           )))
 
   

@@ -12,27 +12,27 @@ See LICENSE.txt
   (defmethod a&h◨ 
     (
       (tm list-tm)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
-    (rplacd (HA tm) (cons object ∅))
+    (rplacd (head tm) (cons instance ∅))
     (funcall cont-ok)
     )
 
   (defmethod as&h◨ 
     (
       (tm list-tm)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
-    (rplacd (HA tm) (cons object ∅))
-    (setf (HA tm) (cdr (HA tm)))
+    (rplacd (head tm) (cons instance ∅))
+    (setf (head tm) (cdr (head tm)))
     (funcall cont-ok)
     )
 

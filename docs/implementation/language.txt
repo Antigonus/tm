@@ -19,17 +19,17 @@ syntax of derived functions:
 
 ---
 
-  [tape-side] command [modifier] [v tag] [& contract]*
+  [direction] command [modifier] [v tag] [& contract]*
 
-  tape-side: -
+  direction:: -
 
-  command:  r | w | s | a | d | m | e | ☥
+  command::  r | w | s | a | d | m | e | ☥
 
-  modifier: ◧ ◨ n 
+  modifier:: ◧ ◨ n 
 
-  variation: v followed by a tag, tag can be text or an integer
+  variation:: v followed by a tag, tag can be text or an integer
 
-  when tape-side is not specified, it is right
+  when direction is not specified, it is right
 
 
 

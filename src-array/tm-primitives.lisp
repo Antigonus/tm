@@ -21,30 +21,30 @@ of the primitives.
 ;; moving data
 ;;  --move this to src-array
 
-  ;; In repeated move operations we probably throw the displaced objects away if the
+  ;; In repeated move operations we probably throw the displaced instances away if the
   ;; programmer wants to keep them xhe should copy them first, complications with
   ;; implementing this more efficiently on lists due to head cell locations with shared
   ;; tapes. In any case with repeated ops we can hop n places instead of shuffling.
   ;;
     (defgeneric m (tm fill)
       (:documentation
-        "The object in rightmost is returned.
-         All other objects on the tape move right one cell.
-         Leftmost is written with the provided fill-object. 
+        "The instance in rightmost is returned.
+         All other instances on the tape move right one cell.
+         Leftmost is written with the provided fill-instance. 
          "
         ))
 
     (defmethod m 
       (
         (tm tape-machine)
-        fill-object
+        fill-instance
         )
       (⟳ (λ(cont-loop cont-return)
-           (let((displaced-object (r tm)))
-             (w tm fill-object)
-             (setf fill-object displaced-object)
+           (let((displaced-instance (r tm)))
+             (w tm fill-instance)
+             (setf fill-instance displaced-instance)
              (s tm cont-loop cont-return)
              )))
-      fill-object
+      fill-instance
       )
 

@@ -33,14 +33,14 @@ See LICENSE.txt
       (cond
         ((¬ diffs)
           (setf (state tm) active)
-          (setf (HA tm) 0)
+          (setf (head tm) 0)
           (setf (tape tm) {1 0})
           (setf (parameters tm) {0 1})
           (funcall cont-ok)
           )
         ((consp diffs)
           (setf (state tm) active)
-          (setf (HA tm) (car diffs))
+          (setf (head tm) (car diffs))
           (setf (tape tm) (reverse diffs))
           (setf (parameters tm) diffs)
           (funcall cont-ok)
@@ -60,18 +60,18 @@ See LICENSE.txt
       cont-parked
       )
     (declare (ignore state cont-parked))
-    (funcall cont-ok (HA tm))
+    (funcall cont-ok (head tm))
     )
 
   (defmethod w-0
     (
       (tm tm-DE)
       state
-      object
+      instance
       cont-ok
       cont-parked
       )
-    (declare (ignore state object cont-ok))
+    (declare (ignore state instance cont-ok))
     (funcall cont-parked)
     )
 
@@ -86,7 +86,7 @@ See LICENSE.txt
       cont-void
       )
     (declare (ignore state cont-void))
-    (setf (HA tm) (car (parameters tm)))
+    (setf (head tm) (car (parameters tm)))
     (setf (tape tm) (reverse (parameters tm)))
     (funcall cont-ok)
     )
@@ -130,7 +130,7 @@ See LICENSE.txt
     (declare (ignore state0 state1 cont-parked))
     (if
       (∧
-        (= (HA tm0) (HA tm1))
+        (= (head tm0) (head tm1))
         (equal (tape tm0) (tape tm1))
         )
       (funcall cont-true)
@@ -157,7 +157,7 @@ See LICENSE.txt
           (as diffs1 sum)
           (s diffs0 cont-loop cont-return)
           ))
-      (setf (HA tm) sum)
+      (setf (head tm) sum)
       (setf (tape tm) diffs1)
       ))
 

@@ -10,13 +10,76 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; indexed read and write
+;;
+  (defgeneric esnr 
+    (
+      tm
+      index
+      &optional
+      cont-ok
+      cont-rightmost
+      )
+    (:documentation
+      " This is an indexed read operation.  It makes an entangled copy of 'tm', 
+        steps it 'index' times, then reads it.
+      "
+      ))
+
+  (defmethod esnr 
+    (
+      tm
+      index
+      &optional
+      (cont-ok #'echo)
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      )
+    (with-mk-entangled tm
+      (λ(tm1)
+        (sn tm1 index
+          (λ()(funcall cont-ok (r tm1)))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+
+  (defgeneric esnw 
+    (
+      tm
+      index
+      instance
+      &optional
+      cont-ok
+      cont-rightmost
+      )
+    (:documentation
+      " This is an indexed write operation.  It makes an entangled copy of 'tm', 
+        steps it 'index' places, then writes the 'instance'.
+      "
+      ))
+
+  (defmethod esnw 
+    (
+      tm
+      index
+      instance
+      &optional
+      (cont-ok (be t))
+      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
+      )
+    (with-mk-entangled tm
+      (λ(tm1)
+        (sn tm1 index
+          (λ()(w tm1 instance cont-ok #'cant-happen))
+          (λ(n)(funcall cont-rightmost n))
+          ))))
+
+;;--------------------------------------------------------------------------------
 ;; repeated until end of tape operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
   (defgeneric eas* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "calls #'as repeatedly on a mk-entangled copy of tm, filling
-       with successive objects from tm-fill.
+       with successive instances from tm-fill.
        tm will not be stepped.  tm-fill will be stepped.
        "
       ))

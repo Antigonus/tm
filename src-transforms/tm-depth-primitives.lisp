@@ -18,7 +18,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; helpers
 ;;
-  ;; When stepping from a sublist, we step into the sublist to its first object.  We stack
+  ;; When stepping from a sublist, we step into the sublist to its first instance.  We stack
   ;; the tm of the sublist so that we can return to the sublist and step over it later.
   ;;
   ;; The history buffer should be a stack for depth first.  If it is made a queue, we
@@ -86,11 +86,11 @@ See LICENSE.txt
 ;; accessing data
 ;;
   (defmethod r-0 ((tm tm-depth) (state active) cont-ok cont-parked) 
-    (r (HA tm) cont-ok cont-parked)
+    (r (head tm) cont-ok cont-parked)
     )
 
-  (defmethod w-0 ((tm tm-depth) (state active) object cont-ok cont-parked) 
-    (w (HA tm) object cont-ok cont-parked)
+  (defmethod w-0 ((tm tm-depth) (state active) instance cont-ok cont-parked) 
+    (w (head tm) instance cont-ok cont-parked)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ See LICENSE.txt
   (defmethod cue-leftmost-0  ((tm tm-depth) (state parked) cont-ok cont-void) 
     (declare (ignore cont-void))
     (void (depth-history (parameters tm)))
-    (setf (HA tm) (fork (depth-base (parameters tm))))
+    (setf (head tm) (fork (depth-base (parameters tm))))
     )
 
 ;;--------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ See LICENSE.txt
       cont-false
       cont-parked
       ) 
-    (heads-on-same-cell (HA tm0) (HA tm1) cont-true cont-false cont-parked)
+    (heads-on-same-cell (head tm0) (head tm1) cont-true cont-false cont-parked)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ See LICENSE.txt
       cont-rightmost
       )
     (s-depth-ru
-      (HA tm)
+      (head tm)
       (depth-history (parameters tm))
       cont-ok
       cont-ok
@@ -151,7 +151,7 @@ See LICENSE.txt
       (tm-orig tm-depth)
       )
     (setf (state tm-cued) (state tm-orig))
-    (setf (HA tm-cued) (fork (HA tm-orig)))
+    (setf (head tm-cued) (fork (head tm-orig)))
     (setf (tape tm-cued) (tape tm-orig))
     (setf (parameters tm-cued) (parameters tm-orig))
     tm-cued
@@ -171,6 +171,6 @@ See LICENSE.txt
       (tm-cued tape-machine)
       (tm-orig tm-depth)
       )
-    (cue-to-0 tm-cued (HA tm-orig))
+    (cue-to-0 tm-cued (head tm-orig))
     )
 

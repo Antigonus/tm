@@ -20,7 +20,7 @@ A tm-stack, or a tm-queue, are implemented in regions of space:
      dequeue values for the queue or stack with d◧
      enqueue values for the stack with a◧
 
-Use a tm-region to make a◨ efficient, and thus enqueue of values onto a queue object
+Use a tm-region to make a◨ efficient, and thus enqueue of values onto a queue instance
 efficient.
 
 |#
@@ -30,9 +30,9 @@ efficient.
 ;;--------------------------------------------------------------------------------
 ;;  tape machine used as a stack
 ;;
-  (defun stack-enqueue (tm object)
-    "Pushes an object on to the stack"
-    (a◧ tm object)
+  (defun stack-enqueue (tm instance)
+    "Pushes an instance on to the stack"
+    (a◧ tm instance)
     )
 
   ;; it is pronounced d-q
@@ -43,16 +43,16 @@ efficient.
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty :text "stack is empty")))
       )
-    "Pulls an object off the top of the stack"
+    "Pulls an instance off the top of the stack"
     (d◧ tm ∅ cont-ok cont-empty)
     )
 
 ;;--------------------------------------------------------------------------------
 ;;  tape machine used as a queue
 ;;
-  (defun queue-enqueue (tm object)
-    "Enqueues object.  Note effiency issues as it refers to rightmost."
-    (a◨ tm object)
+  (defun queue-enqueue (tm instance)
+    "Enqueues instance.  Note effiency issues as it refers to rightmost."
+    (a◨ tm instance)
     )
 
   (defun queue-dequeue
@@ -62,14 +62,14 @@ efficient.
       (cont-ok #'echo) 
       (cont-empty (λ()(error 'dequeue-from-empty)))
       )
-    "Dequeus object"
+    "Dequeus instance"
     (d◧ tm ∅ cont-ok cont-empty)
     )
 
 ;;--------------------------------------------------------------------------------
 ;;  queues and stacks as types sharing this interface:
 ;;
-  (defgeneric enqueue (buffer object))
+  (defgeneric enqueue (buffer instance))
   (defgeneric dequeue (buffer &optional cont-ok cont-empty))
   (defgeneric buffer-empty (buffer &optional cont-true cont-false))
 ;; (defgeneric print-buffer ..)
@@ -106,9 +106,9 @@ efficient.
   (defmethod enqueue
     (
       (stack stack)
-      object
+      instance
       )
-    (stack-enqueue (buffer stack) object)
+    (stack-enqueue (buffer stack) instance)
     )
     
 ;;--------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ efficient.
   (defmethod enqueue
     (
       (queue queue)
-      object
+      instance
       )
-    (queue-enqueue (buffer queue) object)
+    (queue-enqueue (buffer queue) instance)
     )

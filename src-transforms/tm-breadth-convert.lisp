@@ -11,7 +11,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making other objects from tm-list machines
+;; making other instances from tm-list machines
 ;;
   ;; This returns list of the current subspace that the machine is in.
   ;; To convert the entire space, apply to-list to the original base tm.

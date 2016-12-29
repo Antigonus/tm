@@ -39,7 +39,7 @@ The hierarchy for the list implementation is analogous to the generic one.  The
 difference being that dispatch checks for a generic implemenation of a function
 with the correct type signature before generalizing.
 
-As an example, consider dispatch of a function called with a list-ea-tm object.
+As an example, consider dispatch of a function called with a list-ea-tm instance.
 If there is a signature match on list-ea-tm, then that function is called. Then if
 there is a match on the generic ea-tape-machine, that function is called.  Then if
 there is a match on list-nd-tm, then on list-solo-tm, those will be called.  But what

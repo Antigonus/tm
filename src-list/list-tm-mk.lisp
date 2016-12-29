@@ -4,7 +4,7 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
   Make list-tm machines. Typically the tm will be a list-nd-tm or a list-solo-tm
-  object, and then this gets called due to the inheritance structure.
+  instance, and then this gets called due to the inheritance structure.
   
 
 |#
@@ -12,7 +12,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making list machines from other objects
+;; making list machines from other instances
 ;;
   (defmethod init 
     (
@@ -24,7 +24,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯ cont-fail))
-    (setf (HA tm) init-value)
+    (setf (head tm) init-value)
     (setf (tape tm) init-value)
     (funcall cont-ok tm)
     )

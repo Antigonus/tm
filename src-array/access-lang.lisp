@@ -54,7 +54,7 @@ See LICENSE.txt
             (as commands {'w tm (r args)})
             (s args #'do-nothing (λ()(setf args ∅)))
             )
-          (error 'Δ-required-arg-missing :text "write requires an object")
+          (error 'Δ-required-arg-missing :text "write requires an instance")
           ))
       (#\s (as commands {'s tm}))
       (#\a 
@@ -64,7 +64,7 @@ See LICENSE.txt
             (as commands {'a tm (r args)})
             (s args #'do-nothing (λ()(setf args ∅)))
             )
-          (error 'Δ-required-arg-missing :text "alloc requires an object")
+          (error 'Δ-required-arg-missing :text "alloc requires an instance")
           ))
       (#\d (as commands {'d tm}))
       (otherwise

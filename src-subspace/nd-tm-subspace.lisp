@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-A subspace is a tape held as an object within a cell.  A subspace
+A subspace is a tape held as an instance within a cell.  A subspace
 may be entered using #'si from the cell.  Once a subspace has been entered, leftmost
 and rightmost, etc. apply to the subspace (not the original tape).
 
@@ -38,9 +38,9 @@ This is copied from tm-region.lisp:
 
     On a related note, there is an analogous problem of putting multiple subspaces within
     a cell.  This is done by creating a space of subspaces, called a manifold machine, and
-    then including in the cells of the manifold the objects which are subspaces.  We then
+    then including in the cells of the manifold the instances which are subspaces.  We then
     either have to assume that every contained tape machine is a manifold, or we have to
-    externally keep track of the fact if a machine found as an object is a manifold that
+    externally keep track of the fact if a machine found as an instance is a manifold that
     in turn holds multiple subspaces, or if it is directly a subspace.
 
     Hmm, we could also use manifolds to give order to multiple subspaces given at the
@@ -61,7 +61,7 @@ This is copied from tm-region.lisp:
       (cont-ok (be t))
       (cont-mount-failed (be ∅))
       )
-    "If either: object is a tm, or #'mk succeeds on the object, steps in.
+    "If either: instance is a tm, or #'mk succeeds on the instance, steps in.
      Otherwise cont-mount-failed.
      "
     (r tm
@@ -85,10 +85,10 @@ This is copied from tm-region.lisp:
   (defun ai
     (
       tm
-      object
+      instance
       &optional
       (cont-ok (be t))
-      (cont-mount-fail (be ∅)) ; object isn't a tape machine
+      (cont-mount-fail (be ∅)) ; instance isn't a tape machine
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "Allocates a new cell to the left of leftmost in the subspace.
@@ -97,7 +97,7 @@ This is copied from tm-region.lisp:
       (λ(subspace)
         (if 
           (typep subspace 'tape-machine)
-          (a◧ subspace object cont-ok cont-no-alloc)
+          (a◧ subspace instance cont-ok cont-no-alloc)
           cont-mount-fail
           ))
       cont-mount-fail
@@ -106,14 +106,14 @@ This is copied from tm-region.lisp:
   (defun aisi
     (
       tm
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-mount-fail (be ∅)) 
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
     "#'ai then step into the subspace"
-    (ai tm object
+    (ai tm instance
       (λ()(recycle-entangled-with tm (r tm))(funcall cont-ok))
       cont-mount-fail
       cont-no-alloc

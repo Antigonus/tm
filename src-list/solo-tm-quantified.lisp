@@ -41,7 +41,7 @@ See LICENSE.txt
          (d
            tm
            spill
-           (λ(object)(declare (ignore object)) (funcall cont-loop))
+           (λ(instance)(declare (ignore instance)) (funcall cont-loop))
            cont-ok
            cont-no-alloc
            ))))
@@ -60,7 +60,7 @@ See LICENSE.txt
        "Deallocates leftmost, repeatedly, until colliding with the cell the head is on,
         which is not deallocated.  If spill is not ∅, then the deallocated cells are moved
         to it.  Preferably the cells are moved, but it is premissable for an
-        implementation to create a new allocations on spill and then copy the object
+        implementation to create a new allocations on spill and then copy the instance
         references.
         "
         ))
@@ -80,7 +80,7 @@ See LICENSE.txt
        (d◧
          tm
          spill
-         (λ(object)(declare (ignore object)) (funcall cont-loop))
+         (λ(instance)(declare (ignore instance)) (funcall cont-loop))
          cont-no-alloc
          cont-collision ; cont-collision - hit the cell the head was on
          ))))
@@ -109,8 +109,8 @@ See LICENSE.txt
              (do-work()
                (when (≤ n 0) (return-from dn (funcall cont-ok)))
                (d tm spill 
-                 (λ(object)
-                   (declare (ignore object))
+                 (λ(instance)
+                   (declare (ignore instance))
                    (decf n)
                    (funcall #'do-work)
                    )

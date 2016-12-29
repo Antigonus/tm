@@ -4,13 +4,13 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
 An aggregate is to data structures what lazy evaluation is to programs.  An aggregate is
-tape machine where the objects are again tape machines.  We have two views of 
+tape machine where the instances are again tape machines.  We have two views of 
 the aggregate, the aggregate view, and the smooth view.
 
-In the aggregate view, we are just manipulating a list, where the objects are tape
+In the aggregate view, we are just manipulating a list, where the instances are tape
 machines.  In the 'smooth-vew' of the aggregate, traversal of cells in one machine of the
 agregate from one continues to the machine in the right neighbor, thus the user of the
-interface sees just another tape machine for holding arbitrary objects.
+interface sees just another tape machine for holding arbitrary instances.
 
 The aggregate machine is used for managing the aggregate.  The smooth machine is
 what the programmer uses.

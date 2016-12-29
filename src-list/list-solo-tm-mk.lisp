@@ -10,7 +10,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making list machines from other objects
+;; making list machines from other instances
 ;;
 
   ;; the init-value as a cons cell falls back to list-tm version.

@@ -13,7 +13,7 @@ See LICENSE.txt
 back to a lambda, and needs to be updated.
 
 ;;--------------------------------------------------------------------------------
-;; bins objects
+;; bins instances
 ;;
 ;; source from one tm
 ;; destination to many tms
@@ -33,8 +33,8 @@ back to a lambda, and needs to be updated.
       )
 
     (let*(
-           (object (r src))
-           (bin (funcall op object))
+           (instance (r src))
+           (bin (funcall op instance))
            )
       (if
         (< bin 0) 
@@ -43,8 +43,8 @@ back to a lambda, and needs to be updated.
 
         (r-index dsts bin
           (λ(tm-dst)
-            ;;(print {"writing" object "tm-dst bin:" bin})
-            (as tm-dst object #'do-nothing cont-no-alloc)
+            ;;(print {"writing" instance "tm-dst bin:" bin})
+            (as tm-dst instance #'do-nothing cont-no-alloc)
             )
           (λ()(funcall cont-no-such-bin bin))
           )))
@@ -58,7 +58,7 @@ back to a lambda, and needs to be updated.
           (tm-dsts (mount {(tm-mk 'tm-list) (tm-mk 'tm-list)}))
           )
       (labels(
-               (op (object) (if (evenp object) 0 1))
+               (op (instance) (if (evenp instance) 0 1))
                (worker (cont-loop cont-return) 
                  (binner tm-src tm-dsts #'op {cont-loop cont-return})
                  )

@@ -35,7 +35,7 @@ new tape machine implementation to specialize them.
   (defgeneric as
     (
       tm
-      object
+      instance
       &optional
       cont-ok
       cont-no-alloc
@@ -47,12 +47,12 @@ new tape machine implementation to specialize them.
   (defmethod as
     (
       (tm tape-machine)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
-    (a tm object 
+    (a tm instance 
       (λ()(s tm cont-ok #'cant-happen))
       cont-no-alloc
       ))
@@ -60,7 +60,7 @@ new tape machine implementation to specialize them.
   (defgeneric a&h◨ 
     (
       tm
-      object
+      instance
       &optional
       cont-ok
       cont-no-alloc
@@ -72,19 +72,19 @@ new tape machine implementation to specialize them.
   (defmethod a&h◨ 
     (
       (tm tape-machine)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     ;; specializations might make better use of the contract
-    (a tm object cont-ok cont-no-alloc)
+    (a tm instance cont-ok cont-no-alloc)
     )
 
   (defgeneric as&h◨ 
     (
       tm
-      object
+      instance
       &optional
       cont-ok
       cont-no-alloc
@@ -96,12 +96,12 @@ new tape machine implementation to specialize them.
   (defmethod as&h◨ 
     (
       (tm tape-machine)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     ;; specializations might make better use of the contract
-    (as tm object cont-ok cont-no-alloc)
+    (as tm instance cont-ok cont-no-alloc)
     )
 

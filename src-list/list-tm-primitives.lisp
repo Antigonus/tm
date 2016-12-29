@@ -13,7 +13,7 @@ See LICENSE.txt
 ;;
   (defmethod r ((tm list-tm) &rest ⋯)
     (declare (ignore ⋯))
-    (car (HA tm))
+    (car (head tm))
     )
 
   (defmethod esr
@@ -26,21 +26,21 @@ See LICENSE.txt
       )
     (declare (ignore ⋯))
     (if
-      (cdr (HA tm))
-      (funcall cont-ok (cadr (HA tm)))
+      (cdr (head tm))
+      (funcall cont-ok (cadr (head tm)))
       (funcall cont-rightmost)
       ))
 
-  (defmethod w ((tm list-tm) object &rest ⋯)
+  (defmethod w ((tm list-tm) instance &rest ⋯)
     (declare (ignore ⋯))
-    (setf (car (HA tm)) object)
+    (setf (car (head tm)) instance)
     t
     )
 
   (defmethod esw
     (
       (tm list-tm)
-      object
+      instance
       &optional 
       (cont-ok (be t))
       (cont-rightmost (be ∅))
@@ -48,9 +48,9 @@ See LICENSE.txt
       )
     (declare (ignore ⋯))
     (if
-      (cdr (HA tm))
+      (cdr (head tm))
       (progn
-        (setf (cadr (HA tm)) object)
+        (setf (cadr (head tm)) instance)
         (funcall cont-ok)
         )
       (funcall cont-rightmost)
@@ -61,7 +61,7 @@ See LICENSE.txt
 ;;
   (defmethod cue-leftmost ((tm list-tm) &rest ⋯)
     (declare (ignore ⋯)) 
-    (setf (HA tm) (tape tm))
+    (setf (head tm) (tape tm))
     t
     )
 
@@ -76,9 +76,9 @@ See LICENSE.txt
       (cont-rightmost (be ∅))
       )
     (if 
-      (cdr (HA tm))
+      (cdr (head tm))
       (progn
-        (setf (HA tm) (cdr (HA tm)))
+        (setf (head tm) (cdr (head tm)))
         (funcall cont-ok)
         )
       (funcall cont-rightmost)
@@ -90,16 +90,16 @@ See LICENSE.txt
   (defmethod a
     (
       (tm list-tm)
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
     (declare (ignore cont-no-alloc))
     (let(
-          (next-cell (cdr (HA tm)))
+          (next-cell (cdr (head tm)))
           )
-      (rplacd (HA tm) (cons object next-cell))
+      (rplacd (head tm) (cons instance next-cell))
       (funcall cont-ok)
       ))
 
@@ -114,7 +114,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (if
-      (eq (HA tm) (tape tm))
+      (eq (head tm) (tape tm))
       (funcall cont-true)
       (funcall cont-false)
       ))
@@ -127,7 +127,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     (if
-      (¬ (cdr (HA tm)))
+      (¬ (cdr (head tm)))
       (funcall cont-true)
       (funcall cont-false)
       ))

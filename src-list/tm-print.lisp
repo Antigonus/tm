@@ -16,16 +16,16 @@ This print facility was intended for use in debugging.
    (defgeneric tm-print-0 (tm &optional n))
    (defmethod tm-print-0 ((tm tape-machine) &optional (n 0))
      (indent n) (princ tm) (nl)
-     (indent n) (princ "HA: ") (princ (HA tm)) (nl)
+     (indent n) (princ "head: ") (princ (head tm)) (nl)
      (indent n) (princ "tape: ") (princ (tape tm)) (nl)
      )
 
 
-   (defun print-tm-object-in-brackets (object)
-     (princ "[") (princ object) (princ "]")
+   (defun print-tm-instance-in-brackets (instance)
+     (princ "[") (princ instance) (princ "]")
      )
-   (defun print-tm-object-in-parens (object)
-     (princ "(") (princ object) (princ ")")
+   (defun print-tm-instance-in-parens (instance)
+     (princ "(") (princ instance) (princ ")")
      )
 
    ;; later would be nice to check tape length, and add ellipses showing just
@@ -34,7 +34,7 @@ This print facility was intended for use in debugging.
    (defgeneric tm-print (tm))
    (defmethod tm-print ((tm tape-machine))
      (let(
-           (original-HA (HA tm)) ; big cheat!
+           (original-head (head tm)) ; big cheat!
            )
        (princ tm)
        (princ " ")
@@ -43,14 +43,14 @@ This print facility was intended for use in debugging.
            (s tm
              (λ()
                (if
-                 (eq (HA tm) original-HA)
-                 (print-tm-object-in-brackets (r tm))
-                 (print-tm-object-in-parens (r tm))
+                 (eq (head tm) original-head)
+                 (print-tm-instance-in-brackets (r tm))
+                 (print-tm-instance-in-parens (r tm))
                  )
                (funcall cont-loop)
                )
              (λ()
-               (setf (HA tm) original-HA)
+               (setf (head tm) original-head)
                (nl)
                (funcall cont-return)
                ))))))

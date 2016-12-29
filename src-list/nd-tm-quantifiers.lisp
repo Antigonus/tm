@@ -22,12 +22,12 @@ See LICENSE.txt
 ;;
   (defun s-together 
     (
-      tms ; objects are tms to be stepped
+      tms ; instances are tms to be stepped
       &optional
       (cont-ok (be t))
       (cont-rightmost (be ∅))
       )
-    "s-together is passed a tm that has other tape machines as objects.
+    "s-together is passed a tm that has other tape machines as instances.
     Each time s-together is called, the constituent machines are stepped.  If any of the
     machines can not be stepped, then none of the machines are stepped.  When
     cont-rightmost is taken, tms will be left pointing at the first machine that could not
@@ -44,65 +44,3 @@ See LICENSE.txt
       ))
 
 
-;;--------------------------------------------------------------------------------
-;; indexed read and write
-;;
-  (defgeneric esnr 
-    (
-      tm
-      index
-      &optional
-      cont-ok
-      cont-rightmost
-      )
-    (:documentation
-      " This is an indexed read operation.  It makes an entangled copy of 'tm', 
-        steps it 'index' times, then reads it.
-      "
-      ))
-
-  (defmethod esnr 
-    (
-      tm
-      index
-      &optional
-      (cont-ok #'echo)
-      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
-      )
-    (with-mk-entangled tm
-      (λ(tm1)
-        (sn tm1 index
-          (λ()(funcall cont-ok (r tm1)))
-          (λ(n)(funcall cont-rightmost n))
-          ))))
-
-  (defgeneric esnw 
-    (
-      tm
-      index
-      object
-      &optional
-      cont-ok
-      cont-rightmost
-      )
-    (:documentation
-      " This is an indexed write operation.  It makes an entangled copy of 'tm', 
-        steps it 'index' places, then writes the 'object'.
-      "
-      ))
-
-  (defmethod esnw 
-    (
-      tm
-      index
-      object
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
-      )
-    (with-mk-entangled tm
-      (λ(tm1)
-        (sn tm1 index
-          (λ()(w tm1 object cont-ok #'cant-happen))
-          (λ(n)(funcall cont-rightmost n))
-          ))))

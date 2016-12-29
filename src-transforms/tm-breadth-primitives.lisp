@@ -22,7 +22,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; helpers
 ;;
-  ;; When stepping on an cell with an object that is a sublist we queue it so that we can
+  ;; When stepping on an cell with an instance that is a sublist we queue it so that we can
   ;; come back to it later.
   ;;
   ;; The history buffer should be a queue.  If it is made a stack we get a depth
@@ -31,7 +31,7 @@ See LICENSE.txt
   ;; Between steps, atoms in the tree may be deleted, and sublists or atoms added, as
   ;; long as it is possible to still take a correct next step (whatever that step is
   ;; now supposed to be) from the cell under the head.  For list structures this means
-  ;; that (cdr (HA tm)) must be valid.
+  ;; that (cdr (head tm)) must be valid.
   ;;
     (defun s-breadth 
       (
@@ -71,7 +71,7 @@ See LICENSE.txt
 ;; accessing data
 ;;
   (defmethod r ((tm tm-breadth)) (r (tape tm)))
-  (defmethod w ((tm tm-breadth) object) (w (tape tm) object))
+  (defmethod w ((tm tm-breadth) instance) (w (tape tm) instance))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
@@ -107,7 +107,7 @@ See LICENSE.txt
       )
     (s-breadth
       (tape tm)
-      (HA tm)
+      (head tm)
       cont-ok
       cont-ok
       cont-rightmost
@@ -119,12 +119,12 @@ See LICENSE.txt
   (defmethod a 
     (
       (tm tm-breadth)
-      object 
+      instance 
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    (a (tape tm) object cont-ok cont-no-alloc)
+    (a (tape tm) instance cont-ok cont-no-alloc)
     )
 
 ;;--------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ See LICENSE.txt
       (if 
         base
         (progn
-          (setf (HA tm) (make-instance 'queue))
+          (setf (head tm) (make-instance 'queue))
           (setf (tape tm) base)
           (setf (entanglements tm) (make-entanglements tm))
           (funcall cont-ok)

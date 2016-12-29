@@ -26,9 +26,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-array-adj)) (aref (tape tm) (HA tm) ))
-  (defmethod w ((tm tm-array-adj) object)
-    (setf (aref (tape tm) (HA tm)) object)
+  (defmethod r ((tm tm-array-adj)) (aref (tape tm) (head tm) ))
+  (defmethod w ((tm tm-array-adj) instance)
+    (setf (aref (tape tm) (head tm)) instance)
     t
     )
 
@@ -36,7 +36,7 @@ See LICENSE.txt
 ;; absolute head placement
 ;;
   (defmethod cue-leftmost  ((tm tm-array-adj)) 
-    (setf (HA tm) 0)
+    (setf (head tm) 0)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       ) 
     (if
-      (= (HA tm0) (HA tm1))
+      (= (head tm0) (head tm1))
       (funcall cont-true)
       (funcall cont-false)
       ))
@@ -68,9 +68,9 @@ See LICENSE.txt
       (cont-rightmost (be ∅))
       )
     (if
-       (< (HA tm) (rightmost-index tm))
+       (< (head tm) (rightmost-index tm))
        (progn
-         (incf (HA tm))
+         (incf (head tm))
          (funcall cont-ok)
          )
       (funcall cont-rightmost)
@@ -80,19 +80,19 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  ;; allocates a cell just to the right of the head an initializes it with object
+  ;; allocates a cell just to the right of the head an initializes it with instance
   (defmethod a 
     (
       (tm tm-array-adj)
-      object 
+      instance 
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail :text "alloc called in the middle of an array")))
       )
     (if
-      (= (HA tm) (rightmost-index tm))
+      (= (head tm) (rightmost-index tm))
       (progn
-        (vector-push-extend object (tape tm))
+        (vector-push-extend instance (tape tm))
         (funcall cont-ok)
         )
       (funcall cont-no-alloc)
@@ -112,8 +112,8 @@ See LICENSE.txt
       (cont-no-alloc (λ()(error 'tm-alloc-fail :text "alloc called in the middle of an array")))
       )
     (cond
-      ((= (HA tm) (rightmost-index tm)) (funcall cont-rightmost))
-      ((= (HA tm) (1- (rightmost-index tm)))
+      ((= (head tm) (rightmost-index tm)) (funcall cont-rightmost))
+      ((= (head tm) (1- (rightmost-index tm)))
         (let(
               (displaced-data (vector-pop (tape tm)))
               )

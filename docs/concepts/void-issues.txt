@@ -17,7 +17,7 @@ In the prior implementation of tm, that for another language, tms had state, and
 determined the set of functions that were available. This state, however, was not the
 'type' of the container, but rather an independent entity.  Here, we are using CLOS
 dispatch to achieve the same effect.  This has lead to the unification of all empty
-machines as tm-void, and thus the change of the type of an object as items are added.
+machines as tm-void, and thus the change of the type of an instance as items are added.
 
 We have run into an issue.  Suppose we have a collapsed from tm-list to tm-void machine,
 to get tm-0.  Now we dup to create tm-1.  Both have tm-void type.  Now when we allocate a

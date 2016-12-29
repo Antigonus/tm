@@ -28,8 +28,8 @@ The entanglements slot for ea-tm holds a list-solo-tm.
         (∃ es
           (λ(es)
             (esr es
-              (λ(object)
-                (if (eq object tm)
+              (λ(instance)
+                (if (eq instance tm)
                   (d es ∅ #'echo #'cant-happen)
                   ∅
                   ))

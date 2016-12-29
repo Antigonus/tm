@@ -10,7 +10,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making list machines from other objects
+;; making list machines from other instances
 ;;   my gosh this is an expensive way to make a temporary variable ..
 ;;
   (defmethod init 
@@ -23,7 +23,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯ cont-fail))
-    (setf (HA tm) init-value)
+    (setf (head tm) init-value)
     (setf (tape tm) init-value)
     (setf (entanglements tm) (mk 'list-solo-tm {tm})) ; initially entangled only with self
     (funcall cont-ok tm)
@@ -39,7 +39,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯ cont-fail))
-    (setf (HA tm) (HA init-value))
+    (setf (head tm) (head init-value))
     (setf (tape tm) (tape init-value))
     (setf (entanglements tm) (entanglements init-value))
     (let(

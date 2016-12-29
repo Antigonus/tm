@@ -53,18 +53,18 @@ performance.
         (r tm1) 
         )))
 
-  (defgeneric w◧ (tm object &rest ⋯)
+  (defgeneric w◧ (tm instance &rest ⋯)
     (:documentation
       "Write leftmost.
       "
       ))
 
-  (defmethod w◧ ((tm nd-tape-machine) object &rest ⋯)
+  (defmethod w◧ ((tm nd-tape-machine) instance &rest ⋯)
     (declare (ignore ⋯))
     (with-mk-entangled tm
       (λ(tm1)
         (cue-leftmost tm1)
-        (w tm1 object) 
+        (w tm1 instance) 
         )))
 
 ;;--------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ performance.
   (defgeneric a◨
     (
       tm
-      object
+      instance
       &optional
       cont-ok
       cont-no-alloc
@@ -124,7 +124,7 @@ performance.
   (defmethod a◨
     (
       tm
-      object
+      instance
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
@@ -133,5 +133,5 @@ performance.
     (with-mk-entangled tm
       (λ(tm1)
         (cue-rightmost tm1)
-        (a tm1 object cont-ok cont-no-alloc)
+        (a tm1 instance cont-ok cont-no-alloc)
         )))

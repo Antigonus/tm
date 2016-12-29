@@ -10,7 +10,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; looping, see also s-together⟳
+;; looping, see also s-together⟳  --> need to replace these with quantifiers
 ;;
   (defun ⟳ (work)
     "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
@@ -99,6 +99,20 @@ See LICENSE.txt
     )
 
 ;;--------------------------------------------------------------------------------
+;; trivial predicates 
+;;
+  (defun always-false (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    (declare (ignore tm cont-true))
+    (funcall cont-false)
+    )
+
+  (defun always-true (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+    (declare (ignore tm cont-false))
+    (funcall cont-true)
+    )
+
+
+;;--------------------------------------------------------------------------------
 ;; quantification
 ;;
 ;; careful:
@@ -106,9 +120,11 @@ See LICENSE.txt
 ;; The quantifiers start where the head is located, they do not cue-leftmost first.  I do
 ;; this so that prefix values may be processed before calling a quantifier.
 ;;
-;; I pass the tape machine to the predicate rather than the object in the cell the head
+;; I pass the tape machine to the predicate rather than the instance in the cell the head
 ;; is on.  I do this so that predicates may use the head as a general marker on the tape,
 ;; for example, as the origin for a sliding window.
+;;
+;; pred is a function that accepts a machine and two continuations, cont-true, and cont-false.
 ;;
   (defun ∃ 
     (
@@ -118,20 +134,17 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    "When returning true, tm head is on the first cell that has an object where pred is true.
-    When returning false, tm head is on rightmost, and there was no cell where pred was true."
-    (⟳-loop
-      (λ(cont-loop)
-        (when 
-          (funcall pred tm) 
-          (return-from ∃ (funcall cont-true))
-          )
-        (s tm cont-loop (λ()(return-from ∃ (funcall cont-false))))
-        )))
+    "When returning true, tm head is on the first cell that has an instance where pred is true.
+    When returning false, tm head is on rightmost, and there was no cell where pred was true.
+    "
+    (labels(
+             (loop()(funcall pred #'step cont-true))
+             (step()(s tm #'loop cont-false))
+             )))
 
-  ;; There exists an object for which pred is false.
+  ;; There exists an instance for which pred is false.
   ;; Same as step-while
-  ;; Not all objects match pred, here we will show you the first one that doesn't.
+  ;; Not all instances match pred, here we will show you the first one that doesn't.
   (defun ¬∀
     (
       tm
@@ -140,15 +153,15 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    "When true, all objects do not match pred, and tm is on the first mismatch."
+    "When true, all instances do not match pred, and tm is on the first mismatch."
     (if 
       (q01 #'∃ tm pred)
       (funcall cont-true)
       (funcall cont-false)
       ))
 
-  ;; there does not exist an object for which pred is true
-  ;; i.e. pred is false for all objects
+  ;; there does not exist an instance for which pred is true
+  ;; i.e. pred is false for all instances
   (defun ¬∃ 
     (
       tm
@@ -157,15 +170,15 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    "When true, there does not exist an object where pred holds, and tm is at rightmost.
-    When false, tm is on an cell with an object where pred holds."
+    "When true, there does not exist an instance where pred holds, and tm is at rightmost.
+    When false, tm is on an cell with an instance where pred holds."
     (if 
       (q10 #'∃ tm pred)
       (funcall cont-true)
       (funcall cont-false)
       ))
 
-  ;; pred is true for all objects
+  ;; pred is true for all instances
   (defun ∀
     (
       tm
@@ -174,7 +187,7 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    "When true all objects match pred.  When false tm will be on the first mismatch."
+    "When true all instances match pred.  When false tm will be on the first mismatch."
     (if
       (q11 #'∃ tm pred)
       (funcall cont-true)
@@ -189,7 +202,7 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    "like ∃, but all objects will be visited"
+    "like ∃, but all instances will be visited"
     (let(
           (result ∅)
           )

@@ -28,7 +28,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯)) 
-    (if (eq (HA tm0) (HA tm1))
+    (if (eq (head tm0) (head tm1))
       (funcall cont-true)
       (funcall cont-false)
       ))

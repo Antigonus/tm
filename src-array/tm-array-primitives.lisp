@@ -15,9 +15,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-array)) (aref (tape tm) (HA tm) ))
-  (defmethod w ((tm tm-array) object)
-    (setf (aref (tape tm) (HA tm)) object)
+  (defmethod r ((tm tm-array)) (aref (tape tm) (head tm) ))
+  (defmethod w ((tm tm-array) instance)
+    (setf (aref (tape tm) (head tm)) instance)
     t
     )
 
@@ -25,7 +25,7 @@ See LICENSE.txt
 ;; absolute head placement
 ;;
   (defmethod cue-leftmost  ((tm tm-array)) 
-    (setf (HA tm) 0)
+    (setf (head tm) 0)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ See LICENSE.txt
       (cont-false (be ∅))
       ) 
     (if
-      (= (HA tm0) (HA tm1))
+      (= (head tm0) (head tm1))
       (funcall cont-true)
       (funcall cont-false)
       ))
@@ -57,9 +57,9 @@ See LICENSE.txt
       (cont-rightmost (be ∅))
       )
     (if
-       (< (HA tm) (rightmost-index tm))
+       (< (head tm) (rightmost-index tm))
        (progn
-         (incf (HA tm))
+         (incf (head tm))
          (funcall cont-ok)
          )
       (funcall cont-rightmost)
@@ -72,12 +72,12 @@ See LICENSE.txt
   (defmethod a 
     (
       (tm tm-array)
-      object 
+      instance 
       &optional
       (cont-ok (be t))
       (cont-no-alloc (λ()(error 'tm-alloc-fail :text "alloc called in the middle of an array")))
       )
-    (declare (ignore tm object cont-ok))
+    (declare (ignore tm instance cont-ok))
     (funcall cont-no-alloc)
     )
 

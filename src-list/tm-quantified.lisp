@@ -71,7 +71,7 @@ See LICENSE.txt
   ;; use eas* to fill forward without moving tm (requires at least nd-tm)
   (defgeneric a* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
-      "Calls #'a repeatedly with successive objects from tm-fill. 
+      "Calls #'a repeatedly with successive instances from tm-fill. 
        tm will not be stepped.  tm-fill will be stepped.
        The sequence order as it is found on tm-fill will be reversed on tm.
        "      
@@ -97,7 +97,7 @@ See LICENSE.txt
 
   (defgeneric as* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
-      "Calls #'as repeatedly with successive objects from tm-fill.
+      "Calls #'as repeatedly with successive instances from tm-fill.
        Both tm and tm-fill will be stepped.
        "
       ))
