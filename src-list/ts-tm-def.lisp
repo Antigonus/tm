@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  yes destrictuve operations.
+  yes destructive operations.
   yes copy operations.
 
   Introduces 'entanglement accounting' to facilitate both destructive operations and

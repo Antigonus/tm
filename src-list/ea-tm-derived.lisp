@@ -43,34 +43,36 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
-  (defmethod d (
-                  (tm ea-tape-machine)
-                  &optional 
-                  spill 
-                  (cont-ok #'echo)
-                  (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-                  (cont-no-alloc #'alloc-fail)
-                  &rest ⋯
-                  )
+  (defmethod d
+    (
+      (tm ea-tape-machine)
+      &optional 
+      spill 
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-no-alloc #'alloc-fail)
+      &rest ⋯
+      )
     (destructuring-bind
       (
         &optional
         (cont-collision (λ()(error 'dealloc-collision)))
         )
-       ⋯
+      ⋯
       (∃-collision-right-neighbor tm
         cont-collision
         (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
         )))
       
-  (defmethod d◧ (
-                   (tm ea-tape-machine)
-                   &optional 
-                   spill 
-                   (cont-ok #'echo)
-                   (cont-collision (λ()(error 'dealloc-collision)))
-                   (cont-no-alloc #'alloc-fail)
-                   )
+  (defmethod d◧
+    (
+      (tm ea-tape-machine)
+      &optional 
+      spill 
+      (cont-ok #'echo)
+      (cont-collision (λ()(error 'dealloc-collision)))
+      (cont-no-alloc #'alloc-fail)
+      )
     (∃-collision◧ tm
       cont-collision
       (λ()
