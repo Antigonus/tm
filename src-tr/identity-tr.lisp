@@ -12,7 +12,7 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass identity-trans (abstract-tape-machine)
+  (defclass identity-tr (tape-machine)
     (
       (base ; the machine we transform
         :initarg base
@@ -24,8 +24,8 @@ Base class for transforms. Library users never see this.
 ;;
   (defmethod init 
     (
-      (tm identity-trans)
-      (init-value abstract-tape-machine)
+      (tm identity-tr)
+      (init-value tape-machine)
       &optional
       (cont-ok #'echo)
       (cont-fail (λ()(error 'bad-init-value)))
@@ -36,11 +36,6 @@ Base class for transforms. Library users never see this.
     (funcall cont-ok tm)
     )
 
-define macro that takes a function name, then passes all args through to the
-same function call on the base machine
 
-oh fun, we get to list all of the functions in the system, and if we get it wrong,
-or something is edited, then all goes wrong ... wish the function name could be a
-parameter too
 
 

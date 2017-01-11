@@ -19,7 +19,7 @@ new tape machine implementation to specialize them.
       ))
 
   ;; step does not move forward from rightmost, rather takes the rightmost continuation
-  (defmethod cue-rightmost ((tm abstract-tape-machine))
+  (defmethod cue-rightmost ((tm tape-machine))
     (labels(
              (work() (s tm #'work (be t)))
              )
@@ -46,7 +46,7 @@ new tape machine implementation to specialize them.
 
   (defmethod as
     (
-      (tm abstract-tape-machine)
+      (tm tape-machine)
       instance
       &optional
       (cont-ok (be t))
@@ -71,7 +71,7 @@ new tape machine implementation to specialize them.
 
   (defmethod a&h◨ 
     (
-      (tm abstract-tape-machine)
+      (tm tape-machine)
       instance
       &optional
       (cont-ok (be t))
@@ -95,7 +95,7 @@ new tape machine implementation to specialize them.
 
   (defmethod as&h◨ 
     (
-      (tm abstract-tape-machine)
+      (tm tape-machine)
       instance
       &optional
       (cont-ok (be t))
