@@ -42,4 +42,38 @@ See LICENSE.txt
       (init instance init-value cont-ok cont-fail)
       ))
 
+;;--------------------------------------------------------------------------------
+;; copying
+;;  
+  (defgeneric mk-shallow-copy
+    (
+      tm-orig
+      &optional
+      cont-ok
+      cont-no-alloc
+      )
+    (:documentation
+      "Makes a new tape machine.  Initializes the tape with a copy of the tape found in
+       tm-orig.  The new tape references the same instances as the tm-orig tape.  Because it
+       has its own tape, the new machine is not entangled with the tm-orig machine.
+       "
+      ))
+
+  ;; will work for most machines
+  (defmethod mk-shallow-copy
+    (
+      (tm-orig tape-machine)
+      &optional
+      (cont-ok #'echo)
+      (cont-no-alloc #'alloc-fail)
+      )
+    (let(
+          (tm-copy (make-instance (type-of tm-orig)))
+          )
+      (as* tm-copy tm-orig
+        (λ()(funcall cont-ok tm-copy))
+        cont-no-alloc
+        )))
+
+
 

@@ -13,7 +13,7 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass uber-trans (identity-trans)
+  (defclass status-x (identity-x)
     (
       (status
         :initarg status
@@ -22,7 +22,7 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
 
   (defmethod init 
     (
-      (tm uber-trans)
+      (tm status-x)
       (init-value abstract-tape-machine)
       &optional
       (cont-ok #'echo)
