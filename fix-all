@@ -1,0 +1,29 @@
+#!/bin/bash
+
+p="$(pwd)"
+if [ -r "$p/fix.sed" ]
+then
+
+    for j in "$@"
+    do
+        if [ -d "$j" ] && [ -x "$j" ]
+        then
+            pushd "$j"
+#            echo in directory: "$(pwd)"
+            for i in `ls *.lisp` 
+            do 
+                if [ -r "$i" ] && [ -w "$i" ]
+                then
+                    sed -f "$p/fix.sed" "$i" > "$i.tmp"
+                    mv "$i.tmp" "$i"
+                fi
+            done
+            popd
+        else
+            echo can not change to directory: "$j"
+        fi
+    done
+
+else
+    echo could not read: "$p/fix.sed"
+fi
