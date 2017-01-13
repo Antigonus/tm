@@ -6,11 +6,11 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defgeneric singleton (tm &optional cont-true cont-false))
-(defgeneric doubleton (tm &optional cont-true cont-false))
-(defgeneric tripleton (tm &optional cont-true cont-false))
+(def-function-class singleton (tm &optional cont-true cont-false))
+(def-function-class doubleton (tm &optional cont-true cont-false))
+(def-function-class tripleton (tm &optional cont-true cont-false))
 
-(defmethod singleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+(defun-typed singleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (with-mk-entangled tm
     (λ(tm1)
       (cue-leftmost tm1)
@@ -19,7 +19,7 @@ See LICENSE.txt
         cont-false
         ))))
   
-(defmethod doubleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+(defun-typed doubleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (with-mk-entangled tm
     (λ(tm1)
       (cue-leftmost tm1)
@@ -31,7 +31,7 @@ See LICENSE.txt
         (funcall cont-false)
         ))))
 
-(defmethod tripleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
+(defun-typed tripleton (tm &optional (cont-true (be t)) (cont-false (be ∅)))
   (with-mk-entangled tm
     (λ(tm1)
       (cue-leftmost tm1)
@@ -52,10 +52,10 @@ See LICENSE.txt
 ;; cmp
 ;;
   ;; (length tm0) <?> ( (length tm1) | n )
-  (defgeneric length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
+  (def-function-class length-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
   ;; (length tm0) <?> n
-  (defmethod length-cmp
+  (defun-typed length-cmp
     (
       (tm0 nd-tape-machine)
       (n integer)
@@ -78,7 +78,7 @@ See LICENSE.txt
           ))))
 
     ;; (length tm0) <?> (length tm1)
-  (defmethod length-cmp
+  (defun-typed length-cmp
     (
       (tma nd-tape-machine)
       (tmb nd-tape-machine)

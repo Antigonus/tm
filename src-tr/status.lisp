@@ -13,14 +13,14 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass status-x (identity-x)
+  (def-type status-x (identity-x)
     (
       (status
         :initarg status
         :accessor status
         )))
 
-  (defmethod init 
+  (defun-typed init 
     (
       (tm status-x)
       (init-value abstract-tape-machine)

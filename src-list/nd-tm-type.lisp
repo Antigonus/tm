@@ -17,5 +17,5 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass nd-tape-machine (tape-machine)())
+  (def-type nd-tape-machine (tape-machine)())
 

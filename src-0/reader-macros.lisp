@@ -18,11 +18,11 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;;  [ .. ]  reader macro for [q ..]
+;;  [ .. ]  reader macro for (funcall  ..)
 ;;
   (defun brackets-reader-macro (stream char)
     (declare (ignore char))
-    (cons 'q (read-delimited-list #\] stream t))
+    (cons 'funcall (read-delimited-list #\] stream t))
     )
   (set-macro-character #\[ #'brackets-reader-macro)
   (set-macro-character #\] (get-macro-character #\) nil))

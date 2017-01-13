@@ -18,7 +18,7 @@ See LICENSE.txt
   ;; This makes an entangled machine.  It is safe to do so as nd machines
   ;; do not support destructive operations.
   ;;
-    (defmethod init 
+    (defun-typed init 
       (
         (tm list-nd-tm)
         (init-value list-nd-tm)

@@ -13,7 +13,7 @@ See LICENSE.txt
 ;; making list machines from other instances
 ;;   my gosh this is an expensive way to make a temporary variable ..
 ;;
-  (defmethod init 
+  (defun-typed init 
     (
       (tm list-ea-tm)
       (init-value cons)
@@ -26,10 +26,10 @@ See LICENSE.txt
     (setf (head tm) init-value)
     (setf (tape tm) init-value)
     (setf (entanglements tm) (mk 'list-solo-tm {tm})) ; initially entangled only with self
-    (funcall cont-ok tm)
+    [cont-ok tm]
     )
 
-  (defmethod init 
+  (defun-typed init 
     (
       (tm list-ea-tm)
       (init-value list-ea-tm)
@@ -51,6 +51,6 @@ See LICENSE.txt
         (λ()(a&h◨ etms tm #'do-nothing #'alloc-fail))
         #'do-nothing
         )
-      (funcall cont-ok tm)
+      [cont-ok tm]
       ))
     

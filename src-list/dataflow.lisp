@@ -23,7 +23,7 @@ See LICENSE.txt
           )))
     (labels(
              (retry ()
-               (∀ tms (λ(tms)(funcall pred (r tms)))
+               (∀ tms (λ(tms)[pred (r tms)])
                  cont-ready
                  (λ()(funcall cont-not-ready #'retry tms))
                  ))

@@ -15,7 +15,7 @@ non-destructive operation primitives
 ;;
 ;;  having two machines to compare means that we must have made a copy at some point
 ;;
-  (defgeneric heads-on-same-cell
+  (def-function-class heads-on-same-cell
     (
       tm0
       tm1 

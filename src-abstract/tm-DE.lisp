@@ -17,9 +17,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-DE (tape-machine)())
+  (def-type tm-DE (tape-machine)())
 
-  (defmethod init 
+  (defun-typed init 
     (
       (tm tm-DE)
       init-list
@@ -52,7 +52,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r-0
+  (defun-typed r-0
     (
       (tm tm-DE)
       state
@@ -63,7 +63,7 @@ See LICENSE.txt
     (funcall cont-ok (head tm))
     )
 
-  (defmethod w-0
+  (defun-typed w-0
     (
       (tm tm-DE)
       state
@@ -78,7 +78,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost-0
+  (defun-typed cue-leftmost-0
     (
       (tm tm-DE)
       state
@@ -91,7 +91,7 @@ See LICENSE.txt
     (funcall cont-ok)
     )
 
-  (defmethod heads-on-same-cell-0
+  (defun-typed heads-on-same-cell-0
     (
       (tm0 tm-DE)
       state0
@@ -104,7 +104,7 @@ See LICENSE.txt
     (declare (ignore state0 tm1 state1 cont-true cont-parked))
     (funcall cont-false)
     )
-  (defmethod heads-on-same-cell-0
+  (defun-typed heads-on-same-cell-0
     (
       tm0
       state0
@@ -117,7 +117,7 @@ See LICENSE.txt
     (declare (ignore tm0 state0 state1 cont-true cont-parked))
     (funcall cont-false)
     )
-  (defmethod heads-on-same-cell-0
+  (defun-typed heads-on-same-cell-0
     (
       (tm0 tm-DE)
       state0
@@ -140,7 +140,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s-0
+  (defun-typed s-0
     (
       (tm tm-DE)
       state

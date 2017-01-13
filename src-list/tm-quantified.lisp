@@ -15,7 +15,7 @@ See LICENSE.txt
 ;;
   ;; if you want fill to be a single value, make it a singular-affine machine
   ;; cont-rightmost is called when the fill machine hits rightmost
-  (defgeneric w* 
+  (def-function-class w* 
     (
       tm
       fill
@@ -30,7 +30,7 @@ See LICENSE.txt
        "
       ))
 
-  (defmethod w* 
+  (defun-typed w* 
     (
       (tm tape-machine)
       fill
@@ -44,32 +44,32 @@ See LICENSE.txt
     (⟳-loop(λ(cont-loop)
              (s fill
                (λ()(s tm
-                     (λ()(w tm (r fill))(funcall cont-loop))
+                     (λ()(w tm (r fill))[cont-loop])
                      cont-rightmost-tm
                      ))
                cont-ok
                ))))
 
-  (defgeneric s* (tm)
+  (def-function-class s* (tm)
     (:documentation 
       "This is a synonym for cue-to-rightmost. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defmethod s* ((tm tape-machine)) (cue-rightmost tm))
+  (defun-typed s* ((tm tape-machine)) (cue-rightmost tm))
 
-  (defgeneric -s* (tm)
+  (def-function-class -s* (tm)
     (:documentation 
       "This is a synonym for cue-to-leftmost. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defmethod -s*((tm tape-machine))(cue-leftmost tm))
+  (defun-typed -s*((tm tape-machine))(cue-leftmost tm))
 
   ;; note the fill data will be reversed at the tm insert point
   ;; use as* to fill without reversal
   ;; use eas* to fill forward without moving tm (requires at least nd-tm)
-  (defgeneric a* (tm fill &optional cont-ok cont-no-alloc)
+  (def-function-class a* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'a repeatedly with successive instances from tm-fill. 
        tm will not be stepped.  tm-fill will be stepped.
@@ -80,7 +80,7 @@ See LICENSE.txt
   ;; cont-no-alloc is not transactional here ... need to fix the other a* versions too
   ;; do we want it to be transactional?  But if it did a spot fix it would have to be
   ;; possible to restart the a* where we left off ..
-  (defmethod a*
+  (defun-typed a*
     (
       (tm tape-machine)
       fill
@@ -95,7 +95,7 @@ See LICENSE.txt
           cont-no-alloc
           ))))
 
-  (defgeneric as* (tm fill &optional cont-ok cont-no-alloc)
+  (def-function-class as* (tm fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "Calls #'as repeatedly with successive instances from tm-fill.
        Both tm and tm-fill will be stepped.
@@ -118,7 +118,7 @@ See LICENSE.txt
           cont-no-alloc
           ))))
 
-  (defmethod as*
+  (defun-typed as*
     (
       (tm0 tape-machine)
       fill
@@ -134,7 +134,7 @@ See LICENSE.txt
 ;; repeated by count operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric sn (tm n &optional cont-ok cont-rightmost)
+  (def-function-class sn (tm n &optional cont-ok cont-rightmost)
     (:documentation 
       "Step n times.  When called, cont-rightmost is passed the current value of n.  For
        example, if the head is on leftmost, and the tape has two cells, and sn is called
@@ -143,7 +143,7 @@ See LICENSE.txt
       "
       ))
 
-  (defmethod sn
+  (defun-typed sn
     (
       (tm tape-machine)
       (n integer)
@@ -155,14 +155,14 @@ See LICENSE.txt
              (if
                (> n 0)
                (s tm
-                 (λ()(decf n)(funcall cont-loop))
-                 (λ()(funcall cont-rightmost n))
+                 (λ()(decf n)[cont-loop])
+                 (λ()[cont-rightmost n])
                  )
-               (funcall cont-ok) 
+               [cont-ok]
                ))))
 
 
-  (defgeneric asn (tm n &optional fill cont-ok cont-rightmost-fill cont-no-alloc)
+  (def-function-class asn (tm n &optional fill cont-ok cont-rightmost-fill cont-no-alloc)
     (:documentation 
       "Similar to calling #'as n times. fill provides initialization
        data. tm and fill are both stepped n times."
@@ -170,7 +170,7 @@ See LICENSE.txt
 
   ;; interesting that the fill iterator is one ahead, pointing at the next
   ;; thing to be written.  Thus this routine does not maintain inclusive bounds.
-  (defmethod asn
+  (defun-typed asn
     (
       (tm tape-machine)
       (n integer)
@@ -186,12 +186,12 @@ See LICENSE.txt
                (as tm (r fill)
                  (λ()
                    (s fill 
-                     (λ()(decf n) (funcall cont-loop)) 
-                     (λ()(funcall cont-rightmost-fill n))
+                     (λ()(decf n) [cont-loop])
+                     (λ()[cont-rightmost-fill n])
                      ))
                  cont-no-alloc
                  )
-               (funcall cont-ok)
+               [cont-ok]
                ))))
 
 

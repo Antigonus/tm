@@ -12,9 +12,9 @@ See LICENSE.txt
 ;;
 ;;  init-list is a keyword list.  
 ;;
-  (defgeneric init (instance init-value &optional cont-ok cont-fail &rest ⋯))
+  (def-function-class init (instance init-value &optional cont-ok cont-fail &rest ⋯))
 
-  (defmethod init 
+  (defun-typed init 
     (
       (tm tape-machine)
       init-value
@@ -24,7 +24,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯ cont-ok))
-    (funcall cont-fail)
+    [cont-fail]
     )
 
   (defun mk
@@ -45,7 +45,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defgeneric mk-shallow-copy
+  (def-function-class mk-shallow-copy
     (
       tm-orig
       &optional
@@ -60,7 +60,7 @@ See LICENSE.txt
       ))
 
   ;; will work for most machines
-  (defmethod mk-shallow-copy
+  (defun-typed mk-shallow-copy
     (
       (tm-orig tape-machine)
       &optional
@@ -71,7 +71,7 @@ See LICENSE.txt
           (tm-copy (make-instance (type-of tm-orig)))
           )
       (as* tm-copy tm-orig
-        (λ()(funcall cont-ok tm-copy))
+        (λ()[cont-ok tm-copy])
         cont-no-alloc
         )))
 

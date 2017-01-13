@@ -10,9 +10,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; resource contexts
 ;;
-  (defgeneric use-entanglements (tm continuation))
+  (def-function-class use-entanglements (tm continuation))
 
-  (defmethod use-entanglements
+  (defun-typed use-entanglements
     (
       (tm ts-tape-machine)
       continuation
@@ -25,13 +25,13 @@ See LICENSE.txt
       (when (≠ (en-obj-count ent-obj) 0) 
         (condition-wait (ent-obj-count-cond ent-obj) (en-obj-count-lock))
         )
-      (funcall continuation ent-obj)
+      [continuation ent-obj]
       (release-lock (ent-obj-count-lock ent-obj))
       (release-lock (ent-obj-ent-lock ent-obj))
       ))
 
-  (defgeneric use-head (tm continuation))
-  (defmethod use-head
+  (def-function-class use-head (tm continuation))
+  (defun-typed use-head
     (
       (tm ts-tape-machine)
       continuation  ; will be called with tm as we need the (head tm) reference to be intact
@@ -46,7 +46,7 @@ See LICENSE.txt
       (release-lock (ent-obj-count-lock ent-obj))
       (release-lock (ent-obj-ent-lock ent-obj))
 
-      (funcall continuation tm)
+      [continuation tm]
 
       (acquire-lock (ent-obj-count-lock ent-obj))
       (decf (ent-obj-count))

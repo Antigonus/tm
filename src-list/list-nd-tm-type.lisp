@@ -14,6 +14,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass list-nd-tm (nd-tape-machine list-tm)())
+  (def-type list-nd-tm (nd-tape-machine list-tm)())
 
     

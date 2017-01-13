@@ -14,7 +14,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making list machines from other instances
 ;;
-  (defmethod init 
+  (defun-typed init 
     (
       (tm list-tm)
       (init-value cons)
@@ -26,7 +26,7 @@ See LICENSE.txt
     (declare (ignore ⋯ cont-fail))
     (setf (head tm) init-value)
     (setf (tape tm) init-value)
-    (funcall cont-ok tm)
+    [cont-ok tm]
     )
     
 

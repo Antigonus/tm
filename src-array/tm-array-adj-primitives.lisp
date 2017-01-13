@@ -26,8 +26,8 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-array-adj)) (aref (tape tm) (head tm) ))
-  (defmethod w ((tm tm-array-adj) instance)
+  (defun-typed r ((tm tm-array-adj)) (aref (tape tm) (head tm) ))
+  (defun-typed w ((tm tm-array-adj) instance)
     (setf (aref (tape tm) (head tm)) instance)
     t
     )
@@ -35,14 +35,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost  ((tm tm-array-adj)) 
+  (defun-typed cue-leftmost  ((tm tm-array-adj)) 
     (setf (head tm) 0)
     )
 
 ;;--------------------------------------------------------------------------------
 ;;  head location predicates
 ;;
-  (defmethod heads-on-same-cell 
+  (defun-typed heads-on-same-cell 
     (
       (tm0 tm-array-adj) 
       (tm1 tm-array-adj) 
@@ -60,7 +60,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s
+  (defun-typed s
     (
       (tm tm-array-adj)
       &optional
@@ -81,7 +81,7 @@ See LICENSE.txt
 ;; cell allocation
 ;;
   ;; allocates a cell just to the right of the head an initializes it with instance
-  (defmethod a 
+  (defun-typed a 
     (
       (tm tm-array-adj)
       instance 
@@ -102,7 +102,7 @@ See LICENSE.txt
 ;; deallocating cells
 ;;
   ;; deallocates the cell just to the right of the head
-  (defmethod d 
+  (defun-typed d 
     (
       (tm tm-array-adj)
       &optional 

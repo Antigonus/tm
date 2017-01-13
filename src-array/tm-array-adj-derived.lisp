@@ -20,7 +20,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r-index
+  (defun-typed r-index
     (
       (tm tm-array-adj)
       index
@@ -42,12 +42,12 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-rightmost ((tm tm-array-adj)) (setf (head tm) (rightmost-index tm)))
+  (defun-typed cue-rightmost ((tm tm-array-adj)) (setf (head tm) (rightmost-index tm)))
 
 ;;--------------------------------------------------------------------------------
 ;;  tape-machine properties
 ;;
-  (defmethod on-rightmost
+  (defun-typed on-rightmost
     (
       (tm0 tm-array-adj)
       &optional

@@ -18,5 +18,5 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other instances from tm-array machines
 ;;
-  (defmethod unmount ((tm tm-array))(tape tm))
-  (defmethod to-array ((tm tm-array))(tape tm))
+  (defun-typed unmount ((tm tm-array))(tape tm))
+  (defun-typed to-array ((tm tm-array))(tape tm))

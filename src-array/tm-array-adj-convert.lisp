@@ -18,5 +18,5 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making other instances from tm-array-adj machines
 ;;
-  (defmethod unmount ((tm tm-array-adj))(tape tm))
-  (defmethod to-array-adj ((tm tm-array-adj))(tape tm))
+  (defun-typed unmount ((tm tm-array-adj))(tape tm))
+  (defun-typed to-array-adj ((tm tm-array-adj))(tape tm))

@@ -44,7 +44,7 @@ The entanglements slot for ea-tm holds a list-solo-tm.
     "tm0 and tm1 are distinct machines, and have their heads on the same cell."
     (if
       (eq tm0 tm1)
-      (funcall cont-false)
+      [cont-false]
       (heads-on-same-cell tm0 tm1 cont-true cont-false)
       ))
 
@@ -60,7 +60,7 @@ The entanglements slot for ea-tm holds a list-solo-tm.
             cont-true
             cont-false
             ))
-        (funcall cont-false)
+        [cont-false]
         )))
 
   (defun ∃-collision-right-neighbor (tm &optional (cont-true (be t)) (cont-false (be ∅)))
@@ -86,7 +86,7 @@ The entanglements slot for ea-tm holds a list-solo-tm.
             cont-true
             cont-false
             ))
-        (funcall cont-false)
+        [cont-false]
         )))
 
 ;;--------------------------------------------------------------------------------

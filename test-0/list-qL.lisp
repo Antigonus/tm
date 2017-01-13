@@ -55,6 +55,6 @@ See LICENSE.txt
 
 
 (defun test-L-2 ()
-  (equal {(o [a b mk-7]) (mk-7)} '(a b mk-7 7)))
+  (equal {(o (q a b mk-7)) (mk-7)} '(a b mk-7 7)))
 (test-hook test-L-2)
 

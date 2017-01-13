@@ -10,11 +10,11 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-array (tape-machine)())
+  (def-type tm-array (tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defmethod tm-init ((instance tm-array) init-list)
+  (defun-typed tm-init ((instance tm-array) init-list)
     (when 
       (¬ init-list) 
       (error 'tm-mk-bad-init-type :text "tm-array requires an initializer")

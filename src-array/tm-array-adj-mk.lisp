@@ -21,11 +21,11 @@ duplicate computation when tape is set explicitly.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-array-adj (tape-machine)())
+  (def-type tm-array-adj (tape-machine)())
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defmethod tm-init ((instance tm-array-adj) init-list)
+  (defun-typed tm-init ((instance tm-array-adj) init-list)
     (if (¬ init-list) 
 
       (let(
@@ -75,7 +75,7 @@ duplicate computation when tape is set explicitly.
   ;; need to share this between adjustable and fixed arrays,
   ;; as both will come through (sequence 'array)
   ;;
-    (defmethod mount
+    (defun-typed mount
       (
         (sequence array) 
         &optional

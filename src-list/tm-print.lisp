@@ -13,8 +13,8 @@ This print facility was intended for use in debugging.
      (dotimes (i n)(princ "  "))
      )
 
-   (defgeneric tm-print-0 (tm &optional n))
-   (defmethod tm-print-0 ((tm tape-machine) &optional (n 0))
+   (def-function-class tm-print-0 (tm &optional n))
+   (defun-typed tm-print-0 ((tm tape-machine) &optional (n 0))
      (indent n) (princ tm) (nl)
      (indent n) (princ "head: ") (princ (head tm)) (nl)
      (indent n) (princ "tape: ") (princ (tape tm)) (nl)
@@ -31,8 +31,8 @@ This print facility was intended for use in debugging.
    ;; later would be nice to check tape length, and add ellipses showing just
    ;; context at the beginning of the tape, around the head position, and at the
    ;; end of the tape
-   (defgeneric tm-print (tm))
-   (defmethod tm-print ((tm tape-machine))
+   (def-function-class tm-print (tm))
+   (defun-typed tm-print ((tm tape-machine))
      (let(
            (original-head (head tm)) ; big cheat!
            )
@@ -47,11 +47,11 @@ This print facility was intended for use in debugging.
                  (print-tm-instance-in-brackets (r tm))
                  (print-tm-instance-in-parens (r tm))
                  )
-               (funcall cont-loop)
+               [cont-loop]
                )
              (λ()
                (setf (head tm) original-head)
                (nl)
-               (funcall cont-return)
+               [cont-return]
                ))))))
 

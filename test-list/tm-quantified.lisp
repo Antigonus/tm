@@ -72,17 +72,17 @@ See LICENSE.txt
   (defun test-as*-1 ()
     (let(
           (tm0 (mk 'list-tm {1 2 3}))
-          (tm1 (mk 'list-tm [a b c]))
+          (tm1 (mk 'list-tm (q a b c)))
           )
       (s* tm0)
       (s* tm1)
       (as* tm0 (mk 'list-tm {4 5 6}))
-      (a*  tm1 (mk 'list-tm [e f g]))
+      (a*  tm1 (mk 'list-tm (q e f g)))
       (∧
         (= (r tm0) 6)
         (eq (r tm1) 'c)
         (equal (tape tm0) {1 2 3 4 5 6})
-        (equal (tape tm1) [a b c g f e])
+        (equal (tape tm1) (q a b c g f e))
         )))
   (test-hook test-as*-1)
 
