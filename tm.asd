@@ -45,46 +45,46 @@ See LICENSE.txt
 
                (:module "src-list" ; both the list and generic interface
                  :components (
-                               (:file "tm-def")
+                               (:file "tm-type")
                                (:file "tm-mk")
-                               (:file "tm-primitives")
-                               (:file "tm-derived")
+                               (:file "tm-decl-only")
+                               (:file "tm-generic")
                                (:file "tm-quantifiers")
                                (:file "tm-quantified")
-                               (:file "tm-print")
+;;                               (:file "tm-print")
 
-                               (:file "list-tm-def")
+                               (:file "list-tm-type")
                                (:file "list-tm-mk")
-                               (:file "list-tm-primitives")
-                               (:file "list-tm-derived")
+                               (:file "list-tm-definitions")
+                               (:file "list-tm-specialized-generic")
 
                                ;; no destructive functions, but has entangled copy functions
-                               (:file "nd-tm-def")
-                               (:file "nd-tm-primitives")
-                               (:file "nd-tm-derived") 
+                               (:file "nd-tm-type")
+                               (:file "nd-tm-decl-only")
+                               (:file "nd-tm-generic") 
                                (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
 
-                               (:file "list-nd-tm-def")
+                               (:file "list-nd-tm-type")
                                (:file "list-nd-tm-mk")
-                               (:file "list-nd-tm-primitives")
+                               (:file "list-nd-tm-definitions")
 
                                ;; includes destructive functions, but no entangled copy functions
-                               (:file "solo-tm-def")
-                               (:file "solo-tm-primitives")
+                               (:file "solo-tm-type")
+                               (:file "solo-tm-decl-only")
                                (:file "solo-tm-quantified")
 
                                ;; a solo-tm implemenation
-                               (:file "list-solo-tm-def")
-                               (:file "list-solo-tm-primitives")
+                               (:file "list-solo-tm-type")
+                               (:file "list-solo-tm-definitions")
 
                                ;; includes destructive functions, and entangled copy functions
-                               (:file "ea-tm-def")
+                               (:file "ea-tm-type")
                                (:file "ea-entanglement")
-                               (:file "ea-tm-primitives")
-                               (:file "ea-tm-derived")
+                               (:file "ea-tm-decl-only")
+                               (:file "ea-tm-generic")
 
-                               (:file "list-ea-tm-def")
+                               (:file "list-ea-tm-type")
                                (:file "list-ea-tm-mk")
 
 ;;  (:file "ts-tm-def")
@@ -97,20 +97,20 @@ See LICENSE.txt
                (:module "test-list"
                 :components (
                               ;; generic interface tests
-                              (:file "list-tm-primitives")
-                              (:file "tm-derived")
+                              (:file "list-tm-definitions")
+                              (:file "tm-generic")
                               (:file "tm-quantifiers")
                               (:file "tm-quantified")
 
-                              (:file "list-nd-tm-primitives")
-                              (:file "nd-tm-derived")
+                              (:file "list-nd-tm-definitions")
+                              (:file "nd-tm-generic")
                               (:file "nd-tm-quantifiers")
                               (:file "nd-tm-quantified")
 
-                              (:file "list-solo-tm-primitives")
+                              (:file "list-solo-tm-definitions")
                               (:file "solo-tm-quantified")
 
-                              (:file "ea-tm-derived")
+                              (:file "ea-tm-generic")
                               ))
 
 #|
