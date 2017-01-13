@@ -28,22 +28,22 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defgeneric r (tm &rest ⋯))
-  (defgeneric esr (tm &optional cont-ok cont-rightmost &rest ⋯))
+  (def-function-class r (tm &rest ⋯))
+  (def-function-class esr (tm &optional cont-ok cont-rightmost &rest ⋯))
 
-  (defgeneric w (tm instance &rest ⋯))
-  (defgeneric esw (tm instance &optional cont-ok cont-rightmost &rest ⋯))
+  (def-function-class w (tm instance &rest ⋯))
+  (def-function-class esw (tm instance &optional cont-ok cont-rightmost &rest ⋯))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defgeneric cue-leftmost (tm &rest ⋯))
+  (def-function-class cue-leftmost (tm &rest ⋯))
 
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defgeneric s
+  (def-function-class s
     (
       tm
       &optional 
@@ -58,7 +58,7 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defgeneric a
+  (def-function-class a
     (
       tm
       instance
@@ -75,7 +75,7 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;  
-  (defgeneric on-leftmost 
+  (def-function-class on-leftmost 
     (
       tm
       &optional
@@ -86,7 +86,7 @@ functions.
       "tm head is on leftmost.
       "))
 
-  (defgeneric on-rightmost
+  (def-function-class on-rightmost
     (
       tm
       &optional

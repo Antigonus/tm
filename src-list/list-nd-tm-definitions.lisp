@@ -18,7 +18,7 @@ See LICENSE.txt
   ;; Though entangled copy function is not directly called in heads-on-same-cell, a copy
   ;; is implied because the function accepts two state machines that share a tape, tm0 and
   ;; tm1.
-  (defmethod heads-on-same-cell
+  (defun-typed heads-on-same-cell
     (
       (tm0 list-nd-tm)
       (tm1 list-nd-tm)
@@ -29,11 +29,11 @@ See LICENSE.txt
       )
     (declare (ignore ⋯)) 
     (if (eq (head tm0) (head tm1))
-      (funcall cont-true)
-      (funcall cont-false)
+      [cont-true]
+      [cont-false]
       ))
 
-  (defmethod heads-on-same-cell
+  (defun-typed heads-on-same-cell
     (
       (tm0 list-nd-tm)
       tm1
@@ -43,10 +43,10 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore cont-true ⋯)) 
-    (funcall cont-false)
+    [cont-false]
     )
 
-  (defmethod heads-on-same-cell
+  (defun-typed heads-on-same-cell
     (
       tm0
       (tm1 list-nd-tm)
@@ -56,5 +56,5 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore cont-true ⋯)) 
-    (funcall cont-false)
+    [cont-false]
     )

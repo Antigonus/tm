@@ -12,7 +12,7 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass identity-tr (tape-machine)
+  (def-type identity-tr (tape-machine)
     (
       (base ; the machine we transform
         :initarg base
@@ -22,7 +22,7 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;; making transform machines
 ;;
-  (defmethod init 
+  (defun-typed init 
     (
       (tm identity-tr)
       (init-value tape-machine)

@@ -26,7 +26,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass ea-tape-machine (nd-tape-machine solo-tape-machine)
+  (def-type ea-tape-machine (nd-tape-machine solo-tape-machine)
     (
       (entanglements ; list of tape-machines that share the tape
         :initarg entanglements

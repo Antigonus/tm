@@ -12,18 +12,18 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm tm-smooth))
+  (defun-typed r ((tm tm-smooth))
     (r (r (tape tm)))
     )
 
-  (defmethod w ((tm tm-aggregate) instance)
+  (defun-typed w ((tm tm-aggregate) instance)
     (if 
       (typep instance 'tape-machine)
       (call-next-method tm instance)
       (error 'instance-not-tape-machine)
       ))
 
-  (defmethod w ((tm tm-smooth) instance)
+  (defun-typed w ((tm tm-smooth) instance)
     (w (r (tape tm)))
     t
     )
@@ -31,7 +31,7 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost  ((tm tm-smooth)) 
+  (defun-typed cue-leftmost  ((tm tm-smooth)) 
     (cue-leftmost (tape tm))
     (cue-leftmost (r (tape tm)))
     )
@@ -39,7 +39,7 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;;  head location predicates
 ;;
-  (defmethod heads-on-same-cell 
+  (defun-typed heads-on-same-cell 
     (
       (tm0 tm-smooth) 
       (tm1 tm-smooth) 
@@ -53,7 +53,7 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s
+  (defun-typed s
     (
       (tm tm-smooth)
       &optional
@@ -70,7 +70,7 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defmethod a 
+  (defun-typed a 
     (
       (tm tm-aggregate)
       instance 
@@ -84,7 +84,7 @@ see notes in tm-smooth header
       (error 'instance-not-tape-machine)
       ))
 
-  (defmethod a 
+  (defun-typed a 
     (
       (tm tm-smooth)
       instance 
@@ -99,7 +99,7 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; deallocating cells
 ;;
-  (defmethod d 
+  (defun-typed d 
     (
       (tm tm-smooth)
       &optional 

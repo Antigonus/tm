@@ -12,7 +12,7 @@ See LICENSE.txt
 ;; cell allocation
 ;;
   ;; add a new leftmost
-  (defgeneric a◧
+  (def-function-class a◧
     (
       tm
       instance
@@ -37,7 +37,7 @@ See LICENSE.txt
 ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
 ;; reallocation to spill fails
 ;;
-  (defgeneric d (
+  (def-function-class d (
                   tm 
                   &optional 
                   spill 
@@ -55,7 +55,7 @@ See LICENSE.txt
       "
       ))
 
-  (defgeneric d◧ (
+  (def-function-class d◧ (
                    tm 
                    &optional 
                    spill 

@@ -13,6 +13,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass list-solo-tm (solo-tape-machine list-tm)())
+  (def-type list-solo-tm (solo-tape-machine list-tm)())
 
     

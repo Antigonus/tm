@@ -9,7 +9,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defmethod a&h◨ 
+  (defun-typed a&h◨ 
     (
       (tm list-tm)
       instance
@@ -19,10 +19,10 @@ See LICENSE.txt
       )
     (declare (ignore cont-no-alloc))
     (rplacd (head tm) (cons instance ∅))
-    (funcall cont-ok)
+    [cont-ok]
     )
 
-  (defmethod as&h◨ 
+  (defun-typed as&h◨ 
     (
       (tm list-tm)
       instance
@@ -33,6 +33,6 @@ See LICENSE.txt
     (declare (ignore cont-no-alloc))
     (rplacd (head tm) (cons instance ∅))
     (setf (head tm) (cdr (head tm)))
-    (funcall cont-ok)
+    [cont-ok]
     )
 

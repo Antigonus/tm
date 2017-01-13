@@ -11,7 +11,7 @@ See LICENSE.txt
 ;;  
 
   ;; more specialized than one found in nd-tm-derived.lisp
-  (defmethod with-mk-entangled
+  (defun-typed with-mk-entangled
     (
       (tm0 ea-tape-machine)
       continuation
@@ -28,7 +28,7 @@ See LICENSE.txt
 ;; cell allocation
 ;;
   ;; add a new leftmost
-  (defmethod a◧
+  (defun-typed a◧
     (
       (tm ea-tape-machine)
       instance
@@ -43,7 +43,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
-  (defmethod d
+  (defun-typed d
     (
       (tm ea-tape-machine)
       &optional 
@@ -64,7 +64,7 @@ See LICENSE.txt
         (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
         )))
       
-  (defmethod d◧
+  (defun-typed d◧
     (
       (tm ea-tape-machine)
       &optional 

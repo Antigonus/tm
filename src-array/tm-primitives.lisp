@@ -26,7 +26,7 @@ of the primitives.
   ;; implementing this more efficiently on lists due to head cell locations with shared
   ;; tapes. In any case with repeated ops we can hop n places instead of shuffling.
   ;;
-    (defgeneric m (tm fill)
+    (def-function-class m (tm fill)
       (:documentation
         "The instance in rightmost is returned.
          All other instances on the tape move right one cell.
@@ -34,7 +34,7 @@ of the primitives.
          "
         ))
 
-    (defmethod m 
+    (defun-typed m 
       (
         (tm tape-machine)
         fill-instance

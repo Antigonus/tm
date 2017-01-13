@@ -13,20 +13,12 @@ See LICENSE.txt
 ;; looping, see also s-together⟳  --> need to replace these with quantifiers
 ;;
   (defun ⟳ (work)
-    "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
-     single step, whatever such a step may be.  The work function accepts two arguments,
-     both functions, the first typically called cont-loop, the second typically called
-     cont-return.  When the work function continues with cont-loop, it is immediately
-     called again.  When the work function returns, or when cont-return is called,
-     both the loop function and ⟳ return.
+    "⟳ (pronounced \"do\") accepts a work function.  The work function is passed a single
+     continuation argument.  If the continuation is called, the work funciton is repeated.
+     The return value is that returned by work when it doesn't repeat.
      "
     (labels(
-             (do-work () 
-               (funcall 
-                 work
-                 (λ()(return-from do-work (funcall #'do-work)))
-                 (λ(&rest vs)(return-from ⟳ (values-list vs)))
-                 ))
+             (do-work () [work #'do-work])
              )
       (do-work)
       ))
@@ -39,7 +31,7 @@ See LICENSE.txt
      so does ⟳-loop.
      "
     (labels(
-             (do-work () (funcall work (λ()(return-from do-work (funcall #'do-work)))))
+             (do-work () [work (λ()(return-from do-work (funcall #'do-work)))])
              )
       (do-work)
       ))
@@ -51,7 +43,7 @@ See LICENSE.txt
      with cont-return, the work function and the loop return.
      "
     (loop
-      (funcall work (λ(&rest vs)(return-from ⟳-return (values-list vs))))
+      [work (λ(&rest vs)(return-from ⟳-return (values-list vs)))]
       ))
 
   ;; This version of ⟳ facilitates the programmer in making the stepping function explicit
@@ -75,13 +67,13 @@ See LICENSE.txt
      "
       (labels(
                (do-work ()
-                 (funcall work)
-                 (funcall step tm #'do-work (λ()(return-from ⟳-work-step)))
+                 [work]
+                 [step tm #'do-work (λ()(return-from ⟳-work-step))]
                  )
                )
         (do-work)
         ))
-
+ 
 ;;--------------------------------------------------------------------------------
 ;; quaternion relationship among quantifiers
 ;;   q00 is existential quantification
@@ -103,12 +95,12 @@ See LICENSE.txt
 ;;
   (defun always-false (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     (declare (ignore tm cont-true))
-    (funcall cont-false)
+    [cont-false]
     )
 
   (defun always-true (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     (declare (ignore tm cont-false))
-    (funcall cont-true)
+    [cont-true]
     )
 
 
@@ -135,12 +127,14 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     "When returning true, tm head is on the first cell that has an instance where pred is true.
-    When returning false, tm head is on rightmost, and there was no cell where pred was true.
+     When returning false, tm head is on rightmost, and there was no cell where pred was true.
     "
     (labels(
-             (loop()(funcall pred #'step cont-true))
-             (step()(s tm #'loop cont-false))
-             )))
+             (test() [pred tm cont-true #'step-retest])
+             (step-retest() (s tm #'test cont-false))
+             )
+      (test)
+      ))
 
   ;; There exists an instance for which pred is false.
   ;; Same as step-while
@@ -154,11 +148,8 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     "When true, all instances do not match pred, and tm is on the first mismatch."
-    (if 
-      (q01 #'∃ tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-true cont-false)
+    )
 
   ;; there does not exist an instance for which pred is true
   ;; i.e. pred is false for all instances
@@ -172,12 +163,10 @@ See LICENSE.txt
       )
     "When true, there does not exist an instance where pred holds, and tm is at rightmost.
     When false, tm is on an cell with an instance where pred holds."
-    (if 
-      (q10 #'∃ tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    (∃ tm pred cont-false cont-true)
+    )
 
+  ;; there does not exist an instance for which pred is false
   ;; pred is true for all instances
   (defun ∀
     (
@@ -188,33 +177,33 @@ See LICENSE.txt
       (cont-false (be ∅))
       )
     "When true all instances match pred.  When false tm will be on the first mismatch."
-    (if
-      (q11 #'∃ tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-false cont-true)
+    )
 
   (defun ∃*
     (
       tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
+      pred
+      &optional
+      (cont-true (be t))
       (cont-false (be ∅))
       )
-    "like ∃, but all instances will be visited"
-    (let(
-          (result ∅)
-          )
-      (labels(
-               (∃*-op () (when (funcall pred tm) (setq result t)))
+    "When returning true, tm head is on the first cell that has an instance where pred is true.
+     When returning false, tm head is on rightmost, and there was no cell where pred was true.
+    "
+    (labels(
+             (test ()
+               [pred tm #'exhaust-tape #'step-retest]
                )
-        (⟳(λ(cont-loop cont-return)(∃*-op)(s tm cont-loop cont-return)))
-        (if 
-          result
-          (funcall cont-true)
-          (funcall cont-false)
-          ))))
+             (step-retest ()
+               (s tm #'test cont-false)
+               )
+             (exhaust-tape ()
+               (s tm #'exhaust-tape cont-true)
+               )
+             )
+      (test)
+      ))
 
   (defun ¬∀* 
     (
@@ -224,11 +213,9 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    (if
-      (q01 #'∃* tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    "When true, all instances do not match pred, and tm is on the first mismatch."
+    (∃* tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-true cont-false)
+    )
 
   (defun ¬∃*
     (
@@ -238,11 +225,10 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    (if
-      (q10 #'∃* tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    "When true, there does not exist an instance where pred holds, and tm is at rightmost.
+    When false, tm is on an cell with an instance where pred holds."
+    (∃* tm pred cont-false cont-true)
+    )
 
   (defun ∀*
     (
@@ -252,9 +238,7 @@ See LICENSE.txt
       (cont-true (be t)) 
       (cont-false (be ∅))
       )
-    (if
-      (q11 #'∃* tm pred)
-      (funcall cont-true)
-      (funcall cont-false)
-      ))
+    "When true all instances match pred.  When false tm will be on the first mismatch."
+    (∃* tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-false cont-true)
+    )
 

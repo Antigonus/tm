@@ -18,13 +18,13 @@ performance.
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (defgeneric with-mk-entangled (tm continuation)
+  (def-function-class with-mk-entangled (tm continuation)
     (:documentation
       "Calls continuation with a locally scoped entangled copy of tm.
        "))
 
   ;; this becomes more interesting when we have entanglement accounting
-  (defmethod with-mk-entangled
+  (defun-typed with-mk-entangled
     (
       (tm0 nd-tape-machine)
       continuation
@@ -39,13 +39,13 @@ performance.
 ;;--------------------------------------------------------------------------------
 ;; leftmost read and write
 ;;
-  (defgeneric r◧ (tm &rest ⋯)
+  (def-function-class r◧ (tm &rest ⋯)
     (:documentation
       "Read leftmost.
       "
       ))
 
-  (defmethod r◧ ((tm nd-tape-machine) &rest ⋯)
+  (defun-typed r◧ ((tm nd-tape-machine) &rest ⋯)
     (declare (ignore ⋯))
     (with-mk-entangled tm
       (λ(tm1)
@@ -53,13 +53,13 @@ performance.
         (r tm1) 
         )))
 
-  (defgeneric w◧ (tm instance &rest ⋯)
+  (def-function-class w◧ (tm instance &rest ⋯)
     (:documentation
       "Write leftmost.
       "
       ))
 
-  (defmethod w◧ ((tm nd-tape-machine) instance &rest ⋯)
+  (defun-typed w◧ ((tm nd-tape-machine) instance &rest ⋯)
     (declare (ignore ⋯))
     (with-mk-entangled tm
       (λ(tm1)
@@ -73,7 +73,7 @@ performance.
   ;; although we don't make any copies in this function, we do have two tape
   ;; machines that are on the same tape.  That can not happen with a solo machine
   ;; so nd-tape-machine is as far up the inheritance tree that this can go.
-  (defgeneric s≠ 
+  (def-function-class s≠ 
     (
       tm0
       tm1
@@ -90,7 +90,7 @@ performance.
       "
       ))
 
-  (defmethod s≠ 
+  (defun-typed s≠ 
     (
       (tm0 nd-tape-machine)
       (tm1 nd-tape-machine)
@@ -108,7 +108,7 @@ performance.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defgeneric a◨
+  (def-function-class a◨
     (
       tm
       instance
@@ -121,7 +121,7 @@ performance.
       "
       ))
 
-  (defmethod a◨
+  (defun-typed a◨
     (
       tm
       instance

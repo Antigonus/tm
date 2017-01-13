@@ -48,5 +48,5 @@ tape machine, so we will do so there.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (defclass solo-tape-machine (tape-machine)())
+  (def-type solo-tape-machine (tape-machine)())
 

@@ -31,9 +31,10 @@ See LICENSE.txt
 
   (defsynonym lambda λ)
 
-;; sorry LISP, but some of these names are a tad bit too long for my taste
-;;
   (defsynonym defparameter defparam)
+  (defsynonym defclass     def-type)
+  (defsynonym defgeneric   def-function-class)
+  (defsynonym defmethod    defun-typed)
 
 ;; prints a new line
 ;;

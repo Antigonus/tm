@@ -31,14 +31,14 @@ the smooth view level.
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass tm-aggregate (tm-list)())
+  (def-type tm-aggregate (tm-list)())
 
-  (defclass tm-smooth (tape-machine)())
+  (def-type tm-smooth (tape-machine)())
 
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defmethod tm-init ((instance tm-aggregate) init-list)
+  (defun-typed tm-init ((instance tm-aggregate) init-list)
     (if 
       (¬ init-list)
       (let(
@@ -64,7 +64,7 @@ the smooth view level.
             (error 'tm-mk-bad-init-type)
             )))))
 
-  (defmethod tm-init ((instance tm-smooth) init-list)
+  (defun-typed tm-init ((instance tm-smooth) init-list)
     (when 
       (¬ init-list) 
       (error 'tm-mk-bad-init-type :text "tm-smooth requires an initializer")

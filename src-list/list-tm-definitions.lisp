@@ -11,12 +11,12 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defmethod r ((tm list-tm) &rest ⋯)
+  (defun-typed r ((tm list-tm) &rest ⋯)
     (declare (ignore ⋯))
     (car (head tm))
     )
 
-  (defmethod esr
+  (defun-typed esr
     (
       (tm list-tm)
       &optional 
@@ -27,17 +27,17 @@ See LICENSE.txt
     (declare (ignore ⋯))
     (if
       (cdr (head tm))
-      (funcall cont-ok (cadr (head tm)))
-      (funcall cont-rightmost)
+      [cont-ok (cadr (head tm))]
+      [cont-rightmost]
       ))
 
-  (defmethod w ((tm list-tm) instance &rest ⋯)
+  (defun-typed w ((tm list-tm) instance &rest ⋯)
     (declare (ignore ⋯))
     (setf (car (head tm)) instance)
     t
     )
 
-  (defmethod esw
+  (defun-typed esw
     (
       (tm list-tm)
       instance
@@ -51,15 +51,15 @@ See LICENSE.txt
       (cdr (head tm))
       (progn
         (setf (cadr (head tm)) instance)
-        (funcall cont-ok)
+        [cont-ok]
         )
-      (funcall cont-rightmost)
+      [cont-rightmost]
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defmethod cue-leftmost ((tm list-tm) &rest ⋯)
+  (defun-typed cue-leftmost ((tm list-tm) &rest ⋯)
     (declare (ignore ⋯)) 
     (setf (head tm) (tape tm))
     t
@@ -68,7 +68,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defmethod s
+  (defun-typed s
     (
       (tm list-tm)
       &optional 
@@ -79,15 +79,15 @@ See LICENSE.txt
       (cdr (head tm))
       (progn
         (setf (head tm) (cdr (head tm)))
-        (funcall cont-ok)
+        [cont-ok]
         )
-      (funcall cont-rightmost)
+      [cont-rightmost]
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defmethod a
+  (defun-typed a
     (
       (tm list-tm)
       instance
@@ -100,13 +100,13 @@ See LICENSE.txt
           (next-cell (cdr (head tm)))
           )
       (rplacd (head tm) (cons instance next-cell))
-      (funcall cont-ok)
+      [cont-ok]
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;  
-  (defmethod on-leftmost 
+  (defun-typed on-leftmost 
     (
       tm
       &optional
@@ -115,11 +115,11 @@ See LICENSE.txt
       )
     (if
       (eq (head tm) (tape tm))
-      (funcall cont-true)
-      (funcall cont-false)
+      [cont-true]
+      [cont-false]
       ))
 
-  (defmethod on-rightmost
+  (defun-typed on-rightmost
     (
       tm
       &optional
@@ -128,6 +128,6 @@ See LICENSE.txt
       )
     (if
       (¬ (cdr (head tm)))
-      (funcall cont-true)
-      (funcall cont-false)
+      [cont-true]
+      [cont-false]
       ))

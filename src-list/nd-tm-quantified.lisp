@@ -12,7 +12,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; indexed read and write
 ;;
-  (defgeneric esnr 
+  (def-function-class esnr 
     (
       tm
       index
@@ -26,7 +26,7 @@ See LICENSE.txt
       "
       ))
 
-  (defmethod esnr 
+  (defun-typed esnr 
     (
       tm
       index
@@ -37,11 +37,11 @@ See LICENSE.txt
     (with-mk-entangled tm
       (λ(tm1)
         (sn tm1 index
-          (λ()(funcall cont-ok (r tm1)))
-          (λ(n)(funcall cont-rightmost n))
+          (λ()[cont-ok (r tm1)])
+          (λ(n)[cont-rightmost n])
           ))))
 
-  (defgeneric esnw 
+  (def-function-class esnw 
     (
       tm
       index
@@ -56,7 +56,7 @@ See LICENSE.txt
       "
       ))
 
-  (defmethod esnw 
+  (defun-typed esnw 
     (
       tm
       index
@@ -69,14 +69,14 @@ See LICENSE.txt
       (λ(tm1)
         (sn tm1 index
           (λ()(w tm1 instance cont-ok #'cant-happen))
-          (λ(n)(funcall cont-rightmost n))
+          (λ(n)[cont-rightmost n])
           ))))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated until end of tape operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric eas* (tm tm-fill &optional cont-ok cont-no-alloc)
+  (def-function-class eas* (tm tm-fill &optional cont-ok cont-no-alloc)
     (:documentation 
       "calls #'as repeatedly on a mk-entangled copy of tm, filling
        with successive instances from tm-fill.
@@ -84,7 +84,7 @@ See LICENSE.txt
        "
       ))
 
-  (defmethod eas*
+  (defun-typed eas*
     (
       (tm0 tape-machine) 
       fill
@@ -101,12 +101,12 @@ See LICENSE.txt
 ;; repeated by count operations
 ;;   more specific versions, if they exist, are surely more efficient
 ;;
-  (defgeneric an (tm count tm-fill &optional cont-ok cont-rightmost cont-no-alloc)
+  (def-function-class an (tm count tm-fill &optional cont-ok cont-rightmost cont-no-alloc)
     (:documentation 
       "Similar to calling #'a n times on a mk-entangled-with of tm."
       ))
 
-  (defmethod an
+  (defun-typed an
     (
       (tm nd-tape-machine)
       (n integer)

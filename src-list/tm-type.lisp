@@ -17,9 +17,9 @@ See LICENSE.txt
   the container, hence basic tape machines never disappear through side effects.
 
   Because there are no entanglement operations, a function that is passed a basic tape
-  machine as an operand, must move the head of that machine if it is to read any cell
+  machine as an operand, must step the head of that machine if it is to read any cell
   other than the one initially under the head.  Furhtermore, in right going only machines,
-  it is not possible for a function to move the head, then move it back. Hence 1) progress
+  it is not possible for a function to step the head, then step it back. Hence 1) progress
   towards the end of a tape will be monotonic. 2) the range of cells used by the funciton
   will be apparent.
 
@@ -29,5 +29,5 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (defclass tape-machine (tape-machine))
+  (def-type tape-machine ()())
 

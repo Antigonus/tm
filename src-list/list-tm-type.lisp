@@ -13,7 +13,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defclass list-tm (tape-machine)
+  (def-type list-tm (tape-machine)
     (
       (head ; locates a cell on the tape
         :initarg :head 

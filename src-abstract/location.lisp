@@ -22,12 +22,12 @@ See LICENSE.txt
 ;; absolute location
 ;;
 
-  (defgeneric on+1 (tm &optional cont-true cont-false)
+  (def-function-class on+1 (tm &optional cont-true cont-false)
     (:documentation
       "tm head is on the right neighbor of leftmost, i.e. on cell index 1."
       ))
 
-  (defmethod on+1
+  (defun-typed on+1
     ( 
       (tm0 tape-machine) 
       &optional
@@ -43,12 +43,12 @@ See LICENSE.txt
           ))))
 
 
-  (defgeneric on+n (tm n &optional cont-true cont-false)
+  (def-function-class on+n (tm n &optional cont-true cont-false)
     (:documentation
       "tm head is on cell n."
       ))
 
-  (defmethod on+n
+  (defun-typed on+n
     ( 
       (tm0 tape-machine) 
       (n integer)
@@ -70,10 +70,10 @@ See LICENSE.txt
         )))
 
 ;; on rightmost -1  (s tm) would be on rightmost
-  (defgeneric on-rightmost-1 (tm &optional cont-true cont-false))
+  (def-function-class on-rightmost-1 (tm &optional cont-true cont-false))
 
   ;; -1
-  (defmethod on-rightmost-1
+  (defun-typed on-rightmost-1
     ( 
       (tm0 tape-machine) 
       &optional
@@ -87,9 +87,9 @@ See LICENSE.txt
         )))
 
   ;; n will typically be negative
-  (defgeneric on-rightmost+n (tm n &optional cont-true cont-false))
+  (def-function-class on-rightmost+n (tm n &optional cont-true cont-false))
 
-  (defmethod on-rightmost+n
+  (defun-typed on-rightmost+n
     ( 
       (tm0 tape-machine) 
       (n integer)
@@ -111,13 +111,13 @@ See LICENSE.txt
    
 
   ;; assigns a natural number to each head location
-  (defgeneric address (tm)
+  (def-function-class address (tm)
     (:documentation
       "address of head.  Address is zero when the head is on leftmost."
       ))
 
   ;; specialized version might be a lot faster
-  (defmethod address ((tm0 tape-machine))
+  (defun-typed address ((tm0 tape-machine))
     (with-mk-entangled tm0
       (λ(tm1)
         (cue-leftmost tm1)
@@ -138,12 +138,12 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; relative location
 ;;
-  (defgeneric distance+1 (tm0 tm1 &optional cont-true cont-false)
+  (def-function-class distance+1 (tm0 tm1 &optional cont-true cont-false)
     (:documentation
       "The tm1 is one step to the right of tm0."
       ))
 
-  (defmethod distance+1
+  (defun-typed distance+1
     ( 
       (tm0 tape-machine) 
       (tm1 tape-machine)
@@ -158,12 +158,12 @@ See LICENSE.txt
           cont-false
           ))))
 
-  (defgeneric distance+n (tm0 tm1 n &optional cont-true cont-false)
+  (def-function-class distance+n (tm0 tm1 n &optional cont-true cont-false)
     (:documentation
       "tm1 is n steps to the right of tm0."
       ))
 
-  (defmethod distance+n
+  (defun-typed distance+n
     ( 
       (tm0 tape-machine) 
       (tm1 tape-machine)
@@ -188,7 +188,7 @@ See LICENSE.txt
               ))))))
 
   ;; distance from tm0 on the left, to tm1 on the right
-  (defgeneric distance (tm0 tm1)
+  (def-function-class distance (tm0 tm1)
     (:documentation
       "Returns the number of steps needed by tm0 to reach tm1, might be negative."
       ))
@@ -197,7 +197,7 @@ See LICENSE.txt
   ;; this should calc steps from one to the other as address is open ended
   ;; it would have to interleave going both directions
   ;; keep this as a reference implementation.
-  (defmethod distance
+  (defun-typed distance
     ( 
       (tm0 tape-machine) 
       (tm1 tape-machine)
@@ -210,7 +210,7 @@ See LICENSE.txt
 ;;
 
   ;; (location tm0) <?> ( (location tm1) | n )
-  (defgeneric location-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
+  (def-function-class location-cmp (tm0 n-or-tm1 &optional cont-longer cont-same cont-shorter))
 
 
   ;; not good implementations
@@ -219,7 +219,7 @@ See LICENSE.txt
   ;; keep these as reference implementations, (a level above tape machine??)
 
   ;; (location tm0) <?> n
-  (defmethod location-cmp
+  (defun-typed location-cmp
     (
       (tm0 tape-machine)
       (n1 integer)
@@ -238,7 +238,7 @@ See LICENSE.txt
         )))
 
   ;; (location tm0) <?> (location tm1)
-  (defmethod location-cmp
+  (defun-typed location-cmp
     (
       (tm0 tape-machine)
       (tm1 tape-machine)

@@ -19,15 +19,23 @@ See LICENSE.txt
            (y {1 2 {3 4} 5})
            (ytm (mk 'list-tm y))
            )
-      (∃ ytm (λ(tm)(and (typep (r tm) 'cons) (eql 3 (car (r tm))))))
-      (equal (r ytm) '(3 4))
-      ))
+      (∧
+        (∃
+          ytm
+          (λ(tm cont-true cont-false)
+            (if 
+              (∧ (typep (r tm) 'cons) (eql 3 (car (r tm))))
+              [cont-true]
+              [cont-false]
+              )))
+        (equal (r ytm) '(3 4))
+      )))
   (test-hook test-∃-0) 
 
   (defun test-∀-0 ()
     (∧
-      (∀ (mk 'list-tm {1 3 5}) (λ(tm)(oddp (r tm))))
-      (¬ (∀ (mk 'list-tm {4})  (λ(tm)(oddp (r tm)))))
+      (∀ (mk 'list-tm {1 3 5}) (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅])))
+      (¬ (∀ (mk 'list-tm {4})  (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅]))))
       ))
   (test-hook test-∀-0)
 
@@ -36,14 +44,14 @@ See LICENSE.txt
            (y '(1 3 4 5))
            (ytm (mk 'list-tm y))
            )
-      (¬∀ ytm (λ(tm)(and (numberp (r tm)) (oddp (r tm)))))
+      (¬∀ ytm (λ(tm ct c∅)(if (and (numberp (r tm)) (oddp (r tm))) [ct] [c∅])))
       (= (r ytm) 4)
       ))
   (test-hook test-¬∀-0) 
 
   (defun test-⟳-0 ()
     (let(
-          (tm-src (mk 'list-tm [a b c]))
+          (tm-src (mk 'list-tm (q a b c)))
           (tm-dst (mk 'list-tm {1}))
           )
       (labels(

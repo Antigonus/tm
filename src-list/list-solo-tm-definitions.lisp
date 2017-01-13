@@ -10,7 +10,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defmethod a◧
+  (defun-typed a◧
     (
       (tm list-solo-tm)
       instance
@@ -20,13 +20,13 @@ See LICENSE.txt
       )
     (declare (ignore cont-no-alloc))
     (setf (tape tm) (cons instance (tape tm)))
-    (funcall cont-ok)
+    [cont-ok]
     )
 
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;
-  (defmethod d 
+  (defun-typed d 
     (
       (tm list-solo-tm)
       &optional
@@ -47,23 +47,23 @@ See LICENSE.txt
           (as spill spill-instance
             (λ()
               (rplacd (head tm) (cdr dealloc-cell))
-              (funcall cont-ok spill-instance)
+              [cont-ok spill-instance]
               )
             cont-no-alloc
             )
           (progn
             (rplacd (head tm) (cdr dealloc-cell))
-            (funcall cont-ok spill-instance)
+            [cont-ok spill-instance]
             )))
 
-      (funcall cont-rightmost)
+      [cont-rightmost]
       ))
 
   ;; We depend on the fact that the head must be on some cell.
   ;; It follows that if there is only one cell, it is leftmost, and the head is on it.
   ;; As we refuse to delete the cell with the head on it, the last cell can not be deleted.
   ;; Consequently we can never have a cont-rightmost.
-  (defmethod d◧
+  (defun-typed d◧
     (
       (tm list-solo-tm)
       &optional
@@ -74,7 +74,7 @@ See LICENSE.txt
       )
     (if
       (eq (head tm) (tape tm))
-      (funcall cont-collision)
+      [cont-collision]
       (let*(
              (dealloc-cell (tape tm))
              (spill-instance (car dealloc-cell))
@@ -83,7 +83,7 @@ See LICENSE.txt
           (as spill spill-instance
             (λ()
               (setf (tape tm) (cdr dealloc-cell))
-              (funcall cont-ok spill-instance)
+              [cont-ok spill-instance]
               )
             cont-no-alloc
             )))))
