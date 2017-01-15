@@ -12,83 +12,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; looping, see also s-together⟳  --> need to replace these with quantifiers
 ;;
-  (defun ⟳ (work)
-    "⟳ (pronounced \"do\") accepts a work function.  The work function is passed a single
-     continuation argument.  If the continuation is called, the work funciton is repeated.
-     The return value is that returned by work when it doesn't repeat.
+  (defun ⟳ (work &rest ⋯)
+    "⟳ (pronounced \"do\") accepts a 'work' function and arguments. work may be a nameless
+     lambda. ⟳ prepends a value to the argument list and calls work.  When the prepended
+     value is called with funcall, work is called again with the same arguments.
      "
     (labels(
-             (do-work () [work #'do-work])
+             (again() (apply #'funcall {work #'again (o ⋯)}))
              )
-      (do-work)
+      (again)
       ))
-
-  (defun ⟳-loop (work)
-    "⟳ (pronounced \"do\") accepts a work function.  This work function is to take a
-     single step, whatever such a step may be.  The work function accepts a loop
-     continuation function, typically called cont-loop.  When the work function continues
-     with cont-loop, it is immediately called again.  When the work function returns
-     so does ⟳-loop.
-     "
-    (labels(
-             (do-work () [work (λ()(return-from do-work (funcall #'do-work)))])
-             )
-      (do-work)
-      ))
-
-  (defun ⟳-return (work)
-    "⟳-return accepts a work function.  This work function is to take a
-     single step, whatever such a step may be.  The work function accepts a loop
-     exit function, typically called cont-return.  When the work function continues
-     with cont-return, the work function and the loop return.
-     "
-    (loop
-      [work (λ(&rest vs)(return-from ⟳-return (values-list vs)))]
-      ))
-
-  ;; This version of ⟳ facilitates the programmer in making the stepping function explicit
-  ;; as an argument. The machine to be stepped, and the function to use to step it, are
-  ;; explicitly provided as arguments.
-  ;; 
-  (defun ⟳-work-step
-    (
-      tm 
-      &optional 
-      (work #'do-nothing) 
-      (step #'s)
-      )
-    "⟳-work-step (pronounced \"do work step\") accepts a tape machine, a function to do
-     work, and a step function.  The step function must accept as arguments the tape
-     machine, and two continuations.  Typically the continuations are called 'cont-loop' and
-     'cont-return'.  For example #'s can be used for stepping.  First the
-     work function is called, then the step function is called. If the step function
-     continues with cont-loop, ⟳-step repeats.  If it continues with continue-return
-     ⟳-step returns.
-     "
-      (labels(
-               (do-work ()
-                 [work]
-                 [step tm #'do-work (λ()(return-from ⟳-work-step))]
-                 )
-               )
-        (do-work)
-        ))
- 
-;;--------------------------------------------------------------------------------
-;; quaternion relationship among quantifiers
-;;   q00 is existential quantification
-;;
-  (defmacro q01 (q00 tm pred) 
-    `(funcall ,q00 ,tm (λ(i)(not (funcall ,pred i))))
-    )
-
-  (defmacro q10 (q00 tm pred) 
-    `(not (funcall ,q00 ,tm ,pred))
-    )
-
-  (defmacro q11 (q00 tm pred) 
-    `(not (funcall ,q00 ,tm (λ(i)(not (funcall ,pred i)))))
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; trivial predicates 
@@ -126,15 +59,12 @@ See LICENSE.txt
       (cont-true (be t))
       (cont-false (be ∅))
       )
-    "When returning true, tm head is on the first cell that has an instance where pred is true.
-     When returning false, tm head is on rightmost, and there was no cell where pred was true.
+    "Tests each instance in tm in succession starting from the current location of the head.
+     Exits with cont-true upon the test passing.  Otherwise returns cont-false when stepping
+     right from rightmost.
     "
-    (labels(
-             (test() [pred tm cont-true #'step-retest])
-             (step-retest() (s tm #'test cont-false))
-             )
-      (test)
-      ))
+    (⟳(λ(again)[pred tm cont-true (λ()(s tm again cont-false))]))
+    )
 
   ;; There exists an instance for which pred is false.
   ;; Same as step-while
@@ -191,19 +121,11 @@ See LICENSE.txt
     "When returning true, tm head is on the first cell that has an instance where pred is true.
      When returning false, tm head is on rightmost, and there was no cell where pred was true.
     "
-    (labels(
-             (test ()
-               [pred tm #'exhaust-tape #'step-retest]
-               )
-             (step-retest ()
-               (s tm #'test cont-false)
-               )
-             (exhaust-tape ()
-               (s tm #'exhaust-tape cont-true)
-               )
-             )
-      (test)
-      ))
+    (∃ tm pred 
+      (λ()(⟳ (λ(again)(s tm again cont-true)))) ; exhausts the tape
+      cont-false
+      )
+    )
 
   (defun ¬∀* 
     (
