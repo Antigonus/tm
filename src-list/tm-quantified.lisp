@@ -41,14 +41,14 @@ See LICENSE.txt
       )
     (declare (ignore ⋯))
     (w tm (r fill))
-    (⟳-loop(λ(cont-loop)
-             (s fill
-               (λ()(s tm
-                     (λ()(w tm (r fill))[cont-loop])
-                     cont-rightmost-tm
-                     ))
-               cont-ok
-               ))))
+    (⟳(λ(again)
+        (s fill
+          (λ()(s tm
+                (λ()(w tm (r fill))[again])
+                cont-rightmost-tm
+                ))
+          cont-ok
+          ))))
 
   (def-function-class s* (tm)
     (:documentation 
@@ -88,10 +88,9 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
-    (⟳-loop
-      (λ(cont-loop)
+    (⟳(λ(again)
         (a tm (r fill) 
-          (λ()(s fill cont-loop cont-ok))
+          (λ()(s fill again cont-ok))
           cont-no-alloc
           ))))
 
@@ -111,10 +110,9 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
-    (⟳-loop
-      (λ(cont-loop)
+    (⟳(λ(again)
         (as tm (r fill) 
-          (λ()(s fill cont-loop cont-ok))
+          (λ()(s fill again cont-ok))
           cont-no-alloc
           ))))
 
@@ -151,15 +149,15 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-rightmost (λ(n)(declare (ignore n)) ∅))
       )
-    (⟳-loop(λ(cont-loop)
-             (if
-               (> n 0)
-               (s tm
-                 (λ()(decf n)[cont-loop])
-                 (λ()[cont-rightmost n])
-                 )
-               [cont-ok]
-               ))))
+    (⟳(λ(again)
+        (if
+          (> n 0)
+          (s tm
+            (λ()(decf n)[again])
+            (λ()[cont-rightmost n])
+            )
+          [cont-ok]
+          ))))
 
 
   (def-function-class asn (tm n &optional fill cont-ok cont-rightmost-fill cont-no-alloc)
@@ -180,19 +178,19 @@ See LICENSE.txt
       (cont-rightmost-fill (λ(cnt)(declare (ignore cnt))∅))
       (cont-no-alloc (λ(tm n)(declare (ignore tm n))(error 'alloc-fail)))
       )
-    (⟳-loop(λ(cont-loop)
-             (if
-               (> n 0)
-               (as tm (r fill)
-                 (λ()
-                   (s fill 
-                     (λ()(decf n) [cont-loop])
-                     (λ()[cont-rightmost-fill n])
-                     ))
-                 cont-no-alloc
-                 )
-               [cont-ok]
-               ))))
+    (⟳(λ(again)
+        (if
+          (> n 0)
+          (as tm (r fill)
+            (λ()
+              (s fill 
+                (λ()(decf n) [again])
+                (λ()[cont-rightmost-fill n])
+                ))
+            cont-no-alloc
+            )
+          [cont-ok]
+          ))))
 
 
 

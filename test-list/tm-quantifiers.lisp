@@ -11,9 +11,26 @@ See LICENSE.txt
 |#
   (in-package #:tm)
 
-;;--------------------------------------------------------------------------------
-;; tm-quantifiers
-;;
+  (defun test-⟳-0 ()
+    (let(
+          (tm-src (mk 'list-tm (q a b c)))
+          (tm-dst (mk 'list-tm {1}))
+          )
+      (labels(
+               (worker (repeat cont◨)
+                 (as tm-dst (r tm-src))
+                 (s tm-src
+                   repeat
+                   cont◨
+                   ))
+               (cont◨ () 
+                 (equal (tape tm-src) (cdr (tape tm-dst)))
+                 )
+               )
+        (⟳ #'worker #'cont◨)
+        )))
+  (test-hook test-⟳-0)
+
   (defun test-∃-0 ()
     (let*(
            (y {1 2 {3 4} 5})
@@ -49,21 +66,4 @@ See LICENSE.txt
       ))
   (test-hook test-¬∀-0) 
 
-  (defun test-⟳-0 ()
-    (let(
-          (tm-src (mk 'list-tm (q a b c)))
-          (tm-dst (mk 'list-tm {1}))
-          )
-      (labels(
-               (worker (cont-ok cont◨)
-                 (as tm-dst (r tm-src))
-                 (s tm-src
-                   cont-ok
-                   cont◨
-                   ))
-               )
-        (⟳ #'worker)
-        (equal (tape tm-src) (cdr (tape tm-dst)))
-        )))
-  (test-hook test-⟳-0)
 

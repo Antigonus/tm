@@ -36,12 +36,11 @@ See LICENSE.txt
        (cont-ok (be t))
        (cont-no-alloc #'alloc-fail)
        )
-     (⟳
-       (λ(repeat)
+     (⟳(λ(again)
          (d
            tm
            spill
-           (λ(instance)(declare (ignore instance)) [repeat])
+           (λ(instance)(declare (ignore instance)) [again])
            cont-ok
            cont-no-alloc
            ))))
@@ -76,14 +75,14 @@ See LICENSE.txt
        ⋯
        )
      (declare (ignore ⋯))
-     (⟳-loop(λ(cont-loop)
-       (d◧
-         tm
-         spill
-         (λ(instance)(declare (ignore instance))[cont-loop])
-         cont-no-alloc
-         cont-collision ; cont-collision - hit the cell the head was on
-         ))))
+     (⟳(λ(again)
+         (d◧
+           tm
+           spill
+           (λ(instance)(declare (ignore instance))[again])
+           cont-no-alloc
+           cont-collision ; cont-collision - hit the cell the head was on
+           ))))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations
