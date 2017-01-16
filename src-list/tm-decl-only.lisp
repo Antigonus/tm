@@ -49,6 +49,7 @@ functions.
       &optional 
       cont-ok
       cont-rightmost
+      &rest ⋯
       )
     (:documentation
       "If the head is on a cell, and there is a right neighbor, puts the head on the
@@ -65,6 +66,7 @@ functions.
       &optional
       cont-ok
       cont-no-alloc
+      &rest ⋯
       )
     (:documentation
     "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
@@ -81,6 +83,7 @@ functions.
       &optional
       cont-true
       cont-false
+      &rest ⋯
       )
     (:documentation
       "tm head is on leftmost.
@@ -92,6 +95,7 @@ functions.
       &optional
       cont-true
       cont-false
+      &rest ⋯
       )
     (:documentation
       "tm head is on the rightmost cell.

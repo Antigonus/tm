@@ -30,11 +30,6 @@ See LICENSE.txt
   (define-condition computationally-impossible (error)
     ((text :initarg :text :reader text)))
 
-  ;; request to step into subspace, but no subsace was present
-  (define-condition mount-failed (error)
-    ((text :initarg :text :reader text)))
-
-
 
 ;;--------------------------------------------------------------------------------
 ;; list-L
@@ -67,12 +62,8 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; tm-primitives
+;; tm decl only implementations
 ;;
-
-  ;; tape machine is read only, but someone tried to write to it..
-  (define-condition operation-on-abandoned (error)
-    ((text :initarg :text :reader text)))
 
   (define-condition attempt-to-copy-solo-machine (error)
     ((text :initarg :text :reader text)))
@@ -88,10 +79,6 @@ See LICENSE.txt
   ;; tape machine is write only, but someone tried to write to it..
   ;; (for example for the front end of a pipe)
   (define-condition tm-write-only (error)
-    ((text :initarg :text :reader text)))
-
-  ;; can't read or write to this machine
-  (define-condition parked-head-use (error)
     ((text :initarg :text :reader text)))
 
   (define-condition step-from-rightmost (error)
@@ -122,6 +109,23 @@ See LICENSE.txt
 
   (define-condition malformed-entanglements (error)
     ((text :initarg :text :reader text)))
+
+;;--------------------------------------------------------------------------------
+;; tm with status
+
+  ;; machine was abandoned to the garbage collector, but someon uses it
+  (define-condition operation-on-abandoned (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition use-of-empty (error)
+    ((text :initarg :text :reader text)))
+
+  ;; the head is parked, but someone tries to read or write through it
+  (define-condition parked-head-use (error)
+    ((text :initarg :text :reader text)))
+
+
+
  
 
 ;;--------------------------------------------------------------------------------

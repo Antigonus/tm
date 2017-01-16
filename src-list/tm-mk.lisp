@@ -10,17 +10,12 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified class to hold the specified instances
 ;;
-;;  init-list is a keyword list.  
-;;
   (def-function-class init (instance init-value &optional cont-ok cont-fail &rest ⋯))
 
   (defun-typed init 
     (
       (tm tape-machine)
       init-value
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
       &rest ⋯
       )
     (declare (ignore ⋯ cont-ok))
