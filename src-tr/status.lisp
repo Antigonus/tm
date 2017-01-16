@@ -13,7 +13,7 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (def-type status-x (identity-x)
+  (def-type status-tr (identity-tr)
     (
       (status
         :initarg status
@@ -33,4 +33,26 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
     (setf (status tm) 'empty)
     (funcall cont-ok tm)
     )
+
+;;--------------------------------------------------------------------------------
+;; tm-decl-only
+;;
+  (defun-typed r ((tm status-tr) &rest ⋯)
+    (if 
+      (eq (status tm) 'active)
+      (apply #'r (cons (base tm) ⋯))
+      (destructuring-bind
+        (
+          &key
+          (cont-abandoned #'operation-on-abandoned)
+          (cont-empty #'use-of-empty)
+          (cont-parked #'parked-head-use)
+          )
+        ⋯
+        (case (status tm)
+          (('abandoned) [cont-abandoned])
+          (('empty) [cont-empty])
+          (('parked) [cont-parked])
+          (otherwise  (cant-happen))
+          ))))
 

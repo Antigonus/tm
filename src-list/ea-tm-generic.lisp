@@ -55,14 +55,15 @@ See LICENSE.txt
       )
     (destructuring-bind
       (
-        &optional
+        &key
         (cont-collision (λ()(error 'dealloc-collision)))
         )
       ⋯
-      (∃-collision-right-neighbor tm
-        cont-collision
-        (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
-        )))
+      (∃-collision-right-neighbor tm cont-collision call-next-method)
+      ))
+
+;        (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
+
       
   (defun-typed d◧
     (

@@ -19,6 +19,7 @@ See LICENSE.txt
       &optional
       cont-ok ;  (be t)
       cont-no-alloc ; #'alloc-fail)
+      &rest ⋯
       )
     (:documentation
       "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
@@ -62,6 +63,7 @@ See LICENSE.txt
                    cont-ok ; #'echo
                    cont-collision ; (λ()(error 'dealloc-collision))
                    cont-no-alloc ; #'alloc-fail
+                   &rest ⋯
                    )
     (:documentation
       "Deallocates leftmost.

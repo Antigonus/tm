@@ -49,6 +49,26 @@ See LICENSE.txt
       )))
   (test-hook test-∃-0) 
 
+  (defun test-∃-1 ()
+    (let*(
+           (y {1 2 {3 4} 5})
+           (ytm (mk 'list-tm y))
+           )
+      (∃
+        ytm
+        (λ(tm cont-true cont-false)
+          (if 
+            (∧ (typep (r tm) 'cons) (eql 3 (car (r tm))))
+            [cont-true]
+            [cont-false]
+            ))
+        (λ()(equal (r ytm) '(3 4)))
+        #'cant-happen
+        )))
+  (test-hook test-∃-1) 
+
+
+
   (defun test-∀-0 ()
     (∧
       (∀ (mk 'list-tm {1 3 5}) (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅])))
