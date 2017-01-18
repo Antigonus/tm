@@ -74,7 +74,9 @@ See LICENSE.txt
       &optional 
       (cont-ok (be t))
       (cont-rightmost (be ∅))
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (if 
       (cdr (head tm))
       (progn
@@ -94,8 +96,9 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
+      &rest ⋯
       )
-    (declare (ignore cont-no-alloc))
+    (declare (ignore cont-no-alloc ⋯))
     (let(
           (next-cell (cdr (head tm)))
           )
@@ -108,11 +111,13 @@ See LICENSE.txt
 ;;  
   (defun-typed on-leftmost 
     (
-      tm
+      (tm list-tm)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (if
       (eq (head tm) (tape tm))
       [cont-true]
@@ -121,11 +126,13 @@ See LICENSE.txt
 
   (defun-typed on-rightmost
     (
-      tm
+      (tm list-tm)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (if
       (¬ (cdr (head tm)))
       [cont-true]

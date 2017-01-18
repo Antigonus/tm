@@ -45,6 +45,7 @@ See LICENSE.txt
                   cont-ok ; #'echo
                   cont-rightmost ;(λ()(error 'dealloc-on-rightmost))
                   cont-no-alloc ;#'alloc-fail
+                  cont-collision ; can't happen for solo-tm
                   &rest ⋯
                   )
     (:documentation

@@ -17,8 +17,9 @@ See LICENSE.txt
       &optional
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
+      &rest ⋯
       )
-    (declare (ignore cont-no-alloc))
+    (declare (ignore cont-no-alloc ⋯))
     (setf (tape tm) (cons instance (tape tm)))
     [cont-ok]
     )
@@ -34,9 +35,10 @@ See LICENSE.txt
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-no-alloc #'alloc-fail)
+      (cont-collision #'cant-happen)
       &rest ⋯
       )
-    (declare (ignore ⋯))
+    (declare (ignore cont-collision ⋯))
     (if
       (cdr (head tm))
       (let*(
@@ -71,7 +73,9 @@ See LICENSE.txt
       (cont-ok #'echo)
       (cont-no-alloc #'alloc-fail)
       (cont-collision (λ()(error 'dealloc-collision)))
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (if
       (eq (head tm) (tape tm))
       [cont-collision]

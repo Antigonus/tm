@@ -20,10 +20,14 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
         :accessor status
         )))
 
+  ;; need to fix this -- when another machine is provided then we are 'active
+  ;; if no machine is provided then we are 'empty
+  ;; add function to clear the machine (make it empty)
+  ;; add function to abandon the machine
   (defun-typed init 
     (
-      (tm status-x)
-      (init-value abstract-tape-machine)
+      (tm status-tr)
+      (init-value tape-machine)
       &optional
       (cont-ok #'echo)
       (cont-fail (λ()(error 'bad-init-value)))
@@ -31,8 +35,15 @@ about the lower machine.  Status is either 'empty, 'parked, 'active.
       )
     (declare (ignore ⋯ cont-fail))
     (setf (status tm) 'empty)
+    (call-next-method)
     (funcall cont-ok tm)
     )
+
+   (defun is-legal-status (status)
+     (case status
+       (('abandoned 'empty 'parked 'active) t)
+       (otherwise ∅)
+       ))
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
