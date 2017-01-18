@@ -81,7 +81,6 @@ See LICENSE.txt
                                ;; includes destructive functions, and entangled copy functions
                                (:file "ea-tm-type")
                                (:file "ea-entanglement")
-                               (:file "ea-tm-decl-only")
                                (:file "ea-tm-generic")
 
                                (:file "list-ea-tm-type")
@@ -113,6 +112,16 @@ See LICENSE.txt
                               (:file "ea-tm-generic")
                               ))
 
+               (:module "src-tr"
+                 :components (
+                               (:file "identity")
+                            ))
+
+               (:module "test-tr"
+                :components (
+                              (:file "identity")
+                              ))
+
 #|
 
                (:module "src-generators" 
@@ -122,21 +131,6 @@ See LICENSE.txt
                                (:file "tm-DE")
                                ))
 
-               (:module "src-transforms"
-                 :components (
-                             ;; transforms
-                               (:file "tm-region")
-                               (:file "buffers")
-
-                               (:file "tm-depth-mk")
-                               (:file "tm-depth-primitives")
-                               (:file "tm-depth-convert")
-
-
-                               (:file "tm-breadth-mk")
-                               (:file "tm-breadth-primitives")
-                               (:file "tm-breadth-convert")
-                            ))
 
 
 
@@ -149,13 +143,6 @@ See LICENSE.txt
 
                               ))
 
-               (:module "test-transforms"
-                :components (
-                              (:file "tm-region")
-                              (:file "buffers")
-;;                              (:file "tm-depth")
-;;                              (:file "tm-breadth")
-                              ))
 |#
 
 #|

@@ -35,7 +35,9 @@ See LICENSE.txt
       &optional
       (cont-ok  (be t))
       (cont-no-alloc #'alloc-fail)
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (call-next-method tm instance cont-ok cont-no-alloc)
     (∀-entanglements-update-tape tm)
     )
@@ -51,19 +53,16 @@ See LICENSE.txt
       (cont-ok #'echo)
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-no-alloc #'alloc-fail)
+      (cont-collision (λ()(error 'dealloc-collision)))
       &rest ⋯
       )
-    (destructuring-bind
-      (
-        &key
-        (cont-collision (λ()(error 'dealloc-collision)))
-        )
-      ⋯
-      (∃-collision-right-neighbor tm cont-collision call-next-method)
+    (declare (ignore ⋯))
+    (∃-collision-right-neighbor 
+      tm
+      cont-collision 
+      ;;lisp spouts all sorts of errors about unused variables if I just 'call-next-method'
+      (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
       ))
-
-;        (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
-
       
   (defun-typed d◧
     (
@@ -73,7 +72,9 @@ See LICENSE.txt
       (cont-ok #'echo)
       (cont-collision (λ()(error 'dealloc-collision)))
       (cont-no-alloc #'alloc-fail)
+      &rest ⋯
       )
+    (declare (ignore ⋯))
     (∃-collision◧ tm
       cont-collision
       (λ()

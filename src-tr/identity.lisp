@@ -39,40 +39,162 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;;tm-decl-only
 ;;
-  (defun-typed r ((tm identity-tr) &rest ⋯) (apply #'r (cons (base tm) ⋯)))
-  (defun-typed esr ((tm identity-tr) &rest ⋯) (apply #'esr (cons (base tm) ⋯)))
+  (defun-typed r ((tm identity-tr) &rest ⋯)
+    (apply #'r {(base tm) (o ⋯)})
+    )
+  (defun-typed esr
+    (
+      (tm identity-tr)
+      &optional 
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'step-from-rightmost)))
+      &rest ⋯
+      )
+    (apply #'esr {(base tm) cont-ok cont-rightmost (o ⋯)})
+    )
 
-  (defun-typed w ((tm identity-tr) &rest ⋯) (apply #'w (cons (base tm) ⋯)))
-  (defun-typed esw ((tm identity-tr) &rest ⋯) (apply #'esw (cons (base tm) ⋯)))
+  (defun-typed w ((tm identity-tr) instance &rest ⋯)
+    (apply #'w {(base tm) (o ⋯)})
+    )
+  (defun-typed esw
+    (
+      (tm identity-tr)
+      instance
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      &rest ⋯
+      )
+    (apply #'esr {(base tm) cont-ok cont-rightmost (o ⋯)})
+    )
 
-  (defun-typed cue-leftmost ((tm identity-tr) &rest ⋯) (apply #'cue-leftmost (cons (base tm) ⋯)))
+  (defun-typed cue-leftmost ((tm identity-tr) &rest ⋯)
+    (apply #'cue-leftmost {(base tm) (o ⋯)})
+    )
 
-  (defun-typed s ((tm identity-tr) &rest ⋯) (apply #'s (cons (base tm) ⋯)))
-  (defun-typed a ((tm identity-tr) &rest ⋯) (apply #'a (cons (base tm) ⋯)))
+  (defun-typed s
+    (
+      (tm identity-tr)
+      &optional 
+      (cont-ok (be t))
+      (cont-rightmost (be ∅))
+      &rest ⋯
+      )
+    (apply #'s {(base tm) cont-ok cont-rightmost (o ⋯)})
+    )
 
-  (defun-typed on-leftmost ((tm identity-tr) &rest ⋯) (apply #'on-leftmost (cons (base tm) ⋯)))
-  (defun-typed on-rightmost ((tm identity-tr) &rest ⋯) (apply #'on-rightmost (cons (base tm) ⋯)))
+  (defun-typed a
+    (
+      (tm identity-tr)
+      instance
+      &optional 
+      (cont-ok (be t))
+      (cont-no-alloc (be ∅))
+      &rest ⋯
+      )
+    (apply #'s {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
+    )
+
+  (defun-typed on-leftmost 
+    (
+      (tm identity-tr)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      &rest ⋯
+      )
+    (apply #'on-leftmost {(base tm) cont-true cont-false (o ⋯)})
+    )
+
+  (defun-typed on-rightmost
+    (
+      (tm identity-tr)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      &rest ⋯
+      )
+    (apply #'on-rightmost {(base tm) cont-true cont-false (o ⋯)})
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm identity-tr) &rest ⋯) (apply #'a◧ (cons (base tm) ⋯)))
-  (defun-typed d ((tm identity-tr) &rest ⋯) (apply #'d (cons (base tm) ⋯)))
-  (defun-typed d◧ ((tm identity-tr) &rest ⋯) (apply #'d◧ (cons (base tm) ⋯)))
+  (defun-typed a◧
+    (
+      (tm identity-tr)
+      instance
+      &optional
+      (cont-ok (be t))
+      (cont-no-alloc #'alloc-fail)
+      &rest ⋯
+      )
+    (apply #'a◧ {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
+    )
+
+  (defun-typed d 
+    (
+      (tm identity-tr)
+      &optional
+      spill 
+      (cont-ok #'echo)
+      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+      (cont-no-alloc #'alloc-fail)
+      (cont-collision #'cant-happen)
+      &rest ⋯
+      )
+    (apply #'d {(base tm) spill cont-ok cont-rightmost cont-no-alloc cont-collision (o ⋯)})
+    )
+
+  (defun-typed d◧
+    (
+      (tm identity-tr)
+      &optional
+      spill 
+      (cont-ok #'echo)
+      (cont-no-alloc #'alloc-fail)
+      (cont-collision (λ()(error 'dealloc-collision)))
+      &rest ⋯
+      )
+    (apply #'d◧ {(base tm) spill cont-ok cont-no-alloc cont-collision (o ⋯)})
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
-  (defun-typed heads-on-same-cell 
-    ((tm0 identity-tr) (tm1 identity-tr) &rest ⋯)
-    (apply #'heads-on-same-cell (cons (base tm0) (cons (base tm1) ⋯)))
-    )
-  (defun-typed heads-on-same-cell 
-    ((tm0 identity-tr) (tm1 tape-machine) &rest ⋯)
-    (apply #'heads-on-same-cell (cons (base tm0) (cons tm1 ⋯)))
-    )
-  (defun-typed heads-on-same-cell 
-    ((tm0 tape-machine) (tm1 identity-tr) &rest ⋯)
-    (apply #'heads-on-same-cell (cons tm0 (cons (base tm1) ⋯)))
+  (defun-typed heads-on-same-cell
+    (
+      (tm0 identity-tr)
+      (tm1 identity-tr)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      &rest ⋯
+      )
+    (apply #'heads-on-same-cell {(base tm0) (base tm1) cont-true cont-false (o ⋯)})
     )
 
+  (defun-typed heads-on-same-cell
+    (
+      (tm0 identity-tr)
+      (tm1 tape-machine)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      &rest ⋯
+      )
+    (apply #'heads-on-same-cell {(base tm0) tm1 cont-true cont-false (o ⋯)})
+    )
+
+  (defun-typed heads-on-same-cell
+    (
+      (tm0 tape-machine)
+      (tm1 identity-tr)
+      &optional
+      (cont-true (be t))
+      (cont-false (be ∅))
+      &rest ⋯
+      )
+    (apply #'heads-on-same-cell {tm0 (base tm1) cont-true cont-false (o ⋯)})
+    )

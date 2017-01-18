@@ -16,6 +16,9 @@ See LICENSE.txt
     (
       (tm tape-machine)
       init-value
+      &optional
+      (cont-ok #'echo)
+      (cont-fail (λ()(error 'bad-init-value)))
       &rest ⋯
       )
     (declare (ignore ⋯ cont-ok))

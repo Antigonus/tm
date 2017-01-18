@@ -36,7 +36,7 @@ See LICENSE.txt
   (defun-typed heads-on-same-cell
     (
       (tm0 list-nd-tm)
-      tm1
+      (tm1 tape-machine)
       &optional
       (cont-true (be t))
       (cont-false (be ∅))
@@ -48,7 +48,7 @@ See LICENSE.txt
 
   (defun-typed heads-on-same-cell
     (
-      tm0
+      (tm0 tape-machine)
       (tm1 list-nd-tm)
       &optional
       (cont-true (be t))
