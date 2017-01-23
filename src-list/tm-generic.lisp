@@ -13,15 +13,16 @@ new tape machine implementation to specialize them.
 ;;--------------------------------------------------------------------------------
 ;; cueing
 ;;  
-  (def-function-class cue-rightmost (tm)
+  (def-function-class cue-rightmost (tm &optional ➜)
     (:documentation
       "Cue tm's head to the rightmost cell."
       ))
 
   ;; step does not move forward from rightmost, rather takes the rightmost continuation
-  (defun-typed cue-rightmost ((tm tape-machine))
+  (defun-typed cue-rightmost ((tm tape-machine) &optional ➜)
+    (declare (ignore ➜))
     (labels(
-             (work() (s tm #'work (be t)))
+             (work() (s tm {:➜ok #'work :➜rightmost (be t)}))
              )
       (work)
       ))
@@ -32,14 +33,7 @@ new tape machine implementation to specialize them.
 ;; Allocated cells must be initialized.  The initialization value is provided
 ;; directly or though a fill machine.
 ;;
-  (def-function-class as
-    (
-      tm
-      instance
-      &optional
-      cont-ok
-      cont-no-alloc
-      )
+  (def-function-class as (tm instance &optional ➜)
     (:documentation
       "Like #'a, but tm is stepped to the new cell
       "))
@@ -48,60 +42,49 @@ new tape machine implementation to specialize them.
     (
       (tm tape-machine)
       instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
+      &optional ➜
       )
-    (a tm instance 
-      (λ()(s tm cont-ok #'cant-happen))
-      cont-no-alloc
-      ))
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (a tm instance
+        {
+          :➜ok (λ()(s tm {:➜ok ➜ok :➜rightmost #'cant-happen)))
+          :➜no-alloc ➜no-alloc 
+          }
+        )))
 
-  (def-function-class a&h◨ 
-    (
-      tm
-      instance
-      &optional
-      cont-ok
-      cont-no-alloc
-      )
+  (def-function-class a&h◨ (tm instance &optional ➜)
     (:documentation
       "#'a with a contract that the head is on rightmost.
       "))
 
+  ;; specializations might make better use of the contract
   (defun-typed a&h◨ 
     (
       (tm tape-machine)
       instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
+      &optional ➜
       )
-    ;; specializations might make better use of the contract
-    (a tm instance cont-ok cont-no-alloc)
-    )
+      (a tm instance ➜)
+      )
 
-  (def-function-class as&h◨ 
-    (
-      tm
-      instance
-      &optional
-      cont-ok
-      cont-no-alloc
-      )
+  (def-function-class as&h◨ (tm instance &optional ➜)
     (:documentation
       "#'as with a contract that the head is on rightmost.
       "))
 
+   ;; specializations might make better use of the contract
   (defun-typed as&h◨ 
     (
       (tm tape-machine)
       instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
+      &optional ➜
       )
-    ;; specializations might make better use of the contract
-    (as tm instance cont-ok cont-no-alloc)
-    )
+    (as tm instance ➜)
+    ))
 

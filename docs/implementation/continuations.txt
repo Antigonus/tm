@@ -1,0 +1,28 @@
+convention has evolved a lot.
+
+now using a symbol, mainly due to passing lambadas as predicates into quantifiers called
+for a denser notation.
+
+Design guideline, when writing a function focus on the needs of that function.
+
+  Here was an issue with that guideline: Say inside a function we call another function
+  and that particular specialization needs a continuation on that sub-function.  So it
+  would appear that we should always pass the continuation list along.
+
+  However, if we always pass the continuation list along, we don't know how many
+  levels deep until it is used. By that time it may have lost its meaning.
+
+  So, if an outer function needs a continuation for a specialized type due only
+  to an inner function needing, then that function needs to have a specialized
+  version for the specialzed type.
+
+  Then we keep the convention of focusing on the needs of a function for the
+  type of arguments it is passed.
+
+  There are some functions which are merely wrappers to another function, somehow
+  tailoring its reponse in some small way. In which case the sub-function is driving the
+  boat, and it should receive the continuation list.
+
+
+
+

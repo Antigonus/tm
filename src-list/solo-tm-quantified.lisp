@@ -12,14 +12,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; repeated until end of tape operations
 ;;
-   (def-function-class d*
-     (
-       tm
-       &optional 
-       spill 
-       cont-ok
-       cont-no-alloc
-       )
+   (def-function-class d* (tm &optional spill ➜)
      (:documentation
        "Deallocates all cells right of the head up to and including rightmost.
        If spill is not ∅, then the deallocated right side cells are moved to it.
@@ -31,30 +24,25 @@ See LICENSE.txt
    (defun-typed d*
      (
        (tm solo-tape-machine)
-       &optional 
-       spill 
-       (cont-ok (be t))
-       (cont-no-alloc #'alloc-fail)
+       &optional spill ➜
        )
-     (⟳(λ(again)
-         (d
-           tm
-           spill
-           (λ(instance)(declare (ignore instance)) [again])
-           cont-ok
-           cont-no-alloc
-           ))))
+     (destructuring-bind
+       (&key
+         (➜ok (be t))
+         (➜no-alloc #'alloc-fail)
+         &allow-other-keys
+         )
+       ➜
+       (⟳(λ(again)
+           (d tm spill
+             {
+               :➜ok (λ(instance)(declare (ignore instance)) [again])
+               :➜rightmost ➜ok
+               :➜no-alloc ➜no-alloc
+               })))
+       ))
 
-   (def-function-class d◧*
-     (
-       tm
-       &optional 
-       spill 
-       cont-collision
-       cont-no-alloc
-       &rest
-       ⋯
-       )
+   (def-function-class d◧* (tm &optional spill ➜)
      (:documentation
        "Deallocates leftmost, repeatedly, until colliding with the cell the head is on,
         which is not deallocated.  If spill is not ∅, then the deallocated cells are moved
@@ -64,30 +52,32 @@ See LICENSE.txt
         "
         ))
 
+   ;; pacman the tape until colliding with the cell the head is on (guaranteed to happen)
    (defun-typed d◧*
      (
        (tm solo-tape-machine)
-       &optional 
-       spill 
-       (cont-collision (be t))
-       (cont-no-alloc #'alloc-fail)
-       &rest
-       ⋯
+       &optional spill ➜
        )
-     (declare (ignore ⋯))
-     (⟳(λ(again)
-         (d◧
-           tm
-           spill
-           (λ(instance)(declare (ignore instance))[again])
-           cont-no-alloc
-           cont-collision ; cont-collision - hit the cell the head was on
-           ))))
+     (destructuring-bind
+       (&key
+         (➜collision (be t)) ; true, we hit the cell the head is on, we are done
+         (➜no-alloc #'alloc-fail)
+         &allow-other-keys
+         )
+       ➜
+       (⟳(λ(again)
+           (d◧ tm spill
+             {
+               :➜ok (λ(instance)(declare (ignore instance))[again])
+               :➜no-alloc ➜no-alloc
+               :➜collision ➜collision ; can't delete a cell the head is on
+               })))
+       ))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations
 ;;
-  (def-function-class dn (tm count &optional spill cont-ok cont-rightmost cont-no-alloc)
+  (def-function-class dn (tm count &optional spill ➜)
     (:documentation
       "Given a tape machine and a natural number.
       Like repeating d count times, but specialized versions might be more efficient.
@@ -98,24 +88,29 @@ See LICENSE.txt
     (
       (tm solo-tape-machine)
       (n integer)
-      &optional 
-      spill
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      (cont-no-alloc #'alloc-fail)
+      &optional spill ➜
       )
-    (labels(
-             (do-work()
-               (when (≤ n 0) (return-from dn [cont-ok]))
-               (d tm spill 
-                 (λ(instance)
-                   (declare (ignore instance))
-                   (decf n)
-                   [#'do-work]
-                   )
-                 (λ()(return-from dn [cont-rightmost n]))
-                 cont-no-alloc
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜rightmost (be ∅))
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (labels(
+               (do-work()
+                 (when (≤ n 0) (return-from dn [➜ok]))
+                 (d tm spill
+                   {
+                     :➜ok (λ(instance)
+                            (declare (ignore instance))
+                            (decf n)
+                            (do-work)
+                            )
+                     :➜rightmost (λ()(return-from dn [➜rightmost n]))
+                     :➜no-alloc ➜no-alloc
+                     })
                  ))
-             )
-      (do-work)
-      ))
+        (do-work)
+        )))

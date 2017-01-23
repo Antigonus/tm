@@ -20,16 +20,17 @@ See LICENSE.txt
   ;;
     (defun-typed init 
       (
-        (tm list-nd-tm)
-        (init-value list-nd-tm)
+        (tm1 list-nd-tm)
+        (tm0 list-nd-tm) ; make an entangled copy of tm0
         &optional
         (cont-ok #'echo)
-        (cont-fail (λ()(error 'bad-init-value)))
+        (cont-fail (λ()(error 'bad-tm0)))
+        (cont-no-alloc #'alloc-fail)
         &rest ⋯
         )
       (declare (ignore ⋯ cont-fail))
-      (setf (head tm) (head init-value))
-      (setf (tape tm) (tape init-value))
-      (funcall cont-ok tm)
+      (setf (head tm1) (head tm0))
+      (setf (tape tm1) (tape tm0))
+      [cont-ok tm1]
       )
     

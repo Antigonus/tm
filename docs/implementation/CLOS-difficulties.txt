@@ -38,3 +38,6 @@ aliasing I could just declare it in both children.
 list implemenation.  Currently we have no other implementations, and we need at least
 one real implementation for a test to run.  There appears no way short of tearing into
 CLOS to tell it to use the generic interface version.
+
+..
+diamond inheritance, how to direct call-next-method

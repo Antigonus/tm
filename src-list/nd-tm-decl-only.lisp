@@ -15,13 +15,5 @@ non-destructive operation primitives
 ;;
 ;;  having two machines to compare means that we must have made a copy at some point
 ;;
-  (def-function-class heads-on-same-cell
-    (
-      tm0
-      tm1 
-      &optional
-      cont-true
-      cont-false
-      &rest ⋯
-      ))
+  (def-function-class heads-on-same-cell (tm0 tm1 &optional ➜))
     

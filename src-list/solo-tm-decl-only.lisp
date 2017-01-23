@@ -12,15 +12,7 @@ See LICENSE.txt
 ;; cell allocation
 ;;
   ;; add a new leftmost
-  (def-function-class a◧
-    (
-      tm
-      instance
-      &optional
-      cont-ok ;  (be t)
-      cont-no-alloc ; #'alloc-fail)
-      &rest ⋯
-      )
+  (def-function-class a◧ (tm instance &optional ➜)
     (:documentation
       "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
       "
@@ -38,16 +30,7 @@ See LICENSE.txt
 ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
 ;; reallocation to spill fails
 ;;
-  (def-function-class d (
-                  tm 
-                  &optional 
-                  spill 
-                  cont-ok ; #'echo
-                  cont-rightmost ;(λ()(error 'dealloc-on-rightmost))
-                  cont-no-alloc ;#'alloc-fail
-                  cont-collision ; can't happen for solo-tm
-                  &rest ⋯
-                  )
+  (def-function-class d (tm &optional spill ➜)
     (:documentation
       "Deallocate the right neighbor of the cell the head is on.
        I.e. deallocates a region of length 1 located to the right of the head.
@@ -57,15 +40,7 @@ See LICENSE.txt
       "
       ))
 
-  (def-function-class d◧ (
-                   tm 
-                   &optional 
-                   spill 
-                   cont-ok ; #'echo
-                   cont-collision ; (λ()(error 'dealloc-collision))
-                   cont-no-alloc ; #'alloc-fail
-                   &rest ⋯
-                   )
+  (def-function-class d◧ (tm &optional spill ➜)
     (:documentation
       "Deallocates leftmost.
        Returns the instance from the deallocated cell.

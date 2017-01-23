@@ -11,46 +11,39 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; making list machines from other instances
-;;   my gosh this is an expensive way to make a temporary variable ..
 ;;
   (defun-typed init 
     (
       (tm list-ea-tm)
-      (init-value cons)
+      (keyed-parms cons)
       &optional
       (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-fail (λ()(error 'bad-info)))
       &rest ⋯
       )
-    (declare (ignore ⋯ cont-fail))
-    (setf (head tm) init-value)
-    (setf (tape tm) init-value)
-    (setf (entanglements tm) (mk 'list-solo-tm {tm})) ; initially entangled only with self
-    [cont-ok tm]
+    (setf (entanglements tm) (mk 'list-solo-tm {:init {tm}})) ; initially entangled only with self
+    (apply #'call-next-method {tm keyed-parms cont-ok cont-fail (o ⋯)}) ; falls to init for tm-list
     )
 
   (defun-typed init 
     (
-      (tm list-ea-tm)
-      (init-value list-ea-tm)
+      (tm1 list-ea-tm)
+      (tm0 list-ea-tm) ; make an entangled copy of tm0
       &optional
       (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
+      (cont-fail (λ()(error 'bad-tm0)))
       &rest ⋯
       )
-    (declare (ignore ⋯ cont-fail))
-    (setf (head tm) (head init-value))
-    (setf (tape tm) (tape init-value))
-    (setf (entanglements tm) (entanglements init-value))
+    (setf (entanglements tm1) (entanglements tm0))
     (let(
-          (etms (entanglements tm))
+          (ents (entanglements tm1))
           )
-      (cue-leftmost etms)
-      (¬∃ etms
-        (λ(etms)(eq (r etms) tm))
-        (λ()(a&h◨ etms tm #'do-nothing #'alloc-fail))
+      (cue-leftmost ents)
+      (∃ ents ;; if tm1 does not exist in the entanglements list, add it
+        (λ(ents ct c∅)(if (eq (r ents) tm1) [ct] [c∅]))
         #'do-nothing
+        (λ()(a&h◨ ents tm1 #'do-nothing #'alloc-fail))
         )
-      [cont-ok tm]
+      (apply #'call-next-method {tm1 tm0 cont-ok cont-fail (o ⋯)}) ; falls to list-nd-tm entangled copy
       ))
     

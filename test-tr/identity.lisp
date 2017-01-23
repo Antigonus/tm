@@ -10,7 +10,7 @@ See LICENSE.txt
 (defun test-identity-0 ()
   (let*(
         (tm0 (mk 'list-solo-tm {1 2 3}))
-        (tm1 (mk 'identity-tr tm0))
+        (tm1 (mk 'identity-tr {:base tm0}))
         )
     (d◧ tm1 ∅
       (be ∅)

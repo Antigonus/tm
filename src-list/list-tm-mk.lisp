@@ -17,16 +17,19 @@ See LICENSE.txt
   (defun-typed init 
     (
       (tm list-tm)
-      (init-value cons)
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
-      &rest ⋯
+      (keyed-parms cons)
+      &optional ➜
       )
-    (declare (ignore ⋯ cont-fail))
-    (setf (head tm) init-value)
-    (setf (tape tm) init-value)
-    [cont-ok tm]
-    )
+    (destructuring-bind
+      (&key tape) keyed-parms
+      (cond
+        ((∧ tape (consp tape))
+          (setf (head tm) tape)
+          (setf (tape tm) tape)
+          )
+        (t
+          (call-next-method keyed-parms ➜)
+          ))))
+
     
 

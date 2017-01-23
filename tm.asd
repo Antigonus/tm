@@ -61,7 +61,9 @@ See LICENSE.txt
                                ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-type")
                                (:file "nd-tm-decl-only")
+                               (:file "nd-entanglement")
                                (:file "nd-tm-generic") 
+
                                (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
 
@@ -115,7 +117,7 @@ See LICENSE.txt
                (:module "src-tr"
                  :components (
                                (:file "identity")
-                            ))
+                               ))
 
                (:module "test-tr"
                 :components (

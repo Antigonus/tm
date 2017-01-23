@@ -10,6 +10,25 @@ The entanglements slot for ea-tm holds a list-solo-tm.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; copying
+;;  
+  ;; more specialized than one found in nd-tm-derived.lisp
+  (defun-typed with-mk-entangled
+    (
+      (tm0 ea-tape-machine)
+      continuation
+      &rest ⋯
+      )
+    (declare (ignore ⋯))
+    (let(
+          (tm1 (mk (type-of tm0) tm0))
+          )
+      (unwind-protect
+        (funcall continuation tm1)
+        (self-disentangle tm1)
+        )))
+
+;;--------------------------------------------------------------------------------
 ;; adding and removing from the list
 ;;
   (defun self-disentangle (tm)
@@ -19,22 +38,27 @@ The entanglements slot for ea-tm holds a list-solo-tm.
     (let(
           (es (entanglements tm))
           )
-      (cue-leftmost es)
-      (if (eq (r es) tm)
-        (s es
-          (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
-          (setf (entanglements tm) ∅)
-          )
-        (∃ es
-          (λ(es)
-            (esr es
-              (λ(instance)
-                (if (eq instance tm)
-                  (d es ∅ #'echo #'cant-happen)
-                  ∅
-                  ))
-              (be ∅)
-              ))))))
+      (∧
+        es
+        (progn
+          (cue-leftmost es)
+          (if 
+            (eq (r es) tm) ; first cell has tm in it
+            (s es
+              (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
+              (setf (entanglements tm) ∅)
+              )
+            (∃ es
+              (λ(es ct c∅)
+                (esr es
+                  (λ(instance) ; cont-ok
+                    (if 
+                      (eq instance tm)
+                      (d es ∅ (λ(x)(declare (ignore x)) [ct]) #'cant-happen)
+                      [c∅]
+                      ))
+                  c∅ ; no cell one to the right (cont-rightmost)
+                  ))))))))
 
 
 ;;--------------------------------------------------------------------------------
@@ -56,7 +80,13 @@ The entanglements slot for ea-tm holds a list-solo-tm.
       (if es
         (progn
           (cue-leftmost es)
-          (∃ es (λ(es)(∧ (not (eq (r es) tm)) (heads-on-same-cell (r es) tm)))
+          (∃ es 
+            (λ(es ct c∅)
+              (if
+                (eq (r es) tm)
+                [c∅]
+                (heads-on-same-cell (r es) tm ct c∅)
+                ))
             cont-true
             cont-false
             ))
@@ -82,7 +112,8 @@ The entanglements slot for ea-tm holds a list-solo-tm.
       (if es
         (progn
           (cue-leftmost es)
-          (∃ es (λ(es)(on-leftmost (r es)))
+          (∃ es 
+            (λ(es ct c∅)(on-leftmost (r es) ct c∅))
             cont-true
             cont-false
             ))
@@ -97,5 +128,9 @@ The entanglements slot for ea-tm holds a list-solo-tm.
           (es (entanglements tm))
           )
       (cue-leftmost es)
-      (∀ es (λ(es)(setf (tape (r es)) (tape tm)) t))
-      ))
+      (∀ es 
+        (λ(es ct c∅)
+          (declare (ignore c∅))
+          (setf (tape (r es)) (tape tm))
+          [ct]
+          ))))

@@ -3,7 +3,9 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Make list machines.
+  Make list-solo machines.
+
+  Just defaults to the tape-machine init
 
 |#
 
@@ -12,8 +14,3 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; making list machines from other instances
 ;;
-
-  ;; the init-value as a cons cell falls back to list-tm version.
-
-  ;; init-value as another machine is not supported - solo machines never have
-  ;; multiple heads on the same tape.

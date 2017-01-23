@@ -3,26 +3,13 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+call-next method falls back to generic implementations for nd-tape-machine
+
+these are 
+
+
 |#
 (in-package #:tm)
-
-;;--------------------------------------------------------------------------------
-;; copying
-;;  
-
-  ;; more specialized than one found in nd-tm-derived.lisp
-  (defun-typed with-mk-entangled
-    (
-      (tm0 ea-tape-machine)
-      continuation
-      )
-    (let(
-          (tm1 (mk (type-of tm0) tm0))
-          )
-      (unwind-protect
-        (funcall continuation tm1)
-        (self-disentangle tm1)
-        )))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -38,7 +25,7 @@ See LICENSE.txt
       &rest ⋯
       )
     (declare (ignore ⋯))
-    (call-next-method tm instance cont-ok cont-no-alloc)
+    (call-next-method tm instance cont-ok cont-no-alloc) ; calls the solo version
     (∀-entanglements-update-tape tm)
     )
 
@@ -60,7 +47,6 @@ See LICENSE.txt
     (∃-collision-right-neighbor 
       tm
       cont-collision 
-      ;;lisp spouts all sorts of errors about unused variables if I just 'call-next-method'
       (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
       ))
       

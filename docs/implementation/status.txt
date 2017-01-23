@@ -1,0 +1,43 @@
+
+Simultaneous operation on the Base Machine
+
+  A programmer should not directly operate on the base machine of a transform.
+  
+  If a programmer, say, moved the head on the base machine though the status says the head
+  is parked. That would change the definition of what is the rightneighbor of the head.
+
+  Then suppose that the user has an entangled copy of the base machine?  Then the user
+  could delete cells.  Though if he/she tried to delete the cell the head is on, he/she
+  would get a collision error.  So having an entangled copy of the base machine appears
+  safe.
+
+  Perhaps init should make an entangled copy, then the user would never even see
+  the base machine, so he/she would not be able to operate on it.  However, how
+  do we garbage collect on the entangled machine?  It would be cool if mk had
+  its own scoped environment ...  with-machine or some such.  With such a feature
+  we would be able to garbage collect the entangled machine.
+
+  which brings up an issue, need to go back to self-disentangle and define a
+  function class for it.  Need our own version of self-disentangle that sets
+  the abandoned state.
+
+Parked 
+
+  When the status is 'parked, the status machine will claim the head is not on any
+  cell. Consequently it has no location.  However, the machine will identify a right
+  neighbor as the cell the head is actually on in the base machine.
+
+  For an empty machine the status machine will act like the head is parked, and
+  requests for a right neighbor will meet with right of rightmost continuation.
+  Appending to an empty machine will create a new leftmost cell (and in the current
+  implementation, create a new machine as well).
+
+
+esr
+
+  esr is a tape-machine primitive. 
+
+  esr on an parked machine returns the instance of the cell the head is on in the base
+  machine.
+
+   

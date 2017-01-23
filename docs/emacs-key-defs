@@ -2,7 +2,7 @@
 ;; unicode
 ;;
   (global-set-key (kbd "C-x g d SPC") [?δ])
-  (global-set-key (kbd "C-x g D SPC") [?Δ]) ; this 'delta' is not 'increment'!
+  (global-set-key (kbd "C-x g D SPC") [?Δ]) ; this is 'delta' is not 'increment'!
 
   (global-set-key (kbd "C-x g g SPC") [?γ])
   (global-set-key (kbd "C-x g G SPC") [?Γ])
@@ -16,10 +16,11 @@
   (global-set-key (kbd "C-x g > = SPC") [?≥])
   (global-set-key (kbd "C-x g < = SPC") [?≤])
   (global-set-key (kbd "C-x g ! = SPC") [?≠])
+  (global-set-key (kbd "C-x g neq SPC") [?≠])
       
   (global-set-key (kbd "C-x g nil SPC") [?∅])
 
-  (global-set-key (kbd "C-x g neg SPC") [?¬])
+  (global-set-key (kbd "C-x g not SPC") [?¬])
 
   (global-set-key (kbd "C-x g and SPC") [?∧])
   (global-set-key (kbd "C-x g or SPC") [?∨])
@@ -36,7 +37,11 @@
   (global-set-key (kbd "C-x g cont SPC") [?⋯])
   (global-set-key (kbd "C-x g continuation SPC") [?⋯])
 
+  (global-set-key (kbd "C-x g cont SPC") [?➜]) 
+
   (global-set-key (kbd "C-x g thread SPC") [?☥]) 
+
+
 
 
 ;; lisp mode

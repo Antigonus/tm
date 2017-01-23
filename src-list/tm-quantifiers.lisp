@@ -18,7 +18,7 @@ See LICENSE.txt
      value is called with funcall, work is called again with the same arguments.
      "
     (labels(
-             (again() (apply #'funcall {work #'again (o ⋯)}))
+             (again() (apply work (cons #'again ⋯)))
              )
       (again)
       ))
@@ -26,16 +26,27 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; trivial predicates 
 ;;
-  (defun always-false (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-    (declare (ignore tm cont-true))
-    [cont-false]
-    )
+  (defun always-false (tm &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind 
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
 
-  (defun always-true (tm &optional (cont-true (be t)) (cont-false (be ∅)))
-    (declare (ignore tm cont-false))
-    [cont-true]
-    )
-
+  (defun always-true (tm &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind 
+      (&key
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜t]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; quantification
@@ -45,122 +56,72 @@ See LICENSE.txt
 ;; The quantifiers start where the head is located, they do not cue-leftmost first.  I do
 ;; this so that prefix values may be processed before calling a quantifier.
 ;;
-;; I pass the tape machine to the predicate rather than the instance in the cell the head
-;; is on.  I do this so that predicates may use the head as a general marker on the tape,
-;; for example, as the origin for a sliding window.
+;; I pass to the predicate the entire tape machine, rather than just the instance in the
+;; cell the head is on.  I do this so that predicates may use the head as a general marker
+;; on the tape, for example, as the origin for a sliding window.
 ;;
-;; pred is a function that accepts a machine and two continuations, cont-true, and cont-false.
+;; pred is a function that accepts a machine and two continuations, ➜t, and ➜∅.
 ;;
-  (defun ∃ 
-    (
-      tm
-      pred
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
+  (defun ∃ (tm pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        )
+      ➜
     "Tests each instance in tm in succession starting from the current location of the head.
-     Exits with cont-true upon the test passing.  Otherwise returns cont-false when stepping
-     right from rightmost.
+     Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via
+     ➜∅ when stepping right from rightmost.  The head is left on the cell that holds the
+     instance that passed.
     "
-    (⟳(λ(again)[pred tm cont-true (λ()(s tm again cont-false))]))
-    )
-
-  ;; There exists an instance for which pred is false.
-  ;; Same as step-while
-  ;; Not all instances match pred, here we will show you the first one that doesn't.
-  (defun ¬∀
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true, all instances do not match pred, and tm is on the first mismatch."
-    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-true cont-false)
-    )
-
-  ;; there does not exist an instance for which pred is true
-  ;; i.e. pred is false for all instances
-  (defun ¬∃ 
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true, there does not exist an instance where pred holds, and tm is at rightmost.
-    When false, tm is on an cell with an instance where pred holds."
-    (∃ tm pred cont-false cont-true)
+    (⟳(λ(again)[pred tm {:➜t ➜t :➜∅ (λ()(s tm {:➜ok again :➜rightmost ➜∅}))}]))
     )
 
   ;; there does not exist an instance for which pred is false
   ;; pred is true for all instances
-  (defun ∀
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true all instances match pred.  When false tm will be on the first mismatch."
-    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-false cont-true)
-    )
+  (defun ∀ (tm pred &optional ➜)
+    "➜t when all instances on the tape pass the test, otherwise ➜∅, head left on cell with first failed test."
+    (destructuring-bind
+      (&key
+        ((:➜t cont-true) (be t)) 
+        ((:➜∅ cont-false) (be ∅))
+        )
+      ➜
+      (∃ tm
+        (λ(tm ➜)
+          (destructuring-bind (&key ➜t ➜∅) ➜
+            [pred tm {:➜t ➜∅ :➜∅ ➜t}]
+            ))
+        {:➜t cont-false :➜∅ cont-true}
+        )))
 
-  (defun ∃*
-    (
-      tm
-      pred
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      )
-    "When returning true, tm head is on the first cell that has an instance where pred is true.
-     When returning false, tm head is on rightmost, and there was no cell where pred was true.
-    "
-    (∃ tm pred 
-      (λ()(⟳ (λ(again)(s tm again cont-true)))) ; exhausts the tape
-      cont-false
-      )
-    )
+  (defun ∃* (tm pred &optional ➜)
+    "∃ and always exits with the head on the rightmost cell."
+    (destructuring-bind
+      (&key
+        ((:➜t cont-true) (be t))
+        ((:➜∅ cont-false) (be ∅))
+        )
+      (∃ tm pred
+        {
+          :➜t (λ()(⟳ (λ(again)(s tm {:➜ok again :➜rightmost cont-true})))) ; exhausts the tape
+          :➜∅ cont-false
+          })))
 
-  (defun ¬∀* 
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true, all instances do not match pred, and tm is on the first mismatch."
-    (∃* tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-true cont-false)
-    )
+  (defun ∀* (tm pred &optional ➜)
+    "∀ and always exists with the head on the rightmost cell>"
+    (destructuring-bind
+      (&key
+        ((:➜t cont-true) (be t)) 
+        ((:➜∅ cont-false) (be ∅))
+        )
+      ➜
+      (∃* tm
+        (λ(tm ➜)
+          (destructuring-bind (&key ➜t ➜∅) ➜
+            [pred tm {:➜t ➜∅ :➜∅ ➜t}]
+            ))
+        {:➜t cont-false :➜∅ cont-true}
+        )))
 
-  (defun ¬∃*
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true, there does not exist an instance where pred holds, and tm is at rightmost.
-    When false, tm is on an cell with an instance where pred holds."
-    (∃* tm pred cont-false cont-true)
-    )
-
-  (defun ∀*
-    (
-      tm
-      pred 
-      &optional 
-      (cont-true (be t)) 
-      (cont-false (be ∅))
-      )
-    "When true all instances match pred.  When false tm will be on the first mismatch."
-    (∃* tm (λ(tm ct c∅)[pred tm c∅ ct]) cont-false cont-true)
-    )
 

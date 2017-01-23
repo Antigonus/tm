@@ -32,7 +32,7 @@ See LICENSE.txt
       (tm list-solo-tm)
       &optional
       spill 
-      (cont-ok #'echo)
+      (cont-ok #'echo) ; echoes the instance from the deleted cell
       (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
       (cont-no-alloc #'alloc-fail)
       (cont-collision #'cant-happen)

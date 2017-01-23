@@ -1,0 +1,55 @@
+
+Is a transform a solo-machine?  an nd-machine?  etc.  This depends on the type of its base.
+
+First attempt was to make the generic functions all based on tape-machine, instead of
+being based on solo-machine, nd-machine etc.  The first problem I ran into was
+make-entangled.  So I thought the transform would have to implment its own version.  Then
+I ran into the structure changing functions, which are called in a generic sense from
+ea-tape-machine, and are primitives (decl-only) for the solo-machine.  This is unusual, as
+ea-tape-machine is abstract.  However, entanglement acccounting is not. Those functions
+all call 'next-method' to find their implementation code (is backwards, as the more special
+list-ea-tem version will never get called). I can't set their tm types to
+tape-machine or that would all break.  Apparently I must implement special versions of
+these for the transforms also.
+
+Seems a little funny about changing the type of operands for the generics. As making
+such a change would mean we would be able to pass in machines of the wrong type.  Or
+actually, maybe it is improvement, as the real criteria is not the type, rather it
+is the implementation for the primitive functions. Wish that were the same thing, but
+some transforms will also have primitives.
+
+solo and nd are without slots.  Hence transforms are able to inherit from them without
+carrying any extra bagage.  If a base machine does not inherit from them, then the
+misrepresentation would be found when the corresponding primitive is not found. Inheriting
+from ea is another matter, because it has slots.
+
+Seems what we want for each transform instance to inherit on the base type.  However,
+trying to define two transform types with different inheritance would give an error. If we
+tried to change the type name each time, we would not be able to define a type class for a
+given transform type. .. just make transorm a super type to the more special transforms.
+We know in advance all the possibilities, there are not many.  But then there is
+ea-tape-machine, which we don't want to inherit from as it carries along entanglement
+accounting, when it is the base machines that can be entangled, not the transform.
+
+Can a transform changes the type of the base machine? Yes a transform can make one
+machine type look like another.
+
+Can a transform change the behavior of generic code?  No, the combination of primitive
+functions must be the same as calling those primitives separately.
+
+Here is an interesting scenario.  Take cue-rightmost, a generic function.  It steps all
+the way to the right, one step at a time.  Some implementations will specialize this with
+something much faster.  Now, suppose we have a base machine with such a faster
+implementation, we won't see this faster implementation unless we pass the cue-rightmost
+to it, like we do for the priimtivies. Otherwise, we will end up in the generic routine
+with the transform, and repeatedly sending step to the base machine.  This scenario
+indicates that the best approach for the transform is to reimplment the entire interface
+rather than just that of the primitives.
+
+
+
+
+
+
+
+
