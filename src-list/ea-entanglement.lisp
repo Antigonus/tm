@@ -16,60 +16,70 @@ The entanglements slot for ea-tm holds a list-solo-tm.
   (defun-typed with-mk-entangled
     (
       (tm0 ea-tape-machine)
-      continuation
-      &rest ⋯
+      λ-body
       )
-    (declare (ignore ⋯))
     (let(
           (tm1 (mk (type-of tm0) tm0))
           )
       (unwind-protect
-        (funcall continuation tm1)
+        [λ-body tm1]
         (self-disentangle tm1)
         )))
 
 ;;--------------------------------------------------------------------------------
 ;; adding and removing from the list
 ;;
-  (defun self-disentangle (tm)
+  (def-function-class self-disentangle (tm))
+  (defun-typed self-disentangle ((tm ea-tape-machine))
     "Removes tm from its own entanglement list.  This is typically done before 
     tm is abandoned.
     "
     (let(
           (es (entanglements tm))
           )
-      (∧
-        es
-        (progn
-          (cue-leftmost es)
-          (if 
-            (eq (r es) tm) ; first cell has tm in it
-            (s es
-              (λ()(d◧ es ∅ #'do-nothing #'cant-happen #'cant-happen))
-              (setf (entanglements tm) ∅)
-              )
-            (∃ es
-              (λ(es ct c∅)
-                (esr es
-                  (λ(instance) ; cont-ok
-                    (if 
-                      (eq instance tm)
-                      (d es ∅ (λ(x)(declare (ignore x)) [ct]) #'cant-happen)
-                      [c∅]
-                      ))
-                  c∅ ; no cell one to the right (cont-rightmost)
-                  ))))))))
+      (when es
+        (cue-leftmost es)
+        (if 
+          (eq (r es) tm) ; first cell has tm in it
+          (s es
+            {
+              :➜ok (λ()
+                     (d◧ es ∅ 
+                       {
+                         :➜ok #'do-nothing
+                         :➜no-alloc #'cant-happen
+                         :➜collision #'cant-happen
+                         }))
+              :➜rightmosst (setf (entanglements tm) ∅)
+              })
+          (∃ es
+            (λ(es ➜t ➜∅) 
+              (esr es
+                {
+                  :➜ok (λ(instance)
+                         (if 
+                           (eq instance tm)
+                           (d es ∅
+                             {
+                               :➜ok (λ(x)(declare (ignore x)) [➜t])
+                               :➜rightmost #'cant-happen
+                               })
+                           [➜∅]
+                           ))
+                  :➜rightmost ➜∅ 
+                  })))
+          ))))
 
 
 ;;--------------------------------------------------------------------------------
 ;; detecting a collision
 ;;
-  (defun collide (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
+  (defun collision (tm0 tm1 &optional (cont-true (be t)) (cont-false (be ∅)))
     "tm0 and tm1 are distinct machines, and have their heads on the same cell."
     (if
       (eq tm0 tm1)
       [cont-false]
-      (heads-on-same-cell tm0 tm1 cont-true cont-false)
+      (heads-on-same-cell tm0 tm1 {:➜t cont-true :➜∅ cont-false})
       ))
 
   (defun ∃-collision (tm &optional (cont-true (be t)) (cont-false (be ∅)))
@@ -81,11 +91,11 @@ The entanglements slot for ea-tm holds a list-solo-tm.
         (progn
           (cue-leftmost es)
           (∃ es 
-            (λ(es ct c∅)
+            (λ(es ➜t ➜∅)
               (if
                 (eq (r es) tm)
-                [c∅]
-                (heads-on-same-cell (r es) tm ct c∅)
+                [➜∅]
+                (heads-on-same-cell (r es) tm {:➜t ➜t :➜∅ ➜∅})
                 ))
             cont-true
             cont-false
@@ -100,9 +110,11 @@ The entanglements slot for ea-tm holds a list-solo-tm.
       (with-mk-entangled tm
         (λ(tms1)
           (s tms1
-            (λ()(∃-collision tms1 cont-true cont-false))
-            cont-false
-            ))))
+            {
+              :➜ok (λ()(∃-collision tms1 cont-true cont-false))
+              :➜rightmost cont-false
+              })
+          )))
               
   (defun ∃-collision◧ (tm &optional (cont-true (be t)) (cont-false (be ∅)))
     "There exists in the entanglement list, a machine that has its head on leftmost."
@@ -113,8 +125,8 @@ The entanglements slot for ea-tm holds a list-solo-tm.
         (progn
           (cue-leftmost es)
           (∃ es 
-            (λ(es ct c∅)(on-leftmost (r es) ct c∅))
-            cont-true
+            (λ(es ct c∅)(on-leftmost (r es) {:➜t ct :➜∅ c∅}))
+            cont-true 
             cont-false
             ))
         [cont-false]
@@ -129,8 +141,9 @@ The entanglements slot for ea-tm holds a list-solo-tm.
           )
       (cue-leftmost es)
       (∀ es 
-        (λ(es ct c∅)
-          (declare (ignore c∅))
+        (λ(es ➜t ➜∅)
+          (declare (ignore ➜∅))
           (setf (tape (r es)) (tape tm))
-          [ct]
-          ))))
+          [➜t]
+          )
+        )))

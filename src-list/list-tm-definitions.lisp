@@ -17,7 +17,7 @@ See LICENSE.txt
         (➜ok #'echo)
         )
       ➜
-      [cont-ok (car (head tm))]
+      [➜ok (car (head tm))]
       ))
 
   (defun-typed esr ((tm list-tm) &optional ➜)

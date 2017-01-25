@@ -22,15 +22,16 @@ See LICENSE.txt
       (
         (tm1 list-nd-tm)
         (tm0 list-nd-tm) ; make an entangled copy of tm0
-        &optional
-        (cont-ok #'echo)
-        (cont-fail (λ()(error 'bad-tm0)))
-        (cont-no-alloc #'alloc-fail)
-        &rest ⋯
+        &optional ➜
         )
-      (declare (ignore ⋯ cont-fail))
-      (setf (head tm1) (head tm0))
-      (setf (tape tm1) (tape tm0))
-      [cont-ok tm1]
-      )
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys          
+          )
+        ➜
+        (setf (head tm1) (head tm0))
+        (setf (tape tm1) (tape tm0))
+        [➜ok tm1]
+        ))
     

@@ -64,7 +64,6 @@ See LICENSE.txt
                                (:file "nd-entanglement")
                                (:file "nd-tm-generic") 
 
-                               (:file "nd-tm-quantifiers")
                                (:file "nd-tm-quantified")
 
                                (:file "list-nd-tm-type")
@@ -110,10 +109,10 @@ See LICENSE.txt
 
                               (:file "list-solo-tm-definitions")
                               (:file "solo-tm-quantified")
-
                               (:file "ea-tm-generic")
                               ))
 
+#|
                (:module "src-tr"
                  :components (
                                (:file "identity")
@@ -123,6 +122,7 @@ See LICENSE.txt
                 :components (
                               (:file "identity")
                               ))
+|#
 
 #|
 

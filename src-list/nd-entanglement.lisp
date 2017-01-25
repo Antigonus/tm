@@ -10,7 +10,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; context with an entangled machine
 ;;  
-  (def-function-class with-mk-entangled (tm continuation &rest ⋯)
+  (def-function-class with-mk-entangled (tm λ-body)
     (:documentation
       "Calls continuation with a locally scoped entangled copy of tm.
        "))
@@ -19,12 +19,10 @@ See LICENSE.txt
   (defun-typed with-mk-entangled
     (
       (tm0 nd-tape-machine)
-      continuation
-      &rest ⋯
+      λ-body
       )
-    (declare (ignore ⋯))
     (let(
           (tm1 (mk (type-of tm0) tm0))
           )
-      (funcall continuation tm1)
+      [λ-body tm1]
       ))

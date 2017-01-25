@@ -30,8 +30,8 @@ See LICENSE.txt
       )
     (destructuring-bind
       (&key
-        ((:➜ok ➜ok0) (be t))
-        ((:➜rightmost-tm ➜rightmost-tm0) (be ∅))
+        (➜ok (be t))
+        (➜rightmost-tm (be ∅))
         &allow-other-keys
         ) 
       ➜
@@ -42,13 +42,13 @@ See LICENSE.txt
               :➜ok (λ()
                     (s tm
                       {
-                        :ok (λ()
+                        :➜ok (λ()
                               (w tm (r fill))
                               [again]
                               )
-                        :rightmost ➜rightmost-tm0 ; fill's head stepped but tm's didn't
+                        :➜rightmost ➜rightmost-tm ; fill's head stepped but tm's didn't
                         }))
-              :➜rightmost ➜ok0 ; we wrote all of fill's instances
+              :➜rightmost ➜ok ; we wrote all of fill's instances
               })))))
 
   (def-function-class s* (tm)
@@ -94,7 +94,7 @@ See LICENSE.txt
       (⟳(λ(again)
           (a tm (r fill) 
             {
-              :➜ok (λ()(s fill {:ok again :rightmost ➜ok}))
+              :➜ok (λ()(s fill {:➜ok again :➜rightmost ➜ok}))
               :➜no-alloc ➜no-alloc
               })
           ))))
@@ -117,9 +117,11 @@ See LICENSE.txt
       )
     (⟳(λ(again)
         (as tm (r fill) 
-          (λ()(s fill again cont-ok))
-          cont-no-alloc
-          ))))
+          {
+            :➜ok (λ()(s fill {:➜ok again :➜rightmost cont-ok}))
+            :➜no-alloc cont-no-alloc
+            })))
+    )
 
   (defun-typed as*
     (
@@ -173,7 +175,8 @@ See LICENSE.txt
                 :➜rightmost (λ()[➜rightmost n])
                 })
             [➜ok]
-            ))))
+            )))
+      ))
 
 
   (def-function-class asn (tm n &optional fill ➜)

@@ -53,10 +53,10 @@ new tape machine implementation to specialize them.
       ➜
       (a tm instance
         {
-          :➜ok (λ()(s tm {:➜ok ➜ok :➜rightmost #'cant-happen)))
+          :➜ok (λ()(s tm {:➜ok ➜ok :➜rightmost #'cant-happen}))
           :➜no-alloc ➜no-alloc 
-          }
-        )))
+          })
+      ))
 
   (def-function-class a&h◨ (tm instance &optional ➜)
     (:documentation
@@ -86,5 +86,5 @@ new tape machine implementation to specialize them.
       &optional ➜
       )
     (as tm instance ➜)
-    ))
+    )
 

@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-d*-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm {1 2 3}))
-         (tm1 (mk 'list-solo-tm {-100}))
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:tape {-100}}))
          )
     (∧
       (d* tm0 tm1)
@@ -24,8 +24,8 @@ See LICENSE.txt
 
 (defun test-d◧*-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm {1 2 3}))
-         (tm1 (mk 'list-solo-tm {-100}))
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:tape {-100}}))
          )
     (∧
       (sn tm0 2)
@@ -39,8 +39,8 @@ See LICENSE.txt
 
 (defun test-dn-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm {1 2 3 4 5}))
-         (tm1 (mk 'list-solo-tm {-100}))
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3 4 5}}))
+         (tm1 (mk 'list-solo-tm {:tape {-100}}))
          )
     (∧
       (s tm0)
@@ -48,7 +48,7 @@ See LICENSE.txt
       (equal (tape tm0) {1 2 5})
       (equal (tape tm1) {-100 3 4})
       (on-rightmost tm1)
-      (= (dn tm0 10 ∅ (be -1) #'echo (be -2)) 9) ; only deleted 1, 9 more to go
+      (= (dn tm0 10 ∅ {:➜ok (be -1) :➜rightmost #'echo :➜no-alloc (be -2)}) 9) ; only deleted 1, 9 more to go
       )))
 (test-hook test-dn-0)
 

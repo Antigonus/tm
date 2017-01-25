@@ -11,8 +11,8 @@ See LICENSE.txt
 
   (defun test-w*-0 ()
     (let*(
-           (tm (mk 'list-tm {7 9 11}))
-           (fill (mk 'list-tm {21 23 25}))
+           (tm (mk 'list-tm {:tape {7 9 11}}))
+           (fill (mk 'list-tm {:tape {21 23 25}}))
            )
       (∧
         (w* tm fill)
@@ -22,13 +22,13 @@ See LICENSE.txt
         (cue-leftmost tm)
         (cue-leftmost fill)
         (s tm)
-        (w* tm fill (be ∅) (be t))
+        (w* tm fill {:➜ok (be ∅) :➜rightmost-tm (be t)})
         )))
   (test-hook test-w*-0)
 
   (defun test-s*-0 ()
     (let*(
-           (tm0 (mk 'list-tm {7 9 11}))
+           (tm0 (mk 'list-tm {:tape {7 9 11}}))
            )
       (∧
         (on-leftmost tm0)
@@ -44,8 +44,8 @@ See LICENSE.txt
 
   (defun test-a*-0 ()
     (let*(
-           (tm (mk 'list-tm {7 9 11}))
-           (fill (mk 'list-tm {21 23 25}))
+           (tm (mk 'list-tm {:tape {7 9 11}}))
+           (fill (mk 'list-tm {:tape {21 23 25}}))
            )
       (∧
         (a* tm fill)
@@ -59,8 +59,8 @@ See LICENSE.txt
 
   (defun test-as*-0 ()
     (let*(
-           (tm (mk 'list-tm {7 9 11}))
-           (fill (mk 'list-tm {21 23 25}))
+           (tm (mk 'list-tm {:tape {7 9 11}}))
+           (fill (mk 'list-tm {:tape {21 23 25}}))
            )
       (∧
         (as* tm fill)
@@ -71,13 +71,13 @@ See LICENSE.txt
 
   (defun test-as*-1 ()
     (let(
-          (tm0 (mk 'list-tm {1 2 3}))
-          (tm1 (mk 'list-tm (q a b c)))
+          (tm0 (mk 'list-tm {:tape {1 2 3}}))
+          (tm1 (mk 'list-tm {:tape (q a b c)}))
           )
       (s* tm0)
       (s* tm1)
-      (as* tm0 (mk 'list-tm {4 5 6}))
-      (a*  tm1 (mk 'list-tm (q e f g)))
+      (as* tm0 (mk 'list-tm {:tape {4 5 6}}))
+      (a*  tm1 (mk 'list-tm {:tape (q e f g)}))
       (∧
         (= (r tm0) 6)
         (eq (r tm1) 'c)
@@ -89,42 +89,44 @@ See LICENSE.txt
   (defun test-sn-0 ()
     (let*(
            (y '(1 3 6 5))
-           (tmy (mk 'list-tm y))
+           (tmy (mk 'list-tm {:tape y}))
            )
       (and
         (sn tmy 2
-          (λ()(= (r tmy) 6))
-          (be ∅)
-          )
+          {
+            :➜ok (λ()(= (r tmy) 6))
+            :➜rightmost (be ∅)
+            })
         (sn tmy 27
-          (be ∅)
-          (λ(cnt)
-            (and (= (r tmy) 5) (= cnt 26))
-            )))))
+          {
+            :➜ok (be ∅)
+            :➜rightmost (λ(cnt) (and (= (r tmy) 5) (= cnt 26)))
+            })
+        )))
   (test-hook test-sn-0)
 
   (defun test-sn-1 ()
     (let(
-          (k0 (mk 'list-tm (list 10 11 12)))
-          (k1 (mk 'list-tm (list 13 14 15)))
+          (k0 (mk 'list-tm {:tape (list 10 11 12)}))
+          (k1 (mk 'list-tm {:tape (list 13 14 15)}))
           )
       (∧
         (= (r k0) 10)
         (sn k0 1)
         (= (r k0) 11)
-        (= (sn k0 22 (be ∅) #'echo) 21)
+        (= (sn k0 22 {:➜ok (be ∅) :➜rightmost #'echo}) 21)
 
         (= (r k1) 13)
         (sn k1 2)
         (= (r k1) 15)
-        (sn k1 1 (be ∅) (be t))
+        (sn k1 1 {:➜ok (be ∅) :➜rightmost (be t)})
         )))
   (test-hook test-sn-1)
 
   (defun test-asn-0 ()
     (let*(
-           (tm (mk 'list-tm {7 9 11}))
-           (fill (mk 'list-tm {21 23 25}))
+           (tm (mk 'list-tm {:tape {7 9 11}}))
+           (fill (mk 'list-tm {:tape {21 23 25}}))
            )
       (∧
         (asn tm 2 fill)

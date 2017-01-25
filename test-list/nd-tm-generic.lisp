@@ -11,8 +11,8 @@ See LICENSE.txt
 
 (defun test-mk-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {7 2 -3}))
-         (tm1 (mk 'list-nd-tm tm0))
+         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+         (tm1 (mk 'list-nd-tm tm0)) ; this is an entangled copy
          )
     (∧
       (eq (tape tm0) (tape tm1))
@@ -28,8 +28,8 @@ See LICENSE.txt
 
 (defun test-recycle-entangled-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {7 2 -3}))
-         (tm1 (mk 'list-nd-tm {11 22 33}))
+         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+         (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
          (tm2 (mk 'list-nd-tm tm0))
          )
     (∧
@@ -50,8 +50,8 @@ See LICENSE.txt
 
 (defun test-r◧-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {7 2 -3}))
-         (tm1 (mk 'list-nd-tm {11 22 33}))
+         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+         (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
          (tm2 (mk 'list-nd-tm tm0))
          )
     (∧
@@ -65,35 +65,35 @@ See LICENSE.txt
 
 (defun test-s≠-0 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
          (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (sn tm0 3)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 3)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 3)
       )))
 (test-hook test-s≠-0)
 
 (defun test-s≠-1 ()
   (let*(
-         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
          (tm1 (mk 'list-nd-tm tm0))
          )
     (∧
       (s tm1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 1)
-      (= (s≠ tm1 tm0 (be 1) (be 2) (be 3)) 2)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 2)
       )))
 (test-hook test-s≠-1)
 
 (defun test-a◨ ()
   (let*(
-         (tm0 (mk 'list-nd-tm {3 5 7 9 11}))
+         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
          (tm1 (mk 'list-nd-tm tm0))
          )
     (∧

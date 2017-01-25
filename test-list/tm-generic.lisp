@@ -8,10 +8,9 @@ See LICENSE.txt
 
 |#
 (in-package #:tm)
-
 (defun test-tm-derived-0 ()
   (let*(
-         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
       (on-leftmost tm1)
@@ -21,28 +20,28 @@ See LICENSE.txt
       (¬ (on-leftmost tm1))
       (on-rightmost tm1)
       (= (r tm1) -3)
-      (s tm1 (be ∅) (be t))
+      (s tm1 {:➜ok (be ∅) :➜rightmost (be t)})
       )))
 (test-hook test-tm-derived-0)
 
 
 (defun test-tm-derived-1 ()
   (let*(
-         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
       (= (r tm1) 7)
       (as tm1 21)
-      (= (r tm1 21))
+      (= (r tm1) 21)
       (s tm1)
-      (= (r tm1 2))
+      (= (r tm1) 2)
       (s tm1)
       (= (r tm1) -3)
       (on-rightmost tm1)
       (as tm1 31)
-      (= (r tm1 31))
+      (= (r tm1) 31)
       (on-rightmost tm1)
-      (s tm1 (be ∅) (be t))
+      (s tm1 {:➜ok (be ∅) :➜rightmost (be t)})
       )))
 (test-hook test-tm-derived-1)
 
@@ -52,7 +51,7 @@ See LICENSE.txt
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-2 ()
   (let*(
-         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
       (cue-rightmost tm1)
@@ -61,7 +60,7 @@ See LICENSE.txt
       (¬ (on-rightmost tm1))
       (s tm1)
       (on-rightmost tm1)
-      (= (r tm1 77))
+      (= (r tm1) 77)
       )))
 (test-hook test-tm-derived-2)
 
@@ -70,12 +69,12 @@ See LICENSE.txt
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-3 ()
   (let*(
-         (tm1 (mk 'list-tm {7 2 -3}))
+         (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
       (cue-rightmost tm1)
       (as&h◨ tm1 77)
-      (= (r tm1 77))
+      (= (r tm1) 77)
       (on-rightmost tm1)
       )))
 (test-hook test-tm-derived-3)

@@ -24,35 +24,25 @@ the last release
 
 11. need to add name spaces for test-hook, and then have (test-all) run everything
 independent of the names space, and (test-all 'space) to run only the given name
-space
+space. also if one runs load twice all the tests double up.  something should
+be done so that only the most recent version plays.
 
 13. removed the affine versions, need to add an affine transform, when
 passed a projective machine, turns it into an affine one.  .. the old
 affine machine are sitting in scratch
 
-16. unmount of void is a little funny, it is dispatched from type tm-void, but
-then must determine how to make various void object ...  perhaps
-the fall of the end case should just return nil, should this somehow dispatch
-so folks can define their nil sequence cases?
-
-22. #'a need to expand out cont-no-alloc to the two cases rightmost and not-supported
-  did this, now want to undo it ... unsuported ops should simply not disptatch, we
-  dont' want to implement child interfaces saying 'unsupported' as that presumes
-  we know what future child interfaces are going to be
+22. no-alloc continuations need to be implemented
 
 23. add somethign to the manual about functional programming (state machines),  state
 variables,  and transactional behavior for tm functions (so that state doesn't change
 when state transitions are not taken) .. about region and cell addresses, note
 copy to new list doe snot have the problem and it is also transactional
 
-30. with-dups should keep a enganglements list pointer for the bottom of
-  the dups stack, and then just pop them all off in one step at the end.
-  The current approach is built from existing functions just to get
-  the functionality in place.
-
 29. some sort of issue with mount and subspaces ... should descend into subspaces (not leave any tms)
 
     ...add a manifold machine type, note the comments currently in tm-region.lisp.
+
+    note doc on subspaces, pulled them out, need to be reimplemented
 
 32.
   ;; behavior is not transactional, all machines update even when one or more cont-not-supported
@@ -71,8 +61,8 @@ copy to new list doe snot have the problem and it is also transactional
    key parms?
 
 
-34. mk needs to implement the call to cont-no-alloc when make-instance fails
-to allocate from the heap.  Currently we just assume there will be no problem, thus
-there would be a system error thrown instead.
+35. init should fail if there are unused keys. init functions that 'call-next-method'
+  need to renove their keys, so that the more general init can detect unused
+  keys.  (wrote remove key, it is in src0)
 
-
+36. test           + TEST-META-WRAP-0   fails after being run multiple times ...

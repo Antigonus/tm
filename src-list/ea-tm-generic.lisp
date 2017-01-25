@@ -19,13 +19,9 @@ these are
     (
       (tm ea-tape-machine)
       instance
-      &optional
-      (cont-ok  (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore ⋯))
-    (call-next-method tm instance cont-ok cont-no-alloc) ; calls the solo version
+    (call-next-method tm instance ➜) ; calls the solo version
     (∀-entanglements-update-tape tm)
     )
 
@@ -35,38 +31,38 @@ these are
   (defun-typed d
     (
       (tm ea-tape-machine)
-      &optional 
-      spill 
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-no-alloc #'alloc-fail)
-      (cont-collision (λ()(error 'dealloc-collision)))
-      &rest ⋯
+      &optional spill ➜
       )
-    (declare (ignore ⋯))
-    (∃-collision-right-neighbor 
-      tm
-      cont-collision 
-      (λ()(call-next-method tm spill cont-ok cont-rightmost cont-no-alloc))
-      ))
+    (destructuring-bind
+      (&key
+        (➜collision (λ()(error 'dealloc-collision)))
+        &allow-other-keys
+        )
+      ➜
+      (∃-collision-right-neighbor 
+        tm
+        ➜collision 
+        (λ()(call-next-method tm spill ➜))
+        )))
       
   (defun-typed d◧
     (
       (tm ea-tape-machine)
-      &optional 
-      spill 
-      (cont-ok #'echo)
-      (cont-collision (λ()(error 'dealloc-collision)))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
+      &optional spill ➜
       )
-    (declare (ignore ⋯))
-    (∃-collision◧ tm
-      cont-collision
-      (λ()
-        (call-next-method tm spill cont-ok cont-collision cont-no-alloc)
-        (∀-entanglements-update-tape tm)
-        )))
+    (destructuring-bind
+      (&key
+        (➜collision (λ()(error 'dealloc-collision)))
+        &allow-other-keys
+        )
+      ➜
+      (∃-collision◧ tm
+        ➜collision
+        (λ()
+          (call-next-method tm spill ➜)
+          (∀-entanglements-update-tape tm)
+          ))
+      ))
 
     
 

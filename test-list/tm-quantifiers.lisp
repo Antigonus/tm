@@ -13,16 +13,17 @@ See LICENSE.txt
 
   (defun test-⟳-0 ()
     (let(
-          (tm-src (mk 'list-tm (q a b c)))
-          (tm-dst (mk 'list-tm {1}))
+          (tm-src (mk 'list-tm {:tape (q a b c)}))
+          (tm-dst (mk 'list-tm {:tape {1}}))
           )
       (labels(
                (worker (repeat cont◨)
                  (as tm-dst (r tm-src))
                  (s tm-src
-                   repeat
-                   cont◨
-                   ))
+                   {
+                     :➜ok repeat
+                     :➜rightmost cont◨
+                     }))
                (cont◨ () 
                  (equal (tape tm-src) (cdr (tape tm-dst)))
                  )
@@ -34,54 +35,59 @@ See LICENSE.txt
   (defun test-∃-0 ()
     (let*(
            (y {1 2 {3 4} 5})
-           (ytm (mk 'list-tm y))
+           (ytm (mk 'list-tm {:tape y}))
            )
       (∧
-        (∃
-          ytm
-          (λ(tm cont-true cont-false)
+        (∃ ytm
+          (λ(tm ➜t ➜∅) 
             (if 
               (∧ (typep (r tm) 'cons) (eql 3 (car (r tm))))
-              [cont-true]
-              [cont-false]
+              [➜t]
+              [➜∅]
               )))
         (equal (r ytm) '(3 4))
-      )))
+        )))
   (test-hook test-∃-0) 
 
   (defun test-∃-1 ()
     (let*(
            (y {1 2 {3 4} 5})
-           (ytm (mk 'list-tm y))
+           (ytm (mk 'list-tm {:tape y}))
            )
-      (∃
-        ytm
-        (λ(tm cont-true cont-false)
+      (∃ ytm
+        (λ(tm ➜t ➜∅)
           (if 
             (∧ (typep (r tm) 'cons) (eql 3 (car (r tm))))
-            [cont-true]
-            [cont-false]
+            [➜t]
+            [➜∅]
             ))
         (λ()(equal (r ytm) '(3 4)))
         #'cant-happen
         )))
+
   (test-hook test-∃-1) 
-
-
 
   (defun test-∀-0 ()
     (∧
-      (∀ (mk 'list-tm {1 3 5}) (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅])))
-      (¬ (∀ (mk 'list-tm {4})  (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅]))))
+      (∀ (mk 'list-tm {:tape {1 3 5}})
+        (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅]))
+        )
+      (¬ (∀ (mk 'list-tm {:tape {4}}) 
+           (λ(tm ct c∅)(if (oddp (r tm)) [ct] [c∅]))
+           ))
       ))
   (test-hook test-∀-0)
 
   (defun test-¬∀-0 ()
     (let*(
            (y '(1 3 4 5))
-           (ytm (mk 'list-tm y))
+           (ytm (mk 'list-tm {:tape y}))
            )
-      (¬∀ ytm (λ(tm ct c∅)(if (and (numberp (r tm)) (oddp (r tm))) [ct] [c∅])))
+      (∀ ytm 
+        (λ(tm ct c∅)(if (and (numberp (r tm)) (oddp (r tm))) [ct] [c∅]))
+        (be ∅)
+        (be t)
+        )
       (= (r ytm) 4)
       ))
   (test-hook test-¬∀-0) 

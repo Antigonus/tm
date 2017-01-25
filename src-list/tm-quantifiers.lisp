@@ -5,6 +5,11 @@ See LICENSE.txt
 
   Quantification
 
+  Note the true and false continuations are not optional on pred.
+
+  continuation arguments the existential and universl quantification are
+  given in the argument list
+
 |#
 
 (in-package #:tm)
@@ -26,27 +31,15 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; trivial predicates 
 ;;
-  (defun always-false (tm &optional ➜)
-    (declare (ignore tm))
-    (destructuring-bind 
-      (&key
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
+  (defun always-false (tm ➜t ➜∅)
+    (declare (ignore tm ➜t))
       [➜∅]
-      ))
+      )
 
-  (defun always-true (tm &optional ➜)
-    (declare (ignore tm))
-    (destructuring-bind 
-      (&key
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
+  (defun always-true (tm ➜t ➜∅)
+    (declare (ignore tm ➜∅))
       [➜t]
-      ))
+      )
 
 ;;--------------------------------------------------------------------------------
 ;; quantification
@@ -62,66 +55,54 @@ See LICENSE.txt
 ;;
 ;; pred is a function that accepts a machine and two continuations, ➜t, and ➜∅.
 ;;
-  (defun ∃ (tm pred &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        )
-      ➜
+  (defun ∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
     "Tests each instance in tm in succession starting from the current location of the head.
      Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via
      ➜∅ when stepping right from rightmost.  The head is left on the cell that holds the
      instance that passed.
     "
-    (⟳(λ(again)[pred tm {:➜t ➜t :➜∅ (λ()(s tm {:➜ok again :➜rightmost ➜∅}))}]))
+    (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
     )
 
   ;; there does not exist an instance for which pred is false
   ;; pred is true for all instances
-  (defun ∀ (tm pred &optional ➜)
+  (defun ∀ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
     "➜t when all instances on the tape pass the test, otherwise ➜∅, head left on cell with first failed test."
-    (destructuring-bind
-      (&key
-        ((:➜t cont-true) (be t)) 
-        ((:➜∅ cont-false) (be ∅))
-        )
-      ➜
-      (∃ tm
-        (λ(tm ➜)
-          (destructuring-bind (&key ➜t ➜∅) ➜
-            [pred tm {:➜t ➜∅ :➜∅ ➜t}]
-            ))
-        {:➜t cont-false :➜∅ cont-true}
-        )))
+    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) ➜∅ ➜t)
+    )
 
-  (defun ∃* (tm pred &optional ➜)
-    "∃ and always exits with the head on the rightmost cell."
-    (destructuring-bind
-      (&key
-        ((:➜t cont-true) (be t))
-        ((:➜∅ cont-false) (be ∅))
-        )
-      (∃ tm pred
-        {
-          :➜t (λ()(⟳ (λ(again)(s tm {:➜ok again :➜rightmost cont-true})))) ; exhausts the tape
-          :➜∅ cont-false
-          })))
+  ;; similar to ∃, but tests every instance.  Returns a number pair, the total tests done
+  ;; (= length of tape tail), and the number of tests that returned true.
+  (defun ∃* (tm pred)
+    "Calls (pred tm ➜t ➜∅), and steps head, until reaching the end fo the tape, returns
+     number pair: (true.count.false-count)."
+    (let (
+           (true-count 0)
+           (false-count 0)
+           )
+      (⟳(λ(again)
+          [pred tm
+            (λ()(incf true-count))
+            (λ()(incf false-count))
+            ]
+          (s tm
+            {
+              :➜ok again
+              :➜rightmost #'do-nothing
+              }
+            )))
+      (cons true-count false-count)
+      ))
 
-  (defun ∀* (tm pred &optional ➜)
-    "∀ and always exists with the head on the rightmost cell>"
-    (destructuring-bind
-      (&key
-        ((:➜t cont-true) (be t)) 
-        ((:➜∅ cont-false) (be ∅))
-        )
-      ➜
-      (∃* tm
-        (λ(tm ➜)
-          (destructuring-bind (&key ➜t ➜∅) ➜
-            [pred tm {:➜t ➜∅ :➜∅ ➜t}]
-            ))
-        {:➜t cont-false :➜∅ cont-true}
-        )))
-
+  (defun ∀* (tm function)
+    "Calls (function tm), and steps head, until reaching the end of the tape. Returns
+     nothing."
+    (⟳(λ(again)
+        [function tm]
+        (s tm
+          {
+            :➜ok again
+            :➜rightmost #'do-nothing
+            }
+          ))))
 

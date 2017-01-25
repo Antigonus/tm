@@ -21,15 +21,23 @@ See LICENSE.txt
       &optional ➜
       )
     (destructuring-bind
-      (&key tape) keyed-parms
-      (cond
-        ((∧ tape (consp tape))
-          (setf (head tm) tape)
-          (setf (tape tm) tape)
-          )
-        (t
-          (call-next-method keyed-parms ➜)
-          ))))
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys          
+        )
+      ➜
+      (destructuring-bind
+        (&key tape) keyed-parms
+        (cond
+          ((∧ tape (consp tape))
+            (setf (head tm) tape)
+            (setf (tape tm) tape)
+            [➜ok tm]
+            )
+          (t
+            (call-next-method keyed-parms ➜) ; pick up tape-machine's init for non consp tapes
+            ))
+        )))
 
     
 

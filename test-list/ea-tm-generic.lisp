@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-ea-a◧-0 ()
   (let*(
-         (tm0 (mk 'list-ea-tm {1 2 3}))
+         (tm0 (mk 'list-ea-tm {:tape {1 2 3}}))
          )
     (with-mk-entangled tm0
       (λ(tm1)
@@ -30,15 +30,15 @@ See LICENSE.txt
 
 (defun test-ea-d-0 ()
   (let*(
-         (tm0 (mk 'list-ea-tm {1 2 3 4}))
-         (tm1 (mk 'list-ea-tm {-100}))
+         (tm0 (mk 'list-ea-tm {:tape {1 2 3 4}}))
+         (tm1 (mk 'list-ea-tm {:tape {-100}}))
          )
     (with-mk-entangled tm0
       (λ(tm2)
         (∧
           (s tm0)
           (sn tm2 2)
-          (eq (d tm0 tm1 (be 'ok) (be 'rm) (be 'na) (be 'c)) 'c)
+          (eq (d tm0 tm1 {:➜ok (be 'ok) :➜rightmost (be 'rm) :➜no-alloc (be 'na) :➜collision (be 'c)}) 'c)
           (on-leftmost tm1)
           (cue-leftmost tm2) ; gets it out of the way
 
@@ -57,7 +57,7 @@ See LICENSE.txt
           (on-rightmost tm0)
           (¬ (on-rightmost tm2))
 
-          (eq (d tm0 ∅ (be 'ok) (be 'rm) (be 'na)) 'rm)
+          (eq (d tm0 ∅ {:➜ok (be 'ok) :➜rightmost (be 'rm) :➜no-alloc (be 'na)}) 'rm)
           (equal (tape tm0) {1 2})
           (on-rightmost tm0)
 
@@ -66,14 +66,15 @@ See LICENSE.txt
           (on-rightmost tm0)
           (on-rightmost tm2)
           (on-leftmost tm0)
-          (eq (d tm0 ∅ (be 'ok) (be 'rm) (be 'na)) 'rm)
+          (eq (d tm0 ∅ {:➜ok (be 'ok) :➜rightmost (be 'rm) :➜no-alloc (be 'na)}) 'rm)
+
           )))))
 (test-hook test-ea-d-0)
 
 (defun test-ea-d◧-0 ()
   (let*(
-         (tm0 (mk 'list-ea-tm {1 2 3}))
-         (tm1 (mk 'list-ea-tm {-100}))
+         (tm0 (mk 'list-ea-tm {:tape {1 2 3}}))
+         (tm1 (mk 'list-ea-tm {:tape {-100}}))
          )
     (with-mk-entangled tm0
       (λ(tm2)
@@ -81,7 +82,7 @@ See LICENSE.txt
           (s tm0)
           (¬ (on-leftmost tm0))
 
-          (eq (d◧ tm0 tm1  (be 'ok) (be 'c) (be 'na)) 'c)
+          (eq (d◧ tm0 tm1  {:➜ok (be 'ok) :➜collision (be 'c) :➜no-alloc (be 'na)}) 'c)
           (s tm2)
 
           (d◧ tm0 tm1)
@@ -94,6 +95,6 @@ See LICENSE.txt
           (on-leftmost tm0)
           (on-leftmost tm2)
           (on-rightmost tm1)
-          (eq (d◧ tm0 ∅  (be 'ok) (be 'c) (be 'na)) 'c)
+          (eq (d◧ tm0 ∅  {:➜ok (be 'ok) :➜collision (be 'c) :➜no-alloc (be 'na)}) 'c)
           )))))
 (test-hook test-ea-d◧-0)

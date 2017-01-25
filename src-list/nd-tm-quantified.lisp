@@ -23,6 +23,7 @@ See LICENSE.txt
     (
       (tm nd-tape-machine)
       index
+      &optional ➜
       )
     (destructuring-bind
       (&key

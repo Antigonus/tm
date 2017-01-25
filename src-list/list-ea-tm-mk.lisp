@@ -16,23 +16,17 @@ See LICENSE.txt
     (
       (tm list-ea-tm)
       (keyed-parms cons)
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-info)))
-      &rest ⋯
+      &optional ➜
       )
-    (setf (entanglements tm) (mk 'list-solo-tm {:init {tm}})) ; initially entangled only with self
-    (apply #'call-next-method {tm keyed-parms cont-ok cont-fail (o ⋯)}) ; falls to init for tm-list
+    (setf (entanglements tm) (mk 'list-solo-tm {:tape {tm}})) ; initially entangled only with self
+    (call-next-method tm keyed-parms ➜) ; falls to init for tm-list
     )
 
   (defun-typed init 
     (
       (tm1 list-ea-tm)
       (tm0 list-ea-tm) ; make an entangled copy of tm0
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-tm0)))
-      &rest ⋯
+      &optional ➜
       )
     (setf (entanglements tm1) (entanglements tm0))
     (let(
@@ -40,10 +34,10 @@ See LICENSE.txt
           )
       (cue-leftmost ents)
       (∃ ents ;; if tm1 does not exist in the entanglements list, add it
-        (λ(ents ct c∅)(if (eq (r ents) tm1) [ct] [c∅]))
+        (λ(ents ➜t ➜∅) (if (eq (r ents) tm1) [➜t] [➜∅]))
         #'do-nothing
-        (λ()(a&h◨ ents tm1 #'do-nothing #'alloc-fail))
+        (λ()(a&h◨ ents tm1))
         )
-      (apply #'call-next-method {tm1 tm0 cont-ok cont-fail (o ⋯)}) ; falls to list-nd-tm entangled copy
+      (call-next-method tm1 tm0 ➜) ; falls to list-nd-tm entangled copy
       ))
-    
+

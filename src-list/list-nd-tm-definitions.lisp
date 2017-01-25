@@ -18,43 +18,48 @@ See LICENSE.txt
   ;; Though entangled copy function is not directly called in heads-on-same-cell, a copy
   ;; is implied because the function accepts two state machines that share a tape, tm0 and
   ;; tm1.
-  (defun-typed heads-on-same-cell
+  (defun-typed heads-on-same-cell 
     (
       (tm0 list-nd-tm)
       (tm1 list-nd-tm)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore ⋯)) 
-    (if (eq (head tm0) (head tm1))
-      [cont-true]
-      [cont-false]
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if (eq (head tm0) (head tm1)) [➜t] [➜∅])
       ))
 
   (defun-typed heads-on-same-cell
     (
       (tm0 list-nd-tm)
       (tm1 tape-machine)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore cont-true ⋯)) 
-    [cont-false]
-    )
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
 
   (defun-typed heads-on-same-cell
     (
       (tm0 tape-machine)
       (tm1 list-nd-tm)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore cont-true ⋯)) 
-    [cont-false]
-    )
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
