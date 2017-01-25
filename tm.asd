@@ -112,7 +112,6 @@ See LICENSE.txt
                               (:file "ea-tm-generic")
                               ))
 
-#|
                (:module "src-tr"
                  :components (
                                (:file "identity")
@@ -122,7 +121,6 @@ See LICENSE.txt
                 :components (
                               (:file "identity")
                               ))
-|#
 
 #|
 

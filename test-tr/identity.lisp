@@ -9,14 +9,11 @@ See LICENSE.txt
 
 (defun test-identity-0 ()
   (let*(
-        (tm0 (mk 'list-solo-tm {1 2 3}))
+        (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
         (tm1 (mk 'identity-tr {:base tm0}))
         )
-    (d◧ tm1 ∅
-      (be ∅)
-      (be ∅)
-      (be t)
-      )))
+    (d◧ tm1 ∅ {:➜ok (be ∅) :➜no-alloc (be ∅) :➜collision (be t)})
+    ))
 (test-hook test-identity-0)
 
       

@@ -26,202 +26,83 @@ Base class for transforms. Library users never see this.
     (
       (tm identity-tr)
       (init-value cons)
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore ⋯))
     (destructuring-bind
-      (&key base) init-value
-      (cond
-        (base
-          (setf (base tm) base)
-          [cont-ok tm]
-          )
-        (t [cont-fail])
-        )))
+      (&key
+        (➜ok #'echo)
+        (➜fail (λ()(error 'bad-init-value)))
+        )
+      ➜
+      (destructuring-bind
+        (&key base) init-value
+        (cond
+          (base
+            (setf (base tm) base)
+            [➜ok tm]
+            )
+          (t [➜fail])
+          ))))
 
   (defun-typed init 
     (
       (tm identity-tr)
       (init-value identity-tr)
-      &optional
-      (cont-ok #'echo)
-      (cont-fail (λ()(error 'bad-init-value)))
-      &rest ⋯
+      &optional ➜
       )
-    (declare (ignore ⋯ cont-fail))
-    (setf (base tm) (mk (type-of (base tm)) tm)) ; makes an entangled copy
-    [cont-ok tm]
-    )
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        )
+      ➜
+      (setf (base tm) (mk (type-of (base tm)) tm)) ; makes an entangled copy
+      [➜ok tm]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;;tm-decl-only
 ;;
-  (defun-typed r ((tm identity-tr) &optional (cont-ok #'echo) &rest ⋯)
-    (apply #'r {(base tm) cont-ok (o ⋯)})
-    )
-  (defun-typed esr
-    (
-      (tm identity-tr)
-      &optional 
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'step-from-rightmost)))
-      &rest ⋯
-      )
-    (apply #'esr {(base tm) cont-ok cont-rightmost (o ⋯)})
+  (defmacro def-identity-tr (f &rest args)
+    {'defun-typed f {(q tm identity-tr) (o args) '&optional '➜}
+      {f (q base tm) (o args) '➜}
+      }
     )
 
-  (defun-typed w ((tm identity-tr) instance &rest ⋯)
-    (apply #'w {(base tm) (o ⋯)})
-    )
-  (defun-typed esw
-    (
-      (tm identity-tr)
-      instance
-      &optional 
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      &rest ⋯
-      )
-    (apply #'esr {(base tm) cont-ok cont-rightmost (o ⋯)})
-    )
-
-  (defun-typed cue-leftmost ((tm identity-tr) &rest ⋯)
-    (apply #'cue-leftmost {(base tm) (o ⋯)})
-    )
-
-  (defun-typed s
-    (
-      (tm identity-tr)
-      &optional 
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      &rest ⋯
-      )
-    (apply #'s {(base tm) cont-ok cont-rightmost (o ⋯)})
-    )
-
-  (defun-typed a
-    (
-      (tm identity-tr)
-      instance
-      &optional 
-      (cont-ok (be t))
-      (cont-no-alloc (be ∅))
-      &rest ⋯
-      )
-    (apply #'s {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
-    )
-
-  (defun-typed on-leftmost 
-    (
-      (tm identity-tr)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
-      )
-    (apply #'on-leftmost {(base tm) cont-true cont-false (o ⋯)})
-    )
-
-  (defun-typed on-rightmost
-    (
-      (tm identity-tr)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
-      )
-    (apply #'on-rightmost {(base tm) cont-true cont-false (o ⋯)})
-    )
+  (def-identity-tr r)
+  (def-identity-tr esr)
+  (def-identity-tr w instance)
+  (def-identity-tr esw instance)
+  (def-identity-tr cue-leftmost)
+  (def-identity-tr s)
+  (def-identity-tr a instance)
+  (def-identity-tr on-leftmost)
+  (def-identity-tr on-rightmost)
 
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  ;; step does not move forward from rightmost, rather takes the rightmost continuation
-  (defun-typed cue-rightmost ((tm identity-tr) &rest ⋯)
-    (apply #'cue-rightmost {(base tm) (o ⋯)})
-    )
-
-  (defun-typed as
-    (
-      (tm identity-tr)
-      instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
-      )
-    (apply #'as {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
-    )
-
-  (defun-typed a&h◨ 
-    (
-      (tm identity-tr)
-      instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
-      )
-    (apply #'a&h◨ {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
-    )
-
-  (defun-typed as&h◨ 
-    (
-      (tm identity-tr)
-      instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
-      )
-    (apply #'as&h◨ {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
-    )
-
+  (def-identity-tr cue-rightmost)
+  (def-identity-tr as instance) 
+  (def-identity-tr a&h◨ instance)
+  (def-identity-tr as&h◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧
+  (def-identity-tr a◧ instance)
+  (defun-typed d
     (
       (tm identity-tr)
-      instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
+      &optional spill ➜
       )
-    (apply #'a◧ {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
+    (d (base tm) spill ➜)
     )
-
-  (defun-typed d 
-    (
-      (tm identity-tr)
-      &optional
-      spill 
-      (cont-ok #'echo)
-      (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
-      (cont-no-alloc #'alloc-fail)
-      (cont-collision #'cant-happen)
-      &rest ⋯
-      )
-    (apply #'d {(base tm) spill cont-ok cont-rightmost cont-no-alloc cont-collision (o ⋯)})
-    )
-
   (defun-typed d◧
     (
       (tm identity-tr)
-      &optional
-      spill 
-      (cont-ok #'echo)
-      (cont-no-alloc #'alloc-fail)
-      (cont-collision (λ()(error 'dealloc-collision)))
-      &rest ⋯
+      &optional spill ➜
       )
-    (apply #'d◧ {(base tm) spill cont-ok cont-no-alloc cont-collision (o ⋯)})
+    (d◧ (base tm) spill ➜)
     )
 
 
@@ -232,73 +113,43 @@ Base class for transforms. Library users never see this.
     (
       (tm0 identity-tr)
       (tm1 identity-tr)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (apply #'heads-on-same-cell {(base tm0) (base tm1) cont-true cont-false (o ⋯)})
+    (heads-on-same-cell (base tm0) (base tm1) ➜)
     )
 
   (defun-typed heads-on-same-cell
     (
       (tm0 identity-tr)
       (tm1 tape-machine)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (apply #'heads-on-same-cell {(base tm0) tm1 cont-true cont-false (o ⋯)})
+    (heads-on-same-cell (base tm0) tm1 ➜)
     )
 
   (defun-typed heads-on-same-cell
     (
       (tm0 tape-machine)
       (tm1 identity-tr)
-      &optional
-      (cont-true (be t))
-      (cont-false (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (apply #'heads-on-same-cell {tm0 (base tm1) cont-true cont-false (o ⋯)})
+    (heads-on-same-cell tm0 (base tm1) ➜)
     )
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-generic
 ;;
-  (defun-typed r◧ ((tm identity-tr) &rest ⋯)
-    (apply #'r◧ {(base tm) (o ⋯)})
-    )
-
-  (defun-typed w◧ ((tm identity-tr) instance &rest ⋯)
-    (apply #'w◧ {(base tm) (o ⋯)})
-    )
-
+  (def-identity-tr r◧)
+  (def-identity-tr w◧ instance)
   (defun-typed s≠ 
     (
       (tm0 identity-tr)
       (tm1 identity-tr)
-      &optional
-      (cont-ok (be t))
-      (cont-rightmost (be ∅))
-      (cont-bound (be ∅))
-      &rest ⋯
+      &optional ➜
       )
-    (apply #'s≠ {(base tm0) (base tm1) cont-ok cont-rightmost cont-bound (o ⋯)})
+    (s≠ (base tm0) (base tm1) ➜)
     )
-
-  (defun-typed a◨
-    (
-      (tm identity-tr)
-      instance
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      &rest ⋯
-      )
-    (apply #'a◧ {(base tm) instance cont-ok cont-no-alloc (o ⋯)})
-    )
+  (def-identity-tr a◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement
@@ -307,8 +158,6 @@ Base class for transforms. Library users never see this.
     (
       (tm0 identity-tr)
       continuation
-      &rest ⋯
       )
-    (declare (ignore ⋯))
-    (apply #'with-mk-entangled {(base tm0) continuation})
+    (with-mk-entangled (base tm0) continuation)
     )

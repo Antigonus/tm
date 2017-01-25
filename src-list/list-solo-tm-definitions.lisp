@@ -39,22 +39,27 @@ See LICENSE.txt
                (dealloc-cell (cdr (head tm)))
                (spill-instance (car dealloc-cell))
                )
-          (if spill
-            (as spill spill-instance
-              {
-                :➜ok (λ()
-                       (rplacd (head tm) (cdr dealloc-cell))
-                       [➜ok spill-instance]
-                       )
-                :➜no-alloc ➜no-alloc
-                })
-            (progn
-              (rplacd (head tm) (cdr dealloc-cell))
-              [➜ok spill-instance]
-              )))
-
+          (labels
+            (
+              (spill-circuit ()
+                (if spill
+                  (as spill spill-instance
+                    {
+                      :➜ok #'delete-cell
+                      :➜no-alloc ➜no-alloc
+                      }
+                    )
+                  (delete-cell)
+                  ))
+              (delete-cell()
+                (rplacd (head tm) (cdr dealloc-cell))
+                [➜ok spill-instance]
+                ))
+            (spill-circuit)
+            ))
         [➜rightmost]
         )))
+
 
   ;; We depend on the fact that the head must be on some cell.
   ;; It follows that if there is only one cell, it is leftmost, and the head is on it.
@@ -73,17 +78,24 @@ See LICENSE.txt
         (eq (head tm) (tape tm))
         [➜collision]
         (let*(
-               (dealloc-cell (tape tm))
-               (spill-instance (car dealloc-cell))
-               )
-          (when spill
-            (as spill spill-instance
-              {
-                :➜ok (λ()
-                       (setf (tape tm) (cdr dealloc-cell))
-                       [➜ok spill-instance]
-                       )
-                :➜no-alloc ➜no-alloc
-                }
-              ))))))
-
+              (dealloc-cell (tape tm))
+              (spill-instance (car dealloc-cell))
+              )
+          (labels
+            (
+              (spill-circuit ()
+                (if spill
+                  (as spill spill-instance
+                    {
+                      :➜ok #'delete-cell
+                      :➜no-alloc ➜no-alloc
+                      }
+                    )
+                  (delete-cell)
+                  ))
+              (delete-cell ()
+                (setf (tape tm) (cdr dealloc-cell))
+                [➜ok spill-instance]
+                ))
+            (spill-circuit)
+            )))))
