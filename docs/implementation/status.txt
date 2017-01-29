@@ -23,14 +23,85 @@ Simultaneous operation on the Base Machine
 
 Parked 
 
-  When the status is 'parked, the status machine will claim the head is not on any
-  cell. Consequently it has no location.  However, the machine will identify a right
-  neighbor as the cell the head is actually on in the base machine.
-
   For an empty machine the status machine will act like the head is parked, and
   requests for a right neighbor will meet with right of rightmost continuation.
   Appending to an empty machine will create a new leftmost cell (and in the current
   implementation, create a new machine as well).
+
+  When the status is 'parked, the status machine will claim the head is not on any
+  cell. Consequently it has no location.  However, the machine will identify a right
+  neighbor as the cell the head is actually on in the base machine.
+
+  Though the right neighbor of a parked head is the cell the head is on the base machine,
+  a parked head is not an alias for a head on the cell of the left neighbor, because there
+  is no entanglment, it does not matter if the left neighbor cell is deleted.  Rather it
+  is a sort of region locator. Should we have a general concept of region locator?
+
+  However, we run into a problem with the operation #'a if the right neighbor to a parked
+  head is anything except the leftmost cell.  This is because to perform the append of a
+  new cell relative to a parked head for a singly linked list we would need to modify the
+  left neighbor cell to account for it having a new right neighbor, but having a parked
+  head does not give us a reference to it. If we made the parked head an actual alias
+  for the left neighbor cell, then it would have to be entanglement accounted, then there
+  would be an anomoly when parking from the leftmost cell, as then the parked head can
+  not be an alias for a left neighbor.
+
+  If we adopt the convention that right neighbor for a parked head, is the cell the head
+  is actually on in the base machine, then we are requiring that there is a 'where I came
+  from' state associated with a parked head.
+
+  When we adopt the convention that the right neighbor of the parked head is always the
+  leftmost cell, then we can not allow operations on the base machine, or the head might
+  be moved away form the leftmost cell.  If we tried to always cue-leftmost before
+  unparking a head, then we are communicating with the code using the base machine, but we
+  have not developed a framework for such communication.
+
+  If we adopt the convention that the parked head's right neighbor is always the leftmost
+  cell on the base machine, and that the status machine owns the base machine.  A
+  programmer can make an entangled copy, but can not use the base base machine.  Then the
+  status machine has a single machine interface, with a single head state. I will go with
+  this.
+
+  Perhaps the easiest way to enforce this convention would be for init to create an
+  entangled copy for the status machine.  However, if we did this we would have to
+  explicily call self-disentangle before the status machine goes out of scope.  It appears
+  we need a scoped form of mk.  However, the problem with scoped creation forms is
+  that we can not write subroutines that create results as machines and then pass
+  them back to the caller. The status machine fixes this problem by allowing us to
+  pass empty machines into subroutines that create results.  Hence, we will want a
+  scoped make structure for status machines.
+
+  ..
+
+  Is this conceptually clean? Wouldn't it be nice to have a general method of locating
+  regions other than using another machine?  And is the tape not just the largest region,
+  so why would a parked head only be able to locate the largest region?  Can a status
+  machine not instead be a 'region location' machine? .. I will leave the problem of
+  creating a region locaiton machine to another date..
+
+  Suppose we want the right neighbor from parked to be a different cell.  We can then
+  delete all cells up to that other cell, then parked will behave as such. Perhaps a
+  better operation would be 'split', which returns the lefthand side, and the righthand
+  side as two different machines.  But note, in our definition for lefthand and righthand
+  side, the cell the head is on goes with the lefthand side. Because this behavior
+  can be emulated, would it not make sense to just provide it directly?
+
+  Suppose we are trying to locate a region, such as our delete up to region would have to
+  do. Currently, we don't have a good way of stopping iteration against a right neighbor
+  comparison.  s≠ stops when two machines are on the same head.  heads-one-same-cell also
+  is for same cells. In a former version of the code we had location comparison operators,
+  so that would do it. We will end up with two types of location operators, one that
+  are decl-only and left to the implementation, and another built on addresses.
+
+  Instead of forcing a status machine to be a region locating machine, perhaps it would
+  make sense to separately have such a machine. Comparison of head-on-same-cell and
+  such would then work correctly for finding a region. .. but #'a would still not
+  work.
+
+  One of the reasons that structure modifying operations are so complicated is that they
+  modify the topology, the connectedness, of the structure.  Perhaps structure can exist
+  over a substructure that does not change.  Writing cells on this substructure would then
+  modify the super structure.  Hmmm well .. for another day ..
 
 
 esr

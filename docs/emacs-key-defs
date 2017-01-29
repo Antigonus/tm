@@ -34,9 +34,6 @@
   (global-set-key (kbd "C-x g rm SPC") [?◨])
   (global-set-key (kbd "C-x g lm SPC") [?◧])
 
-  (global-set-key (kbd "C-x g cont SPC") [?⋯])
-  (global-set-key (kbd "C-x g continuation SPC") [?⋯])
-
   (global-set-key (kbd "C-x g cont SPC") [?➜]) 
 
   (global-set-key (kbd "C-x g thread SPC") [?☥]) 

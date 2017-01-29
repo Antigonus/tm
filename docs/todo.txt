@@ -66,3 +66,7 @@ copy to new list doe snot have the problem and it is also transactional
   keys.  (wrote remove key, it is in src0)
 
 36. test           + TEST-META-WRAP-0   fails after being run multiple times ...
+
+37. scoped form of mk.  See implementation/status.txt
+
+38. split, split machine in half

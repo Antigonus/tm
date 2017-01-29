@@ -62,34 +62,34 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;;tm-decl-only
 ;;
-  (defmacro def-identity-tr (f &rest args)
+  (defmacro def-identity-tr-1 (f &rest args)
     {'defun-typed f {(q tm identity-tr) (o args) '&optional '➜}
       {f (q base tm) (o args) '➜}
       }
     )
 
-  (def-identity-tr r)
-  (def-identity-tr esr)
-  (def-identity-tr w instance)
-  (def-identity-tr esw instance)
-  (def-identity-tr cue-leftmost)
-  (def-identity-tr s)
-  (def-identity-tr a instance)
-  (def-identity-tr on-leftmost)
-  (def-identity-tr on-rightmost)
+  (def-identity-tr-1 r)
+  (def-identity-tr-1 esr)
+  (def-identity-tr-1 w instance)
+  (def-identity-tr-1 esw instance)
+  (def-identity-tr-1 cue-leftmost)
+  (def-identity-tr-1 s)
+  (def-identity-tr-1 a instance)
+  (def-identity-tr-1 on-leftmost)
+  (def-identity-tr-1 on-rightmost)
 
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (def-identity-tr cue-rightmost)
-  (def-identity-tr as instance) 
-  (def-identity-tr a&h◨ instance)
-  (def-identity-tr as&h◨ instance)
+  (def-identity-tr-1 cue-rightmost)
+  (def-identity-tr-1 as instance) 
+  (def-identity-tr-1 a&h◨ instance)
+  (def-identity-tr-1 as&h◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (def-identity-tr a◧ instance)
+  (def-identity-tr-1 a◧ instance)
   (defun-typed d
     (
       (tm identity-tr)
@@ -139,8 +139,8 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-generic
 ;;
-  (def-identity-tr r◧)
-  (def-identity-tr w◧ instance)
+  (def-identity-tr-1 r◧)
+  (def-identity-tr-1 w◧ instance)
   (defun-typed s≠ 
     (
       (tm0 identity-tr)
@@ -149,7 +149,7 @@ Base class for transforms. Library users never see this.
       )
     (s≠ (base tm0) (base tm1) ➜)
     )
-  (def-identity-tr a◨ instance)
+  (def-identity-tr-1 a◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement
