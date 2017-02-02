@@ -72,6 +72,10 @@ Base class for transforms. Library users never see this.
   (def-identity-tr-1 esr)
   (def-identity-tr-1 w instance)
   (def-identity-tr-1 esw instance)
+
+  (def-identity-tr-1 r◧)
+  (def-identity-tr-1 w◧ instance)
+
   (def-identity-tr-1 cue-leftmost)
   (def-identity-tr-1 s)
   (def-identity-tr-1 a instance)
@@ -139,8 +143,6 @@ Base class for transforms. Library users never see this.
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-generic
 ;;
-  (def-identity-tr-1 r◧)
-  (def-identity-tr-1 w◧ instance)
   (defun-typed s≠ 
     (
       (tm0 identity-tr)
@@ -149,7 +151,9 @@ Base class for transforms. Library users never see this.
       )
     (s≠ (base tm0) (base tm1) ➜)
     )
+
   (def-identity-tr-1 a◨ instance)
+
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement
@@ -159,5 +163,11 @@ Base class for transforms. Library users never see this.
       (tm0 identity-tr)
       continuation
       )
-    (with-mk-entangled (base tm0) continuation)
-    )
+    (with-mk-entangled (base tm0)
+      (λ(base-tm1)
+        (let(
+              (tm1 (mk (type-of tm0) {:base base-tm1}))
+              )
+          [continuation tm1]
+          ))))
+

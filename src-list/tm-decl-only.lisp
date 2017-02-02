@@ -28,6 +28,13 @@ functions.
   (def-function-class w (tm instance &optional ➜))
   (def-function-class esw (tm instance &optional ➜))
 
+  (def-function-class r◧ (tm &optional ➜))
+  (def-function-class esr◧ (tm &optional ➜))
+
+  (def-function-class w◧ (tm instance &optional ➜))
+  (def-function-class esw◧ (tm instance &optional ➜))
+
+
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
@@ -66,4 +73,8 @@ functions.
       "tm head is on the rightmost cell ➜t, else ➜∅
       "))
 
-
+;;--------------------------------------------------------------------------------
+;; length-tape
+;;
+  (def-function-class tape-length-is-one (tm &optional ➜))
+  (def-function-class tape-length-is-two (tm &optional ➜))

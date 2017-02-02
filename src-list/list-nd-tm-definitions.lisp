@@ -9,6 +9,23 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; entanglement
+;;
+  (defun-typed entangled
+    (
+      (tm0 list-nd-tm)
+      (tm1 list-nd-tm)
+      )
+    (destructuring-bind
+      (&key
+        (:➜t (be t))
+        (:➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if (eq (tape tm0) (tape tm1) [➜t] [➜∅]))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; head location
@@ -34,6 +51,8 @@ See LICENSE.txt
       (if (eq (head tm0) (head tm1)) [➜t] [➜∅])
       ))
 
+  ;; currently when two machines are entangled, they have the same type, ergo if the
+  ;; types are different the machines are different, and heads can not be on the same cell
   (defun-typed heads-on-same-cell
     (
       (tm0 list-nd-tm)
@@ -63,3 +82,5 @@ See LICENSE.txt
       ➜
       [➜∅]
       ))
+
+  

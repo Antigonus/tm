@@ -10,24 +10,8 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; fundamental
-;;
-  ;; Sometimes the program logic assures that a continuation can not be reached.  In such
-  ;; a case this condition should be raised.  Reasons for reaching such conditions include
-  ;; design mistakes, and program bugs either in the code, or due to unconsidered
-  ;; interactions between threads.
-  (define-condition impossible-to-get-here (error)
-    ((text :initarg :text :reader text)))
-
-  ;; This warning is issued if one performs a tape machine action which is computationally
-  ;; difficult, such as stepping left on a single linked list tape.
-  (define-condition computationally-difficult (warning)
-    ((text :initarg :text :reader text)))
-
-  ;; The underlying tape implementation precludes this action.  Before we had a single
-  ;; linked list implementation that did not keep a leftmost pointer, hence many left
-  ;; going actions were not just computationally difficult, they were impossible.
-  (define-condition computationally-impossible (error)
+;; 
+  (define-condition not-implemented (error)
     ((text :initarg :text :reader text)))
 
 
@@ -44,43 +28,9 @@ See LICENSE.txt
   (define-condition bad-init-value (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition unrecognized-instance-type (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition unrecognized-sequence-type (error)
-    ((text :initarg :text :reader text)))
-
-  ;; sometimes the type of the tm matters
-  (define-condition wrong-tm-type (error)
-    ((text :initarg :text :reader text)))
-  
-  (define-condition mount-fail (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition missing-tm-type (error)
-    ((text :initarg :text :reader text)))
-
-
 ;;--------------------------------------------------------------------------------
 ;; tm decl only implementations
 ;;
-
-  (define-condition attempt-to-copy-solo-machine (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition destructive-op-on-nd-machine (error)
-    ((text :initarg :text :reader text)))
-  
-
-  ;; tape machine is read only, but someone tried to write to it..
-  (define-condition tm-read-only (error)
-    ((text :initarg :text :reader text)))
-
-  ;; tape machine is write only, but someone tried to write to it..
-  ;; (for example for the front end of a pipe)
-  (define-condition tm-write-only (error)
-    ((text :initarg :text :reader text)))
-
   (define-condition step-from-rightmost (error)
     ((text :initarg :text :reader text)))
 
@@ -88,26 +38,10 @@ See LICENSE.txt
   (define-condition alloc-fail (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition spill-not-supported (error)
-    ((text :initarg :text :reader text)))
-
-  ;; alloc and dealloc on arrays, as examples
-  (define-condition not-supported (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition dealloc-on-void (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition access-void (error)
-    ((text :initarg :text :reader text)))
-
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 
   (define-condition dealloc-collision (error)
-    ((text :initarg :text :reader text)))
-
-  (define-condition malformed-entanglements (error)
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
@@ -123,27 +57,7 @@ See LICENSE.txt
   ;; the head is parked, but someone tries to read or write through it
   (define-condition parked-head-use (error)
     ((text :initarg :text :reader text)))
-
-
-
  
-
-;;--------------------------------------------------------------------------------
-;; tm-derived
-;;
-  ;; used with r-index and derivatives
-  ;; the head can not be off the tape
-  (define-condition read-beyond-rightmost (error)
-    ((text :initarg :text :reader text)))
-
-  ;; this is the default behavior for attempting to step into a non-sequence
-  (define-condition cant-si (error)
-    ((text :initarg :text :reader text)))
-
-  ;; nothing has been allocated at this location
-  (define-condition no-such-location (error)
-    ((text :initarg :text :reader text)))
-
 
 ;;--------------------------------------------------------------------------------
 ;; dataflow

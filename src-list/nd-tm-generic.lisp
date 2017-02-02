@@ -16,37 +16,6 @@ functions.
 
 
 ;;--------------------------------------------------------------------------------
-;; leftmost read and write
-;;
-  (def-function-class r◧ (tm &optional ➜)
-    (:documentation
-      "Read leftmost.
-      "
-      ))
-
-  (defun-typed r◧ ((tm nd-tape-machine) &optional ➜)
-    (declare (ignore ➜))
-    (with-mk-entangled tm
-      (λ(tm1)
-        (cue-leftmost tm1)
-        (r tm1) 
-        )))
-
-  (def-function-class w◧ (tm instance &optional ➜)
-    (:documentation
-      "Write leftmost.
-      "
-      ))
-
-  (defun-typed w◧ ((tm nd-tape-machine) instance &optional ➜)
-    (declare (ignore ➜))
-    (with-mk-entangled tm
-      (λ(tm1)
-        (cue-leftmost tm1)
-        (w tm1 instance) 
-        )))
-
-;;--------------------------------------------------------------------------------
 ;; stepping with a boundary, boundaries are inclusive
 ;;
   ;; although we don't make any copies in this function, we do have two tape
@@ -110,3 +79,23 @@ functions.
           (cue-rightmost tm1)
           (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
           ))))
+
+;;--------------------------------------------------------------------------------
+;; entanglement
+;;
+  (def-function-class with-mk-entangled (tm λ-body)
+    (:documentation
+      "Calls continuation with a locally scoped entangled copy of tm.
+         "))
+
+  ;; this becomes more interesting when we have entanglement accounting
+  (defun-typed with-mk-entangled
+    (
+      (tm0 nd-tape-machine)
+      λ-body
+      )
+    (let(
+          (tm1 (mk (type-of tm0) tm0))
+          )
+      [λ-body tm1]
+      ))

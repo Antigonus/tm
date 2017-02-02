@@ -62,6 +62,59 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
+  (defun-typed r◧ ((tm list-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        )
+      ➜
+      [➜ok (car (tape tm))]
+      ))
+
+  (defun-typed esr◧ ((tm list-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (cdr (tape tm))
+        [➜ok (cadr (tape tm))]
+        [➜rightmost]
+        )))
+
+  (defun-typed w◧ ((tm list-tm) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (setf (car (tape tm)) instance)
+      [➜ok]
+      ))
+
+  (defun-typed esw◧ ((tm list-tm) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜rightmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (cdr (head tm))
+        (progn
+          (setf (cadr (tape tm)) instance)
+          [➜ok]
+          )
+        [➜rightmost]
+        )))
+
+
+
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
@@ -137,3 +190,31 @@ See LICENSE.txt
       ➜
       (if (¬ (cdr (head tm))) [➜t] [➜∅])
       ))
+
+;;--------------------------------------------------------------------------------
+;; length-tape
+;;
+  (defun-typed tape-length-is-one ((tm list-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if (cdr (tape tm)) [➜t] [➜∅])
+      ))
+
+  (defun-typed tape-length-is-two ((tm list-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if 
+        (∧ (cdr (tape tm)) (cddr (tape tm)))
+        [➜t] [➜∅]
+        )))
+      

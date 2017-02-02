@@ -36,6 +36,7 @@ See LICENSE.txt
 ;;
   (defun cant-happen () (error 'impossible-to-get-here))
   (defun alloc-fail () (error 'alloc-fail)) ;; for memory allocation failure
+  (defun not-implemented () (error 'not-implemented)) ;; for memory allocation failure
 
   ;; status related
   (defun operation-on-abandoned () (error 'operation-on-abandoned))

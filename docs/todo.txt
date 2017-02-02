@@ -70,3 +70,11 @@ copy to new list doe snot have the problem and it is also transactional
 37. scoped form of mk.  See implementation/status.txt
 
 38. split, split machine in half
+
+39. moved r◧, w◧ from nd-tm to tm. Added some other left of the tape operators, and one
+next to the left of tape operators.  Need to propagate these through to the transforms.
+Also, do the quantified ops need to be propagated into, at least, the identity transform.
+
+40. breakup/breakout ea-entanglment routines into eather ea-decl or ea-generic
+
+41. nil write on d&parked&length-one -- should make empty be a machine specific routine?
