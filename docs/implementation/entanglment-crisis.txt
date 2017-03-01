@@ -1,0 +1,52 @@
+
+Currently entanglement accounting is done by a machine that inherits from solo and nd.
+The solo, nd, and entangled machines guarantee structural integrity. Part of this is
+that the head is always on a cell.
+
+Status is currently implemented as a transform. Hence a status machine wraps another
+machine.  Status does not change the base machine.  This creates a contradiction, as a
+status machine can be empty, but a base machine must always have the head on some cell.
+To resolve this, the transform just creates the appearence of the base machine being
+empty. Rather than deleting the last cell of the base machine, the transform simply does
+not access it while saying that the tape is 'empty'.  But, then the unused base machine
+head that is sitting on this last cell will be entangled with other machines that share
+the base machine's tape. They could read the place keeper cell and get a value.  But
+then, are these entangled machines also owned by status machines?
+
+I considered alternate status transform implementations.  For example one that deleted the
+base machine when it became empty.  Having been deleted the empty machine would not mess
+up the entanglement accounting for other entangled machines. Ah, but the other machines
+must be empty also.  But what if they are not status machines?  Also when bringing back
+the machine by adding a cell, we have to bring back all the entangled machines.
+
+Another problem with deleting the machine when the last cell is deleted, is that we must
+then pay for the tear-down upon deletion of the last cell, and then wait and pay for
+construction of the base machine at the time the first instance is written, rather than at
+the time the status machine is created.  In order to move the cost of creation to the time
+of status machine creation, etc.  I considered keeping an empty head field in the base
+machine, but this violated the integrity constraint.
+
+A later step is to add a manager for co-ordinating threads of execution.  Accordingly
+machines would post events or listen for events.  We would also be able to query the
+manager to find out 'what is going on'.  I wonder if the manager can also perform the
+entanglement accounting. .. seems that 
+
+The entangled list can be generalized to a 'tape group'.  
+
+If we add the tape interface to the manager, the manager becomes a sort of multi-base
+transform.  We can give it a tape interface with an extra manager parameter.  However, the
+manager would have to use some sort of lookup to find information associated with the
+machine.  On each call. Ouch.  Instead of proving the tape machine, one provides an
+index into a context array ..  so the manager is used for allocating machines, and
+a tmid.  
+
+Flipping it over .. if each tape machine keeps a reference to the manager and to its
+context in the manager, the the machine can inform the manager of events, or ask
+permission for operations, such as deleting a cell.  Permission would be a predicate
+passed to the manager.  The predicate would be called with the listener list for the
+event.  This would have to be a 'manager aware' tape machine.
+
+---> manager does allocation, returns id, permission predicates built into the manager,
+event listener lists ..  keeps track of threads
+
+

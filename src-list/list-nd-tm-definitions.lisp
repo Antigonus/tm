@@ -16,16 +16,17 @@ See LICENSE.txt
     (
       (tm0 list-nd-tm)
       (tm1 list-nd-tm)
+      &optional ➜
       )
     (destructuring-bind
       (&key
-        (:➜t (be t))
-        (:➜∅ (be ∅))
+        (➜t (be t))
+        (➜∅ (be ∅))
         &allow-other-keys
         )
       ➜
-      (if (eq (tape tm0) (tape tm1) [➜t] [➜∅]))
-    )
+      (if (eq (tape tm0) (tape tm1)) [➜t] [➜∅])
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; head location

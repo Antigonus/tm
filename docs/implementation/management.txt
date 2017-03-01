@@ -1,0 +1,49 @@
+how management works
+
+
+event station
+1. associate lambdas with events
+    1. same thread or separate thread option
+
+2. receive event / turn event on or off
+    0. transient event, trips whatever is already waiting if anything, then disappears
+    1. single event consumed when lambad fired
+    2. event counted, and counted decremented when event is consumed
+    3. event toggled with set and clear
+    4. event forever (such as the 'even-station-open' event
+
+an event is list, the head of the list is a symbol
+
+
+manager services: 
+
+1. make managed machine
+
+   make given machine type, like mk
+   Upon a request to allocate, the manager provides a satellite machine.  mtm managed tape
+    machine.
+
+   make new machine, or make entangled machine
+
+   entanglement list uses weak pointers cleaned up by finalizers
+
+2. keeps address of head - an integer
+3. collision detection
+4. tape machine status
+    - adds continuations for status changes
+
+    abandoned
+    locked
+    empty
+    active
+    
+
+
+
+If we put all associated state in tape machine so that deallocation becomes unnecessary.
+The shared mentanglements list uses weak pointers with finalizers.
+
+
+
+
+

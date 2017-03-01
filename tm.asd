@@ -61,7 +61,6 @@ See LICENSE.txt
                                ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-type")
                                (:file "nd-tm-decl-only")
-                               (:file "nd-entanglement")
                                (:file "nd-tm-generic") 
 
                                (:file "nd-tm-quantified")

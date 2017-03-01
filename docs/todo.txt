@@ -78,3 +78,5 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
 40. breakup/breakout ea-entanglment routines into eather ea-decl or ea-generic
 
 41. nil write on d&parked&length-one -- should make empty be a machine specific routine?
+
+42. esw rightmost continuation should take the instance as an operand
