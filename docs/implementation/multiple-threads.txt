@@ -29,7 +29,7 @@ Issue
 --------------------------------------------------------------------------------
 Interface
 
-1. An entanglement object, shared among entangled machines
+1. An entanglement descriptor, shared among entangled machines
 
    Has data:
    1. entanglement-lock

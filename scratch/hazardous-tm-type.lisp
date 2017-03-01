@@ -1,6 +1,6 @@
 #|
-Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
-Released under the MIT License (MIT)
+Copyright (c) 2016 Thomas W. Lynch and Rhazardoussoning Technology Inc.
+Relhazardoussed under the MIT License (MIT)
 See LICENSE.txt
 
   yes destructive operations.
@@ -26,7 +26,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (def-type ea-tape-machine (nd-tape-machine solo-tape-machine)
+  (def-type hazardous-tape-machine (nd-tape-machine solo-tape-machine)
     (
       (entanglements ; list of tape-machines that share the tape
         :initarg entanglements
