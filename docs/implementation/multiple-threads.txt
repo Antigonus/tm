@@ -1,30 +1,66 @@
 
+Entangled Machines and Cell Deletion:
+
+   In general among entangled machines we can not use one machine to delete the cell the
+   head is on in another machine, because that would break the other machine.
+
+   In a multithreaded environment we can't allow head motion on machines in other threads
+   while deleting a cell because one of those other threads might step to be on the cell
+   that is being deleted.
+
+   Status machines keep an address, we also have to update addresses after a deletion or ,
+   adding a new cell - and heads on cells with affected addresses must be synchronized
+   while doing this.  (The simplest is to not allow them to move.
+
+   The head motion functions are:
+   s - step
+   cue-leftmost
+   cue-rightmost
+   cue-to (available between entangled machines)
+
+   Issue
+
+     Suppose n machines are sharing a tape, and an entanglement list.
+
+     Then it will be the case that the entanglement list has n entries, as it will have exactly
+     one reference for each of the n machines.
+
+     Now suppose that deallocate is called on one of the entangled machines.  We want to check
+     for collisions with the other entangled machines, then
+
+     1.
+       If we are not in a multithreaded environment, then all the other
+       machines will remain stationary while we check for collisions.
+       Such a check will get an accurate result.
+
+     2.
+       If we do not implement locks, and we are in a multithreaded environment,
+       either a true multithreaded environment, or an emulated one, then
+       the other machines might move during the collision check, and we might
+       get the wrong answer.
+
+     It follows from point 2 above that to support use of containers that share tapes over
+     multiple threads, we will require some sort of locking so that a machine can not move and
+     become a collision after it was checked and found not to be colliding.
+
+
 --------------------------------------------------------------------------------
-Issue
+Algorithm I
+--------------------------------------------------------------------------------
 
-  Suppose n machines are sharing a tape, and an entanglement list.
+The solution here is have a common mutual exclusion lock for accessing the entanglements
+list and for head motion.  Thus as the entanglements list is read, no head can be moving.
 
-  Then it will be the case that the entanglement list has n entries, as it will have exactly
-  one reference for each of the n machines.
+Accordingly before entering a head motion function we must acquire the entanglements
+list mutex - even when no cell deletion operation is pending.  If any cell deletion
+operation is invoked, it will block until the head motion operation finishes.
 
-  Now suppose that deallocate is called on one of the entangled machines.  We want to check
-  for collisions with the other entangled machines, then
+Disadvantage of this algorithm is that head motion functions serialize, even when
+there is no cell deletion.
 
-  1.
-    If we are not in a multithreaded environment, then all the other
-    machines will remain stationary while we check for collisions.
-    Such a check will get an accurate result.
-
-  2.
-    If we do not implement locks, and we are in a multithreaded environment,
-    either a true multithreaded environment, or an emulated one, then
-    the other machines might move during the collision check, and we might
-    get the wrong answer.
-
-  It follows from point 2 above that to support use of containers that share tapes over
-  multiple threads, we will require some sort of locking so that a machine can not move and
-  become a collision after it was checked and found not to be colliding.
-
+--------------------------------------------------------------------------------
+Algorithm II
+--------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
 Interface
@@ -123,6 +159,137 @@ Examples:
   entanglement-use is set, so they queue up.  While we are waiting another entanglement use
   function desires to run, so it queues up too.  Eventually we acquire the lock, do
   our work etc.
+
+--------------------------------------------------------------------------------
+disadvantages of Algorithm II
+
+  The head motion functions still serialize for purposes of incrementing and
+  decrementing the head  motion counter.  Head motion is typically a simple
+  operation, so it is not clear that adding this overhead doesn't cause
+  Algorithm II to become slower than algorithm I.
+
+
+--------------------------------------------------------------------------------
+Algorithm III
+--------------------------------------------------------------------------------
+
+  Upon entering a cell deletion function we acquire a mutex lock shared among entangled
+  threads, and specific to cell deletion functions. (The so called cell-deletion mutex)
+  Thus we can not have more than one cell delete active simultaneously.
+
+  Upon entering a head motion function, we check to see if the cell deletion
+  mutex lock is set.  If it is, then we block until the condition that it is
+  cleared.
+
+  Upon entering a head motion function, and passing the above check, we increment a
+  counter common to all entangled threads.  Upon leaving a head motion function we
+  decrement the counter.  We must acquire the counter lock for incrementing or
+  decrementing.
+  (same to or similar to Algorithm II)
+  
+--------------------------------------------------------------------------------
+Algorithm IV
+--------------------------------------------------------------------------------
+
+  Each machine has its own 'head motion flag'.  Upon entering a head motion
+  function the flag is set, and upon leaving it the flag is cleared.
+
+  Upon entering a head motion function we check that cell delete mutex is
+  set, if so we wait for a condition to tell us that it is clear.  Otherwise
+  we proceed without stopping.
+
+  Upon entering a cell delete function, we acquire the cell delete mutex.
+  We then use the entanglments list to check all of the head motion flags,
+  and poll until they are all clear ...
+
+
+--------------------------------------------------------------------------------
+Algorithm V  - events
+--------------------------------------------------------------------------------
+
+Each entangled machine exists on a single thread.  Though different machines in the
+entanglement group may be on different threads, each individual machine is on one thread.
+Hence, there can only be one command call at any given time per thread. For this reason we
+can characterize the activity state of each machine as: other, moving the head, or deleting
+a cell.  Lets call these activity states.
+
+Enter a state, or leaving a state is an event.
+
+A machine can not enter a 'moving the head' state if another machine is in the deleting
+a cell state, and there is a chance for a collision.  If there is a chance for a collision
+the head moving function is placed on a listener list, listening for the other machine
+leave the 'deleteing a cell'  state.
+
+We want to be fair, ...
+
+--------------------------------------------------------------------------------
+Algorithm VI - journaliing
+--------------------------------------------------------------------------------
+
+Journaling ... we fill a command buffer for the entanglement group.  (A command is a
+function name and arguments for that function).  We complete the prior command buffer
+before moving to the next one.  Just before executing the next command buffer
+We examine the current machine states for the entanglement group and the commands
+in the command buffer, to determine if there is a deletion collision.  We can
+use a sliding window instead of fixed length buffers..
+
+--------------------------------------------------------------------------------
+Algorithm VII - address resonance
+--------------------------------------------------------------------------------
+
+Suppose we know the address(es) of cell(s) that are being deleted.  Then cell motion
+routines can check that they didn't/don't step on this (these) addresses, and block
+until the address space is adjusted (as part of the cell deletion).  However,
+we need to synchronize...
+
+--------------------------------------------------------------------------------
+Algorithm VIII - regions
+--------------------------------------------------------------------------------
+
+Perhaps if we introduce 'tape regions' and serialize in the region where a deletion is to
+occur ... i.e. some sort of locality concept.  Each region then has its own accounting.
+.. the generic sn function might be modified by a specialization to simply add n to the
+current head address, instead of stepping n times.  This particular head motion routine
+would stress the concept of locality.
+
+--------------------------------------------------------------------------------
+Algorithm VIX - locality
+--------------------------------------------------------------------------------
+
+Say we have a very very long tape, and cell motion occurs at one end, and deletion at the
+other.  'long' in this context means that head movement can't occur quickly enough to
+cause a problem.  This means we have to consider computation time.  But in a truly
+multi-threaded system, some threads can get swapped out, so estimating computation time
+would not be useful.
+
+If we block head motion by setting a flag, those head motion routines that did not
+see the flag set upon entry will continue to run.  If it were not for sn, those
+could step by at most one cell.  Hence only head motion for the left neighbor of
+a cell to be deleted would be a problem.  If it were not for the possiblility of
+a thread being swapped out, and due to functions masquerading as tape machines, we
+might assume that the head motion routines would finish quickly.
+
+
+
+--------------------------------------------------------------------------------
+serialization
+--------------------------------------------------------------------------------
+
+This appears to be a fundamental limitation: if stepping a machine is of similar
+complexity as controlling a mutix to increment and decrement a counter, which for the
+conventional machines it is, then there is no way to avoid serialization on head movement
+between machines in an entanglement group.  It either serializes on the heads in flight
+counter, or serializes on a head motion lock.  So we might as well use the simplest
+solution and use only one lock and serialize head motion and entanglment accounting.
+As this is the simplest solution it is also a good candidate for a reference design.
+
+
+
+
+
+
+
+
 
 
 

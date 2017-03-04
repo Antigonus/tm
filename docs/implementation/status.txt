@@ -7,9 +7,7 @@ Simultaneous operation on the Base Machine
   is parked. That would change the definition of what is the rightneighbor of the head.
 
   Then suppose that the user has an entangled copy of the base machine?  Then the user
-  could delete cells.  Though if he/she tried to delete the cell the head is on, he/she
-  would get a collision error.  So having an entangled copy of the base machine appears
-  safe.
+  can add cells to an empty machine, but the status would still be empty.
 
   Perhaps init should make an entangled copy, then the user would never even see
   the base machine, so he/she would not be able to operate on it.  However, how

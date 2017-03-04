@@ -79,12 +79,6 @@ See LICENSE.txt
                                (:file "list-solo-tm-definitions")
 
                                ;; includes destructive functions, and entangled copy functions
-                               (:file "ea-tm-type")
-                               (:file "ea-entanglement")
-                               (:file "ea-tm-generic")
-
-                               (:file "list-ea-tm-type")
-                               (:file "list-ea-tm-mk")
 
 ;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
@@ -115,6 +109,17 @@ See LICENSE.txt
                  :components (
                                (:file "identity")
                                ))
+
+               (:module "src-second-order"
+                 :components (
+                               (:file "status-type")
+                               (:file "status-definitions")
+                               (:file "status-abandoned")
+                               (:file "status-empty")
+                               (:file "status-parked")
+                               (:file "status-active")
+                               ))
+
 
                (:module "test-tr"
                 :components (

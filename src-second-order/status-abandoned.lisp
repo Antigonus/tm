@@ -4,31 +4,31 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
 We never make abandoned machines, rather managed machines are change classed
-to this type after they are deallocated.
+to this type after they are deallocated.  This might happen in a finalizer
+for a weak pointer, for example.  Or in a scopped allocation operation.
 
-An abandoned machine is one that the programmer requested of the manager
-to deallocate.  Once a managed tm is deallocated, it should not be used. Hence
-here all methods throw an error 'operation-on-abandoned'.
+It is a program bug to use an abandoned machine.  We currently only provide 
+continuations for 
 
 |#
 
 (in-package #:tm)
 
-;;--------------------------------------------------------------------------------
-;; a specialization
-;;
-  (def-type abandoned-mtm (managed-tm))
+(defmacro def-abandoned-1 (f &rest args)
+  `(defun-typed ,f ((tm status-abandoned) ,@args &optional ➜)
+     (declare (ignore ,@args ➜))
+     (operation-on-abandoned)
+     )
+  )
 
 ;;--------------------------------------------------------------------------------
-;; accessing data
+;; status-tm definitions
 ;;
-  (defmacro def-abandoned-1 (f &rest args)
-    `(defun-typed f ((tm abandoned-mtm) ,@args &optional ➜)
-       (declare (ignore ,@args))
-       (operation-on-abandoned)
-       )
-    )
+  (def-abandoned-1 park)
 
+;;--------------------------------------------------------------------------------
+;; tm-decl-only
+;;
   (def-abandoned-1 r)
   (def-abandoned-1 esr)
   (def-abandoned-1 w instance)
@@ -44,7 +44,7 @@ here all methods throw an error 'operation-on-abandoned'.
   (def-abandoned-1 on-rightmost)
 
 ;;--------------------------------------------------------------------------------
-;;tm-generic
+;; tm-generic
 ;;
   (def-abandoned-1 cue-rightmost)
   (def-abandoned-1 as instance) 
@@ -57,18 +57,18 @@ here all methods throw an error 'operation-on-abandoned'.
   (def-abandoned-1 a◧ instance)
   (defun-typed d
     (
-      (tm abandoned-mtm)
+      (tm status-abandoned)
       &optional spill ➜
       )
-    (declare (ignore tm))
+    (declare (ignore tm spill ➜))
     (operation-on-abandoned)
     )
   (defun-typed d◧
     (
-      (tm abandoned-mtm)
+      (tm status-abandoned)
       &optional spill ➜
       )
-    (declare (ignore tm))
+    (declare (ignore tm spill ➜))
     (operation-on-abandoned)
     )
 
@@ -76,33 +76,53 @@ here all methods throw an error 'operation-on-abandoned'.
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
-  (defun-typed heads-on-same-cell
+  (defun-typed entangled
     (
-      (tm0 abandoned-mtm)
-      (tm1 abandoned-mtm)
+      (tm0 status-abandoned)
+      (tm1 tape-machine)
       &optional ➜
       )
-    (declare (ignore tm0 tm1))
+    (declare (ignore tm0 tm1 ➜))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed entangled
+    (
+      (tm0 tape-machine)
+      (tm1 status-abandoned)
+      &optional ➜
+      )
+    (declare (ignore tm0 tm1 ➜))
     (operation-on-abandoned)
     )
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 abandoned-mtm)
+      (tm0 status-abandoned)
+      (tm1 status-abandoned)
+      &optional ➜
+      )
+    (declare (ignore tm0 tm1 ➜))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed heads-on-same-cell
+    (
+      (tm0 status-abandoned)
       (tm1 tape-machine)
       &optional ➜
       )
-    (declare (ignore tm0 tm1))
+    (declare (ignore tm0 tm1 ➜))
     (operation-on-abandoned)
     )
 
   (defun-typed heads-on-same-cell
     (
       (tm0 tape-machine)
-      (tm1 abandoned-mtm)
+      (tm1 status-abandoned)
       &optional ➜
       )
-    (declare (ignore tm0 tm1))
+    (declare (ignore tm0 tm1 ➜))
     (operation-on-abandoned)
     )
 
@@ -111,11 +131,11 @@ here all methods throw an error 'operation-on-abandoned'.
 ;;
   (defun-typed s≠ 
     (
-      (tm0 abandoned-mtm)
-      (tm1 abandoned-mtm)
+      (tm0 status-abandoned)
+      (tm1 status-abandoned)
       &optional ➜
       )
-    (declare (ignore tm0 tm1))
+    (declare (ignore tm0 tm1 ➜))
     (operation-on-abandoned)
     )
 
@@ -126,7 +146,7 @@ here all methods throw an error 'operation-on-abandoned'.
 ;;
   (defun-typed with-mk-entangled
     (
-      (tm0 abandoned-mtm)
+      (tm0 status-abandoned)
       continuation
       )
     (declare (ignore tm0 continuation))

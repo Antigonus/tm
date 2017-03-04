@@ -20,12 +20,17 @@ new tape machine implementation to specialize them.
 
   ;; step does not move forward from rightmost, rather takes the rightmost continuation
   (defun-typed cue-rightmost ((tm tape-machine) &optional ➜)
-    (declare (ignore ➜))
-    (labels(
-             (work() (s tm {:➜ok #'work :➜rightmost (be t)}))
-             )
-      (work)
-      ))
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (labels(
+               (work() (s tm {:➜ok #'work :➜rightmost ➜ok}))
+               )
+        (work)
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
