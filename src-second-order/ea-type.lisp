@@ -9,30 +9,15 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-(def-type entanglment-descriptor ()
-  (
-    entanglement-lock
-    counter-lock
-    counter-condition
-    entanglements
-    ))
-  
-(defun use-entanglments ( (ed entanglement-descriptor) work)
-  )
-
-(defun use-head-motion ( (ed entanglement-descriptor) work)
-  )
-
-
 (def-type ea-tm (status-tm)
   (
     (entanglements ; an solo list of machines in this entanglement group
-      :initarg :ed
-      :accessor ed
+      :initarg :entanglements
+      :accessor entanglements
       )
     ))
 
-(def-type abandoned-ea (ea-tm))
-(def-type active-ea (ea-tm))
-(def-type empty-ea (ea-tm))
-(def-type parked-ea (ea-tm))
+(def-type abandoned-ea (status-abandoned))
+(def-type active-ea (status-active))
+(def-type empty-ea (status-empty))
+(def-type parked-ea (status-parked))

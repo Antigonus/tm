@@ -89,19 +89,14 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  ;; adding a cell to an empty machine will cause it to be parked
-  ;; 
+  ;; adding a cell to an empty machine as the same as adding a cell to 
+  ;; leftmost from an empty machine
+  ;; specialized types may depend on this synonym being present, and thus not
+  ;; implement their own #'a
+  ;;
     (defun-typed a ((tm status-empty) instance &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok (be t))
-          &allow-other-keys
-          )
-        ➜
-        (w (base tm) instance)
-        (change-class tm 'status-parked)
-        [➜ok]
-        ))
+      (a◧ tm instance ➜)
+      )
 
   (defun-typed on-leftmost ((tm status-empty) &optional ➜)
     (destructuring-bind
@@ -162,7 +157,7 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-empty) instance &optional ➜)
+  (defun-typed a◧ ((tm status-empty) instance &optional ➜) 
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -170,7 +165,7 @@ belonging to a machine that has a parked head.
         )
       ➜
       (w (base tm) instance)
-      (change-class tm 'status-active)
+      (change-class tm 'status-parked)
       [➜ok]
       ))
         
