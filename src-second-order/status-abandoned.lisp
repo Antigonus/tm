@@ -43,6 +43,9 @@ continuations for
   (def-abandoned-1 on-leftmost)
   (def-abandoned-1 on-rightmost)
 
+  (def-abandoned-1 tape-length-is-one)
+  (def-abandoned-1 tape-length-is-two)
+
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;

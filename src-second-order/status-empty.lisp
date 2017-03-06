@@ -120,6 +120,27 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
 
+  (defun-typed tape-length-is-one ((tm status-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+      
+  (defun-typed tape-length-is-two ((tm status-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+
+
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;

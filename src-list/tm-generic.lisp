@@ -18,7 +18,6 @@ new tape machine implementation to specialize them.
       "Cue tm's head to the rightmost cell."
       ))
 
-  ;; step does not move forward from rightmost, rather takes the rightmost continuation
   (defun-typed cue-rightmost ((tm tape-machine) &optional ➜)
     (destructuring-bind
       (&key

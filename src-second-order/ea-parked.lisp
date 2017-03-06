@@ -17,6 +17,7 @@ See LICENSE.txt
         )
       ➜
       (change-class tm 'status-active)
+      ;; address is already 0, and (base tm) already on leftmost, by convention
       [➜ok]
       ))
 
@@ -33,18 +34,20 @@ See LICENSE.txt
       ➜
       (cue-rightmost (base tm)
         {
-          :➜ok (λ()(change-class tm 'status-active) [➜ok])
+          :➜ok (λ()
+                 (change-class tm 'status-active)
+                 (setf (address tm) (address-rightmost tm))
+                 [➜ok]
+                 )
+          (o (remove-key-pair ➜ :➜ok))
           }
         )))
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
+  ;; see ea-definitions for a◧
 
-  ;; must cue-leftmost all in entanglement group
-  ;; must update addresses
-  (defun-typed a◧ ((tm status-parked) instance &optional ➜) (a◧ (base tm) instance ➜))
+  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
 
-
-  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ (base tm) spill ➜))
-  (defun-typed d◧ ((tm status-parked) &optional spill ➜) (d◧ (base tm) spill ➜))
+                    

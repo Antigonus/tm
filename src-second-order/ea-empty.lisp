@@ -30,7 +30,9 @@ check that we correctly update addresses
           )
         ➜
         (w (base tm) instance)
-        (active-all tm)
+        (cue-leftmost (entanglements tm))
+        (∀* (entanglements tm) (λ(es) (change-class (r es) 'status-parked)))
+        (change-class tm 'status-active)
         [➜ok]
         ))
 
@@ -45,6 +47,7 @@ check that we correctly update addresses
         )
       ➜
       (w (base tm) instance)
-      (park-all tm)
+      (cue-leftmost (entanglements tm))
+      (∀* (entanglements tm) (λ(es) (change-class (r es) 'status-parked)))
       [➜ok]
       ))

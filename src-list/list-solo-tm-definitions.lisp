@@ -21,6 +21,11 @@ See LICENSE.txt
       [➜ok]
       ))
 
+  (defun-typed update-tape-after-a◧ ((tm list-solo-tm) (tm-ref list-solo-tm))
+    (setf (tape tm) (tape tm-ref))
+    )
+
+
 ;;--------------------------------------------------------------------------------
 ;; cell deallocation
 ;;

@@ -26,6 +26,20 @@ See LICENSE.txt
   by just keeping the base machine around with a single cell (that as the last action we
   wrote nil to). 
 
+  We adopt a convention that, for a parked status-tm, the head of the base machine will be
+  on leftmost.
+
+Currently these are supported status:
+
+abandoned
+parked
+empty
+active
+
+There is no function on the tm interface that can be called to change the status
+of an active machine.  'delete' of the last cell, for example, will result in 
+a collision error.  Hence behavior is inherited from the identity transform.
+
 
 |#
 
@@ -36,6 +50,14 @@ See LICENSE.txt
     (base ; the machine being managed
       :initarg :base
       :accessor base
+      )
+    (address ; an integer address locating the head
+      :initarg :address
+      :accessor address
+      )
+    (address-rightmost ; address of the rightmost cell
+      :initarg :address-rightmost
+      :accessor address-rightmost
       )
     ))
 
