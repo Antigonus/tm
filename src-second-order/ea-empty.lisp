@@ -11,6 +11,8 @@ check that we correctly update addresses
 
 |#
 
+(in-package #:tm)
+
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
@@ -22,7 +24,7 @@ check that we correctly update addresses
   ;; adding a cell to an empty machine will cause it to be parked, then stepping
   ;; one to the right will cause it to be active with the head on leftmost
   ;;
-    (defun-typed as ((tm status-empty) instance &optional ➜)
+    (defun-typed as ((tm ea-empty) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -31,15 +33,15 @@ check that we correctly update addresses
         ➜
         (w (base tm) instance)
         (cue-leftmost (entanglements tm))
-        (∀* (entanglements tm) (λ(es) (change-class (r es) 'status-parked)))
-        (change-class tm 'status-active)
+        (∀* (entanglements tm) (λ(es) (to-parked (r es))))
+        (to-active tm)
         [➜ok]
         ))
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-empty) instance &optional ➜)
+  (defun-typed a◧ ((tm ea-empty) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -48,6 +50,6 @@ check that we correctly update addresses
       ➜
       (w (base tm) instance)
       (cue-leftmost (entanglements tm))
-      (∀* (entanglements tm) (λ(es) (change-class (r es) 'status-parked)))
+      (∀* (entanglements tm) (λ(es) (to-parked (r es))))
       [➜ok]
       ))

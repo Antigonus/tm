@@ -102,13 +102,17 @@ See LICENSE.txt
 
                               (:file "list-solo-tm-definitions")
                               (:file "solo-tm-quantified")
-                              (:file "ea-tm-generic")
                               ))
 
                (:module "src-tr"
                  :components (
                                (:file "identity")
                                ))
+
+               (:module "test-tr"
+                :components (
+                              (:file "identity")
+                              ))
 
                (:module "src-second-order"
                  :components (
@@ -118,13 +122,19 @@ See LICENSE.txt
                                (:file "status-empty")
                                (:file "status-parked")
                                (:file "status-active")
+                               (:file "ea-type")
+                               (:file "ea-definitions")
+                               (:file "ea-empty")
+                               (:file "ea-parked")
+                               (:file "ea-active")
                                ))
 
+               (:module "test-second-order"
+                 :components (
+                               (:file "status")
+                               (:file "ea")
+                               ))
 
-               (:module "test-tr"
-                :components (
-                              (:file "identity")
-                              ))
 
 #|
 

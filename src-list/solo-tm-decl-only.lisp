@@ -23,6 +23,10 @@ See LICENSE.txt
   ;; update the tape reference for the other memebers of the group.
   (def-function-class update-tape-after-a◧ (tm tm-ref))
 
+  ;; this function is private. intended to be used with entanglement accounting.
+  ;; after another machine in the entanglement group does an a◧, we need to
+  ;; update the tape reference for the other memebers of the group.
+  (def-function-class update-tape-after-d◧ (tm tm-ref))
 
 
 ;;--------------------------------------------------------------------------------

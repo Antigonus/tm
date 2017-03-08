@@ -15,6 +15,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
+        &allow-other-keys
         )
       ➜
       [➜ok (car (head tm))]

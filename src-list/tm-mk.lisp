@@ -17,7 +17,7 @@ See LICENSE.txt
   (defun-typed init
     (
       (tm tape-machine)
-      (keyed-parms cons)
+      (init-parms cons)
       &optional ➜
       )
     (destructuring-bind
@@ -29,7 +29,7 @@ See LICENSE.txt
         )
       ➜
       (destructuring-bind
-        (&key tape &allow-other-keys) keyed-parms
+        (&key tape &allow-other-keys) init-parms
         (cond
           ((∧ tape (typep tape 'sequence))
             (cue-leftmost tm)
@@ -44,45 +44,24 @@ See LICENSE.txt
           (t [➜ok tm]) ; there is no obligation to provide an initialization sequence
           ))))
 
-  (defun mk (tm-class keyed-parms &optional ➜)
+  (defun mk (tm-class init-parms &optional ➜)
     (let(
           (instance (make-instance tm-class))
           )
-      (init instance keyed-parms ➜)
+      (init instance init-parms ➜)
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; copying
 ;;  
-  (def-function-class mk-shallow-copy (tm-orig &optional ➜)
-    (:documentation
-      "Makes a new tape machine.  Initializes the tape with a copy of the tape found in
-       tm-orig.  The new tape references the same instances as the tm-orig tape.  Because it
-       has its own tape, the new machine is not entangled with the tm-orig machine.
-       "
-      ))
 
-  ;; will work for most machines
-  (defun-typed mk-shallow-copy
-    (
-      (tm-orig tape-machine)
-      &optional ➜
-      )
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜no-alloc #'alloc-fail)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm-copy (make-instance (type-of tm-orig)))
-            )
-        (as* tm-copy tm-orig
-          {
-            :➜ok (λ()[➜ok tm-copy])
-            :➜no-alloc ➜no-alloc
-            }))))
+;;--------------------------------------------------------------------------------
+;; copying
+;;  
+  ;; this is a private function used by ea-tm
+  ;; it returns an entangled copy of tm-orig
+  (def-function-class entangle (tm-orig &optional ➜))
+
 
 
 

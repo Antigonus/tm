@@ -41,7 +41,7 @@ See LICENSE.txt
   ;; status related
   (defun operation-on-abandoned () (error 'operation-on-abandoned))
   (defun use-of-empty () (error 'use-of-empty))
-  (defun parked-head-use () (error 'parked-head-use))
+  (defun access-through-parked-head () (error 'access-through-parked-head))
 
 ;;--------------------------------------------------------------------------------
 ;; pass a value in a box  (via dmitry_vk stack exchange)
@@ -86,9 +86,56 @@ See LICENSE.txt
                      (cddr l)
                      (cons key (cons val (remove-key-pair-1 (cddr l))))
                      ))
-                 (if l l ∅)
+                 l
                  ))
              )
       (remove-key-pair-1 l)
       ))
+
+
+  ;; remove multiple keys pairs.  go-away-keys are consumed as matched
+  ;; some examples:
+  ;;
+  ;; * (remove-key-pairs {:a 1 :b 2 :a 3} {:a :a})
+  ;;   (:B 2)
+  ;; * (remove-key-pairs {:a 1 :b 2 :a 3} {:a})
+  ;;   (:B 2 :A 3)
+  ;; * (remove-key-pairs {:a 1 :b 2 :a 3} {:a :a :b})
+  ;;   NIL
+  ;; * (remove-key-pairs {:a 1 :b 2 :a 3} {:b :a})
+  ;;   (:A 3)
+  ;;
+    (defun consume-key (go-away-key key-list)
+      (let(
+            (found ∅)
+            )
+        (labels(
+                 (consume-key-1 (key-list)
+                   (let(
+                         (a-key (car key-list))
+                         (rest-keys  (cdr key-list))
+                         )
+                     (cond
+                       ((eq go-away-key a-key) (setf found t) rest-keys)
+                       ((¬ rest-keys) key-list)
+                       (t (cons a-key (consume-key-1 rest-keys)))
+                       )))
+                 )
+          (values (consume-key-1 key-list) found)
+          )))
+
+    (defun remove-key-pairs (l go-away-keys)
+      (if (∧ l (cdr l))
+        (let(
+              (key (car l))
+              (val (cadr l))
+              )
+          (multiple-value-bind (pruned-go-away-keys found) (consume-key key go-away-keys)
+            (if found
+              (remove-key-pairs (cddr l) pruned-go-away-keys)
+              (cons key (cons val (remove-key-pairs (cddr l) pruned-go-away-keys)))
+              )))
+        l
+        ))
+
 

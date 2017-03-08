@@ -45,23 +45,90 @@ a collision error.  Hence behavior is inherited from the identity transform.
 
 (in-package #:tm)
 
-(def-type status-tm (identity-tr)
-  (
-    (base ; the machine being managed
-      :initarg :base
-      :accessor base
-      )
-    (address ; an integer address locating the head
-      :initarg :address
-      :accessor address
-      )
-    (address-rightmost ; address of the rightmost cell
-      :initarg :address-rightmost
-      :accessor address-rightmost
-      )
-    ))
+;;--------------------------------------------------------------------------------
+;;
+  (def-type status-tm (identity-tr)
+    (
+      (base ; the machine being managed
+        :initarg :base
+        :accessor base
+        )
+      (address ; an integer address locating the head
+        :initarg :address
+        :accessor address
+        )
+      (address-rightmost ; address of the rightmost cell
+        :initarg :address-rightmost
+        :accessor address-rightmost
+        )
+      ))
 
-(def-type status-abandoned (status-tm)())
-(def-type status-active    (status-tm)())
-(def-type status-empty     (status-tm)())
-(def-type status-parked    (status-tm)())
+  (def-type status-abandoned (status-tm)())
+  (def-type status-active    (status-tm)())
+  (def-type status-empty     (status-tm)())
+  (def-type status-parked    (status-tm)())
+
+;;--------------------------------------------------------------------------------
+;; state transition functions
+;;
+;;   these are private functions used by status code and specializations
+;;   we need these so that specialized types can change to their specialized versions for
+;;   example an ea machine will have a to-empty that goes to 'ea-empty instead of to
+;;   status-empty
+;;
+  (def-function-class to-abandoned (tm))
+  (def-function-class to-active    (tm))
+  (def-function-class to-empty     (tm))
+  (def-function-class to-parked    (tm))
+
+  (defun-typed to-abandoned ((tm status-tm)) (change-class tm 'status-abandoned))
+  (defun-typed to-active    ((tm status-tm)) (change-class tm 'status-active))
+  (defun-typed to-empty     ((tm status-tm)) (change-class tm 'status-empty))
+  (defun-typed to-parked    ((tm status-tm)) (change-class tm 'status-parked))
+
+;;--------------------------------------------------------------------------------
+;;
+  (defun-typed init
+    (
+      (tm status-tm)
+      (keyed-parms cons)
+      &optional ➜
+      )
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜fail (λ()(error 'bad-init-value)))
+        &allow-other-keys
+        )
+      ➜
+      (destructuring-bind
+        (&key base empty &allow-other-keys) keyed-parms
+        (cond
+          ;; would like to delete cells to force empty, but base may be nd
+          ;; so we enforce the rule that machines declared :empty must have only one cell
+          ((∧ base (typep base 'tape-machine) empty (tape-length-is-one tm))
+            (w base ∅)
+            (setf (base tm) base) ; should call next method and have idenity do this ..
+            (setf (address-rightmost tm) 0)
+            (setf (address tm) 0)
+            (to-empty tm)
+            [➜ok tm]
+            )
+          ((∧ base (typep base 'tape-machine))
+            (let(
+                  (ad 0)
+                  )
+              (cue-leftmost base)
+              (s base {:➜ok (λ()
+                              (∀* base (λ(base)(declare (ignore base))(incf ad)))
+                              )})
+              (setf (address-rightmost tm) ad)
+              (cue-leftmost base)
+              (setf (address tm) 0)
+              (setf (base tm) base)
+              (to-active tm)
+              [➜ok tm]
+              ))
+          (t [➜fail])
+          ))))
+

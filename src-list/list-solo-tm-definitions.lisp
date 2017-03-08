@@ -24,6 +24,9 @@ See LICENSE.txt
   (defun-typed update-tape-after-a◧ ((tm list-solo-tm) (tm-ref list-solo-tm))
     (setf (tape tm) (tape tm-ref))
     )
+  (defun-typed update-tape-after-d◧ ((tm list-solo-tm) (tm-ref list-solo-tm))
+    (setf (tape tm) (tape tm-ref))
+    )
 
 
 ;;--------------------------------------------------------------------------------

@@ -79,7 +79,7 @@ belonging to a machine that has a parked head.
 
   (defun-typed s ((tm status-empty) &optional ➜)
     (declare (ignore tm))
-    (destructering-bind
+    (destructuring-bind
       (
         &key
         (➜rightmost (be ∅))
@@ -157,7 +157,7 @@ belonging to a machine that has a parked head.
           )
         ➜
         (w (base tm) instance)
-        (change-class tm 'status-active)
+        (to-active tm)
         [➜ok]
         ))
 
@@ -186,7 +186,7 @@ belonging to a machine that has a parked head.
         )
       ➜
       (w (base tm) instance)
-      (change-class tm 'status-parked)
+      (to-parked tm)
       [➜ok]
       ))
         
@@ -292,6 +292,6 @@ belonging to a machine that has a parked head.
         )
       ➜
       (w (base tm) instance)
-      (change-class tm 'status-active)
+      (to-active tm)
       [➜ok]
       ))

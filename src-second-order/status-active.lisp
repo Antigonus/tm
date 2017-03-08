@@ -23,7 +23,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;; status-tm definitions
 ;;
   (defun-typed park ((tm status-active) &optional ➜)
-     (declare (ignore tm))
      (destructuring-bind
        (
          &key
@@ -31,41 +30,50 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (cue-leftmost (base tm))
-       (setf (address tm) 0)
-       (change-class tm 'status-parked)
-       [➜ok]
-       ))
+       (cue-leftmost (base tm)
+         {
+           :➜ok (λ()
+                  (setf (address tm) 0)
+                  (to-parked tm)
+                  [➜ok]
+                  )
+           (o (remove-key-pair ➜ :➜ok))
+           })))
 
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
   (defun-typed cue-leftmost ((tm status-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
+     (destructuring-bind
+       (
+         &key
+         (➜ok (be t))
+         &allow-other-keys
+         )
        ➜
-      (setf (address tm) 0)
-      (cue-leftmost (base tm))
-      ))
+       (cue-leftmost (base tm)
+         {
+           :➜ok (λ()
+                  (setf (address tm) 0)
+                  [➜ok]
+                  )
+           (o (remove-key-pair ➜ :➜ok))
+           })))
 
-  (defun-typed s ((tm list-tm) &optional ➜)
+  (defun-typed s ((tm status-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜rightmost (be ∅))
         &allow-other-keys
         )
       ➜
       (s (base tm)
         {:➜ok (λ()
-                (incf address)
+                (incf (address tm))
                 [➜ok]
                 )
-          :➜rightmost ➜rightmost
+          (o (remove-key-pair ➜ :➜ok))
           })))
 
   (defun-typed a ((tm status-tm) instance &optional ➜)
@@ -78,7 +86,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (a (base tm) instance
         {
           :➜ok (λ()
-                 (incf (address-rightmost (r es)))
+                 (incf (address-rightmost tm))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
@@ -109,7 +117,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm tape-machine) &optional ➜)
+  (defun-typed cue-rightmost ((tm status-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -120,11 +128,12 @@ a collision error.  Hence behavior is inherited from the identity transform.
         {
           :➜ok (λ()
                  (setf (address tm) (address-rightmost tm))
+                 [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed as ((tm tape-machine) instance &optional ➜)
+  (defun-typed as ((tm status-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -166,7 +175,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (&key
         (➜ok #'echo)
         (➜collision (λ()(error 'dealloc-collision)))
-        (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
       ➜
@@ -182,7 +190,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
             (o (remove-key-pair ➜ :➜ok))
             }))))
         
-
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
@@ -210,8 +217,9 @@ a collision error.  Hence behavior is inherited from the identity transform.
                   ))
           :➜∅ (λ()
                 [➜∅]
-                ))
-        }))
+                )
+          })))
+        
  
   (defun-typed heads-on-same-cell
     (

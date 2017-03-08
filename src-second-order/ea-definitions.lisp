@@ -7,13 +7,14 @@ See LICENSE.txt
 
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
 ;; more specific versions can be found for status-abandoned and status-empty,
 ;; so these will only apply to status-parked and status-active
 ;;
-  (defun-typed a◧ ((tm status-tm) instance &optional ➜)
+  (defun-typed a◧ ((tm ea-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -35,7 +36,7 @@ See LICENSE.txt
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed d◧ ((tm status-tm) &optional spill ➜)
+  (defun-typed d◧ ((tm ea-tm) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -49,7 +50,7 @@ See LICENSE.txt
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
             (cue-leftmost (entanglements tm))
-            (∀* (entanglements tm) (λ(es) (change-class (re es) 'status-empty)))
+            (∀* (entanglements tm) (λ(es) (to-empty (r es))))
             )
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
             (cue-leftmost (entanglements tm))
@@ -75,7 +76,7 @@ See LICENSE.txt
             (if 
               (∧
                 (typep (r es) 'status-active)
-                (= (address (r es) 0))
+                (= (address (r es)) 0)
                 )
               [ct]
               [c∅]
@@ -99,5 +100,7 @@ See LICENSE.txt
                              [➜ok]
                              )
                       (o (remove-key-pair ➜ :➜ok))
-                      }))})
+                      }))
+            })
+        )))
 

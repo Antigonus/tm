@@ -57,7 +57,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (change-class tm 'status-active)
+      (to-active tm)
       [➜ok]
       ))
 
@@ -99,7 +99,7 @@ See LICENSE.txt
       ➜
       (cue-rightmost (base tm)
         {
-          :➜ok (λ()(change-class tm 'status-active) [➜ok])
+          :➜ok (λ()(to-active tm)[➜ok])
           }
         )))
   
@@ -182,9 +182,8 @@ See LICENSE.txt
       (tm1 status-parked)
       &optional ➜
       )
-    (destructing-bind
-      (
-        &key
+    (destructuring-bind
+      (&key
         (➜rightmost (be ∅))
         &allow-other-keys
         )

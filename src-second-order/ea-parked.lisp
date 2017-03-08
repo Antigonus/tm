@@ -6,17 +6,19 @@ See LICENSE.txt
 
 |#
 
+(in-package #:tm)
+
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed cue-leftmost ((tm status-parked) &optional ➜)
+  (defun-typed cue-leftmost ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (change-class tm 'status-active)
+      (to-active tm)
       ;; address is already 0, and (base tm) already on leftmost, by convention
       [➜ok]
       ))
@@ -25,7 +27,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm status-parked) &optional ➜)
+  (defun-typed cue-rightmost ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -35,7 +37,7 @@ See LICENSE.txt
       (cue-rightmost (base tm)
         {
           :➜ok (λ()
-                 (change-class tm 'status-active)
+                 (to-active tm)
                  (setf (address tm) (address-rightmost tm))
                  [➜ok]
                  )
@@ -48,6 +50,6 @@ See LICENSE.txt
 ;;
   ;; see ea-definitions for a◧
 
-  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
+  (defun-typed d ((tm ea-parked) &optional spill ➜) (d◧ tm spill ➜))
 
                     
