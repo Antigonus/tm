@@ -129,7 +129,6 @@ they belong to.
     ;;
       #:mk-entangled
       #:recycle-entangled
-      #:with-mk-entangled
       #:r◧
       #:w◧
       #:s≠

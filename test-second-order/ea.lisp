@@ -11,7 +11,7 @@ See LICENSE.txt
 
 (defun test-ea-0 ()
   (let*(
-         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
          (tm1 (mk 'ea-tm {:base tm0}))
          (tm2 (entangle tm1))
          )

@@ -5,15 +5,24 @@ See LICENSE.txt
 
   Manager synchronizes operation on tape machines.
 
+  Garbage collection finalization, I might assume occurs on a separate thread, and thus
+  use of the entanglements list must be thread safe.
+
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;;
+  (def-type ent-obj-type ()
+    (
+      (lock :initarg lock :accessor lock)
+      (tm-of-entangled-tms :initarg tm-of-entangled-tms :accessor tm-of-entangled-tms) ; instances are machines that share a tape
+      ))
+
   (def-type ea-tm (status-tm)
     (
-      (entanglements ; a solo tm of machines in this entanglement group
+      (entanglements ; an instance of an ent-obj-type
         :initarg :entanglements
         :accessor entanglements
         )
@@ -50,10 +59,16 @@ See LICENSE.txt
       (call-next-method tm init-parms
         {
           :➜ok (λ(instance)
-                 (mk 'list-solo-tm {:tape {tm}}
+                 (mk 'list-haz-tm {:tape {tm}}
                    {
-                     :➜ok (λ(a-solo-tm)
-                            (setf (entanglements tm) a-solo-tm)
+                     :➜ok (λ(a-haz-tm)
+                            (let(
+                                  (ents-obj (make-instance 'ent-obj-type))
+                                  )
+                              (setf (lock ents-obj) (bt:make-lock))
+                              (setf (tm-of-entangled-tms ents-obj) a-haz-tm)
+                              (setf (entanglements tm) ents-obj)
+                              )
                             [➜ok instance]
                             )
                      :➜fail #'cant-happen
@@ -75,18 +90,32 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜  
-      (let(
-            (i (make-instance (type-of tm-orig)))
-            )
-        (a◧ (entanglements tm-orig) i
-          {
-            :➜ok (λ()
-                   (setf (base i) (entangle (base tm-orig)))
-                   (setf (entanglements i) (entanglements tm-orig))
-                   (setf (address i) (address tm-orig))
-                   (setf (address-rightmost i) (address-rightmost tm-orig))
-                   [➜ok i]
-                   )
-            (o (remove-key-pair ➜ :➜ok))
-            }))))
+      (let*(
+             (i (make-instance (type-of tm-orig)))
+             (pt-i (tg:make-weak-pointer i))
+             (ents-obj (entanglements tm-orig))
+             (tm-of-entangled-tms (tm-of-entangled-tms ents-obj))
+             (lock (lock ents-obj))
+             )
+        (bt:with-lock-held (lock)
+          (a tm-of-entangled-tms pt-i
+            {
+              :➜ok (λ()
+                     (let*(
+                            (d-pt (entangle tm-of-entangled-tms))
+                            (finalize-i (λ()
+                                          (cue-leftmost tm-of-entangled-tms)
+                                          (d d-pt) ; d can never collide with leftmost
+                                          ))
+                            )
+                       (tg:finalize i finalize-i)
+                       (setf (base i) (entangle (base tm-orig)))
+                       (setf (entanglements i) ents-obj)
+                       (setf (address i) (address tm-orig))
+                       (setf (address-rightmost i) (address-rightmost tm-orig))
+                       [➜ok i]
+                       ))
+              (o (remove-key-pair ➜ :➜ok))
+              })))))
+
 

@@ -80,3 +80,7 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
 41. nil write on d&parked&length-one -- should make empty be a machine specific routine?
 
 42. esw rightmost continuation should take the instance as an operand
+
+43. cue-leftmost / rightmost names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
+    I don't think we will have 'copy' because that would be w* with a fill.  We
+    will have move.  So c might be available.

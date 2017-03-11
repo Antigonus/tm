@@ -12,9 +12,8 @@ See LICENSE.txt
 (defun test-heads-on-same-cell-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (make-instance 'list-nd-tm))
+         (tm1 (entangle tm0))
          )
-    (init tm1 tm0)
     (∧
       (s tm0)
       (¬ (heads-on-same-cell tm0 tm1))

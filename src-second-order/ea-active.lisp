@@ -21,9 +21,12 @@ See LICENSE.txt
       (a (base tm) instance
         {
           :➜ok (λ()
-                 (cue-leftmost (entanglements tm))
-                 (∀* (entanglements tm)
-                   (λ(es)
+                 (lets(
+                        (etms (tm-of-entangled-tms (entanglements tm)))
+                        )
+                 (cue-leftmost etms)
+                 (∀* etms
+                   (λ(etms)
                      (incf (address-rightmost (r es)))
                      (when
                        (> (address (r es)) (address tm))

@@ -39,22 +39,3 @@ See LICENSE.txt
             ))
         )))
 
-;;--------------------------------------------------------------------------------
-;; copying
-;;  
-
-  ;; this is a private function used by ea-tm
-  (defun-typed entangle ((tm-orig list-tm) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm-copy (make-instance (type-of tm-orig)))
-            )
-        (setf (tape tm-copy) (tape tm-orig))
-        (setf (head tm-copy) (head tm-orig))
-        [➜ok tm-copy]
-        )))

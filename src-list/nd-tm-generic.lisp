@@ -74,28 +74,10 @@ functions.
         &allow-other-keys
         )
       ➜
-      (with-mk-entangled tm
-        (λ(tm1)
-          (cue-rightmost tm1)
-          (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
-          ))))
+      (let(
+            (tm1 (entangle tm))
+            )
+        (cue-rightmost tm1)
+        (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
+        )))
 
-;;--------------------------------------------------------------------------------
-;; entanglement
-;;
-  (def-function-class with-mk-entangled (tm λ-body)
-    (:documentation
-      "Calls continuation with a locally scoped entangled copy of tm.
-         "))
-
-  ;; this becomes more interesting when we have entanglement accounting
-  (defun-typed with-mk-entangled
-    (
-      (tm0 nd-tape-machine)
-      λ-body
-      )
-    (let(
-          (tm1 (mk (type-of tm0) tm0))
-          )
-      [λ-body tm1]
-      ))

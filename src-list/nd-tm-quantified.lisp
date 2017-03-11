@@ -32,14 +32,15 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (with-mk-entangled tm
-        (λ(tm1)
+      (let(
+            (tm1 (entangle tm))
+            )
           (sn tm1 index
             {
               :➜ok (λ()[➜ok (r tm1)])
               :➜rightmost (λ(n)[➜rightmost n])
               }
-            )))))
+            ))))
 
   (def-function-class esnw (tm index instsance &optional ➜)
     (:documentation
@@ -62,14 +63,14 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (with-mk-entangled tm
-        (λ(tm1)
+      (let(
+            (tm1 (entangle tm))
+            )
           (sn tm1 index
             {
               :➜ok (λ()(w tm1 instance {:➜ok ➜ok}))
               :➜rightmost (λ(n)[➜rightmost n])
-              }))
-        )))
+              }))))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated until end of tape operations
@@ -89,8 +90,10 @@ See LICENSE.txt
       fill
       &optional ➜
       )
-    (with-mk-entangled tm0
-      (λ(tm1) (as* tm1 fill ➜))
+    (let(
+          (tm1 (entangle tm0))
+          )
+      (as* tm1 fill ➜)
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -109,8 +112,10 @@ See LICENSE.txt
       fill
       &optional ➜
       )
-    (with-mk-entangled tm
-      (λ(tm1) (asn tm1 n fill ➜))
+    (let(
+          (tm1 (entangle tm))
+          )
+      (asn tm1 n fill ➜)
       ))
 
 

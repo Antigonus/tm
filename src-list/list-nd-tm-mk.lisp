@@ -10,28 +10,23 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; making list machines from other instances
+;; make a tm-entangled machine that shares the tape with tm-orig
 ;;
-
-  ;; the init-value as a cons cell falls back to list-tm version.
-
-  ;; This makes an entangled machine.  It is safe to do so as nd machines
-  ;; do not support destructive operations.
-  ;;
-    (defun-typed init 
-      (
-        (tm1 list-nd-tm)
-        (tm0 list-nd-tm) ; make an entangled copy of tm0
-        &optional ➜
+  (defun-typed entangle ((tm-orig list-nd-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        ;; (➜no-alloc #'alloc-fail)
+        &allow-other-keys
         )
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys          
-          )
-        ➜
-        (setf (head tm1) (head tm0))
-        (setf (tape tm1) (tape tm0))
-        [➜ok tm1]
-        ))
+      ➜  
+      (let(
+            (tm-entangled (make-instance (type-of tm-orig)))
+            )
+        (setf (head tm-entangled) (head tm-orig))
+        (setf (tape tm-entangled) (tape tm-orig))
+        [➜ok tm-entangled]
+        )))
+
+
     

@@ -51,16 +51,6 @@ See LICENSE.txt
       (init instance init-parms ➜)
       ))
 
-;;--------------------------------------------------------------------------------
-;; copying
-;;  
-
-;;--------------------------------------------------------------------------------
-;; copying
-;;  
-  ;; this is a private function used by ea-tm
-  ;; it returns an entangled copy of tm-orig
-  (def-function-class entangle (tm-orig &optional ➜))
 
 
 

@@ -31,7 +31,6 @@ See LICENSE.txt
 
   (defsynonym lambda λ)
 
-  (defsynonym defparameter defparam)
   (defsynonym defclass     def-type)
   (defsynonym defgeneric   def-function-class)
   (defsynonym defmethod    defun-typed)

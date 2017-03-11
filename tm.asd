@@ -15,7 +15,7 @@ See LICENSE.txt
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
-  :depends-on ("local-time" "trivial-garbage")
+  :depends-on ("local-time" "trivial-garbage" "bordeaux-threads")
   :serial t
   :components(
                (:module "package-def"
@@ -60,6 +60,7 @@ See LICENSE.txt
 
                                ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-type")
+                               (:file "nd-tm-mk")
                                (:file "nd-tm-decl-only")
                                (:file "nd-tm-generic") 
 
@@ -78,9 +79,10 @@ See LICENSE.txt
                                (:file "list-solo-tm-type")
                                (:file "list-solo-tm-definitions")
 
-                               ;; includes destructive functions, and entangled copy functions
+                               ;; this machine must be managed
+                               (:file "haz-tm-type")
+                               (:file "list-haz-tm-type")
 
-;;  (:file "ts-tm-def")
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")
@@ -127,6 +129,7 @@ See LICENSE.txt
                                (:file "ea-empty")
                                (:file "ea-parked")
                                (:file "ea-active")
+;;                               (:file "ts1-type")
                                ))
 
                (:module "test-second-order"

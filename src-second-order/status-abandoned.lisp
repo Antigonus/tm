@@ -144,14 +144,3 @@ continuations for
 
   (def-abandoned-1 a◨ instance)
 
-;;--------------------------------------------------------------------------------
-;; entanglement
-;;
-  (defun-typed with-mk-entangled
-    (
-      (tm0 status-abandoned)
-      continuation
-      )
-    (declare (ignore tm0 continuation))
-    (operation-on-abandoned)
-    )

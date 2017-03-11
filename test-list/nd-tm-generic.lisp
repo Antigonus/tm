@@ -12,7 +12,7 @@ See LICENSE.txt
 (defun test-mk-entangled-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (mk 'list-nd-tm tm0)) ; this is an entangled copy
+         (tm1 (entangle tm0)) ; this is an entangled copy
          )
     (∧
       (eq (tape tm0) (tape tm1))
@@ -26,16 +26,17 @@ See LICENSE.txt
 (test-hook test-mk-entangled-0)
 
 
+#| we no longer have a recycle functions .. perhaps should put it back 
 (defun test-recycle-entangled-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
          (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
-         (tm2 (mk 'list-nd-tm tm0))
+         (tm2 (entangle tm0))
          )
     (∧
       (eq (tape tm0) (tape tm2))
       (¬ (eq (tape tm1) (tape tm2)))
-      (init tm2 tm1)
+  can't do this-->      (init tm2 tm1)
       (¬ (eq (tape tm0) (tape tm2)))
       (eq (tape tm1) (tape tm2))
 
@@ -47,12 +48,13 @@ See LICENSE.txt
       (¬ (heads-on-same-cell tm1 tm2))
       )))
 (test-hook test-recycle-entangled-0)
+|#
 
 (defun test-r◧-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
          (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
-         (tm2 (mk 'list-nd-tm tm0))
+         (tm2 (entangle tm0))
          )
     (∧
       (= (r◧ tm0) 7)
@@ -66,7 +68,7 @@ See LICENSE.txt
 (defun test-s≠-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (mk 'list-nd-tm tm0))
+         (tm1 (entangle tm0))
          )
     (∧
       (sn tm0 3)
@@ -80,7 +82,7 @@ See LICENSE.txt
 (defun test-s≠-1 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (mk 'list-nd-tm tm0))
+         (tm1 (entangle tm0))
          )
     (∧
       (s tm1)
@@ -94,7 +96,7 @@ See LICENSE.txt
 (defun test-a◨ ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (mk 'list-nd-tm tm0))
+         (tm1 (entangle tm0))
          )
     (∧
       (a◨ tm1 13)
