@@ -26,7 +26,7 @@ See LICENSE.txt
       (= (park tm1 {:➜ok (be 11)}) 11)
       (typep tm1 'status-parked)
       (= (r tm1 {:➜parked (be 21) :➜ok (be 22)}) 21)
-      (= (cue-leftmost tm1 {:➜ok (be 41)}) 41)
+      (= (c◧ tm1 {:➜ok (be 41)}) 41)
       (typep tm1 'status-active)
       (= (r tm1 {:➜ok (λ(x)(+ x 99))}) 100)
     )))
