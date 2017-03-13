@@ -24,8 +24,7 @@ See LICENSE.txt
       (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (cue-leftmost (entanglements tm))
-                 (∀* (entanglements tm)
+                 (c◧∀* (entanglements tm)
                    (λ(es)
                      (update-tape-after-a◧ (base (r es)) (base tm))
                      (incf (address (r es)))
@@ -49,12 +48,10 @@ See LICENSE.txt
         (
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
-            (cue-leftmost (entanglements tm))
-            (∀* (entanglements tm) (λ(es) (to-empty (r es))))
+            (c◧∀* (entanglements tm) (λ(es) (to-empty (r es))))
             )
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
-            (cue-leftmost (entanglements tm))
-            (∀* (entanglements tm)
+            (c◧∀* (entanglements tm)
               (λ(es)
                 (if (typep (r es) 'status-parked) (s (base tm)))
                 )))
@@ -62,8 +59,7 @@ See LICENSE.txt
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
                       (declare (ignore instance))
-                      (cue-leftmost (entanglements tm))
-                      (∀* (entanglements tm)
+                      (c◧∀* (entanglements tm)
                         (λ(es)
                           (update-tape-after-d◧ (base (r es)) (base tm))
                           (when (typep (r es) 'status-active) (decf (address (r es))))
@@ -83,8 +79,7 @@ See LICENSE.txt
               ))
           )
 
-        (cue-leftmost (entanglements tm))
-        (∃ (entanglements tm) #'collision
+        (c◧∃ (entanglements tm) #'collision
           {
             :➜t ➜collision
             :➜∅ (λ()

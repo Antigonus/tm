@@ -38,7 +38,7 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (def-function-class cue-leftmost (tm &optional ➜))
+  (def-function-class c◧ (tm &optional ➜))
 
 
 ;;--------------------------------------------------------------------------------

@@ -21,17 +21,16 @@ See LICENSE.txt
       (a (base tm) instance
         {
           :➜ok (λ()
-                 (lets(
-                        (etms (tm-of-entangled-tms (entanglements tm)))
-                        )
-                 (cue-leftmost etms)
-                 (∀* etms
-                   (λ(etms)
-                     (incf (address-rightmost (r es)))
-                     (when
-                       (> (address (r es)) (address tm))
-                       (incf (address (r es)))
-                       )))
+                 (c◧∀* (instances (entanglements tm))
+                   (λ(es)
+                     (let(
+                           (entangled-tm (r (tg:weak-pointer-value (r es))))
+                           )
+                       (incf (address-rightmost entangled-tm))
+                       (when
+                         (> (address entangled-tm) (address tm))
+                         (incf (address entangled-tm))
+                         ))))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
@@ -51,12 +50,14 @@ See LICENSE.txt
       (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (cue-leftmost (entanglements tm))
-                 (∀* (entanglements tm)
+                 (c◧∀* (entanglements tm)
                    (λ(es)
-                     (incf (address-rightmost (r es)))
-                     (incf (address (r es)))
-                     ))
+                     (let(
+                           (entangled-tm (tg:weak-pointer-value (r es)))
+                           )
+                       (incf (address-rightmost entangled-tm))
+                       (incf (address entangled-tm))
+                       )))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
@@ -75,31 +76,35 @@ See LICENSE.txt
                  (d (base tm) spill
                    {
                      :➜ok (λ(instance)
-                            (cue-leftmost (entanglements tm))
-                            (∀* (entanglements tm)
+                            (c◧∀* (instances (entanglements tm))
                               (λ(es)
-                                (decf (address-rightmost (r es)))
-                                (when
-                                  (> (address (r es)) (address tm))
-                                  (decf (address (r es)))
-                                  )))
+                                (let(
+                                      (entangled-tm (tg:weak-pointer-value (r es)))
+                                      )
+                                  (decf (address-rightmost entangled-tm))
+                                  (when
+                                    (> (address entangled-tm) (address tm))
+                                    (decf (address entangled-tm))
+                                    ))))
                             [➜ok instance]
                             )
                      :➜collision #'cant-happen
                      (o (remove-key-pairs ➜ {:➜ok :➜collision}))
                      }))
                )
-        (cue-leftmost (entanglements tm))
-        (∃ (entanglements tm)
-          (λ(es ct c∅)
-            (if
-              (∧
-                (≠ (address (r es)) 0)
-                (= (address tm) (- (address (r es)) 1))
-                )
-              [ct]
-              [c∅]
-              ))
+        (c◧∃ (instances (entanglements tm))
+          (λ(instances ct c∅)
+            (let(
+                  (entangled-tm (tg:weak-pointer-value (r instances)))
+                  )
+              (if
+                (∧
+                  (≠ (address entangled-tm) 0)
+                  (= (address tm) (- (address entangled-tm) 1))
+                  )
+                [ct]
+                [c∅]
+                )))
           ➜collision
           #'d-no-collision
           ))))
@@ -117,57 +122,31 @@ See LICENSE.txt
                  (d◧ (base tm) spill
                    {
                      :➜ok (λ(instance)
-                            (cue-leftmost (entanglements tm))
-                            (∀* (entanglements tm)
+                            (c◧∀* (instances (entanglements tm))
                               (λ(es)
-                                (decf (address-rightmost (r es)))
-                                (decf (address (r es)))
-                                ))
+                                (let(
+                                      (entangled-tm (tg:weak-pointer-value (r es)))
+                                      )
+                                  (decf (address-rightmost entangled-tm))
+                                  (decf (address entangled-tm))
+                                  )))
                             [➜ok instance]
                             )
                      :➜collision #'cant-happen
                      (o (remove-key-pairs ➜ {:➜ok :➜collision}))
                      }))
                )
-        (cue-leftmost (entanglements tm))
-        (∃ (entanglements tm)
+        (c◧∃ (instances (entanglements tm))
           (λ(es ct c∅)
             (if
-              (= (address (r es)) 0)
+              (= (address (tg:weak-pointer-value (r es))) 0)
               [ct]
               [c∅]
               ))
           ➜collision
           #'d◧-no-collision
           ))))
-
                                
-
-  (defun-typed d◧ ((tm ea-active) &optional spill ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜collision (λ()(error 'dealloc-collision)))
-        &allow-other-keys
-        )
-      ➜
-      (if (= (address-rightmost tm) 0)
-        [➜collision]
-        (d◧ (base tm) spill
-          {
-            :➜ok (λ(instance)
-                   (cue-leftmost (entanglements tm))
-                   (∀* (entanglements tm)
-                     (λ(es)
-                       (decf (address-rightmost (r es)))
-                       (decf (address (r es)))
-                       ))
-                   [➜ok instance]
-                   )
-            :➜collision #'cant-happen
-            (o (remove-key-pairs ➜ {:➜ok :➜collision}))
-            }))))
-
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;

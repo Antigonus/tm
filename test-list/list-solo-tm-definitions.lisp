@@ -40,7 +40,7 @@ See LICENSE.txt
       (= (d tm0 ∅ {:➜ok (be -1) :➜rightmost (be -2) :➜no-alloc (be -3)}) -2)
       (equal (tape tm0) {1 2})
       (on-rightmost tm0)
-      (cue-leftmost tm0)
+      (c◧ tm0)
       (d tm0)
       (on-rightmost tm0)
       (on-leftmost tm0)

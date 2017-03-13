@@ -14,15 +14,15 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type ent-obj-type ()
+  (def-type entangelements-type ()
     (
       (lock :initarg lock :accessor lock)
-      (tm-of-entangled-tms :initarg tm-of-entangled-tms :accessor tm-of-entangled-tms) ; instances are machines that share a tape
+      (instances :initarg instances :accessor instances) ; instances are machines that share a tape
       ))
 
   (def-type ea-tm (status-tm)
     (
-      (entanglements ; an instance of an ent-obj-type
+      (entanglements
         :initarg :entanglements
         :accessor entanglements
         )
@@ -59,15 +59,15 @@ See LICENSE.txt
       (call-next-method tm init-parms
         {
           :➜ok (λ(instance)
-                 (mk 'list-haz-tm {:tape {tm}}
+                 (mk 'list-haz-tm {:tape {(tg:make-weak-pointer tm)}}
                    {
                      :➜ok (λ(a-haz-tm)
                             (let(
-                                  (ents-obj (make-instance 'ent-obj-type))
+                                  (entanglements (make-instance 'entangelements-type))
                                   )
-                              (setf (lock ents-obj) (bt:make-lock))
-                              (setf (tm-of-entangled-tms ents-obj) a-haz-tm)
-                              (setf (entanglements tm) ents-obj)
+                              (setf (lock entanglements) (bt:make-lock))
+                              (setf (instances entanglements) a-haz-tm)
+                              (setf (entanglements tm) entanglements)
                               )
                             [➜ok instance]
                             )
@@ -82,6 +82,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
+
+  ;; accepts an instance (typep 'ea-tm), returns an entangled instance of the same type
+  ;;
   (defun-typed entangle ((tm-orig ea-tm) &optional ➜)
     (destructuring-bind
       (&key
@@ -93,24 +96,24 @@ See LICENSE.txt
       (let*(
              (i (make-instance (type-of tm-orig)))
              (pt-i (tg:make-weak-pointer i))
-             (ents-obj (entanglements tm-orig))
-             (tm-of-entangled-tms (tm-of-entangled-tms ents-obj))
-             (lock (lock ents-obj))
+             (entanglements (entanglements tm-orig))
+             (instances (instances entanglements))
+             (lock (lock entanglements))
              )
         (bt:with-lock-held (lock)
-          (a tm-of-entangled-tms pt-i
+          (a instances pt-i
             {
               :➜ok (λ()
                      (let*(
-                            (d-pt (entangle tm-of-entangled-tms))
+                            (d-pt (entangle instances)); used to deleted the cell holding i
                             (finalize-i (λ()
-                                          (cue-leftmost tm-of-entangled-tms)
-                                          (d d-pt) ; d can never collide with leftmost
+                                          (c◧ instances); d can never collide with leftmost
+                                          (d d-pt)
                                           ))
                             )
                        (tg:finalize i finalize-i)
                        (setf (base i) (entangle (base tm-orig)))
-                       (setf (entanglements i) ents-obj)
+                       (setf (entanglements i) entanglements)
                        (setf (address i) (address tm-orig))
                        (setf (address-rightmost i) (address-rightmost tm-orig))
                        [➜ok i]

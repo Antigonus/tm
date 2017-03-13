@@ -77,7 +77,7 @@ functions.
       (let(
             (tm1 (entangle tm))
             )
-        (cue-rightmost tm1)
+        (c◨ tm1)
         (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
         )))
 

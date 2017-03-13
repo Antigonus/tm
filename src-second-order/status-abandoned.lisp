@@ -37,7 +37,7 @@ continuations for
   (def-abandoned-1 r◧)
   (def-abandoned-1 w◧ instance)
 
-  (def-abandoned-1 cue-leftmost)
+  (def-abandoned-1 c◧)
   (def-abandoned-1 s)
   (def-abandoned-1 a instance)
   (def-abandoned-1 on-leftmost)
@@ -49,7 +49,7 @@ continuations for
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-abandoned-1 cue-rightmost)
+  (def-abandoned-1 c◨)
   (def-abandoned-1 as instance) 
   (def-abandoned-1 a&h◨ instance)
   (def-abandoned-1 as&h◨ instance)

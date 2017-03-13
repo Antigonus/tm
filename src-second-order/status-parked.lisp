@@ -50,7 +50,7 @@ See LICENSE.txt
 
   (defun-typed esw ((tm status-parked) instance &optional ➜) (w◧ tm ➜))
 
-  (defun-typed cue-leftmost ((tm status-parked) &optional ➜)
+  (defun-typed c◧ ((tm status-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -61,7 +61,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed s ((tm status-parked) &optional ➜) (cue-leftmost tm ➜))
+  (defun-typed s ((tm status-parked) &optional ➜) (c◧ tm ➜))
 
   (defun-typed a ((tm status-parked) instance &optional ➜) (a◧ tm instance ➜))
 
@@ -90,14 +90,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm status-parked) &optional ➜)
+  (defun-typed c◨ ((tm status-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (cue-rightmost (base tm)
+      (c◨ (base tm)
         {
           :➜ok (λ()(to-active tm)[➜ok])
           }
@@ -112,7 +112,7 @@ See LICENSE.txt
       ➜
       (a◧ (base tm) instance
         {
-          :➜ok (λ()(cue-leftmost tm ➜))
+          :➜ok (λ()(c◧ tm ➜))
           :➜no-alloc ➜no-alloc
           })
       ))
@@ -191,7 +191,7 @@ See LICENSE.txt
       (entangled tm0 tm1
         {
           :➜t ➜rightmost
-          :➜∅ (λ()(cue-leftmost tm0 ➜))
+          :➜∅ (λ()(c◧ tm0 ➜))
           }
         )))
 
@@ -202,7 +202,7 @@ See LICENSE.txt
       &optional ➜
       )
     (declare (ignore tm1))
-    (cue-leftmost tm0 ➜)
+    (c◧ tm0 ➜)
     )
 
   (defun-typed a◨ ((tm status-parked) instance &optional ➜) (a◨ (base tm) instance ➜))

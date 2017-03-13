@@ -10,6 +10,9 @@ See LICENSE.txt
   continuation arguments the existential and universl quantification are
   given in the argument list
 
+  the cue leftmost versions should call the quantifier in the 
+  ok continatuaion?
+
 |#
 
 (in-package #:tm)
@@ -46,7 +49,7 @@ See LICENSE.txt
 ;;
 ;; careful:
 ;;
-;; The quantifiers start where the head is located, they do not cue-leftmost first.  I do
+;; The quantifiers start where the head is located, they do not c◧ first.  I do
 ;; this so that prefix values may be processed before calling a quantifier.
 ;;
 ;; I pass to the predicate the entire tape machine, rather than just the instance in the
@@ -64,6 +67,11 @@ See LICENSE.txt
     (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
     )
 
+  (defun c◧∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (c◧ tm)
+    (∃ tm pred ➜t ➜∅)
+    )
+
   ;; there does not exist an instance for which pred is false
   ;; pred is true for all instances
   (defun ∀ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
@@ -71,15 +79,20 @@ See LICENSE.txt
     (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) ➜∅ ➜t)
     )
 
+  (defun c◧∀ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (c◧ tm)
+    (∀ tm pred ➜t ➜∅)
+    )
+
   ;; similar to ∃, but tests every instance.  Returns a number pair, the total tests done
   ;; (= length of tape tail), and the number of tests that returned true.
   (defun ∃* (tm pred)
     "Calls (pred tm ➜t ➜∅), and steps head, until reaching the end fo the tape, returns
      number pair: (true.count.false-count)."
-    (let (
-           (true-count 0)
-           (false-count 0)
-           )
+    (let(
+          (true-count 0)
+          (false-count 0)
+          )
       (⟳(λ(again)
           [pred tm
             (λ()(incf true-count))
@@ -94,6 +107,11 @@ See LICENSE.txt
       (cons true-count false-count)
       ))
 
+  (defun c◧∃* (tm pred)
+    (c◧ tm)
+    (∃ tm pred)
+    )
+
   (defun ∀* (tm function)
     "Calls (function tm), and steps head, until reaching the end of the tape. Returns
      nothing."
@@ -105,4 +123,9 @@ See LICENSE.txt
             :➜rightmost #'do-nothing
             }
           ))))
+
+  (defun c◧∀* (tm function)
+    (c◧ tm)
+    (∀* tm function)
+    )
 

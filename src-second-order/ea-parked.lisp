@@ -11,7 +11,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed cue-leftmost ((tm ea-parked) &optional ➜)
+  (defun-typed c◧ ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -27,14 +27,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm ea-parked) &optional ➜)
+  (defun-typed c◨ ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (cue-rightmost (base tm)
+      (c◨ (base tm)
         {
           :➜ok (λ()
                  (to-active tm)

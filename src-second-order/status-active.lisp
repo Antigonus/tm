@@ -30,7 +30,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (cue-leftmost (base tm)
+       (c◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -44,7 +44,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed cue-leftmost ((tm status-active) &optional ➜)
+  (defun-typed c◧ ((tm status-active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -52,7 +52,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (cue-leftmost (base tm)
+       (c◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -117,14 +117,14 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm status-active) &optional ➜)
+  (defun-typed c◨ ((tm status-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (cue-rightmost (base tm)
+      (c◨ (base tm)
         {
           :➜ok (λ()
                  (setf (address tm) (address-rightmost tm))

@@ -3,7 +3,7 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-   cue-leftmost needs to set the address to zero, stepping increment it etc.
+   c◧ needs to set the address to zero, stepping increment it etc.
 
 |#
 

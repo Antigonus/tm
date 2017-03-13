@@ -119,7 +119,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed cue-leftmost ((tm list-tm) &optional ➜)
+  (defun-typed c◧ ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

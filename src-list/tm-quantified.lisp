@@ -53,19 +53,19 @@ See LICENSE.txt
 
   (def-function-class s* (tm)
     (:documentation 
-      "This is a synonym for cue-to-rightmost. There is no guarantee that intermediate
+      "This is a synonym for c◨. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defun-typed s* ((tm tape-machine)) (cue-rightmost tm))
+  (defun-typed s* ((tm tape-machine)) (c◨ tm))
 
   (def-function-class -s* (tm)
     (:documentation 
-      "This is a synonym for cue-to-leftmost. There is no guarantee that intermediate
+      "This is a synonym for c◧. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defun-typed -s*((tm tape-machine))(cue-leftmost tm))
+  (defun-typed -s*((tm tape-machine))(c◧ tm))
 
   ;; note the fill data will be reversed at the tm insert point
   ;; use as* to fill without reversal

@@ -35,7 +35,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed cue-leftmost  ((tm tm-array-adj)) 
+  (defun-typed c◧  ((tm tm-array-adj)) 
     (setf (head tm) 0)
     )
 

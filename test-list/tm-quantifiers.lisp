@@ -92,4 +92,39 @@ See LICENSE.txt
       ))
   (test-hook test-¬∀-0) 
 
+  (defun test-c◧∃-0 ()
+    (let(
+          (l1 (mk 'list-tm {:tape {1 3 5 7}}))
+          )
 
+      (∧
+        (sn l1 3)
+        (= (r l1) 7)
+        (c◧∃ l1
+          (λ(tm ct c∅)(if (= (r tm) 5) [ct] [c∅]))
+          )
+        (c◧∃ l1
+          (λ(tm ct c∅)(if (= (r tm) 3) [ct] [c∅]))
+          )
+        (c◧∃ l1
+          (λ(tm ct c∅)(if (= (r tm) 11) [c∅] [ct]))
+          )
+        )))
+  (test-hook test-c◧∃-0)
+
+
+  (defun test-c◧∀-0 ()
+    (let(
+          (l1 (mk 'list-tm {:tape {1 3 5 7}}))
+          (cnt 0)
+          )
+
+      (∧
+        (sn l1 3)
+        (= (r l1) 7)
+        (c◧∀ l1
+          (λ(tm ct c∅)(declare (ignore tm c∅))(incf cnt)[ct])
+          )
+        (= cnt 4)
+        )))
+  (test-hook test-c◧∀-0)

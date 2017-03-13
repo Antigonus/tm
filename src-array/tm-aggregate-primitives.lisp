@@ -31,9 +31,9 @@ see notes in tm-smooth header
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed cue-leftmost  ((tm tm-smooth)) 
-    (cue-leftmost (tape tm))
-    (cue-leftmost (r (tape tm)))
+  (defun-typed c◧  ((tm tm-smooth)) 
+    (c◧ (tape tm))
+    (c◧ (r (tape tm)))
     )
 
 ;;--------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ see notes in tm-smooth header
     (s (r (tape tm))
       cont-ok
       (λ() (s (tape tm)
-             (λ() (cue-leftmost (r (tape tm))) (funcall cont-ok))
+             (λ() (c◧ (r (tape tm))) (funcall cont-ok))
              cont-rightmost
              ))))
 

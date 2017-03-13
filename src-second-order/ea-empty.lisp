@@ -32,8 +32,7 @@ check that we correctly update addresses
           )
         ➜
         (w (base tm) instance)
-        (cue-leftmost (entanglements tm))
-        (∀* (entanglements tm) (λ(es) (to-parked (r es))))
+        (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
         (to-active tm)
         [➜ok]
         ))
@@ -49,7 +48,6 @@ check that we correctly update addresses
         )
       ➜
       (w (base tm) instance)
-      (cue-leftmost (entanglements tm))
-      (∀* (entanglements tm) (λ(es) (to-parked (r es))))
+      (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
       [➜ok]
       ))

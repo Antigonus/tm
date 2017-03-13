@@ -158,7 +158,7 @@ maintaining the extra complexity.  Perhaps in a later version we will do this.
 
   (defun-typed park ((tm status-tm))
     (setf (status tm) 'park)
-    (cue-leftmost (base tm)) ; base machine head must always be on a cell
+    (c◧ (base tm)) ; base machine head must always be on a cell
     )
 
 ;;--------------------------------------------------------------------------------
@@ -285,9 +285,9 @@ maintaining the extra complexity.  Perhaps in a later version we will do this.
             (otherwise  [cant-happen])
             )))))
 
-  (defun-typed cue-leftmost ((tm status-tr) &optional ➜)
+  (defun-typed c◧ ((tm status-tr) &optional ➜)
     (case (status tm)
-      ('active (cue-leftmost (base tm) ➜))
+      ('active (c◧ (base tm) ➜))
       ('abandoned (operation-on-abandoned))
       (otherwise
         (destructuring-bind
@@ -376,12 +376,12 @@ maintaining the extra complexity.  Perhaps in a later version we will do this.
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed cue-rightmost ((tm status-tr) &optional ➜)
+  (defun-typed c◨ ((tm status-tr) &optional ➜)
     (case (status tm)
-      ('active (cue-rightmost (base tm) ➜))
+      ('active (c◨ (base tm) ➜))
       ('parked
         (setf (status tm) 'active)
-        (cue-rightmost (base tm) ➜)
+        (c◨ (base tm) ➜)
         )
       ('abandoned (operation-on-abandoned))
       (otherwise

@@ -32,7 +32,7 @@ See LICENSE.txt
         (&key tape &allow-other-keys) init-parms
         (cond
           ((∧ tape (typep tape 'sequence))
-            (cue-leftmost tm)
+            (c◧ tm)
             (w tm (elt tape 0))
             (loop
               for item in (subseq tape 1) do

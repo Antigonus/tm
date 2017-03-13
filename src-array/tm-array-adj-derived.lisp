@@ -42,7 +42,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed cue-rightmost ((tm tm-array-adj)) (setf (head tm) (rightmost-index tm)))
+  (defun-typed c◨ ((tm tm-array-adj)) (setf (head tm) (rightmost-index tm)))
 
 ;;--------------------------------------------------------------------------------
 ;;  tape-machine properties

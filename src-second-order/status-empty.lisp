@@ -75,7 +75,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (def-empty-1 cue-leftmost)
+  (def-empty-1 c◧)
 
   (defun-typed s ((tm status-empty) &optional ➜)
     (declare (ignore tm))
@@ -144,7 +144,7 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-empty-1 cue-rightmost)
+  (def-empty-1 c◨)
   
   ;; adding a cell to an empty machine will cause it to be parked, then stepping
   ;; one to the right will cause it to be active with the head on leftmost
