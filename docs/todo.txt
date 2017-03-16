@@ -84,3 +84,22 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
 43. cue-leftmost / rightmost names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
     I don't think we will have 'copy' because that would be w* with a fill.  We
     will have move.  So c might be available.
+
+44. add c-to works with two machines that are entangled, cues one to be at the same
+    location as the other.
+
+45. predicate functions should take two continuations,  but what if there is a case
+   where something is neither true nor false for a specialization .. perhaps that
+   is not salient ..
+
+46. interesting situation in d◧ for ea-definitions.  We would like to enclose a call
+   'with-lock-held', but we can't because we must release the lock before calling
+   continuations within the 'a' for the spill, and there are multiple continuations.  So..
+   instead we acquire the lock, and release it within each contiuation; however
+   specializations might have their own continuations that we don't know about.
+   We know about ➜ok  and ➜no-alloc, but the others are handled through the
+   (o (remove-keys ...))  thing.  We don't know what they are (if they exist at all)
+   and thus can not modify them by adding a lock release.  We might provide an
+   standard 'always-before' continuation .. and release the lock there.  Anyway,
+   need to fix this design.  For now, I'm only providing the continuations known
+   for 'a' in src-list (➜ok and ➜no-alloc).

@@ -24,12 +24,13 @@ See LICENSE.txt
       (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (c◧∀* (entanglements tm)
-                   (λ(es)
-                     (update-tape-after-a◧ (base (r es)) (base tm))
-                     (incf (address (r es)))
-                     (incf (address-rightmost (r es)))
-                     ))
+                 (bt:with-lock-held ((lock (entanglements tm)))
+                   (c◧∀* (instances (entanglements tm))
+                     (λ(es)
+                       (update-tape-after-a◧ (base (r es)) (base tm))
+                       (incf (address (r es)))
+                       (incf (address-rightmost (r es)))
+                       )))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
@@ -46,15 +47,18 @@ See LICENSE.txt
       ➜
       (labels
         (
+
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
-            (c◧∀* (entanglements tm) (λ(es) (to-empty (r es))))
+            (c◧∀* (instances (entanglements tm)) (λ(es) (to-empty (r es))))
             )
+
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
-            (c◧∀* (entanglements tm)
+            (c◧∀* (instances (entanglements tm))
               (λ(es)
                 (if (typep (r es) 'status-parked) (s (base tm)))
                 )))
+
           (delete-leftmost () ;tape originally > one cell, no active machine on ◧
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
@@ -68,6 +72,7 @@ See LICENSE.txt
                 :➜collision #'cant-happen
                 :➜no-alloc ➜no-alloc
                 }))
+
           (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
             (if 
               (∧
@@ -79,23 +84,28 @@ See LICENSE.txt
               ))
           )
 
-        (c◧∃ (entanglements tm) #'collision
-          {
-            :➜t ➜collision
-            :➜∅ (λ()
-                  (a spill (r (base tm))
-                    {
-                      :➜ok (λ()
-                             (if (= (address-rightmost tm) 0)
-                               (make-empty)
-                               (progn
-                                 (step-parked-machines)
-                                 (delete-leftmost)
-                                 ))
-                             [➜ok]
-                             )
-                      (o (remove-key-pair ➜ :➜ok))
-                      }))
+        (let(
+              (lock (lock (entanglements tm)))
+              (instances (instances (entanglements tm)))
+              )
+          (bt:acquire-lock lock t)
+          (c◧∃ instances #'collision
+            ➜collision
+            (λ()
+              (a spill (r (base tm))
+                {
+                  :➜ok (λ()
+                         (if (= (address-rightmost tm) 0)
+                           (make-empty)
+                           (progn
+                             (step-parked-machines)
+                             (delete-leftmost)
+                             ))
+                         (bt:release-lock lock)
+                         [➜ok]
+                         )
+                  :➜no-alloc (λ() (bt:release-lock lock) [➜no-alloc])
+                  }))
             })
         )))
 

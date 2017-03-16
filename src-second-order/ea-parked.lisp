@@ -19,7 +19,7 @@ See LICENSE.txt
         )
       ➜
       (to-active tm)
-      ;; address is already 0, and (base tm) already on leftmost, by convention
+      ;; address is already 0, and (base tm) already on leftmost -- by convention
       [➜ok]
       ))
 

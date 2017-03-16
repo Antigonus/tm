@@ -3,11 +3,8 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-We never make  empty machines, rather managed machines are change classed
-to this type after a request to delete the last cell from the tape
-belonging to a machine that has a parked head.
+The only way to change states away from 'empty' is to add a new cell.
 
-check that we correctly update addresses
 
 |#
 
@@ -32,8 +29,10 @@ check that we correctly update addresses
           )
         ➜
         (w (base tm) instance)
-        (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
-        (to-active tm)
+        (bt:with-lock-held ((lock (entanglements tm)))
+          (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
+          )
+        (to-active tm) ; state change is not head motion, we do not need to have the lock
         [➜ok]
         ))
 
@@ -48,6 +47,8 @@ check that we correctly update addresses
         )
       ➜
       (w (base tm) instance)
-      (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
+      (bt:with-lock-held ((lock (entanglements tm)))
+        (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
+        )
       [➜ok]
       ))

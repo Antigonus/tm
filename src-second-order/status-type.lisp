@@ -104,9 +104,12 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (destructuring-bind
         (&key base empty &allow-other-keys) keyed-parms
         (cond
-          ;; would like to delete cells to force empty, but base may be nd
-          ;; so we enforce the rule that machines declared :empty must have only one cell
-          ((∧ base (typep base 'tape-machine) empty (tape-length-is-one tm))
+
+          ;; base machine is to be marked empty. Would like to delete cells to force
+          ;; empty, but base may be nd type, so instead we enforce the rule that base
+          ;; machines that are declared ':empty' must have only one cell (deletion must be
+          ;; external)
+          ((∧ base (typep base 'tape-machine) empty (tape-length-is-one base))
             (w base ∅)
             (setf (base tm) base) ; should call next method and have idenity do this ..
             (setf (address-rightmost tm) 0)
@@ -114,21 +117,45 @@ a collision error.  Hence behavior is inherited from the identity transform.
             (to-empty tm)
             [➜ok tm]
             )
+
+          ;; base machine is not empty
+          ;; We don't know if the base machine can be entangled, so to get the
+          ;; address counters we cue the machine to leftmost, and thus lose the
+          ;; original head location
           ((∧ base (typep base 'tape-machine))
             (let(
-                  (ad 0)
+                  (cell-address 0)
                   )
               (c◧ base)
               (s base {:➜ok (λ()
-                              (∀* base (λ(base)(declare (ignore base))(incf ad)))
+                              (∀* base (λ(base)(declare (ignore base))(incf cell-address)))
                               )})
-              (setf (address-rightmost tm) ad)
+              (setf (address-rightmost tm) cell-address)
               (c◧ base)
               (setf (address tm) 0)
               (setf (base tm) base)
               (to-active tm)
               [➜ok tm]
               ))
+
           (t [➜fail])
           ))))
+
+  (defun-typed entangle ((tm-orig status-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        ;; (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜  
+      (call-next-method tm
+        {
+          :➜ok (λ(i)
+                 (setf (address i) (address tm))
+                 (setf (address-rightmost i) (address-rightmost tm))
+                 [➜ok i]
+                 )
+          (o (remove-key-pair ➜ :➜ok))
+          })))
 

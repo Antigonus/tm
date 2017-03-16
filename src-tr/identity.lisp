@@ -44,20 +44,20 @@ Base class for transforms. Library users never see this.
           (t [➜fail])
           ))))
 
-  (defun-typed init 
-    (
-      (tm identity-tr)
-      (init-value identity-tr)
-      &optional ➜
-      )
+  (defun-typed entangle ((tm-orig identity-tr) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
+        ;; (➜no-alloc #'alloc-fail)
+        &allow-other-keys
         )
-      ➜
-      (setf (base tm) (mk (type-of (base tm)) tm)) ; makes an entangled copy
-      [➜ok tm]
-      ))
+      ➜  
+      (let(
+            (i (make-instance (type-of tm-orig)))
+            )
+        (setf (base i) (entangle (base tm)))
+        [➜ok i]
+      )))
 
 ;;--------------------------------------------------------------------------------
 ;;tm-decl-only

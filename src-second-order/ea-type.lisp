@@ -6,7 +6,10 @@ See LICENSE.txt
   Manager synchronizes operation on tape machines.
 
   Garbage collection finalization, I might assume occurs on a separate thread, and thus
-  use of the entanglements list must be thread safe.
+  use of the entanglements list is made thread safe. Though use of the entanglements list
+  is thread safe, the use of base machine is not.  We can not, for exampe, delete a 
+  cell on one thread while moving the head on another thread.  For a thread safe
+  entanglements account machine use a 'ts' (thread safe) machine.
 
 |#
 
@@ -107,9 +110,10 @@ See LICENSE.txt
                      (let*(
                             (d-pt (entangle instances)); used to deleted the cell holding i
                             (finalize-i (λ()
-                                          (c◧ instances); d can never collide with leftmost
-                                          (d d-pt)
-                                          ))
+                                          (bt:with-lock-held ((lock entanglements))
+                                            (c◧ instances); d can never collide with leftmost
+                                            (d d-pt)
+                                            )))
                             )
                        (tg:finalize i finalize-i)
                        (setf (base i) (entangle (base tm-orig)))
