@@ -47,15 +47,18 @@ See LICENSE.txt
       ➜
       (labels
         (
+
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
             (c◧∀* (entanglements (locked-entanglements tm)) (λ(es) (to-empty (r es))))
             )
+
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
             (c◧∀* (entanglements (locked-entanglements tm))
               (λ(es)
                 (if (typep (r es) 'status-parked) (s (base tm)))
                 )))
+
           (delete-leftmost () ;tape originally > one cell, no active machine on ◧
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
@@ -69,6 +72,7 @@ See LICENSE.txt
                 :➜collision #'cant-happen
                 :➜no-alloc ➜no-alloc
                 }))
+
           (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
             (if 
               (∧
@@ -101,6 +105,7 @@ See LICENSE.txt
                          [➜ok]
                          )
                   :➜no-alloc (λ() (bt:release-lock lock) [➜no-alloc])
-                  }))))
+                  }))
+            })
         )))
 

@@ -1,0 +1,31 @@
+
+In our entanglements machine we hold a tape of weak pointers.  When the target
+of the weak pointer is garbage collected, we want to delete the cell holding
+the weak pointer from the tape. 
+
+Hence, we have placed in the finalizer and entangled copy of the entanglements machine
+(this one does not have accounting), where the head on this entangled machine is on the
+cell just to the left of the cell to be deleted.  When the finalizer is called, the cell
+to the right gets deleted, but there are problems.  What if the cell the finalizer is
+using to locate the cell to be deleted, is, itself, deleted?  It might even become
+the leftmost cell.  We have no access to the pointers built into the finalizer lambdas,
+so this is a no-go.
+
+We could keep a pointer to the cell to be deleted, then scan up the entanglements
+list to locate the left neighbor cell, then use it to delete the ∅ valued weak
+pointer cell.  But this would lead to a lot of redundant scanning.
+
+We could instead have a 'clean-entanglements' function.  This would be called by
+the programmer.  It would run the head over the entanglements tape while deleting
+any cells holding ∅ valued weak pointer instances. This also has the advantage that
+for ea we no longer need the entanglements machine lock, as we no longer have
+an asynchronous finalizer.
+
+If we instead used a doubly linked list, then we can just use the finalizer
+approach that we have now, though we would keep a pointer to the cell to be
+deleted, rather than to the left neighbor cell.
+
+
+
+
+

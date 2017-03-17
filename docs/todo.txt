@@ -102,4 +102,15 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
    and thus can not modify them by adding a lock release.  We might provide an
    standard 'always-before' continuation .. and release the lock there.  Anyway,
    need to fix this design.  For now, I'm only providing the continuations known
-   for 'a' in src-list (➜ok and ➜no-alloc).
+   for 'a' in src-list (➜ok and ➜no-alloc). 
+
+   ... perhaps what we need is to be able to list multiple keys, followed by a single
+   lambda.  keys may appear in more than one list, they execute in order.
+
+   So for a continuation list, in the parameters list:
+   {
+     :a :b :c  (λ() (release lock)  .. executed when a b or c is present
+     :b  (λ() .. executed after the above is executed
+     :d (λ() .. runs with lock held
+     }
+

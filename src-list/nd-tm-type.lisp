@@ -19,3 +19,7 @@ See LICENSE.txt
 ;;
   (def-type nd-tape-machine (tape-machine)())
 
+;;--------------------------------------------------------------------------------
+;; make an entangled copy of another tape machine
+;;
+  (def-function-class entangle (tm-orig &optional ➜))

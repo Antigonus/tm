@@ -9,7 +9,7 @@ then
         if [ -d "$j" ] && [ -x "$j" ]
         then
             pushd "$j"
-            echo in directory: "$(pwd)"
+#            echo in directory: "$(pwd)"
             for i in `ls *.lisp` 
             do 
                 if [ -r "$i" ] && [ -w "$i" ]

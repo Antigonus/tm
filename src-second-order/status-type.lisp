@@ -149,12 +149,12 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜  
-      (call-next-method tm
+      (call-next-method tm-orig
         {
-          :➜ok (λ(i)
-                 (setf (address i) (address tm))
-                 (setf (address-rightmost i) (address-rightmost tm))
-                 [➜ok i]
+          :➜ok (λ(tm-entangled)
+                 (setf (address tm-entangled) (address tm-orig))
+                 (setf (address-rightmost tm-entangled) (address-rightmost tm-orig))
+                 [➜ok tm-entangled]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))

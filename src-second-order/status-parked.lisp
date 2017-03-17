@@ -120,9 +120,8 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-parked) instance &optional ➜) (a◧ (base tm) instance ➜))
-  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ (base tm) spill ➜))
-  (defun-typed d◧ ((tm status-parked) &optional spill ➜) (d◧ (base tm) spill ➜))
+  ;; see ea-definitions for a◧ and d◧
+  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
@@ -205,4 +204,3 @@ See LICENSE.txt
     (c◧ tm0 ➜)
     )
 
-  (defun-typed a◨ ((tm status-parked) instance &optional ➜) (a◨ (base tm) instance ➜))

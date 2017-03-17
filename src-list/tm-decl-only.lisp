@@ -47,17 +47,33 @@ functions.
   (def-function-class s (tm &optional ➜)
     (:documentation
       "If the head is on a cell, and there is a right neighbor, puts the head on the
-       right neighbor and cont-ok.  If there is no right neighbor, then cont-rightmost.
+       right neighbor and ➜ok.  If there is no right neighbor, then ➜rightmost.
        "))
+
+  (def-function-class -s (tm &optional ➜)
+    (:documentation
+      "If the head is on a cell, and there is a left neighbor, puts the head on the
+       left neighbor and ➜ok.  If there is no left neighbor, then ➜leftmost.
+       This function is not available for singly linked lists.
+       "))
+
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
   (def-function-class a (tm instance &optional ➜)
     (:documentation
-    "If no cells are available, cont-no-alloc.  Otherwise, allocate a new cell and place
+    "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
      it to the right of the cell the head is currently on.  The newly allocated cell will
      be initialized with the given instance.
+     "))
+
+  (def-function-class a (tm instance &optional ➜)
+    (:documentation
+    "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
+     it to the left of the cell the head is currently on.  The newly allocated cell will
+     be initialized with the given instance. This function is not available for
+     singly linkedin lists.
      "))
       
 ;;--------------------------------------------------------------------------------

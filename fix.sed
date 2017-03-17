@@ -1,5 +1,3 @@
-s/cue-leftmost/c◧/g
-s/cue-rightmost/c◨/g
-
+s/esr◧/ec◧r/g
 
 

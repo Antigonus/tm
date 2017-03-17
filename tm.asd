@@ -46,7 +46,6 @@ See LICENSE.txt
                (:module "src-list" ; both the list and generic interface
                  :components (
                                (:file "tm-type")
-                               (:file "tm-mk")
                                (:file "tm-decl-only")
                                (:file "tm-generic")
                                (:file "tm-quantifiers")
@@ -54,20 +53,17 @@ See LICENSE.txt
 ;;                               (:file "tm-print")
 
                                (:file "list-tm-type")
-                               (:file "list-tm-mk")
                                (:file "list-tm-definitions")
                                (:file "list-tm-specialized-generic")
 
                                ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-type")
-                               (:file "nd-tm-mk")
                                (:file "nd-tm-decl-only")
                                (:file "nd-tm-generic") 
 
                                (:file "nd-tm-quantified")
 
                                (:file "list-nd-tm-type")
-                               (:file "list-nd-tm-mk")
                                (:file "list-nd-tm-definitions")
 
                                ;; includes destructive functions, but no entangled copy functions

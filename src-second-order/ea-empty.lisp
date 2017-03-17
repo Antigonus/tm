@@ -29,8 +29,8 @@ The only way to change states away from 'empty' is to add a new cell.
           )
         ➜
         (w (base tm) instance)
-        (bt:with-lock-held ((lock (entanglements tm)))
-          (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
+        (bt:with-lock-held ((lock (locked-entanglements tm)))
+          (c◧∀* (entanglements (locked-entanglements tm)) (λ(es) (to-parked (r es))))
           )
         (to-active tm) ; state change is not head motion, we do not need to have the lock
         [➜ok]
@@ -47,8 +47,8 @@ The only way to change states away from 'empty' is to add a new cell.
         )
       ➜
       (w (base tm) instance)
-      (bt:with-lock-held ((lock (entanglements tm)))
-        (c◧∀* (instances (entanglements tm)) (λ(es) (to-parked (r es))))
+      (bt:with-lock-held ((lock (locked-entanglements tm)))
+        (c◧∀* (entanglements (locked-entanglements tm)) (λ(es) (to-parked (r es))))
         )
       [➜ok]
       ))

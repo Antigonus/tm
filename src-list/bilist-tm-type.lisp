@@ -5,6 +5,8 @@ See LICENSE.txt
 
   Make list machines.
 
+  instance is the most generic term for typed data
+
 |#
 
 (in-package #:tm)
@@ -13,7 +15,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (def-type list-tm (tape-machine)
+  (def-type bilist-tm (tape-machine)
     (
       (head ; locates a cell on the tape
         :initarg :head 
@@ -31,7 +33,7 @@ See LICENSE.txt
 ;;
   (defun-typed init 
     (
-      (tm list-tm)
+      (tm bilist-tm)
       (keyed-parms cons)
       &optional ➜
       )
@@ -45,7 +47,7 @@ See LICENSE.txt
         (&key tape) keyed-parms
         (cond
           ((∧ tape (consp tape))
-            (setf (head tm) tape)
+            (setf (head tm) (make-bilist tape))
             (setf (tape tm) tape)
             [➜ok tm]
             )

@@ -3,13 +3,28 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Manager synchronizes operation on tape machines.
+  There is a synchronizaiton problem when machines are entangled.  When we have
+  a set of entangled machines, when any member of that set becomes empty, all members
+  of the set are empty.  Before deleting a cell from the tape while using one machine,
+  we must check that no other machine has a head on that cell.  etc.
 
-  Garbage collection finalization, I might assume occurs on a separate thread, and thus
-  use of the entanglements list is made thread safe. Though use of the entanglements list
-  is thread safe, the use of base machine is not.  We can not, for exampe, delete a 
-  cell on one thread while moving the head on another thread.  For a thread safe
-  entanglements account machine use a 'ts' (thread safe) machine.
+  Each entanglement set has a corresponding machine of type 'entanglements'.  An
+  entanglements machine holds instances of type 'weak pointer to an entangled machine'.
+  When an entangled machine goes out of scope and is garbage collected, its weak pointer
+  value becomes ∅.
+
+  The garbage collector will run a finalizer that deletes weak pointers that have ∅ values
+  from am entanglements machines.  The finalizer uses the entanglements machine's head,
+  and it performs destructive operations.
+
+  ea and the finalizers co-ordinate the use the entanglements machine by using a mutex.
+  Before any head motion or structural operation is performed on entanglements, the thread
+  must own the entanglements synchronization token (aka the 'lock').
+
+  Although ea uses a mutex to co-ordinate the use of entanglements machines, that 
+  does not make ea thread safe. We still depend on the fact that when a function on
+  the machine interface is running, that no other function on the machine interface
+  is running at the same time.  See the 'ts1' machine type for a thread safe version.
 
 |#
 
@@ -17,17 +32,21 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type entangelements-type ()
+  (def-type locked-entanglements-type ()
     (
       (lock :initarg lock :accessor lock)
-      (instances :initarg instances :accessor instances) ; instances are machines that share a tape
+
+      ;; entanglements is a tm-haz machine. We use a mutex to avoid hazards.
+      ;; Instances on the entanglements machine are weak pointers to the entangled machines.
+      ;; We use finalizers to remove disengaged weak pointers
+      (entanglements :initarg entanglements :accessor entanglements) 
       ))
 
   (def-type ea-tm (status-tm)
     (
-      (entanglements
-        :initarg :entanglements
-        :accessor entanglements
+      (locked-entanglements
+        :initarg :locked-entanglements
+        :accessor locked-entanglements
         )
       ))
 
@@ -66,11 +85,11 @@ See LICENSE.txt
                    {
                      :➜ok (λ(a-haz-tm)
                             (let(
-                                  (entanglements (make-instance 'entangelements-type))
+                                  (locked-entanglements (make-instance 'locked-entanglements-type))
                                   )
-                              (setf (lock entanglements) (bt:make-lock))
-                              (setf (instances entanglements) a-haz-tm)
-                              (setf (entanglements tm) entanglements)
+                              (setf (lock locked-entanglements) (bt:make-lock))
+                              (setf (entanglements locked-entanglements) a-haz-tm)
+                              (setf (locked-entanglements tm) locked-entanglements)
                               )
                             [➜ok instance]
                             )
@@ -92,37 +111,41 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        ;; (➜no-alloc #'alloc-fail)
+        (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
       ➜  
       (let*(
              (i (make-instance (type-of tm-orig)))
              (pt-i (tg:make-weak-pointer i))
-             (entanglements (entanglements tm-orig))
-             (instances (instances entanglements))
-             (lock (lock entanglements))
+             (locked-entanglements (locked-entanglements tm-orig))
+             (lock (lock locked-entanglements))
+             (entanglements (entanglements locked-entanglements))
              )
-        (bt:with-lock-held (lock)
-          (a instances pt-i
-            {
-              :➜ok (λ()
-                     (let*(
-                            (d-pt (entangle instances)); used to deleted the cell holding i
-                            (finalize-i (λ()
-                                          (bt:with-lock-held ((lock entanglements))
-                                            (c◧ instances); d can never collide with leftmost
-                                            (d d-pt)
-                                            )))
-                            )
-                       (tg:finalize i finalize-i)
-                       (setf (base i) (entangle (base tm-orig)))
-                       (setf (entanglements i) entanglements)
-                       (setf (address i) (address tm-orig))
-                       (setf (address-rightmost i) (address-rightmost tm-orig))
-                       [➜ok i]
-                       ))
-              (o (remove-key-pair ➜ :➜ok))
-              })))))
+        (bt:acquire-lock lock)
+        (a entanglements pt-i
+          {
+            :➜ok (λ()
+                   (let*(
+                          (d-pt (entangle entanglements)); used to deleted the cell holding i
+                          (finalize-i (λ()
+                                        (bt:with-lock-held ((lock locked-entanglements))
+                                          (c◧ entanglements); d can never collide with leftmost
+                                          (d d-pt)
+                                          )))
+                          )
+                     (bt:release-lock lock)
+                     (tg:finalize i finalize-i)
+                     (setf (base i) (entangle (base tm-orig)))
+                     (setf (locked-entanglements i) locked-entanglements)
+                     (setf (address i) (address tm-orig))
+                     (setf (address-rightmost i) (address-rightmost tm-orig))
+                     [➜ok i]
+                     ))
+            :➜no-alloc (λ()
+                         (bt:release-lock lock) 
+                         [➜no-alloc]
+                         )
+            }))))
 
 

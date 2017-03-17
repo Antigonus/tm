@@ -53,10 +53,10 @@ Base class for transforms. Library users never see this.
         )
       ➜  
       (let(
-            (i (make-instance (type-of tm-orig)))
+            (tm-entangled (make-instance (type-of tm-orig)))
             )
-        (setf (base i) (entangle (base tm)))
-        [➜ok i]
+        (setf (base tm-entangled) (entangle (base tm-orig)))
+        [➜ok tm-entangled]
       )))
 
 ;;--------------------------------------------------------------------------------

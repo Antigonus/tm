@@ -12,8 +12,8 @@
 
       (print "thread 0 - acquring the token")(nl)
       (finish-output nil)
-      (bt:acquire-lock token-arbiter t) ; get the token
-      (print "thread 0 - we have the token, next we starting thread 1")
+      (bt:acquire-lock token-arbiter) ; get the token
+      (print "thread 0 - we have the token, next we start thread 1")
       (finish-output nil)
 
       (let(
@@ -23,7 +23,7 @@
 
                   (print "thread 1 - start and acquiring the token")(nl)
                   (finish-output nil)
-                  (bt:acquire-lock token-arbiter t)
+                  (bt:acquire-lock token-arbiter)
                   (print "thread 1 - we have the token!")(nl)
                   (finish-output nil)
 
@@ -56,7 +56,8 @@
 
 
 ;;--------------------------------------------------------------------------------
-;;
+;; same as above, but using 'with-lock-held' instead of directly aquiring the lock
+;; 
   (defun try-lock-2 ()
     (let(
           (token-arbiter (bt:make-lock))
@@ -66,14 +67,14 @@
       (finish-output nil)
 
       (bt:with-lock-held (token-arbiter) ; get the token
-        (print "thread 0 - we have the token, next we starting thread 1")
+        (print "thread 0 - we have the token, next we start thread 1")
         (finish-output nil)
 
         (bt:make-thread
           (λ()
             (print "thread 1 - start and acquiring the token")(nl)
             (finish-output nil)
-            (bt:acquire-lock token-arbiter t)
+            (bt:acquire-lock token-arbiter)
             (print "thread 1 - we have the token!")(nl)
             (finish-output nil)
 
