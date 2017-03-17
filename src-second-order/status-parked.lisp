@@ -44,11 +44,11 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm status-parked) &optional ➜) (r◧ tm ➜))
+  (defun-typed esr ((tm status-parked) &optional ➜) (ec◧r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm status-parked) instance &optional ➜) (w◧ tm ➜))
+  (defun-typed esw ((tm status-parked) instance &optional ➜) (ec◧w tm ➜))
 
   (defun-typed c◧ ((tm status-parked) &optional ➜)
     (destructuring-bind

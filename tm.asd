@@ -79,6 +79,17 @@ See LICENSE.txt
                                (:file "haz-tm-type")
                                (:file "list-haz-tm-type")
 
+                               ;; bi-directional list, support -s
+                               (:file "bilist")
+                               (:file "bilist-tm-type")
+                               (:file "bilist-tm-definitions")
+                               (:file "bilist-nd-tm-type")
+                               (:file "bilist-nd-tm-definitions")
+                               (:file "bilist-solo-tm-type")
+                               (:file "bilist-solo-tm-definitions")
+                               (:file "bilist-haz-tm-type")
+
+
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")

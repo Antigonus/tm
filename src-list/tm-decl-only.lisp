@@ -28,11 +28,11 @@ functions.
   (def-function-class w (tm instance &optional ➜))
   (def-function-class esw (tm instance &optional ➜))
 
-  (def-function-class r◧ (tm &optional ➜))
-  (def-function-class esr◧ (tm &optional ➜))
+  (def-function-class ec◧r (tm &optional ➜))
+  (def-function-class ec◧r (tm &optional ➜))
 
-  (def-function-class w◧ (tm instance &optional ➜))
-  (def-function-class esw◧ (tm instance &optional ➜))
+  (def-function-class ec◧w (tm instance &optional ➜))
+  (def-function-class ec◧sw (tm instance &optional ➜))
 
 
 ;;--------------------------------------------------------------------------------

@@ -63,7 +63,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed r◧ ((tm list-tm) &optional ➜)
+  (defun-typed ec◧r ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (car (tape tm))]
       ))
 
-  (defun-typed esr◧ ((tm list-tm) &optional ➜)
+  (defun-typed ec◧r ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -86,7 +86,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed w◧ ((tm list-tm) instance &optional ➜)
+  (defun-typed ec◧w ((tm list-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -97,7 +97,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed esw◧ ((tm list-tm) instance &optional ➜)
+  (defun-typed ec◧sw ((tm list-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -106,7 +106,7 @@ See LICENSE.txt
         )
       ➜
       (if
-        (cdr (head tm))
+        (cdr (tape tm))
         (progn
           (setf (cadr (tape tm)) instance)
           [➜ok]
@@ -189,7 +189,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (¬ (cdr (head tm))) [➜t] [➜∅])
+      (if (cdr (head tm)) [➜∅] [➜t])
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (cdr (tape tm)) [➜t] [➜∅])
+      (if (cdr (tape tm)) [➜∅] [➜t])
       ))
 
   (defun-typed tape-length-is-two ((tm list-tm) &optional ➜)
@@ -215,7 +215,7 @@ See LICENSE.txt
         )
       ➜
       (if 
-        (∧ (cdr (tape tm)) (cddr (tape tm)))
+        (∧ (cdr (tape tm)) (¬ (cddr (tape tm))))
         [➜t] [➜∅]
         )))
       

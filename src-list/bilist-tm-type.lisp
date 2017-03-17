@@ -15,17 +15,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (def-type bilist-tm (tape-machine)
-    (
-      (head ; locates a cell on the tape
-        :initarg :head 
-        :accessor head
-        )
-      (tape ; a sequence of cells, each that may hold an instance
-        :initarg :tape
-        :accessor tape
-        )
-      ))
+  (def-type bilist-tm (list-tm)())
 
 ;;--------------------------------------------------------------------------------
 ;;  Make list-tm machines. Typically the tm will be a list-nd-tm or a list-solo-tm

@@ -34,8 +34,8 @@ continuations for
   (def-abandoned-1 w instance)
   (def-abandoned-1 esw instance)
 
-  (def-abandoned-1 r◧)
-  (def-abandoned-1 w◧ instance)
+  (def-abandoned-1 ec◧r)
+  (def-abandoned-1 ec◧w instance)
 
   (def-abandoned-1 c◧)
   (def-abandoned-1 s)

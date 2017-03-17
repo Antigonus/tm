@@ -63,16 +63,16 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed r◧ ((tm bilist-tm) &optional ➜)
+  (defun-typed ec◧r ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         )
       ➜
-      [➜ok (binode-instnace (tape tm))]
+      [➜ok (binode-instance (tape tm))]
       ))
 
-  (defun-typed esr◧ ((tm bilist-tm) &optional ➜)
+  (defun-typed ec◧r ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -81,23 +81,23 @@ See LICENSE.txt
         )
       ➜
       (if
-        (cdr (tape tm))
-        [➜ok (cadr (tape tm))]
+        (binode-right-neighbor (tape tm))
+        [➜ok (binode-instance (binode-right-neighbor (tape tm)))]
         [➜rightmost]
         )))
 
-  (defun-typed w◧ ((tm bilist-tm) instance &optional ➜)
+  (defun-typed ec◧w ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (setf (car (tape tm)) instance)
+      (setf (binode-instance (tape tm)) instance)
       [➜ok]
       ))
 
-  (defun-typed esw◧ ((tm bilist-tm) instance &optional ➜)
+  (defun-typed ec◧sw ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -106,29 +106,18 @@ See LICENSE.txt
         )
       ➜
       (if
-        (cdr (head tm))
+        (binode-right-neighbor (tape tm))
         (progn
-          (setf (cadr (tape tm)) instance)
+          (setf (binode-instance (binode-right-neighbor (tape tm))) instance)
           [➜ok]
           )
         [➜rightmost]
         )))
 
-
-
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed c◧ ((tm bilist-tm) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) (tape tm))
-      [➜ok]
-      ))
+  ;; c◧ inherited from list-tm
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
@@ -142,13 +131,31 @@ See LICENSE.txt
         )
       ➜
       (if 
-        (cdr (head tm))
+        (binode-right-neighbor (head tm))
         (progn
-          (setf (head tm) (cdr (head tm)))
+          (setf (head tm) (binode-right-neighbor (head tm)))
           [➜ok]
           )
         [➜rightmost]
         )))
+
+  (defun-typed -s ((tm bilist-tm) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜rightmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if 
+        (binode-left-neighbor (head tm))
+        (progn
+          (setf (head tm) (binode-left-neighbor (head tm)))
+          [➜ok]
+          )
+        [➜rightmost]
+        )))
+
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
@@ -161,25 +168,22 @@ See LICENSE.txt
         )
       ➜
       (let(
-            (next-cell (cdr (head tm)))
+            (node (head tm))
+            (current-right-neighbor (binode-right-neighbor (head tm)))
+            (new-right-neighbor (make-binode))
             )
-        (rplacd (head tm) (cons instance next-cell))
+        (setf (binode-instance       new-right-neighbor) instance)
+        (setf (binode-left-neighbor  new-right-neighbor) node)
+        (setf (binode-right-neighbor new-right-neighbor) current-right-neighbor)
+        (setf (binode-left-neighbor current-right-neighbor) new-right-neighbor)
+        (setf (binode-right-neighbor node) new-right-neighbor)
         [➜ok]
         )))
 
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;  
-  (defun-typed on-leftmost ((tm bilist-tm) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (if (eq (head tm) (tape tm)) [➜t] [➜∅])
-      ))
+  ;; on-leftmost inherited from list-tm
 
   (defun-typed on-rightmost ((tm bilist-tm) &optional ➜)
     (destructuring-bind
@@ -189,7 +193,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (¬ (cdr (head tm))) [➜t] [➜∅])
+      (if (binode-right-neighbor (head tm)) [➜∅] [➜t])
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -203,7 +207,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (cdr (tape tm)) [➜t] [➜∅])
+      (if (binode-right-neighbor (tape tm)) [➜∅] [➜t])
       ))
 
   (defun-typed tape-length-is-two ((tm bilist-tm) &optional ➜)
@@ -215,7 +219,10 @@ See LICENSE.txt
         )
       ➜
       (if 
-        (∧ (cdr (tape tm)) (cddr (tape tm)))
+        (∧
+          (binode-right-neighbor (tape tm))
+          (¬ (binode-right-neighbor (binode-right-neighbor (tape tm))))
+          )
         [➜t] [➜∅]
         )))
       

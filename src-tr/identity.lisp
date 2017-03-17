@@ -73,8 +73,8 @@ Base class for transforms. Library users never see this.
   (def-identity-tr-1 w instance)
   (def-identity-tr-1 esw instance)
 
-  (def-identity-tr-1 r◧)
-  (def-identity-tr-1 w◧ instance)
+  (def-identity-tr-1 ec◧r)
+  (def-identity-tr-1 ec◧w instance)
 
   (def-identity-tr-1 c◧)
   (def-identity-tr-1 s)

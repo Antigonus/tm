@@ -50,20 +50,20 @@ See LICENSE.txt
 (test-hook test-recycle-entangled-0)
 |#
 
-(defun test-r◧-0 ()
+(defun test-ec◧r-0 ()
   (let*(
          (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
          (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
          (tm2 (entangle tm0))
          )
     (∧
-      (= (r◧ tm0) 7)
-      (= (r◧ tm1) 11)
-      (= (r◧ tm2) 7)
-      (w◧ tm2 9)
-      (= (r◧ tm0) 9)
+      (= (ec◧r tm0) 7)
+      (= (ec◧r tm1) 11)
+      (= (ec◧r tm2) 7)
+      (ec◧w tm2 9)
+      (= (ec◧r tm0) 9)
       )))
-(test-hook test-r◧-0)
+(test-hook test-ec◧r-0)
 
 (defun test-s≠-0 ()
   (let*(
