@@ -18,23 +18,35 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok (be t))
+        (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
       ➜
-      (a◧ (base tm) instance
-        {
-          :➜ok (λ()
-                 (bt:with-lock-held ((lock (locked-entanglements tm)))
-                   (c◧∀* (entanglements (locked-entanglements tm))
-                     (λ(es)
-                       (update-tape-after-a◧ (base (r es)) (base tm))
-                       (incf (address (r es)))
-                       (incf (address-rightmost (r es)))
-                       )))
-                 [➜ok]
-                 )
-          (o (remove-key-pair ➜ :➜ok))
-          })))
+      (let(have-lock)
+        (bt:acquire-lock lock)
+        (setf have-lock t)
+        (unwind-protect
+          (a◧ (base tm) instance
+            {
+              :➜ok (λ()
+                     (c◧∀* (entanglements (locked-entanglements tm))
+                       (λ(es)
+                         (update-tape-after-a◧ (base (r es)) (base tm))
+                         (incf (address (r es)))
+                         (incf (address-rightmost (r es)))
+                         ))
+                     (bt:release-lock lock)
+                     (setf have-lock ∅)
+                     [➜ok]
+                     )
+              :no-alloc (λ()
+                          (bt:release-lock lock)
+                          (setf have-lock ∅)
+                          [➜no-alloc]
+                          )
+              })
+          (when have-lock (bt:release-lock))
+          ))))
 
   (defun-typed d◧ ((tm ea-tm) &optional spill ➜)
     (destructuring-bind
@@ -47,18 +59,15 @@ See LICENSE.txt
       ➜
       (labels
         (
-
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
             (c◧∀* (entanglements (locked-entanglements tm)) (λ(es) (to-empty (r es))))
             )
-
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
             (c◧∀* (entanglements (locked-entanglements tm))
               (λ(es)
                 (if (typep (r es) 'status-parked) (s (base tm)))
                 )))
-
           (delete-leftmost () ;tape originally > one cell, no active machine on ◧
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
@@ -72,7 +81,6 @@ See LICENSE.txt
                 :➜collision #'cant-happen
                 :➜no-alloc ➜no-alloc
                 }))
-
           (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
             (if 
               (∧
@@ -87,25 +95,33 @@ See LICENSE.txt
         (let(
               (lock (lock (locked-entanglements tm)))
               (entanglements (entanglements (locked-entanglements tm)))
+              have-lock ; after we release, others might set the lock, so we need our own flag
               )
           (bt:acquire-lock lock t)
-          (c◧∃ entanglements #'collision
-            ➜collision
-            (λ()
-              (a spill (r (base tm))
-                {
-                  :➜ok (λ()
-                         (if (= (address-rightmost tm) 0)
-                           (make-empty)
-                           (progn
-                             (step-parked-machines)
-                             (delete-leftmost)
-                             ))
-                         (bt:release-lock lock)
-                         [➜ok]
-                         )
-                  :➜no-alloc (λ() (bt:release-lock lock) [➜no-alloc])
-                  }))
-            })
-        )))
+          (setf have-lock t)
+          (unwind-protect ; prevents orphaning the lock due to unexpected excdeptions
+            (c◧∃ entanglements #'collision
+              ➜collision
+              (λ()
+                (a spill (r (base tm))
+                  {
+                    :➜ok (λ()
+                           (if (= (address-rightmost tm) 0)
+                             (make-empty)
+                             (progn
+                               (step-parked-machines)
+                               (delete-leftmost)
+                               ))
+                           (bt:release-lock lock)
+                           (setf have-lock ∅)
+                           [➜ok]
+                           )
+                    :➜no-alloc (λ() 
+                                 (bt:release-lock lock)
+                                 (setf have-lock ∅)
+                                 [➜no-alloc]
+                                 )
+                    })))
+            (when have-lock (bt:release-lock lock))
+            )))))
 

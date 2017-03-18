@@ -12,18 +12,17 @@ See LICENSE.txt
 ;; tm-decl-only
 ;;
   (defun inc-rightside-addresses (tm)
-    (bt:with-lock-held ((lock (locked-entanglements tm)))
-      (c◧∀* (entanglements (locked-entanglements tm))
-        (λ(es)
-          (let(
-                (entangled-tm (tg:weak-pointer-value (r es)))
-                )
-            (when entangled-tm
-              (incf (address-rightmost entangled-tm))
-              (when
-                (> (address entangled-tm) (address tm))
-                (incf (address entangled-tm))
-                )))))))
+    (c◧∀* (entanglements tm)
+      (λ(es)
+        (let(
+              (entangled-tm (tg:weak-pointer-value (r es)))
+              )
+          (when entangled-tm
+            (incf (address-rightmost entangled-tm))
+            (when
+              (> (address entangled-tm) (address tm))
+              (incf (address entangled-tm))
+              ))))))
 
   (defun-typed a ((tm ea-active) instance &optional ➜)
     (destructuring-bind
@@ -48,17 +47,16 @@ See LICENSE.txt
   ;; see ea-definitions for a◧ and d◧
 
   (defun dec-rightside-addresses (tm)
-    (bt:with-lock-held ((lock (locked-entanglements tm)))
-      (c◧∀* (entanglements (locked-entanglements tm))
-        (λ(es)
-          (let(
-                (entangled-tm (tg:weak-pointer-value (r es)))
-                )
-            (when entangled-tm
-              (decf (address-rightmost entangled-tm))
-              (when (> (address entangled-tm) (address tm))
-                (decf (address entangled-tm))
-                )))))))
+    (c◧∀* (entanglements tm)
+      (λ(es)
+        (let(
+              (entangled-tm (tg:weak-pointer-value (r es)))
+              )
+          (when entangled-tm
+            (decf (address-rightmost entangled-tm))
+            (when (> (address entangled-tm) (address tm))
+              (decf (address entangled-tm))
+              ))))))
 
   (defun-typed d ((tm ea-active) &optional spill ➜)
     (destructuring-bind
@@ -80,25 +78,24 @@ See LICENSE.txt
                      (o (remove-key-pairs ➜ {:➜ok :➜collision}))
                      }))
                )
-        (if
-          (bt:with-lock-held ((lock (locked-entanglements tm)))
-            (c◧∃ (entanglements (locked-entanglements tm))
-              (λ(entanglements ct c∅)
-                (let(
-                      (entangled-tm (tg:weak-pointer-value (r entanglements)))
-                      )
-                  (if
-                    (∧
-                      entangled-tm
-                      (≠ (address entangled-tm) 0)
-                      (= (address tm) (- (address entangled-tm) 1))
-                      )
-                    [ct]
-                    [c∅]
-                    )))))
-            [➜collision]
-            (d-no-collision)
-            ))))
+        (c◧∃ (entanglements tm)
+          (λ(es ct c∅)
+            (let(
+                  (entangled-tm (tg:weak-pointer-value (r es)))
+                  )
+              (if
+                (∧
+                  entangled-tm
+                  (≠ (address entangled-tm) 0)
+                  (= (address tm) (- (address entangled-tm) 1))
+                  )
+                [ct]
+                [c∅]
+                )))
+          ➜collision
+          #'d-no-collision
+          )
+        )))
 
                                
 ;;--------------------------------------------------------------------------------

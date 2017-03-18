@@ -130,11 +130,20 @@ See LICENSE.txt
                                (:file "status-empty")
                                (:file "status-parked")
                                (:file "status-active")
+
                                (:file "ea-type")
                                (:file "ea-definitions")
                                (:file "ea-empty")
                                (:file "ea-parked")
                                (:file "ea-active")
+
+                               (:file "ea2-type")
+                               (:file "ea2-definitions")
+                               (:file "ea2-empty")
+                               (:file "ea2-parked")
+                               (:file "ea2-active")
+
+
 ;;                               (:file "ts1-type")
                                ))
 

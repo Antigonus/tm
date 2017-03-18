@@ -7,31 +7,6 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-;;--------------------------------------------------------------------------------
-;; unique to ea
-;;
-  ;; code would be simpler if entanglements had a circular tape
-  (defun clean-entanglements (tm)
-    (let(
-          (es (entanglements tm))
-          )
-      (c◧∀* es
-        (λ(es)
-          (when
-            (¬ (on-rightmost es))
-            (¬ (tg:weak-pointer-value (esr es)))
-            (d es)
-            )))
-      (c◧ es)
-      (when 
-        (∧
-          (¬ (tape-length-is-one es))
-          (¬ (tg:weak-pointer-value (r es)))
-          )
-        (d◧ es)
-        ))
-    t
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
@@ -39,7 +14,7 @@ See LICENSE.txt
 ;; more specific versions can be found for status-abandoned and status-empty,
 ;; so these will only apply to status-parked and status-active
 ;;
-  (defun-typed a◧ ((tm ea-tm) instance &optional ➜)
+  (defun-typed a◧ ((tm ea2-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -49,18 +24,19 @@ See LICENSE.txt
       (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (c◧∀* (entanglements tm)
-                   (λ(es)
-                     (update-tape-after-a◧ (base (r es)) (base tm))
-                     (incf (address (r es)))
-                     (incf (address-rightmost (r es)))
-                     ))
+                 (bt:with-lock-held ((lock (locked-entanglements tm)))
+                   (c◧∀* (entanglements (locked-entanglements tm))
+                     (λ(es)
+                       (update-tape-after-a◧ (base (r es)) (base tm))
+                       (incf (address (r es)))
+                       (incf (address-rightmost (r es)))
+                       )))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed d◧ ((tm ea-tm) &optional spill ➜)
+  (defun-typed d◧ ((tm ea2-tm) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -73,10 +49,10 @@ See LICENSE.txt
         (
           (make-empty () ;tape originally has only one cell, no active machine on ◧
             (w (base tm) ∅)
-            (c◧∀* (entanglements tm) (λ(es) (to-empty (r es))))
+            (c◧∀* (entanglements (locked-entanglements tm)) (λ(es) (to-empty (r es))))
             )
           (step-parked-machines () ;problem: parked machines leave the base head on ◧
-            (c◧∀* (entanglements tm)
+            (c◧∀* (entanglements (locked-entanglements tm))
               (λ(es)
                 (if (typep (r es) 'status-parked) (s (base tm)))
                 )))
@@ -84,7 +60,7 @@ See LICENSE.txt
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
                       (declare (ignore instance))
-                      (c◧∀* (entanglements tm)
+                      (c◧∀* (entanglements (locked-entanglements tm))
                         (λ(es)
                           (update-tape-after-d◧ (base (r es)) (base tm))
                           (when (typep (r es) 'status-active) (decf (address (r es))))
@@ -104,22 +80,36 @@ See LICENSE.txt
               ))
           )
 
-        (c◧∃ (entanglements tm) #'collision
-          ➜collision
-          (λ()
-            (a spill (r (base tm))
-              {
-                :➜ok (λ()
-                       (if (= (address-rightmost tm) 0)
-                         (make-empty)
-                         (progn
-                           (step-parked-machines)
-                           (delete-leftmost)
-                           ))
-                       [➜ok]
-                       )
-                (o (remove-key-pair ➜ :➜ok))
-                })))
-        )))
-
+        (let(
+              (lock (lock (locked-entanglements tm)))
+              (entanglements (entanglements (locked-entanglements tm)))
+              have-lock ; after we release, others might set the lock, so we need our own flag
+              )
+          (bt:acquire-lock lock)
+          (setf have-lock t)
+          (unwind-protect ; prevents orphaning the lock due to unexpected excdeptions
+            (c◧∃ entanglements #'collision
+              ➜collision
+              (λ()
+                (a spill (r (base tm))
+                  {
+                    :➜ok (λ()
+                           (if (= (address-rightmost tm) 0)
+                             (make-empty)
+                             (progn
+                               (step-parked-machines)
+                               (delete-leftmost)
+                               ))
+                           (bt:release-lock lock)
+                           (setf have-lock ∅)
+                           [➜ok]
+                           )
+                    :➜no-alloc (λ() 
+                                 (bt:release-lock lock)
+                                 (setf have-lock ∅)
+                                 [➜no-alloc]
+                                 )
+                    })))
+            (when have-lock (bt:release-lock lock))
+            )))))
 

@@ -48,15 +48,15 @@ Entangled Machines and Cell Deletion:
 Algorithm I
 --------------------------------------------------------------------------------
 
-The solution here is have a common mutual exclusion lock for accessing the entanglements
-list and for head motion.  Thus as the entanglements list is read, no head can be moving.
+One must own the machine to move it's head, to modify it's tape, or to use
+the entanglements machine.
 
-Accordingly before entering a head motion function we must acquire the entanglements
-list mutex - even when no cell deletion operation is pending.  If any cell deletion
-operation is invoked, it will block until the head motion operation finishes.
+We do not need to own the machine to read or write the tape.
 
-Disadvantage of this algorithm is that head motion functions serialize, even when
-there is no cell deletion.
+This pretty much serializes the use of a machine. However, algorithms to take
+advantage of parallelis, such as allowing head motion when there is no deletion
+operation (etc.) have higher overhead than the time we expect the head motion
+to require.
 
 --------------------------------------------------------------------------------
 Algorithm II
