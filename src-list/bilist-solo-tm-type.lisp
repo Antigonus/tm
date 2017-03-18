@@ -13,6 +13,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (def-type bilist-solo-tm (list-solo-tm bilist-tm solo-tape-machine)())
+  (def-type bilist-solo-tm (list-solo-tm bilist-tm)())
 
     

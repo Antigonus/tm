@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (car (tape tm))]
       ))
 
-  (defun-typed ec◧r ((tm list-tm) &optional ➜)
+  (defun-typed ec◧sr ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)

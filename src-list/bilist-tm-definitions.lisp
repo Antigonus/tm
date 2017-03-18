@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (binode-instance (tape tm))]
       ))
 
-  (defun-typed ec◧r ((tm bilist-tm) &optional ➜)
+  (defun-typed ec◧sr ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -175,7 +175,9 @@ See LICENSE.txt
         (setf (binode-instance       new-right-neighbor) instance)
         (setf (binode-left-neighbor  new-right-neighbor) node)
         (setf (binode-right-neighbor new-right-neighbor) current-right-neighbor)
-        (setf (binode-left-neighbor current-right-neighbor) new-right-neighbor)
+        (when current-right-neighbor
+          (setf (binode-left-neighbor current-right-neighbor) new-right-neighbor)
+          )
         (setf (binode-right-neighbor node) new-right-neighbor)
         [➜ok]
         )))

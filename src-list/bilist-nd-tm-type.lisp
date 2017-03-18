@@ -14,7 +14,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (def-type bilist-nd-tm (list-nd-tm nd-tape-machine list-tm)())
+  (def-type bilist-nd-tm (list-nd-tm bilist-tm)())
 
     
 ;;--------------------------------------------------------------------------------

@@ -13,9 +13,9 @@ See LICENSE.txt
   When an entangled machine goes out of scope and is garbage collected, its weak pointer
   value becomes ∅.
 
-  The garbage collector will run a finalizer that deletes weak pointers that have ∅ values
-  from am entanglements machines.  The finalizer uses the entanglements machine's head,
-  and it performs destructive operations.
+  The garbage collector will run a finalizer that deletes its weak pointers that has ∅
+  value from the entanglements machine.  The finalizer uses the entanglements machine's
+  head, and it performs destructive operations.
 
   ea and the finalizers co-ordinate the use the entanglements machine by using a mutex.
   Before any head motion or structural operation is performed on entanglements, the thread
@@ -81,7 +81,7 @@ See LICENSE.txt
       (call-next-method tm init-parms
         {
           :➜ok (λ(instance)
-                 (mk 'list-haz-tm {:tape {(tg:make-weak-pointer tm)}}
+                 (mk 'bilist-haz-tm {:tape {(tg:make-weak-pointer tm)}}
                    {
                      :➜ok (λ(a-haz-tm)
                             (let(
@@ -107,6 +107,11 @@ See LICENSE.txt
 
   ;; accepts an instance (typep 'ea-tm), returns an entangled instance of the same type
   ;;
+  ;; can the finalizer be called to delete the last cell of entanglements?  If so this
+  ;; would mean we have garbage collected the last machine in the entanglement group.
+  ;; But that would mean the entanglements object itself would be due to for garbage
+  ;; collection, or rather it would be, but the finalizer is pointing at it.
+  ;;
   (defun-typed entangle ((tm-orig ea-tm) &optional ➜)
     (destructuring-bind
       (&key
@@ -116,36 +121,54 @@ See LICENSE.txt
         )
       ➜  
       (let*(
-             (i (make-instance (type-of tm-orig)))
-             (pt-i (tg:make-weak-pointer i))
+             (tm-entangled         (make-instance (type-of tm-orig)))
+             (pt-tm-entangled      (tg:make-weak-pointer tm-entangled))
              (locked-entanglements (locked-entanglements tm-orig))
-             (lock (lock locked-entanglements))
-             (entanglements (entanglements locked-entanglements))
+             (lock                 (lock locked-entanglements))
+             (entanglements        (entanglements locked-entanglements))
+             have-lock ; after we release, others might set the lock, so we need our own flag
              )
         (bt:acquire-lock lock)
-        (a entanglements pt-i
-          {
-            :➜ok (λ()
-                   (let*(
-                          (d-pt (entangle entanglements)); used to deleted the cell holding i
-                          (finalize-i (λ()
-                                        (bt:with-lock-held ((lock locked-entanglements))
-                                          (c◧ entanglements); d can never collide with leftmost
-                                          (d d-pt)
-                                          )))
-                          )
-                     (bt:release-lock lock)
-                     (tg:finalize i finalize-i)
-                     (setf (base i) (entangle (base tm-orig)))
-                     (setf (locked-entanglements i) locked-entanglements)
-                     (setf (address i) (address tm-orig))
-                     (setf (address-rightmost i) (address-rightmost tm-orig))
-                     [➜ok i]
-                     ))
-            :➜no-alloc (λ()
-                         (bt:release-lock lock) 
-                         [➜no-alloc]
-                         )
-            }))))
+        (setf have-lock t)
+        (unwind-protect ; prevents orphaning the lock due to unexpected excdeptions
+          (as entanglements pt-tm-entangled
+            {
+              :➜ok (λ()
+                     (let*(
+                            (d-pt (entangle entanglements)); points to cell to be deleted
+                            (finalizer (λ()
+                                         (bt:with-lock-held (lock)
+                                           (c◧ entanglements)
+                                           (on-leftmost d-pt
+                                             {
+                                               :➜t (λ()
+                                                     (s d-pt
+                                                       {
+                                                         :➜ok (λ()(d◧ entanglements))
+                                                         :➜rightmost #'do-nothing
+                                                         }))
+                                               :➜f (λ()(d d-pt))
+                                               }))
+                                         ))
+                            )
+                       (bt:release-lock lock)
+                       (setf have-lock ∅)
+
+                       ;; guesss we better initialize the entangled copy of tm-orig
+                       (tg:finalize tm-entangled finalizer)
+                       (setf (base                 tm-entangled) (entangle (base tm-orig)))
+                       (setf (locked-entanglements tm-entangled) locked-entanglements)
+                       (setf (address              tm-entangled) (address tm-orig))
+                       (setf (address-rightmost    tm-entangled) (address-rightmost tm-orig))
+                       [➜ok tm-entangled]
+                       ))
+              :➜no-alloc (λ()
+                           (bt:release-lock lock) 
+                           (setf have-lock ∅)
+                           [➜no-alloc]
+                           )
+              })
+          (when have-lock (bt:release-lock lock))
+          ))))
 
 

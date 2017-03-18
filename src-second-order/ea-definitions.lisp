@@ -83,24 +83,33 @@ See LICENSE.txt
         (let(
               (lock (lock (locked-entanglements tm)))
               (entanglements (entanglements (locked-entanglements tm)))
+              have-lock ; after we release, others might set the lock, so we need our own flag
               )
           (bt:acquire-lock lock t)
-          (c◧∃ entanglements #'collision
-            ➜collision
-            (λ()
-              (a spill (r (base tm))
-                {
-                  :➜ok (λ()
-                         (if (= (address-rightmost tm) 0)
-                           (make-empty)
-                           (progn
-                             (step-parked-machines)
-                             (delete-leftmost)
-                             ))
-                         (bt:release-lock lock)
-                         [➜ok]
-                         )
-                  :➜no-alloc (λ() (bt:release-lock lock) [➜no-alloc])
-                  }))))
-        )))
+          (setf have-lock t)
+          (unwind-protect ; prevents orphaning the lock due to unexpected excdeptions
+            (c◧∃ entanglements #'collision
+              ➜collision
+              (λ()
+                (a spill (r (base tm))
+                  {
+                    :➜ok (λ()
+                           (if (= (address-rightmost tm) 0)
+                             (make-empty)
+                             (progn
+                               (step-parked-machines)
+                               (delete-leftmost)
+                               ))
+                           (bt:release-lock lock)
+                           (setf have-lock ∅)
+                           [➜ok]
+                           )
+                    :➜no-alloc (λ() 
+                                 (bt:release-lock lock)
+                                 (setf have-lock ∅)
+                                 [➜no-alloc]
+                                 )
+                    })))
+            (when have-lock (bt:release-lock lock))
+            )))))
 

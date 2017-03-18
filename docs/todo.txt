@@ -114,3 +114,7 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
      :d (λ() .. runs with lock held
      }
 
+   .. and need an else clause ..  and an any clause
+
+   also need to build in exception handler options, because these are not going
+   away in Lisp

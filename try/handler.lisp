@@ -52,7 +52,7 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; works fine  
-;;  only difference, dequeueed the out the nested definition of #'ww from #'www
+;;  only difference, took out the nested definition of #'ww from #'www
 ;;
   (defun ww () t)
 

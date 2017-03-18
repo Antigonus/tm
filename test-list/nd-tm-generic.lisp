@@ -22,6 +22,7 @@ See LICENSE.txt
       (heads-on-same-cell tm0 tm1)
       (s tm1)
       (¬ (heads-on-same-cell tm0 tm1))
+      (¬ (s tm1))
       )))
 (test-hook test-mk-entangled-0)
 

@@ -5,8 +5,6 @@ See LICENSE.txt
 
   Make list machines.
 
-  instance is the most generic term for typed data
-
 |#
 
 (in-package #:tm)
@@ -37,10 +35,13 @@ See LICENSE.txt
         (&key tape) keyed-parms
         (cond
           ((∧ tape (consp tape))
-            (setf (head tm) (make-bilist tape))
-            (setf (tape tm) tape)
-            [➜ok tm]
-            )
+            (let(
+                  (the-bilist (make-bilist tape))
+                  )
+              (setf (head tm) the-bilist)
+              (setf (tape tm) the-bilist)
+              [➜ok tm]
+              ))
           (t
             (call-next-method keyed-parms ➜) ; pick up tape-machine's init for non consp tapes
             ))

@@ -99,18 +99,17 @@ See LICENSE.txt
                (:module "test-list"
                 :components (
                               ;; generic interface tests
-                              (:file "list-tm-definitions")
-                              (:file "tm-generic")
-                              (:file "tm-quantifiers")
-                              (:file "tm-quantified")
-
+                              (:file "bilist")
                               (:file "list-nd-tm-definitions")
-                              (:file "nd-tm-generic")
-                              (:file "nd-tm-quantifiers")
-                              (:file "nd-tm-quantified")
-
                               (:file "list-solo-tm-definitions")
+                              (:file "list-tm-definitions")
+                              (:file "nd-tm-generic")
+                              (:file "nd-tm-quantified")
+                              (:file "nd-tm-quantifiers")
                               (:file "solo-tm-quantified")
+                              (:file "tm-generic")
+                              (:file "tm-quantified")
+                              (:file "tm-quantifiers")
                               ))
 
                (:module "src-tr"

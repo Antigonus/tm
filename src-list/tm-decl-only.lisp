@@ -29,7 +29,7 @@ functions.
   (def-function-class esw (tm instance &optional ➜))
 
   (def-function-class ec◧r (tm &optional ➜))
-  (def-function-class ec◧r (tm &optional ➜))
+  (def-function-class ec◧sr (tm &optional ➜))
 
   (def-function-class ec◧w (tm instance &optional ➜))
   (def-function-class ec◧sw (tm instance &optional ➜))
