@@ -18,8 +18,10 @@ See LICENSE.txt
       (c◧∀* es
         (λ(es)
           (when
-            (¬ (on-rightmost es))
-            (¬ (tg:weak-pointer-value (esr es)))
+            (∧
+              (¬ (on-rightmost es))
+              (¬ (tg:weak-pointer-value (esr es)))
+              )
             (d es)
             )))
       (c◧ es)
