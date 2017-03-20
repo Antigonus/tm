@@ -10,30 +10,38 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; unique to ea
 ;;
-  ;; code would be simpler if entanglements had a circular tape
+  ;; machines are considered to be entangled with themselves, thus
+  ;; we can never have an empty entanglements machine
   (defun clean-entanglements (tm)
     (let(
           (es (entanglements tm))
           )
-      (c◧∀* es
-        (λ(es)
-          (when
-            (∧
-              (¬ (on-rightmost es))
-              (¬ (tg:weak-pointer-value (esr es)))
-              )
-            (d es)
-            )))
+
       (c◧ es)
-      (when 
-        (∧
-          (¬ (tape-length-is-one es))
-          (¬ (tg:weak-pointer-value (r es)))
-          )
-        (d◧ es)
-        ))
-    t
-    )
+      (⟳
+        (λ(➜again)
+          (if
+            (on-rightmost es)
+            (return-from clean-entanglements t)
+            (when (tg:weak-pointer-value (r es))
+              (when (on-leftmost es) (s es {:➜rightmost #'cant-happen}))
+              (d◧ es)
+              [➜again]
+              ))))
+      (⟳
+        (λ(➜again)
+          (if
+            (on-rightmost es)
+            (return-from clean-entanglements t)
+            (if
+              (tg:weak-pointer-value (esr es))
+              (d es)
+              (s es {:➜ok ➜again :➜rightmost (λ()(return-from clean-entanglements t))})
+              ))))
+
+      [#'cant-happen]
+      ))
+
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only

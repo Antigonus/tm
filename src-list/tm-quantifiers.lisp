@@ -7,11 +7,10 @@ See LICENSE.txt
 
   Note the true and false continuations are not optional on pred.
 
-  continuation arguments the existential and universl quantification are
-  given in the argument list
+  continuation arguments for the existential and universl quantification are given in the
+  argument list
 
-  the cue leftmost versions should call the quantifier in the 
-  ok continatuaion?
+  the cue leftmost versions should call the quantifier in the ok continatuaion?
 
 |#
 
@@ -20,13 +19,13 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; looping, see also s-together⟳  --> need to replace these with quantifiers
 ;;
-  (defun ⟳ (work &rest ⋯)
-    "⟳ (pronounced \"do\") accepts a 'work' function and arguments. work may be a nameless
-     lambda. ⟳ prepends a value to the argument list and calls work.  When the prepended
-     value is called with funcall, work is called again with the same arguments.
+  (defun ⟳ (work)
+    "⟳ (pronounced \"do\") accepts a 'work' function. 'work' may be a nameless lambda. ⟳
+     calls work with a single continuation argument.  That continuation is the work
+     function.  Hence, when the continuation is called, work is called again.
      "
     (labels(
-             (again() (apply work (cons #'again ⋯)))
+             (again() (funcall work #'again))
              )
       (again)
       ))

@@ -58,7 +58,7 @@ See LICENSE.txt
       (call-next-method tm init-parms
         {
           :➜ok (λ(instance)
-                 (mk 'bilist-solo-tm {:tape {(tg:make-weak-pointer tm)}}
+                 (mk 'list-solo-tm {:tape {(tg:make-weak-pointer tm)}}
                    {
                      :➜ok (λ(entanglements)
                             (setf (entanglements tm) entanglements)

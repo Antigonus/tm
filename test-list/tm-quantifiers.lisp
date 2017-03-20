@@ -17,18 +17,18 @@ See LICENSE.txt
           (tm-dst (mk 'list-tm {:tape {1}}))
           )
       (labels(
-               (worker (repeat cont◨)
+               (cont◨ () 
+                 (equal (tape tm-src) (cdr (tape tm-dst)))
+                 )
+               (worker (repeat)
                  (as tm-dst (r tm-src))
                  (s tm-src
                    {
                      :➜ok repeat
-                     :➜rightmost cont◨
+                     :➜rightmost #'cont◨
                      }))
-               (cont◨ () 
-                 (equal (tape tm-src) (cdr (tape tm-dst)))
-                 )
                )
-        (⟳ #'worker #'cont◨)
+        (⟳ #'worker)
         )))
   (test-hook test-⟳-0)
 
