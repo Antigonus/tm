@@ -10,9 +10,11 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; unique to ea
 ;;
+  (def-function-class clean-entangled (tm))
+
   ;; machines are considered to be entangled with themselves, thus
   ;; we can never have an empty entanglements machine
-  (defun clean-entanglements (tm)
+  (defun-typed clean-entanglements ((tm ea-tm))
     (let(
           (es (entanglements tm))
           )

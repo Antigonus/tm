@@ -5,15 +5,10 @@ See LICENSE.txt
 
   A thread safe version of the ea machine.
 
-  We keep the entangelements machine so as to know:
+  The ea machine keeps an entangelements machine so as to know:
    1. which machines to make empty, or not empty
    2. which machines to update their leftmost cell pointer for a◧  or d◧
    3. which machines to check for a collision before deleteing a cell
-
-  Ea already synchronizes with the garbage collector calling the finalizers. Finalizers
-  delete weak pointers out of the entanglements list, and can be called at any time.
-  In the ea machine, users must own the entanglements machine before using it.  Ownership
-  is demonstrated by 'acquiring the entanglements lock'. 
 
   With multiple threads we must also synchronize between certain interface
   functions, so as to avoid these hazards:
@@ -23,13 +18,28 @@ See LICENSE.txt
    2. address incf/decf gets the wrong answer, because between the read and write of
       the incremented address, the address value was written.
 
-  We discuss various approaches to avoiding these hazards in
-  doc/implementation/multiple-threads.txt This is an implementation of the first algorithm
-  discussed there.  Accordingly, we use the entanglement's lock as a general tape
-  ownership lock, and require any operation that performs head motion or structural
-  operations to own this lock.
+  We discuss various approaches to avoiding hazards related to the synchronization of
+  resources in doc/implementation/multiple-threads.txt. This is an implementation of the
+  first algorithm discussed there.  Accordingly, any routine that causes structural changes,
+  uses the entanglement machine, or cause head motion must own the deed to the 
+  machine (i.e. the lock).
 
+---
 
+Any function that has operations that must be consistent across the type of the machine
+must synchronize with functions that change the type of the machine.
+
+Head motion functions must synchronize with structural change funcitons.  Otherwise we
+might walk through the under construction work being done by a structural function.
+
+Structural change operations must synchronize between each other.  Otherwise adjacent
+structural change operations can confuse each other.  Also, the entangelments list 
+must be modified in a coherent manner.
+
+We need a recursive lock, take clean-entanglments for example, provided that we carry it
+forward, it calls routines that now grab the lock.
+
+We do not need to synchronize synonyms. 
 
 |#
 
@@ -37,18 +47,18 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type ts1-tm (status-tm)
+  (def-type ts1-tm (ea-tm)
     (
-      (ownership
-        :initarg :ownership
-        :accessor base
+      (deed
+        :initarg :deed
+        :accessor deed
         )
       ))
 
-  (def-type ts1-abandoned (ts1-tm status-abandoned)())
-  (def-type ts1-active    (ts1-tm status-active)())
-  (def-type ts1-empty     (ts1-tm status-empty)())
-  (def-type ts1-parked    (ts1-tm status-parked)())
+  (def-type ts1-abandoned (ts1-tm ea-abandoned)())
+  (def-type ts1-active    (ts1-tm ea-active)())
+  (def-type ts1-empty     (ts1-tm ea-empty)())
+  (def-type ts1-parked    (ts1-tm ea-parked)())
 
 ;;--------------------------------------------------------------------------------
 ;; state transition functions
@@ -76,32 +86,13 @@ See LICENSE.txt
       (call-next-method tm ➜
         {
           :➜ok (λ()
-                 (setf (ownership tm) (bt:make-lock))
+                 (setf (deed tm) (bt:make-recursive-lock))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed entangle ((tm-orig status-tm) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        ;; (➜no-alloc #'alloc-fail)
-        &allow-other-keys
-        )
-      ➜  
-      (let(
-            have-lock
-            )
-        (bt:acquire-lock lock)
-        (setf have-lock t)
-        (call-next-method tm-orig
-          {
-            :➜ok (λ(tm-entangled)
-                   (setf (entanglements 
-                   (setf (address tm-entangled) (address tm-orig))
-                   (setf (address-rightmost tm-entangled) (address-rightmost tm-orig))
-                   [➜ok tm-entangled]
-                   )
-            (o (remove-key-pair ➜ :➜ok))
-            })))
+  (defun-typed entangle ((tm-orig ts1-tm) &optional ➜)
+    (bt:with-recursive-lock ((deed tm-orig))
+      (call-next-method tm-orig ➜)
+      ))

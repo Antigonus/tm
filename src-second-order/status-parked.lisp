@@ -62,6 +62,7 @@ See LICENSE.txt
       ))
 
   (defun-typed s ((tm status-parked) &optional ➜) (c◧ tm ➜))
+  (defun-typed -s ((tm status-parked) &optional ➜) (c◨ tm ➜))
 
   (defun-typed a ((tm status-parked) instance &optional ➜) (a◧ tm instance ➜))
 
@@ -120,7 +121,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  ;; see ea-definitions for a◧ and d◧
   (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
 
 ;;--------------------------------------------------------------------------------

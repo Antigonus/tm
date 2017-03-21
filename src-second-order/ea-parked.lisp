@@ -34,13 +34,12 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (c◨ (base tm)
+      (call-next-method tm
         {
-          :➜ok (λ()
-                 (to-active tm)
-                 (setf (address tm) (address-rightmost tm))
-                 [➜ok]
-                 )
+          :ok (λ()
+                (setf (address tm) (address-rightmost tm))
+                [➜ok]
+                )
           (o (remove-key-pair ➜ :➜ok))
           }
         )))
@@ -48,8 +47,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  ;; see ea-definitions for a◧
+  ;; see ea-definitions for a◧, d◧
 
-  (defun-typed d ((tm ea-parked) &optional spill ➜) (d◧ tm spill ➜))
 
                     

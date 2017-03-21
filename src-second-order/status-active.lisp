@@ -76,6 +76,22 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
+  (defun-typed -s ((tm status-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (-s (base tm)
+        {:➜ok (λ()
+                (decf (address tm))
+                [➜ok]
+                )
+          (o (remove-key-pair ➜ :➜ok))
+          })))
+
+
   (defun-typed a ((tm status-tm) instance &optional ➜)
     (destructuring-bind
       (&key
@@ -111,7 +127,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (if (= (address-rightmost tm) 0) [➜t] [➜∅])
+      (if (= (address tm) (address-rightmost tm)) [➜t] [➜∅])
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -140,7 +156,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (a (base tm) instance
+      (as (base tm) instance
         {
           :➜ok (λ()
                  (incf (address tm))
@@ -152,43 +168,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-tm) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (a◧ (base tm) instance
-        {
-          :➜ok (λ()
-                 (incf (address tm))
-                 (incf (address-rightmost tm))
-                 [➜ok]
-                 )
-          (o (remove-key-pair ➜ :➜ok))
-          })))
-
-
-  (defun-typed d◧ ((tm status-tm) &optional spill ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜collision (λ()(error 'dealloc-collision)))
-        &allow-other-keys
-        )
-      ➜
-      (if (= (address-rightmost tm) 0)
-        [➜collision]
-        (d◧ (base tm) spill
-          {
-            :➜ok (λ(instance)
-                   (decf (address tm))
-                   (decf (address-rightmost tm))
-                   [➜ok instance]
-                   )
-            (o (remove-key-pair ➜ :➜ok))
-            }))))
         
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only

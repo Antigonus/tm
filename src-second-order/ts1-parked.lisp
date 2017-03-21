@@ -3,43 +3,48 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; ts1-tm specific
-;;
-
-;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
+  (defun-typed c◧ ((tm ts1-parked) &optional ➜)
+    (bt:with-lock-held ((deed tm))
+      (call-next-method tm ➜)
+      ))
+
+;;--------------------------------------------------------------------------------
+;; tm-generic
+;;
+  (defun-typed c◨ ((tm ea-parked) &optional ➜)
+    (bt:with-lock-held ((deed tm))
+      (call-next-method tm ➜)
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-;; more specific versions can be found for status-abandoned and status-empty,
-;; so these will only apply to status-parked and status-active
-;;
-  (defun-typed a◧ ((tm ea-tm) instance &optional ➜)
-    (bt:with-recursive-lock-held ((tm deed))
-      (call-next-method tm instance ➜)
-      ))
-
-  (defun-typed d◧ ((tm ea-tm) &optional spill ➜)
-    (bt:with-recursive-lock-held ((tm deed))
-      (call-next-method tm spill ➜)
-      ))
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
-  (defun-typed entangled
+
+;;--------------------------------------------------------------------------------
+;; nd-tm-generic
+;;
+  (defun-typed s≠ 
     (
-      (tm0 status-tm)
-      (tm1 status-tm)
+      (tm0 ts1-parked)
+      (tm1 ts1-parked)
       &optional ➜
       )
-    (bt:with-recursive-lock-held ((tm deed))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm0 tm1 ➜)
       ))
+
+
+
+                    

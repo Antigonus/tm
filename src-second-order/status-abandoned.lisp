@@ -39,6 +39,7 @@ continuations for
 
   (def-abandoned-1 c◧)
   (def-abandoned-1 s)
+  (def-abandoned-1 -s)
   (def-abandoned-1 a instance)
   (def-abandoned-1 on-leftmost)
   (def-abandoned-1 on-rightmost)

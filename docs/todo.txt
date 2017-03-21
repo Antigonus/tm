@@ -119,6 +119,16 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
    also need to build in exception handler options, because these are not going
    away in Lisp
 
+   wonder, what of a loop with a continuations call:
+
+      (c◧∀* (entanglements tm)
+        (λ(es)
+          (call-next-method (tg:weak-pointer-value (r es)) instance ➜) ...
+
+   seems to work
+
+
+
 47. looks like we need some fundamental circular structures.  for example, the entanglements
    list would like to be circular.  Yes we will add an affine transform, but might
    be higher performance to have a couple of native circular machines.
