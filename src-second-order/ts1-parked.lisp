@@ -12,15 +12,15 @@ See LICENSE.txt
 ;; tm-decl-only
 ;;
   (defun-typed c◧ ((tm ts1-parked) &optional ➜)
-    (bt:with-lock-held ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed c◨ ((tm ea-parked) &optional ➜)
-    (bt:with-lock-held ((deed tm))
+  (defun-typed c◨ ((tm ts1-parked) &optional ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 

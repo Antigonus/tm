@@ -10,7 +10,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; unique to ea
 ;;
-  (def-function-class clean-entangled (tm))
+  (def-function-class clean-entanglements (tm))
 
   ;; machines are considered to be entangled with themselves, thus
   ;; we can never have an empty entanglements machine
@@ -83,55 +83,91 @@ See LICENSE.txt
       ➜
       (labels
         (
-          (make-empty () ;tape originally has only one cell, no active machine on ◧
+
+          ;;tape originally has only one cell, no active machine is on ◧
+          ;;so we transition to empty
+          (make-empty () 
             (w (base tm) ∅)
-            (c◧∀* (entanglements tm) (λ(es) (to-empty (r es))))
+            (c◧∀*
+              (entanglements tm) 
+              (λ(es) (to-empty (tg:weak-pointer-value (r es))))
+              )
             )
-          (step-parked-machines () ;problem: parked machines leave the base head on ◧
+
+          ;;problem: parked machines leave the base head on ◧
+          ;;when this is called:
+          ;;   -we already checked we are not on rightmost (there is a cell to step to)
+          (step-parked-machines () 
             (c◧∀* (entanglements tm)
               (λ(es)
-                (if (typep (r es) 'status-parked) (s (base tm)))
-                )))
-          (delete-leftmost () ;tape originally > one cell, no active machine on ◧
+                (let(
+                      (etm (tg:weak-pointer-value (r es)))
+                      )
+                  (when 
+                    (typep etm 'status-parked)
+                    (s (base etm) {:➜rightmost #'cant-happen})
+                    )
+                  ))))
+          
+          (delete-1 () ;tape originally > one cell, no active machine on ◧
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
                       (declare (ignore instance))
                       (c◧∀* (entanglements tm)
                         (λ(es)
-                          (update-tape-after-d◧ (base (r es)) (base tm))
-                          (when (typep (r es) 'status-active) (decf (address (r es))))
-                          (decf (address-rightmost (r es)))
-                          )))
+                          (let(
+                                (etm (tg:weak-pointer-value (r es)))
+                                )
+                          (update-tape-after-d◧ (base etm) (base tm))
+                          (when (typep etm 'status-active) (decf (address etm)))
+                          (decf (address-rightmost etm))
+                          ))))
                 :➜collision #'cant-happen
                 :➜no-alloc ➜no-alloc
                 }))
+
+          (delete-0 () ;tape originally > one cell, no active machine on ◧
+            (if (= (address-rightmost tm) 0)
+              (make-empty)
+              (progn
+                (step-parked-machines)
+                (delete-1)
+                )))
+
+
           (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
-            (if 
-              (∧
-                (typep (r es) 'status-active)
-                (= (address (r es)) 0)
-                )
-              [ct]
-              [c∅]
-              ))
+            (let(
+                  (etm (tg:weak-pointer-value (r es)))
+                  )
+              (if 
+                (∧
+                  (typep etm 'status-active)
+                  (= (address etm) 0)
+                  )
+                [ct]
+                [c∅]
+                )))
           )
 
         (c◧∃ (entanglements tm) #'collision
           ➜collision
           (λ()
-            (a spill (r (base tm))
-              {
-                :➜ok (λ()
-                       (if (= (address-rightmost tm) 0)
-                         (make-empty)
-                         (progn
-                           (step-parked-machines)
-                           (delete-leftmost)
-                           ))
-                       [➜ok]
-                       )
-                (o (remove-key-pair ➜ :➜ok))
-                })))
+            (let(
+                  (spill-instance (ec◧r (base tm)))
+                  )
+              (if spill
+                (a spill spill-instance
+                  {
+                    :➜ok (λ()
+                           (delete-0)
+                           [➜ok spill-instance]
+                           )
+                    (o (remove-key-pair ➜ :➜ok))
+                    })
+                (progn
+                  (delete-0)
+                  [➜ok spill-instance]
+                  )))))
         )))
 
 

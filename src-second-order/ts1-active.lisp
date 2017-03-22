@@ -29,32 +29,32 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;; tm-decl-only
 ;;
   (defun-typed c◧ ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
   (defun-typed s ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
   (defun-typed -s ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
-  (defun-typed a ((tm status-tm) instance &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+  (defun-typed a ((tm ts1-tm) instance &optional ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm instance ➜)
       ))
 
   (defun-typed on-leftmost ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
   (defun-typed on-rightmost ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
@@ -62,12 +62,12 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;; tm-generic
 ;;
   (defun-typed c◨ ((tm ts1-active) &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
 
   (defun-typed as ((tm ts1-active) instance &optional ➜)
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm instance ➜)
       ))
 
@@ -84,6 +84,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (tm1 ts1-active)
       &optional ➜
       )
-    (bt:with-recursive-lock ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm0 tm1 ➜)
       ))

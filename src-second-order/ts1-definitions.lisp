@@ -21,13 +21,13 @@ See LICENSE.txt
 ;; more specific versions can be found for status-abandoned and status-empty,
 ;; so these will only apply to status-parked and status-active
 ;;
-  (defun-typed a◧ ((tm ea-tm) instance &optional ➜)
-    (bt:with-recursive-lock-held ((tm deed))
+  (defun-typed a◧ ((tm ts1-tm) instance &optional ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm instance ➜)
       ))
 
-  (defun-typed d◧ ((tm ea-tm) &optional spill ➜)
-    (bt:with-recursive-lock-held ((tm deed))
+  (defun-typed d◧ ((tm ts1-tm) &optional spill ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm spill ➜)
       ))
 
@@ -36,10 +36,11 @@ See LICENSE.txt
 ;;
   (defun-typed entangled
     (
-      (tm0 status-tm)
-      (tm1 status-tm)
+      (tm0 ts1-tm)
+      (tm1 ts1-tm)
       &optional ➜
       )
-    (bt:with-recursive-lock-held ((tm deed))
-      (call-next-method tm0 tm1 ➜)
-      ))
+    (bt:with-recursive-lock-held ((deed tm0))
+      (bt:with-recursive-lock-held ((deed tm1))
+        (call-next-method tm0 tm1 ➜)
+        )))

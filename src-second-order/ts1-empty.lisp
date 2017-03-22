@@ -17,16 +17,16 @@ We don't have to worry about synchronizing destructive operations on an empty ma
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed as ((tm ea-empty) instance &optional ➜)
-    (bt:with-recursive-lock-held ((tm deed))
+  (defun-typed as ((tm ts1-empty) instance &optional ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm instance ➜)
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm ea-empty) instance &optional ➜)
-    (bt:with-recursive-lock-held ((tm deed))
+  (defun-typed a◧ ((tm ts1-empty) instance &optional ➜)
+    (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm instance ➜)
       ))
 

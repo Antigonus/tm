@@ -72,27 +72,32 @@ We do not need to synchronize synonyms.
 ;; 
   (defun-typed init
     (
-      (tm status-tm)
+      (tm ts1-tm)
       (keyed-parms cons)
       &optional ➜
       )
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜fail (λ()(error 'bad-init-value)))
         &allow-other-keys
         )
       ➜
-      (call-next-method tm ➜
+      (call-next-method tm keyed-parms
         {
-          :➜ok (λ()
+          :➜ok (λ(tm)
                  (setf (deed tm) (bt:make-recursive-lock))
-                 [➜ok]
+                 [➜ok tm]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
 
   (defun-typed entangle ((tm-orig ts1-tm) &optional ➜)
-    (bt:with-recursive-lock ((deed tm-orig))
-      (call-next-method tm-orig ➜)
-      ))
+    (bt:with-recursive-lock-held ((deed tm-orig))
+      (call-next-method tm-orig
+        {
+          :➜ok (λ(tm)
+                 (setf (deed tm) (deed tm-orig))
+                 tm
+                 )
+          (o (remove-key-pair ➜ :➜ok))
+          })))

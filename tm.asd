@@ -89,7 +89,6 @@ See LICENSE.txt
                                (:file "bilist-solo-tm-definitions")
                                (:file "bilist-haz-tm-type")
 
-
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")
@@ -143,14 +142,18 @@ See LICENSE.txt
                                (:file "ea2-parked")
                                (:file "ea2-active")
 
-
-;;                               (:file "ts1-type")
+                               (:file "ts1-type")
+                               (:file "ts1-definitions")
+                               (:file "ts1-empty")
+                               (:file "ts1-parked")
+                               (:file "ts1-active")
                                ))
 
                (:module "test-second-order"
                  :components (
                                (:file "status")
                                (:file "ea")
+                               (:file "ts1")
                                ))
 
 

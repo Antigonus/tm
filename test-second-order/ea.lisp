@@ -34,6 +34,25 @@ See LICENSE.txt
       )))
 (test-hook test-ea-0)
 
+
+(defun test-ea-1 ()
+  (let*(
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (tm1 (mk 'ea-tm {:base tm0}))
+         (tm2 (entangle tm1))
+         )
+    (∧
+      (park tm1)
+      (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
+      (park tm2)
+      (= (d◧ tm1) 1)
+      (= (d◧ tm1) 2)
+      (= (d◧ tm1) 3)
+      (typep tm2 'status-empty)
+      )))
+(test-hook test-ea-1)
+
+
 (defun test-ea2-0 ()
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
