@@ -9,6 +9,7 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
+
 (defun test-ea-0 ()
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
@@ -38,16 +39,52 @@ See LICENSE.txt
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
          (tm1 (mk 'ea-tm {:base tm0}))
+         )
+    (∧
+      (park tm1)
+      (= (d◧ tm1) 1)
+      (= (d◧ tm1) 2)
+      (= (d◧ tm1) 3)
+      (typep tm1 'status-empty)
+      )
+    ))
+(test-hook test-ea-1)
+
+(defun test-ea-2 ()
+  (let*(
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (tm1 (mk 'ea-tm {:base tm0}))
          (tm2 (entangle tm1))
          )
     (∧
       (park tm1)
-      (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
+      ;; this has a collision with tm2's head
+      ;;
+         (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
       (park tm2)
       (= (d◧ tm1) 1)
       (= (d◧ tm1) 2)
       (= (d◧ tm1) 3)
       (typep tm2 'status-empty)
       )))
-(test-hook test-ea-1)
+(test-hook test-ea-2)
 
+(defun test-ea-3 ()
+  (let*(
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (tm1 (mk 'ea-tm {:base tm0}))
+         )
+    (∧
+      (typep tm0 'tape-machine)
+      (typep tm1 'ea-tm)
+      (typep tm1 'status-tm)
+      (park tm1)
+      (typep tm1 'ea-parked)
+      (typep tm1 'status-parked)
+      (d tm1)
+      (d tm1)
+      (d tm1)
+      (typep tm1 'ea-empty)
+      (typep tm1 'status-empty)
+      )))
+(test-hook test-ea-3)

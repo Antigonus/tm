@@ -73,6 +73,7 @@ continuations for
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
+    (prins (print "d◧ status-abandoned"))
     (operation-on-abandoned)
     )
 

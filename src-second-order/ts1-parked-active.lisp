@@ -18,6 +18,7 @@ See LICENSE.txt
       ))
 
   (defun-typed d◧ ((tm ts1-parked-active) &optional spill ➜)
+    (prins (print "d◧ ts1-parked-active"))
     (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm spill ➜)
       ))

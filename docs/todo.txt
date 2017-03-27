@@ -138,3 +138,7 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
    a◧  "
 
 
+49. need to turn #'cant-happen into a function like be that when prins is turned
+  on prints a where message and why it isn't supposed to happen
+
+50.  ⟳ needs a max-iteration count continuation option

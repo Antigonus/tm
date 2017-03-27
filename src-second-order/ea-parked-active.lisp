@@ -45,6 +45,7 @@ functions shared by parked and active
         &allow-other-keys
         )
       ➜
+      (prins (print "d◧ ea-parked-active"))
       (labels
         (
 
@@ -73,7 +74,7 @@ functions shared by parked and active
                     )
                   ))))
           
-          (delete-1 () ;tape originally > one cell, no active machine on ◧
+          (delete-1 () ;presented tape has > one cell, no active machine on ◧
             (d◧ (base tm) spill
               {:➜ok (λ(instance)
                       (declare (ignore instance))
@@ -90,7 +91,7 @@ functions shared by parked and active
                 :➜no-alloc ➜no-alloc
                 }))
 
-          (delete-0 () ;tape originally > one cell, no active machine on ◧
+          (delete-0 ()
             (if (= (address-rightmost tm) 0)
               (make-empty)
               (progn
@@ -113,6 +114,7 @@ functions shared by parked and active
                 )))
           )
 
+        ;; d◧ function starts here -----
         (c◧∃ (entanglements tm) #'collision
           ➜collision
           (λ()

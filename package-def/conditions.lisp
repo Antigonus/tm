@@ -14,6 +14,9 @@ See LICENSE.txt
   (define-condition not-implemented (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition impossible-to-get-here (error)
+    ((text :initarg :text :reader text)))
+
 
 ;;--------------------------------------------------------------------------------
 ;; list-L

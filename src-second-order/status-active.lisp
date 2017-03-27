@@ -159,6 +159,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (as (base tm) instance
         {
           :➜ok (λ()
+                 (incf (address-rightmost tm))
                  (incf (address tm))
                  [➜ok]
                  )
@@ -176,6 +177,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
+      (prins (print "d◧ status-active"))
       (if (= (address-rightmost tm) 0)
         [➜collision]
         (d◧ (base tm) spill

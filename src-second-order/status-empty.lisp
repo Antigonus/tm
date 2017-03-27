@@ -197,6 +197,8 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
+      ;; address rightmost will already be zero
+      ;; address will already be zero
       (w (base tm) instance)
       (to-parked tm)
       [➜ok]
@@ -223,6 +225,7 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
+      (prins (print "d◧ status-empty"))
       [➜empty]
       ))
 

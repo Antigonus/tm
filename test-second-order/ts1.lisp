@@ -36,6 +36,49 @@ See LICENSE.txt
 
 (defun test-ts1-1 ()
   (let*(
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (tm1 (mk 'ts1-tm {:base tm0}))
+         )
+    (∧
+      (= (address tm1) 0) 
+      (= (address-rightmost tm1) 2) 
+      (park tm1)
+      (= (address-rightmost tm1) 2) 
+      (= (d◧ tm1) 1)
+      (= (address-rightmost tm1) 1) 
+      (= (d◧ tm1) 2)
+      (= (address-rightmost tm1) 0) 
+      (= (d◧ tm1) 3)
+      (typep tm1 'status-empty)
+      )
+    ))
+(test-hook test-ts1-1)
+
+(defun test-ts1-2 ()
+  (let*(
+         (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (tm1 (mk 'ts1-tm {:base tm0}))
+         )
+    (∧
+      (typep tm0 'tape-machine)
+      (typep tm1 'ts1-tm)
+      (typep tm1 'status-tm)
+      (typep tm1 'status-active)
+      (= (address tm1) 0) 
+      (= (address-rightmost tm1) 2) 
+      (park tm1)
+      (typep tm1 'ts1-parked)
+      (typep tm1 'status-parked)
+      (d tm1)
+      (d tm1)
+      (d tm1)
+      (typep tm1 'ts1-empty)
+      (typep tm1 'status-empty)
+      )))
+(test-hook test-ts1-2)
+
+(defun test-ts1-3 ()
+  (let*(
          (n 20)
          (data (loop for i from 0 to n collect i))
          (tm10 (mk 'list-solo-tm {:tape data}))
@@ -108,9 +151,9 @@ See LICENSE.txt
         (≠ retries1 max-retries)
         )
       )))
-(test-hook test-ts1-1)
+(test-hook test-ts1-3)
 
-(defun test-ts1-2 ()
+(defun test-ts1-4 ()
   (let*(
          (data (loop for i from 1 to 5 collect i))
 
@@ -169,51 +212,56 @@ See LICENSE.txt
                         (nl)
                         (tm-print tm21)
                         (tm-print tm31)
+                        (print "in t2 before the d◧, address rightmost tm21 and tm31 ")
+                        (princ (address-rightmost tm21))
+                        (princ " ")
+                        (princ (address-rightmost tm31))
+                        (nl)
                         )
 
                       (d◧ tm21 tm31
                         {
                           :➜ok (λ(instance)
                                  (prins
-                                   (print "in t2 ok cont d◧, tm21 and tm31 ")
+                                   (print "in t2 d◧ ok cont, tm21 and tm31 ")
                                    (nl)
                                    (tm-print tm21)
                                    (tm-print tm31))
                                  (sleep .003)
                                  (if (eq instance 'end)
                                    (prins
-                                     (print "in t2 ok cont d◧, found 'end instance, exiting")
+                                     (print "in t2 d◧ ok cont, found 'end instance, exiting")
                                      )
                                    (if (≠ max-retries retries-next)
                                      (progn
-                                       (prins (print "in t2 ok cont d◧, pulling next instance"))
+                                       (prins (print "in t2 d◧ ok cont, pulling next instance"))
                                        (incf retries-next)
                                        [again]
                                        )
-                                     (prins (print "in t2 ok cont, pulled all the data"))
+                                     (prins (print "in t2 d◧ ok cont, pulled all the data"))
                                      )))
 
                           :➜empty (λ()
-                                    (prins (print "in t2 empty cont d◧"))
+                                    (prins (print "in t2 d◧ empty cont"))
                                     (sleep .001)
                                     (if (≠ max-retries retries-empty)
                                       (progn
-                                        (prins (print "in t2 empty cont d◧, will retry"))
+                                        (prins (print "in t2 d◧  empty cont, will retry"))
                                         (incf retries-empty)
                                         [again]
                                         )
-                                      (prins (print "in t2 empty cont d◧, max retries giving up"))
+                                      (prins (print "in t2 d◧ empty cont, max retries giving up"))
                                       ))
                           :➜collision (λ()
                                         (sleep .002)
                                         (prins (print "in t2 collision cont"))
                                         (if (≠ max-retries retries-collision)
                                           (progn
-                                            (prins (print "in t2 collision d◧, will retry"))
+                                            (prins (print "in t2 d◧ collision cont, will retry"))
                                             (incf retries-collision)
                                             [again]
                                             )
-                                          (prins (print "in t2 collision d◧, max retries giving up"))
+                                          (prins (print "in t2 d◧ collision cont, max retries giving up"))
                                           ))
                           }))))
                   :name "t2"
@@ -235,5 +283,5 @@ See LICENSE.txt
       (finish-output nil)
       )))
 
-(test-hook test-ts1-2)
+(test-hook test-ts1-4)
 

@@ -113,7 +113,11 @@ See LICENSE.txt
       ➜
       (a◧ (base tm) instance
         {
-          :➜ok (λ()(c◧ tm ➜))
+          :➜ok (λ()
+                 ;; address will already by zero
+                 (incf (address-rightmost tm))
+                 (c◧ tm ➜)
+                 )
           :➜no-alloc ➜no-alloc
           })
       ))
@@ -128,6 +132,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
+      (prins (print "d◧ status-parked"))
       (if
         (= (address-rightmost tm) 0)
         (let(
