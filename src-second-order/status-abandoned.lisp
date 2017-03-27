@@ -80,6 +80,12 @@ continuations for
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
+  ;; tm-print is primarily for debugging, so we allow it to operate on an abandoned type
+  (defun-typed tm-print ((tm0 status-abandoned))
+    (princ (type-of tm0))
+    (nl)
+    )
+
   (defun-typed entangled
     (
       (tm0 status-abandoned)

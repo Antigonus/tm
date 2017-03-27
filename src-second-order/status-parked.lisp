@@ -121,11 +121,53 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
+  (defun-typed d◧ ((tm status-parked) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (= (address-rightmost tm) 0)
+        (let(
+              (instance (r (base tm)))
+              )
+          (w (base tm) ∅)
+          (to-empty tm)
+          instance
+          )
+        (progn
+          (s (base tm)
+            {:➜rightmost #'cant-happen} ; we know that address-rightmost is not 0
+            )
+          (d◧ (base tm) spill
+            {
+              :➜ok (λ(instance)
+                     (decf (address tm))
+                     (decf (address-rightmost tm))
+                     [➜ok instance]
+                     )
+              :➜collision #'cant-happen ; we just moved the head out of the way
+              (o (remove-key-pairs ➜ {:➜ok :➜collision}))
+              })
+          ))))
+
   (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
+
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
+  (defun-typed tm-print ((tm0 status-parked))
+    (let(
+          (tm1 (entangle tm0))
+          )
+      (princ (type-of tm1))
+      (princ ":")
+      (c◧∀* tm1 (λ(tm1)(princ " ")(princ (r tm1))))
+      (nl)
+      ))
 
   (defun-typed heads-on-same-cell 
     (

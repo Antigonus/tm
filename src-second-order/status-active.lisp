@@ -168,10 +168,35 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-        
+  (defun-typed d◧ ((tm status-active) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜collision (λ()(error 'dealloc-collision)))
+        &allow-other-keys
+        )
+      ➜
+      (if (= (address-rightmost tm) 0)
+        [➜collision]
+        (d◧ (base tm) spill
+          {
+            :➜ok (λ(instance)
+                   (decf (address tm))
+                   (decf (address-rightmost tm))
+                   [➜ok instance]
+                   )
+            (o (remove-key-pair ➜ :➜ok))
+            }))))
+   
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
+  (defun-typed tm-print ((tm0 status-active))
+    (princ (type-of tm0))
+    (princ ": ")
+    (tm-print (base tm0))
+    (nl)
+    )
 
   (defun-typed heads-on-same-cell 
     (

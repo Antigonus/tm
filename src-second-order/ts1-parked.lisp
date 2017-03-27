@@ -41,7 +41,7 @@ See LICENSE.txt
       (tm1 ts1-parked)
       &optional ➜
       )
-    (bt:with-recursive-lock-held ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm0))
       (call-next-method tm0 tm1 ➜)
       ))
 

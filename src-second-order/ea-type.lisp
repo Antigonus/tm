@@ -27,10 +27,13 @@ See LICENSE.txt
         )
       ))
 
+  (def-type ea-parked-active (ea-tm status-parked-active)())
+
   (def-type ea-abandoned (ea-tm status-abandoned)())
-  (def-type ea-active    (ea-tm status-active)())
+  (def-type ea-active    (ea-parked-active ea-tm status-active)())
   (def-type ea-empty     (ea-tm status-empty)())
-  (def-type ea-parked    (ea-tm status-parked)())
+  (def-type ea-parked    (ea-parked-active ea-tm status-parked)())
+
 
 ;;--------------------------------------------------------------------------------
 ;; state transition functions

@@ -34,6 +34,7 @@ See LICENSE.txt
 
                (:module "src-test"
                  :components (
+                               (:file "print")
                                (:file "test")
                                ))
 
@@ -124,36 +125,33 @@ See LICENSE.txt
                (:module "src-second-order"
                  :components (
                                (:file "status-type")
-                               (:file "status-definitions")
+                               (:file "status-tm")
                                (:file "status-abandoned")
                                (:file "status-empty")
                                (:file "status-parked")
                                (:file "status-active")
+                               (:file "status-parked-active")
 
                                (:file "ea-type")
-                               (:file "ea-definitions")
+                               (:file "ea-tm")
                                (:file "ea-empty")
                                (:file "ea-parked")
                                (:file "ea-active")
-
-                               (:file "ea2-type")
-                               (:file "ea2-definitions")
-                               (:file "ea2-empty")
-                               (:file "ea2-parked")
-                               (:file "ea2-active")
+                               (:file "ea-parked-active")
 
                                (:file "ts1-type")
-                               (:file "ts1-definitions")
+                               (:file "ts1-tm")
                                (:file "ts1-empty")
                                (:file "ts1-parked")
                                (:file "ts1-active")
+                               (:file "ts1-parked-active")
                                ))
 
                (:module "test-second-order"
                  :components (
                                (:file "status")
                                (:file "ea")
-                               (:file "ts1")
+;;;                               (:file "ts1")
                                ))
 
 

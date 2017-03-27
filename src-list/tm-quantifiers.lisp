@@ -19,6 +19,9 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; looping, see also s-together⟳  --> need to replace these with quantifiers
 ;;
+
+#| sbcl doesn't appear to remove the recursion, so redefining this:
+  
   (defun ⟳ (work)
     "⟳ (pronounced \"do\") accepts a 'work' function. 'work' may be a nameless lambda. ⟳
      calls work with a single continuation argument.  That continuation is the work
@@ -29,6 +32,24 @@ See LICENSE.txt
              )
       (again)
       ))
+|#
+
+  (defun ⟳ (work)
+    "⟳ (pronounced \"do\") accepts a 'work' function. 'work' may be a nameless lambda. ⟳
+     calls work with a single continuation argument.  That continuation is the work
+     function.  Hence, when the continuation is called, work is called again.
+     "
+    ;; unlike all other forms in Common Lisp, tagbody does not return the value
+    ;; from the last contained body form, instead it always returns nil.  I
+    ;; suppose the Lisp designers thought it was prettier with a closure.
+    (let(return-value) 
+      (tagbody 
+        again
+        (setf return-value (funcall work (λ()(go again))))
+        )
+      return-value
+      ))
+
 
 ;;--------------------------------------------------------------------------------
 ;; trivial predicates 

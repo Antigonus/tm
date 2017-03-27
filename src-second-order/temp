@@ -1,5 +1,0 @@
-cp ea2-active.lisp       ea-active.lisp       
-cp ea2-definitions.lisp  ea-definitions.lisp  
-cp ea2-empty.lisp        ea-empty.lisp        
-cp ea2-parked.lisp       ea-parked.lisp       
-cp ea2-type.lisp         ea-type.lisp         

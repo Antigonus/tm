@@ -31,3 +31,22 @@ See LICENSE.txt
       (= (r tm1 {:➜ok (λ(x)(+ x 99))}) 100)
     )))
 (test-hook test-status-0)
+
+(defun test-status-1 ()
+  (let*(
+         (t0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (t1 (mk 'status-tm {:base t0}))
+         )
+    (∧
+      (park t1)
+      (= (d◧ t1) 1)
+      (= (d  t1) 2)
+      (s t1)
+      (= (r t1) 3)
+      (park t1)
+      (= (d t1) 3)
+      (typep t1 'status-empty)
+      )))
+(test-hook test-status-1)
+
+       

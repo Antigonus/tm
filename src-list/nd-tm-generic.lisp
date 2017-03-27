@@ -16,6 +16,32 @@ functions.
 
 
 ;;--------------------------------------------------------------------------------
+;; printing
+;;
+  (def-function-class tm-print (tm))
+  
+  (defun tm-print-1 (tm0 tm1)
+    (if 
+      (heads-on-same-cell tm0 tm1)
+      (progn
+        (princ "[")
+        (princ (r tm1))
+        (princ "]")
+        )
+      (princ (r tm1))
+      ))
+
+  (defun-typed tm-print ((tm0 nd-tape-machine))
+    (let(
+          (tm1 (entangle tm0))
+          )
+      (c◧ tm1)
+      (tm-print-1 tm0 tm1)
+      (s tm1 {:➜ok (λ()(∀* tm1 (λ(tm1)(princ " ")(tm-print-1 tm0 tm1))))})
+      (nl)
+      ))
+        
+;;--------------------------------------------------------------------------------
 ;; stepping with a boundary, boundaries are inclusive
 ;;
   ;; although we don't make any copies in this function, we do have two tape

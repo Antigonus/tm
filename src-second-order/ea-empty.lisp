@@ -29,8 +29,7 @@ The only way to change states away from 'empty' is to add a new cell.
           )
         ➜
         (w (base tm) instance)
-        (c◧∀* (entanglements tm) (λ(es) (to-parked (r es))))
-        (to-active tm)
+        (c◧∀* (entanglements tm) (λ(es) (to-active (tg:weak-pointer-value (r es)))))
         [➜ok]
         ))
 
@@ -45,6 +44,6 @@ The only way to change states away from 'empty' is to add a new cell.
         )
       ➜
       (w (base tm) instance)
-      (c◧∀* (entanglements tm) (λ(es) (to-parked (r es))))
+      (c◧∀* (entanglements tm) (λ(es) (to-parked (tg:weak-pointer-value (r es)))))
       [➜ok]
       ))

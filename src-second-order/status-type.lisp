@@ -40,6 +40,13 @@ There is no function on the tm interface that can be called to change the status
 of an active machine.  'delete' of the last cell, for example, will result in 
 a collision error.  Hence behavior is inherited from the identity transform.
 
+---
+
+  No instance is ever made of the type status-parked-active.  Rather functions are
+  declared to match tm's of this type.  We include status-parked-active in the
+  inheritance tree, so that the dispatch will check these functions from the parked or
+  from active state before generalizing further.
+
 
 |#
 
@@ -63,10 +70,13 @@ a collision error.  Hence behavior is inherited from the identity transform.
         )
       ))
 
+  (def-type status-parked-active (status-tm)()) ; used for parameter type sig only
+
   (def-type status-abandoned (status-tm)())
-  (def-type status-active    (status-tm)())
+  (def-type status-active    (status-parked-active status-tm)())
   (def-type status-empty     (status-tm)())
-  (def-type status-parked    (status-tm)())
+  (def-type status-parked    (status-parked-active status-tm)())
+
 
 ;;--------------------------------------------------------------------------------
 ;; state transition functions

@@ -36,8 +36,8 @@ Structural change operations must synchronize between each other.  Otherwise adj
 structural change operations can confuse each other.  Also, the entangelments list 
 must be modified in a coherent manner.
 
-We need a recursive lock, take clean-entanglments for example, provided that we carry it
-forward, it calls routines that now grab the lock.
+We need a recursive lock so that we compose simpler functions into more
+complex ones,  for excample, note the function 'clean-entanglments'.
 
 We do not need to synchronize synonyms. 
 
@@ -55,10 +55,13 @@ We do not need to synchronize synonyms.
         )
       ))
 
+  (def-type ts1-parked-active  (ts1-tm ea-parked-active)())
+
   (def-type ts1-abandoned (ts1-tm ea-abandoned)())
-  (def-type ts1-active    (ts1-tm ea-active)())
+  (def-type ts1-active    (ts1-parked-active ea-active)())
   (def-type ts1-empty     (ts1-tm ea-empty)())
-  (def-type ts1-parked    (ts1-tm ea-parked)())
+  (def-type ts1-parked    (ts1-parked-active ea-parked)())
+
 
 ;;--------------------------------------------------------------------------------
 ;; state transition functions

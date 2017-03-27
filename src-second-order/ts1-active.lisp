@@ -78,12 +78,16 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
+
+  ;; getting the lock for both machines is not necessary as in the normal
+  ;; case they are entangled so it is the same lock, if they are not entangled
+  ;; there is currently no way in the library to change that situation.
   (defun-typed heads-on-same-cell 
     (
       (tm0 ts1-active)
       (tm1 ts1-active)
       &optional ➜
       )
-    (bt:with-recursive-lock-held ((deed tm))
+    (bt:with-recursive-lock-held ((deed tm0))
       (call-next-method tm0 tm1 ➜)
       ))

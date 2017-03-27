@@ -41,3 +41,13 @@ CLOS to tell it to use the generic interface version.
 
 ..
 diamond inheritance, how to direct call-next-method
+
+8. another example where calling the parent (more general) methods would be useful, but we
+can't.  In ts1 we simply add a lock to the more general ea version.  Inside the method
+'clean-entanglements' calls are made to simpler interface routines.  When these call back
+into ts1, they attempt to set the lock again.  Hence we have had to use a recusive lock.
+If instead we could tell CLOS to do parent function work inside the parent function then
+we would not need the recursive lock.  This could be done in two ways, either when we call
+next method, we tell close to treat the type as the more general type, everywhere.  Or
+secondly, we could reproduce 'clean-entanglements' and inside it explicitly make calls
+to the more general function versions (something we can not do now).

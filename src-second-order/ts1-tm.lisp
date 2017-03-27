@@ -18,18 +18,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-;; more specific versions can be found for status-abandoned and status-empty,
-;; so these will only apply to status-parked and status-active
-;;
-  (defun-typed a◧ ((tm ts1-tm) instance &optional ➜)
-    (bt:with-recursive-lock-held ((deed tm))
-      (call-next-method tm instance ➜)
-      ))
-
-  (defun-typed d◧ ((tm ts1-tm) &optional spill ➜)
-    (bt:with-recursive-lock-held ((deed tm))
-      (call-next-method tm spill ➜)
-      ))
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only

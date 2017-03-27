@@ -36,53 +36,204 @@ See LICENSE.txt
 
 (defun test-ts1-1 ()
   (let*(
-         (data (loop for i from 1 to 10 collect i))
-         (tm10 (mk 'list-solo-tm {:tape (append data {'end})}))
+         (n 20)
+         (data (loop for i from 0 to n collect i))
+         (tm10 (mk 'list-solo-tm {:tape data}))
          (tm20 (mk 'list-haz-tm {:tape {∅}}))
          (tm21 (mk 'ts1-tm {:base tm20 :empty t}))
-         (tm30 (mk 'list-solo-tm {:tape {∅}}))
-         (tm31 (mk 'status-tm {:base tm30 :empty t}))
+         retries0 retries1 (max-retries 1000)
+         actual-sum
+         (expected-sum  (/ (* n (+ n 1)) 2))
          )
     (let(
           (t1 (bt:make-thread 
                 (λ()
-                  (∀* tm10 (λ(tm10)(as tm21 (r tm10))))
-                  )))
+                  (sleep .01)
+                  (∀* tm10
+                    (λ(tm10)
+                      (as tm21 (r tm10))
+                      (sleep .005)
+                      )))
+                :name "t1"
+                ))
           (t2 (bt:make-thread
                 (λ()
-                  (⟳
-                    (λ(again)
-                      (d◧ tm21 tm30
-                        {
-                          :➜ok (λ(instance)
-                                 (when
-                                   (¬ (eq instance 'end))
-                                   [again]
-                                   ))
-                          :➜rightmost (λ()
-                                        (sleep .001)
-                                        [again]
-                                        )
-                          }))))))
+                  (let(
+                        (tm22 (entangle tm21))
+                        )
+
+                    (setf retries0 0)
+                    (⟳
+                      (λ(again)
+                        (when
+                          (∧
+                            (typep tm22 'status-empty)
+                            (≠ retries0 max-retries)
+                            )
+                          (sleep .003)
+                          (incf retries0)
+                          [again]
+                          )
+                        (when (¬ (typep tm22 'status-empty)) (c◧ tm22))
+                        ))
+
+                    (setf retries1 0)
+                    (⟳
+                      (λ(again)
+                        (c◧ tm22)
+                        (setf actual-sum 0)
+                        (∀* tm22 (λ(tm22) (setf actual-sum (+ actual-sum (r tm22)))))
+                        (when
+                          (∧
+                            (≠ actual-sum expected-sum)
+                            (≠ retries1 max-retries)
+                            )
+                          (sleep .002)
+                          (incf retries1)
+                          [again]
+                          )))
+
+                    ))
+                :name "t2"
+                ))
           )
       (bt:join-thread t1)
       (bt:join-thread t2)
-      (c◧ tm21)
-      (c◧ tm31)
-      (⟳
-        (λ(again)
-          (when
-            (¬ (eq (r tm21) (r tm31)))
-            (return-from test-ts1-1 ∅)
-            )
-          (let(
-                (c0 (s tm21))
-                (c1 (s tm31))
-                )
-            (if
-              (∧ c0 c1)
-              [again]
-              (return-from test-ts1-1 (∧ (¬ c0) (¬ c1)))
-              )))))))
-
+;;      (print {actual-sum expected-sum {retries0 retries1}})
+      (∧ 
+        (= actual-sum expected-sum) 
+        (> retries0 0) 
+        (> retries1 0)
+        (≠ retries0 max-retries)
+        (≠ retries1 max-retries)
+        )
+      )))
 (test-hook test-ts1-1)
+
+(defun test-ts1-2 ()
+  (let*(
+         (data (loop for i from 1 to 5 collect i))
+
+         (tm10 (mk 'list-haz-tm {:tape (append data {'end})}))
+         (tm11 (mk 'status-tm {:base tm10}))
+
+         (tm20 (mk 'list-haz-tm {:tape {∅}}))
+         (tm21 (mk 'ts1-tm {:base tm20 :empty t}))
+
+         (tm30 (mk 'list-haz-tm {:tape {∅}}))
+         (tm31 (mk 'status-tm {:base tm30 :empty t}))
+
+         (t1-finished ∅)
+         retries-next retries-empty retries-collision (max-retries 10)
+         )
+
+    (prins 
+        (nl)
+        (princ "tm11: ")
+        (tm-print tm11)
+        )
+      
+    (let(
+          ;; thread t1 copies instance references from t11 to t21
+          (t1 (bt:make-thread 
+                (λ()
+                  (sleep .01)
+                  (∀* tm11
+                    (λ(tm11)
+                      (as tm21 (r tm11))
+                      (sleep .005)
+                      ))
+                  (park tm21) ;; this frees t2 to move the last instance from tm21
+                  (setf t1-finished t)
+                  )
+                :name "t1"
+                ))
+
+          ;; thread t2 moves references from t21 to  tm31
+          ;; t21 will be empty when t2 is done
+          (t2 (bt:make-thread
+                (λ() ; in this thread ..
+                  (setf retries-next 0)
+                  (setf retries-empty 0)
+                  (setf retries-collision 0)
+                  (⟳
+                    (λ(again)
+
+                      (when (¬ t1-finished) 
+                        (prins (print "waiting for t1"))
+                        (sleep .001)
+                        [again]
+                        )
+                      (prins 
+                        (print "in t2 before the d◧, tm21 and tm31 ")
+                        (nl)
+                        (tm-print tm21)
+                        (tm-print tm31)
+                        )
+
+                      (d◧ tm21 tm31
+                        {
+                          :➜ok (λ(instance)
+                                 (prins
+                                   (print "in t2 ok cont d◧, tm21 and tm31 ")
+                                   (nl)
+                                   (tm-print tm21)
+                                   (tm-print tm31))
+                                 (sleep .003)
+                                 (if (eq instance 'end)
+                                   (prins
+                                     (print "in t2 ok cont d◧, found 'end instance, exiting")
+                                     )
+                                   (if (≠ max-retries retries-next)
+                                     (progn
+                                       (prins (print "in t2 ok cont d◧, pulling next instance"))
+                                       (incf retries-next)
+                                       [again]
+                                       )
+                                     (prins (print "in t2 ok cont, pulled all the data"))
+                                     )))
+
+                          :➜empty (λ()
+                                    (prins (print "in t2 empty cont d◧"))
+                                    (sleep .001)
+                                    (if (≠ max-retries retries-empty)
+                                      (progn
+                                        (prins (print "in t2 empty cont d◧, will retry"))
+                                        (incf retries-empty)
+                                        [again]
+                                        )
+                                      (prins (print "in t2 empty cont d◧, max retries giving up"))
+                                      ))
+                          :➜collision (λ()
+                                        (sleep .002)
+                                        (prins (print "in t2 collision cont"))
+                                        (if (≠ max-retries retries-collision)
+                                          (progn
+                                            (prins (print "in t2 collision d◧, will retry"))
+                                            (incf retries-collision)
+                                            [again]
+                                            )
+                                          (prins (print "in t2 collision d◧, max retries giving up"))
+                                          ))
+                          }))))
+                  :name "t2"
+                  ))
+          )
+      (bt:join-thread t1)
+      (bt:join-thread t2)
+
+      (print "final tm21 and tm31:")
+      (nl)
+      (tm-print tm21)
+      (tm-print tm31)
+      (print {
+           "max-retries: " max-retries 
+           "retries-next: " retries-next
+           "retries-empty: " retries-empty
+           "retries-collision: " retries-collision 
+           })
+      (finish-output nil)
+      )))
+
+(test-hook test-ts1-2)
+
