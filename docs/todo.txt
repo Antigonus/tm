@@ -142,3 +142,10 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
   on prints a where message and why it isn't supposed to happen
 
 50.  ⟳ needs a max-iteration count continuation option
+
+51. tape length tests for status machines should be based on addresses as that is
+faster.
+
+52. clean up ea-parked-active d◧ .. make some of those labeled functions
+   generally available, such as collision◧  collision ... need to add the
+   compare at the end of test-ts1-4

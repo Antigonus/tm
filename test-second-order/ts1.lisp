@@ -208,61 +208,56 @@ See LICENSE.txt
                         [again]
                         )
                       (prins 
-                        (print "in t2 before the d◧, tm21 and tm31 ")
-                        (nl)
-                        (tm-print tm21)
-                        (tm-print tm31)
-                        (print "in t2 before the d◧, address rightmost tm21 and tm31 ")
-                        (princ (address-rightmost tm21))
-                        (princ " ")
-                        (princ (address-rightmost tm31))
-                        (nl)
+                        (nl)(princ "in t2 before the d◧, tm21 tm31")
+                        (nl)(tm-print tm21) (princ ",") (princ (address tm21)) (princ ":") (princ (address-rightmost tm21))
+                        (nl)(tm-print tm31) (princ ",") (princ (address tm31)) (princ ":") (princ (address-rightmost tm31))
                         )
 
                       (d◧ tm21 tm31
                         {
-                          :➜ok (λ(instance)
-                                 (prins
-                                   (print "in t2 d◧ ok cont, tm21 and tm31 ")
-                                   (nl)
-                                   (tm-print tm21)
-                                   (tm-print tm31))
-                                 (sleep .003)
-                                 (if (eq instance 'end)
-                                   (prins
-                                     (print "in t2 d◧ ok cont, found 'end instance, exiting")
-                                     )
-                                   (if (≠ max-retries retries-next)
-                                     (progn
-                                       (prins (print "in t2 d◧ ok cont, pulling next instance"))
-                                       (incf retries-next)
-                                       [again]
-                                       )
-                                     (prins (print "in t2 d◧ ok cont, pulled all the data"))
-                                     )))
+                          :➜ok
+                          (λ(instance)
+                            (prins
+                              (nl)(princ "in t2 d◧ ok cont, tm21 and tm31 ")
+                              (nl)(tm-print tm21)
+                              (nl)(tm-print tm31))
+                            (sleep .003)
+                            (if (eq instance 'end)
+                              (prins (nl)(princ "in t2 d◧ ok cont, found 'end instance, exiting"))
+                              (if (≠ max-retries retries-next)
+                                (progn
+                                  (prins (nl)(princ "in t2 d◧ ok cont, pulling next instance"))
+                                  (incf retries-next)
+                                  [again]
+                                  )
+                                (prins (nl)(princ "in t2 d◧ ok cont, pulled all the data"))
+                                )))
 
-                          :➜empty (λ()
-                                    (prins (print "in t2 d◧ empty cont"))
-                                    (sleep .001)
-                                    (if (≠ max-retries retries-empty)
-                                      (progn
-                                        (prins (print "in t2 d◧  empty cont, will retry"))
-                                        (incf retries-empty)
-                                        [again]
-                                        )
-                                      (prins (print "in t2 d◧ empty cont, max retries giving up"))
-                                      ))
-                          :➜collision (λ()
-                                        (sleep .002)
-                                        (prins (print "in t2 collision cont"))
-                                        (if (≠ max-retries retries-collision)
-                                          (progn
-                                            (prins (print "in t2 d◧ collision cont, will retry"))
-                                            (incf retries-collision)
-                                            [again]
-                                            )
-                                          (prins (print "in t2 d◧ collision cont, max retries giving up"))
-                                          ))
+                          :➜empty
+                          (λ()
+                            (prins (nl)(princ "in t2 d◧ empty cont"))
+                            (sleep .001)
+                            (if (≠ max-retries retries-empty)
+                              (progn
+                                (prins (nl)(princ "in t2 d◧  empty cont, will retry"))
+                                (incf retries-empty)
+                                [again]
+                                )
+                              (prins (nl)(princ "in t2 d◧ empty cont, max retries giving up"))
+                              ))
+
+                          :➜collision
+                          (λ()
+                            (sleep .002)
+                            (prins (nl)(princ "in t2 collision cont"))
+                            (if (≠ max-retries retries-collision)
+                              (progn
+                                (prins (nl)(princ "in t2 d◧ collision cont, will retry"))
+                                (incf retries-collision)
+                                [again]
+                                )
+                              (prins (nl)(princ "in t2 d◧ collision cont, max retries giving up"))
+                              ))
                           }))))
                   :name "t2"
                   ))
@@ -270,17 +265,18 @@ See LICENSE.txt
       (bt:join-thread t1)
       (bt:join-thread t2)
 
-      (print "final tm21 and tm31:")
-      (nl)
-      (tm-print tm21)
-      (tm-print tm31)
-      (print {
+      (prins
+        (nl)(princ "final tm21 and tm31:")
+        (nl)(tm-print tm21)
+        (nl)(tm-print tm31)
+        (nl)(princ {
            "max-retries: " max-retries 
            "retries-next: " retries-next
            "retries-empty: " retries-empty
            "retries-collision: " retries-collision 
            })
-      (finish-output nil)
+        (finish-output nil)
+        )
       )))
 
 (test-hook test-ts1-4)

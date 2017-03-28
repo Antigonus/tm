@@ -18,15 +18,18 @@ See LICENSE.txt
 ;;   (prins (print "hello") (print "goodbye"))
 ;;
 
-  (defvar *print-turned-on* t)
-  (defvar *print-lock* (bt:make-lock))
+  (defvar *prins-on* ∅)
+  (defvar *prins-lock* (bt:make-lock))
 
-  (defun turn-print-off () (setf *print-turned-on* ∅))
-  (defun turn-print-on () (setf *print-turned-on* t))
+  (defun turn-prins-on () (setf *prins-on* t))
+  (defun turn-prins-off () (setf *prins-on* ∅))
 
   (defmacro prins (&body f)
-    `(bt:with-lock-held (*print-lock*)
-       (when *print-turned-on*
+    `(bt:with-lock-held (*prins-lock*)
+       (when *prins-on*
          ,@f
          (finish-output nil)
-         )))
+         )
+       t ; so print can be embedded in conjunctive phrases
+       ))
+

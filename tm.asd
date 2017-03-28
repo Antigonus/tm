@@ -130,7 +130,6 @@ See LICENSE.txt
                                (:file "status-empty")
                                (:file "status-parked")
                                (:file "status-active")
-                               (:file "status-parked-active")
 
                                (:file "ea-type")
                                (:file "ea-tm")
@@ -141,17 +140,13 @@ See LICENSE.txt
 
                                (:file "ts1-type")
                                (:file "ts1-tm")
-                               (:file "ts1-empty")
-                               (:file "ts1-parked")
-                               (:file "ts1-active")
-                               (:file "ts1-parked-active")
                                ))
 
                (:module "test-second-order"
                  :components (
                                (:file "status")
                                (:file "ea")
-;;;                               (:file "ts1")
+                               (:file "ts1")
                                ))
 
 

@@ -70,12 +70,10 @@ a collision error.  Hence behavior is inherited from the identity transform.
         )
       ))
 
-  (def-type status-parked-active (status-tm)()) ; used for parameter type sig only
-
   (def-type status-abandoned (status-tm)())
-  (def-type status-active    (status-parked-active status-tm)())
+  (def-type status-active    (status-tm)())
   (def-type status-empty     (status-tm)())
-  (def-type status-parked    (status-parked-active status-tm)())
+  (def-type status-parked    (status-tm)())
 
 
 ;;--------------------------------------------------------------------------------

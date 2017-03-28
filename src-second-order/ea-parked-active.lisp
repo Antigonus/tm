@@ -19,6 +19,7 @@ functions shared by parked and active
         &allow-other-keys
         )
       ➜
+      (prins (print "a◧ ea-parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -28,7 +29,11 @@ functions shared by parked and active
                            (etm (tg:weak-pointer-value (r es)))
                            )
                        (update-tape-after-a◧ (base etm) (base tm))
-                       (incf (address etm))
+                       (if
+                         (typep etm 'status-parked)
+                         (c◧ (base etm))
+                         (incf (address etm))
+                         )
                        (incf (address-rightmost etm))
                        )))
                  [➜ok]
@@ -75,7 +80,7 @@ functions shared by parked and active
                   ))))
           
           (delete-1 () ;presented tape has > one cell, no active machine on ◧
-            (d◧ (base tm) spill
+            (d◧ (base tm) ∅
               {:➜ok (λ(instance)
                       (declare (ignore instance))
                       (c◧∀* (entanglements tm)
@@ -87,18 +92,9 @@ functions shared by parked and active
                           (when (typep etm 'status-active) (decf (address etm)))
                           (decf (address-rightmost etm))
                           ))))
-                :➜collision #'cant-happen
-                :➜no-alloc ➜no-alloc
+                :➜collision #'cant-happen ; we already checked address-rightmost = 0
+                :➜no-alloc #'cant-happen ; there is no spill
                 }))
-
-          (delete-0 ()
-            (if (= (address-rightmost tm) 0)
-              (make-empty)
-              (progn
-                (step-parked-machines)
-                (delete-1)
-                )))
-
 
           (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
             (let(
@@ -121,17 +117,23 @@ functions shared by parked and active
             (let(
                   (spill-instance (ec◧r (base tm)))
                   )
-              (if spill
-                (a spill spill-instance
-                  {
-                    :➜ok (λ()
-                           (delete-0)
-                           [➜ok spill-instance]
-                           )
-                    (o (remove-key-pair ➜ :➜ok))
-                    })
-                (progn
+              (labels(
+                       (delete-0 ()
+                         (if (= (address-rightmost tm) 0)
+                           (make-empty)
+                           (progn
+                             (step-parked-machines)
+                             (delete-1)
+                             ))
+                         [➜ok spill-instance]
+                         )
+                       )
+                (if spill
+                  (as spill spill-instance
+                    {
+                      :➜ok #'delete-0 
+                      (o (remove-key-pair ➜ :➜ok))
+                      })
                   (delete-0)
-                  [➜ok spill-instance]
                   )))))
         )))

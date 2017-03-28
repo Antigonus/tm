@@ -157,34 +157,6 @@ belonging to a machine that has a parked head.
 ;; tm-generic
 ;;
   (def-empty-1 c◨)
-  
-  ;; adding a cell to an empty machine will cause it to be parked, then stepping
-  ;; one to the right will cause it to be active with the head on leftmost
-  ;;
-    (defun-typed as ((tm status-empty) instance &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok (be t))
-          &allow-other-keys
-          )
-        ➜
-        (w (base tm) instance)
-        (to-active tm)
-        [➜ok]
-        ))
-
-  ;; we specify these so that we won't lose benefit from the contract
-  ;; it is impossible for the head to be on rightmost for an empty machine
-  ;; so the user broke his contract with us if he/she calls one of these
-  ;; seems we should punish the user for that .. but that sounds hard to do
-  ;;
-    (defun-typed a&h◨ ((tm status-empty) instance &optional ➜)
-      (a tm instance ➜)
-      )
-
-    (defun-typed as&h◨ ((tm status-empty) instance &optional ➜)
-      (as tm instance ➜)
-      )
 
 
 ;;--------------------------------------------------------------------------------
@@ -197,6 +169,7 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
+      (prins (print "a◧ status-empty"))
       ;; address rightmost will already be zero
       ;; address will already be zero
       (w (base tm) instance)
@@ -237,7 +210,7 @@ belonging to a machine that has a parked head.
 ;;
   (defun-typed tm-print ((tm0 status-empty))
     (princ (type-of tm0))
-    (nl)
+    t
     )
 
   (defun-typed heads-on-same-cell 

@@ -149,26 +149,27 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed as ((tm status-active) instance &optional ➜)
+;;--------------------------------------------------------------------------------
+;; solo-tm-decl-only
+;;
+  (defun-typed a◧ ((tm status-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (as (base tm) instance
+      (prins (print "a◧ status-parked-active"))
+      (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (incf (address-rightmost tm))
                  (incf (address tm))
+                 (incf (address-rightmost tm))
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-;;--------------------------------------------------------------------------------
-;; solo-tm-decl-only
-;;
   (defun-typed d◧ ((tm status-active) &optional spill ➜)
     (destructuring-bind
       (&key
@@ -189,6 +190,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
                    )
             (o (remove-key-pair ➜ :➜ok))
             }))))
+
    
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
@@ -197,7 +199,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
     (princ (type-of tm0))
     (princ ": ")
     (tm-print (base tm0))
-    (nl)
+    t
     )
 
   (defun-typed heads-on-same-cell 
