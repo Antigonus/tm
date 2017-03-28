@@ -3,7 +3,13 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Base class for transforms. Library users never see this.
+Base class for transforms. Library users probably never see this.
+
+Identity does not implement generic functions, as those don't reduce immediately to
+operations on the base, but rather are a composition of operations on the generalized
+type.  [If identity implemented the generic routines, then specializations that fell back
+to here would not have their specialized forms called in the generic routines (rather would
+have the base forms called).]
 
 |#
 
@@ -63,10 +69,9 @@ Base class for transforms. Library users never see this.
 ;;tm-decl-only
 ;;
   (defmacro def-identity-tr-1 (f &rest args)
-    {'defun-typed f {(q tm identity-tr) (o args) '&optional '➜}
-      {f (q base tm) (o args) '➜}
-      }
-    )
+    `(defun-typed ,f ((tm identity-tr) ,@args &optional ➜)
+       (,f (base tm) ,@args ➜)
+       ))
 
   (def-identity-tr-1 r)
   (def-identity-tr-1 esr)
@@ -81,14 +86,6 @@ Base class for transforms. Library users never see this.
   (def-identity-tr-1 a instance)
   (def-identity-tr-1 on-leftmost)
   (def-identity-tr-1 on-rightmost)
-
-;;--------------------------------------------------------------------------------
-;;tm-generic
-;;
-  (def-identity-tr-1 c◨)
-  (def-identity-tr-1 as instance) 
-  (def-identity-tr-1 a&h◨ instance)
-  (def-identity-tr-1 as&h◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
@@ -140,19 +137,6 @@ Base class for transforms. Library users never see this.
     (heads-on-same-cell tm0 (base tm1) ➜)
     )
 
-;;--------------------------------------------------------------------------------
-;; nd-tm-generic
-;;
-  (defun-typed s≠ 
-    (
-      (tm0 identity-tr)
-      (tm1 identity-tr)
-      &optional ➜
-      )
-    (s≠ (base tm0) (base tm1) ➜)
-    )
-
-  (def-identity-tr-1 a◨ instance)
 
 
  
