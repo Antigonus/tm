@@ -12,6 +12,7 @@ functions shared by parked and active
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
+
   (defun-typed a◧ ((tm ea-parked-active) instance &optional ➜)
     (destructuring-bind
       (&key
@@ -19,27 +20,33 @@ functions shared by parked and active
         &allow-other-keys
         )
       ➜
-      (prins (print "a◧ ea-parked-active"))
-      (a◧ (base tm) instance
-        {
-          :➜ok (λ()
+      (labels(
+               (fix-tapes-inc-addresses ()
                  (c◧∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (tg:weak-pointer-value (r es)))
                            )
-                       (update-tape-after-a◧ (base etm) (base tm))
-                       (if
-                         (typep etm 'status-parked)
-                         (c◧ (base etm))
-                         (incf (address etm))
-                         )
-                       (incf (address-rightmost etm))
-                       )))
+                       (when etm
+                         (update-tape-after-a◧ (base etm) (base tm))
+                         (if
+                           (typep etm 'status-parked)
+                           (c◧ (base etm))
+                           (incf (address etm))
+                           )
+                         (incf (address-rightmost etm))
+                         )))))
+              )
+      (prins (print "a◧ ea-parked-active"))
+      (a◧ (base tm) instance
+        {
+          :➜ok (λ()
+                 (fix-tapes-inc-addresses)
                  [➜ok]
                  )
           (o (remove-key-pair ➜ :➜ok))
-          })))
+          })
+        )))
 
   (defun-typed d◧ ((tm ea-parked-active) &optional spill ➜)
     (destructuring-bind
@@ -58,11 +65,13 @@ functions shared by parked and active
           ;;so we transition to empty
           (make-empty () 
             (w (base tm) ∅)
-            (c◧∀*
-              (entanglements tm) 
-              (λ(es) (to-empty (tg:weak-pointer-value (r es))))
-              )
-            )
+            (c◧∀* (entanglements tm) 
+              (λ(es)
+                (let(
+                      (etm (tg:weak-pointer-value (r es)))
+                      )
+                  (when etm (to-empty etm))
+                  ))))
 
           ;;problem: parked machines leave the base head on ◧
           ;;when this is called:
@@ -73,45 +82,26 @@ functions shared by parked and active
                 (let(
                       (etm (tg:weak-pointer-value (r es)))
                       )
-                  (when 
-                    (typep etm 'status-parked)
-                    (s (base etm) {:➜rightmost #'cant-happen})
-                    )
-                  ))))
+                  (when etm
+                    (when (typep etm 'status-parked)
+                      (s (base etm) {:➜rightmost #'cant-happen})
+                      ))))))
           
-          (delete-1 () ;presented tape has > one cell, no active machine on ◧
-            (d◧ (base tm) ∅
-              {:➜ok (λ(instance)
-                      (declare (ignore instance))
-                      (c◧∀* (entanglements tm)
-                        (λ(es)
-                          (let(
-                                (etm (tg:weak-pointer-value (r es)))
-                                )
-                          (update-tape-after-d◧ (base etm) (base tm))
-                          (when (typep etm 'status-active) (decf (address etm)))
-                          (decf (address-rightmost etm))
-                          ))))
-                :➜collision #'cant-happen ; we already checked address-rightmost = 0
-                :➜no-alloc #'cant-happen ; there is no spill
-                }))
-
-          (collision (es ct c∅) ;a machine in entanglement group is on ◧ ?
-            (let(
-                  (etm (tg:weak-pointer-value (r es)))
-                  )
-              (if 
-                (∧
-                  (typep etm 'status-active)
-                  (= (address etm) 0)
-                  )
-                [ct]
-                [c∅]
-                )))
+          (fix-tapes-dec-addresses ()
+            (c◧∀* (entanglements tm)
+              (λ(es)
+                (let(
+                      (etm (tg:weak-pointer-value (r es)))
+                      )
+                  (when etm
+                    (update-tape-after-d◧ (base etm) (base tm))
+                    (when (typep etm 'status-active) (decf (address etm)))
+                    (decf (address-rightmost etm))
+                    )))))
           )
 
         ;; d◧ function starts here -----
-        (c◧∃ (entanglements tm) #'collision
+        (entangled-on-leftmost (entanglements tm)
           ➜collision
           (λ()
             (let(
@@ -123,8 +113,14 @@ functions shared by parked and active
                            (make-empty)
                            (progn
                              (step-parked-machines)
-                             (delete-1)
-                             ))
+                             (d◧ (base tm) ∅
+                               {:➜ok (λ(instance)
+                                       (declare (ignore instance))
+                                       (fix-tapes-dec-addresses)
+                                       )
+                                 :➜collision #'cant-happen ; we already checked address-rightmost = 0
+                                 :➜no-alloc #'cant-happen ; there is no spill
+                                 })))
                          [➜ok spill-instance]
                          )
                        )
@@ -132,8 +128,9 @@ functions shared by parked and active
                   (as spill spill-instance
                     {
                       :➜ok #'delete-0 
-                      (o (remove-key-pair ➜ :➜ok))
+                      :➜no-alloc ➜no-alloc
                       })
                   (delete-0)
-                  )))))
+                  )
+                ))))
         )))

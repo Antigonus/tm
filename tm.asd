@@ -133,6 +133,7 @@ See LICENSE.txt
 
                                (:file "ea-type")
                                (:file "ea-tm")
+                               (:file "ea-abandoned")
                                (:file "ea-empty")
                                (:file "ea-parked")
                                (:file "ea-active")

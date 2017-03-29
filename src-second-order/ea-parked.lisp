@@ -9,6 +9,32 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; entanglements support
+;;
+  (defun-typed entangled-on-same-cell ((tm ea-parked) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+
+  (defun-typed entangled-on-right-neighbor-cell ((tm ea-parked) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (entangled-on-leftmost (entanglements tm) ➜t ➜∅)
+      ))
+      
+
+
+;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
   (defun-typed c◧ ((tm ea-parked) &optional ➜)

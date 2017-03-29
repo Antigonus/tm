@@ -1,0 +1,13 @@
+
+
+If for predicates we include in a continations list ➜t and ➜∅, rather than just putting
+them directly as parameters, that implies there are more possiblities.  This is attractive
+as we can have abstract tape machines.  It may be that a comparison is done between
+things for which no relative ordering exists, or some such.  We also have a real time
+problem, so perhaps a comparision result would be temporal, like not-yet.
+
+However, our library makes use of predicates.  If a predicate doesn't run either the
+true or false continuation, something might break.  We would need a redesign.
+
+For example, ∃ calls a predicate.  How does it handle a multivalued logic result?
+

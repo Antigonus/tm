@@ -1,0 +1,24 @@
+
+
+For true functional behavior, if there is an error that prevents the function from returning
+a value, then no state is modified.  This is because true functions do not modifiy state.
+State is only modified after the result is processed.  So if there is no result processing
+there is not state change.
+
+However, if arguments are state variables, for example, suppose, a counter value, then
+a function might modify the counter value, though it encounters an error that prevents
+it from returning a value.
+
+If an error occurs, and it is not possible to undo the state changes to recover the
+initial state, then the function is 'entropic' in the presence of errors.
+
+If no state will change when an error occurs, then the function is 'transactional'.
+
+If when an error occurs it is possible to examine the error, and then continue, we
+say that the error is 'recoverable'.
+
+In the tm library, we like our functions to be transactions, with exceptions being of
+things that are natural continuations of computation.
+
+
+

@@ -8,7 +8,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; unique to ea
+;; entanglements support
 ;;
   (def-function-class clean-entanglements (tm))
 
@@ -43,6 +43,30 @@ See LICENSE.txt
 
       [#'cant-happen]
       ))
+
+  ;machine in entanglement group is on ◧ ?
+  (defun entangled-on-leftmost (es &optional (➜t (be t)) (➜∅ (be ∅)))
+    (c◧∃ es
+      (λ(es ct c∅)
+        (let(
+              (etm (tg:weak-pointer-value (r es)))
+              )
+          (if 
+            (∧
+              etm
+              (typep etm 'status-active)
+              (= (address etm) 0)
+              )
+            [ct]
+            [c∅]
+            )))
+      ➜t
+      ➜∅
+      ))
+
+  ;another machine in entanglement group on same cell as tm?
+  (def-function-class entangled-on-same-cell (entanglements-tm &optional ➜))
+  (def-function-class entangled-on-right-neighbor-cell (entanglements-tm &optional ➜))
 
 
 ;;--------------------------------------------------------------------------------

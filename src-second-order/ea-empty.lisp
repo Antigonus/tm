@@ -10,6 +10,30 @@ The only way to change states away from 'empty' is to add a new cell.
 
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; entanglements support
+;;
+  ;; can't be entangeled on the same cell, when not on any cell at all
+  (defun-typed entangled-on-same-cell ((tm ea-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+
+  ;; if one entangled machine is empty, then all are empty
+  (defun-typed entangled-on-right-neighbor-cell ((tm ea-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
@@ -22,6 +46,8 @@ The only way to change states away from 'empty' is to add a new cell.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
+
+  ;; for an empty machine address and address-rightmost are already 0
   (defun-typed a◧ ((tm ea-empty) instance &optional ➜)
     (destructuring-bind
       (&key
@@ -31,6 +57,12 @@ The only way to change states away from 'empty' is to add a new cell.
       ➜
       (prins (print "a◧ ea-empty"))
       (w (base tm) instance)
-      (c◧∀* (entanglements tm) (λ(es) (to-parked (tg:weak-pointer-value (r es)))))
+      (c◧∀* (entanglements tm)
+        (λ(es) 
+          (let(
+                (etm (tg:weak-pointer-value (r es)))
+                )
+            (when etm (to-parked etm))
+            )))
       [➜ok]
       ))
