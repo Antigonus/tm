@@ -195,13 +195,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
-  (defun-typed tm-print ((tm0 status-active))
-    (princ (type-of tm0))
-    (princ ": ")
-    (tm-print (base tm0))
-    t
-    )
-
   (defun-typed heads-on-same-cell 
     (
       (tm0 status-active)

@@ -19,6 +19,18 @@ overridden.
     (change-class tm 'status-abandoned)
     )
 
+  (defun-typed tm-print ((tm status-tm))
+    (princ (type-of tm))
+    (princ " ")
+    (princ "(")
+    (princ (address tm))
+    (princ ":")
+    (princ (address-rightmost tm))
+    (princ ")")
+    (princ " ")
+    (tm-print (base tm))
+    t
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

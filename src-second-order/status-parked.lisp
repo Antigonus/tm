@@ -181,16 +181,6 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
 ;;
-  (defun-typed tm-print ((tm0 status-parked))
-    (let(
-          (tm1 (entangle tm0))
-          )
-      (princ (type-of tm1))
-      (princ ":")
-      (c◧∀* tm1 (λ(tm1)(princ " ")(princ (r tm1))))
-      t
-      ))
-
   (defun-typed heads-on-same-cell 
     (
       (tm0 status-parked)

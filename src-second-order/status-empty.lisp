@@ -208,11 +208,6 @@ belonging to a machine that has a parked head.
 ;;   in the entanglement group are empty.  An empty machine is considered to
 ;;   to have a parked head, so there is a 'heads-on-same-cell' semantic.
 ;;
-  (defun-typed tm-print ((tm0 status-empty))
-    (princ (type-of tm0))
-    t
-    )
-
   (defun-typed heads-on-same-cell 
     (
       (tm0 status-empty)
