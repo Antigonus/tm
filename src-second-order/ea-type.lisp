@@ -48,8 +48,9 @@ See LICENSE.txt
   (defun-typed init
     (
       (tm ea-tm)
-      (init-parms cons)
-      &optional ➜
+      &optional
+      init-parms
+      ➜
       )
     (destructuring-bind
       (&key

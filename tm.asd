@@ -38,12 +38,6 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
-               (:module "test-0"
-                 :components (
-                               (:file "list-qL")
-                               (:file "functions")
-                               ))
-
                (:module "src-list" ; both the list and generic interface
                  :components (
                                (:file "tm-type")
@@ -96,31 +90,17 @@ See LICENSE.txt
 
                                ))
 
-               (:module "test-list"
-                :components (
-                              ;; generic interface tests
-                              (:file "bilist")
-                              (:file "list-nd-tm-definitions")
-                              (:file "list-solo-tm-definitions")
-                              (:file "list-tm-definitions")
-                              (:file "nd-tm-generic")
-                              (:file "nd-tm-quantified")
-                              (:file "nd-tm-quantifiers")
-                              (:file "solo-tm-quantified")
-                              (:file "tm-generic")
-                              (:file "tm-quantified")
-                              (:file "tm-quantifiers")
-                              ))
+               (:module "src-generators"
+                 :components (
+                               (:file "recursive")
+                               ))
+
 
                (:module "src-tr"
                  :components (
                                (:file "identity")
+                               (:file "ensemble")
                                ))
-
-               (:module "test-tr"
-                :components (
-                              (:file "identity")
-                              ))
 
                (:module "src-second-order"
                  :components (
@@ -142,42 +122,8 @@ See LICENSE.txt
                                (:file "ts1-type")
                                (:file "ts1-tm")
                                ))
-
-               (:module "test-second-order"
-                 :components (
-                               (:file "status")
-                               (:file "ea")
-                               (:file "ts1")
-                               ))
-
-
 #|
-
-               (:module "src-generators" 
-                 :components (
-                               (:file "length")
-                               (:file "location")
-                               (:file "tm-DE")
-                               ))
-
-
-
-
-               (:module "test-generators"
-                :components (
-                              (:file "length")
-                              (:file "location")
-
-                             (:file "tm-DE")
-
-                              ))
-
-|#
-
-#|
-
-
-               (:module "src-array"
+                (:module "src-array"
                 :components (
 
                               (:file "worker")
@@ -198,7 +144,48 @@ See LICENSE.txt
 
                               (:file "access-lang")
                               ))
+|#
+              (:module "test-0"
+                 :components (
+                               (:file "list-qL")
+                               (:file "functions")
+                               ))
 
+               (:module "test-list"
+                :components (
+                              ;; generic interface tests
+                              (:file "bilist")
+                              (:file "list-nd-tm-definitions")
+                              (:file "list-solo-tm-definitions")
+                              (:file "list-tm-definitions")
+                              (:file "nd-tm-generic")
+                              (:file "nd-tm-quantified")
+                              (:file "nd-tm-quantifiers")
+                              (:file "solo-tm-quantified")
+                              (:file "tm-generic")
+                              (:file "tm-quantified")
+                              (:file "tm-quantifiers")
+                              ))
+
+               (:module "test-generators"
+                 :components (
+                               (:file "recursive")
+                               ))
+
+               (:module "test-tr"
+                :components (
+                              (:file "identity")
+                              (:file "ensemble")
+                              ))
+
+               (:module "test-second-order"
+                 :components (
+                               (:file "status")
+                               (:file "ea")
+                               (:file "ts1")
+                               ))
+
+#|
                (:module "test-2"
                  :components (
                                (:file "worker")

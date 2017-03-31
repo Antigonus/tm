@@ -54,15 +54,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; trivial predicates 
 ;;
+  (defun always-true (tm ➜t ➜∅)
+    (declare (ignore tm ➜∅))
+      [➜t]
+      )
+
   (defun always-false (tm ➜t ➜∅)
     (declare (ignore tm ➜t))
       [➜∅]
       )
 
-  (defun always-true (tm ➜t ➜∅)
-    (declare (ignore tm ➜∅))
-      [➜t]
-      )
 
 ;;--------------------------------------------------------------------------------
 ;; quantification
@@ -78,6 +79,20 @@ See LICENSE.txt
 ;;
 ;; pred is a function that accepts a machine and two continuations, ➜t, and ➜∅.
 ;;
+
+  #|
+    so far haven't seen a need to make these typed
+
+    (def-function-class ∃ (tm pred &optional ➜t ➜∅))
+    (def-function-class ∀ (tm pred &optional ➜t ➜∅))
+
+    (def-function-class c◧∃ (tm pred &optional ➜t ➜∅))
+    (def-function-class c◧∀ (tm pred &optional ➜t ➜∅))
+
+    (def-function-class ∃* (tm pred &optional ➜t ➜∅))
+    (def-function-class ∀* (tm pred &optional ➜t ➜∅))
+  |#
+
   (defun ∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
     "Tests each instance in tm in succession starting from the current location of the head.
      Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via

@@ -34,15 +34,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; initialize a tape machine of the specified class to hold the specified instances
 ;;
-  (def-function-class init (instance init-value &optional ➜))
+  (def-function-class init (instance &optional init-value ➜))
 
   ;; init will throw an error that the function #'w is not found if tape-machine
   ;; does not have an implementation
   (defun-typed init
     (
       (tm tape-machine)
-      (init-parms cons)
-      &optional ➜
+      &optional 
+      init-parms
+      ➜
       )
     (destructuring-bind
       (&key
@@ -68,7 +69,7 @@ See LICENSE.txt
           (t [➜ok tm]) ; there is no obligation to provide an initialization sequence
           ))))
 
-  (defun mk (tm-class init-parms &optional ➜)
+  (defun mk (tm-class &optional init-parms ➜)
     (let(
           (instance (make-instance tm-class))
           )

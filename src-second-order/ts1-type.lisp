@@ -97,8 +97,9 @@ specific functions.
   (defun-typed init
     (
       (tm ts1-tm)
-      (keyed-parms cons)
-      &optional ➜
+      &optional
+      keyed-parms
+      ➜
       )
     (destructuring-bind
       (&key

@@ -99,8 +99,9 @@ a collision error.  Hence behavior is inherited from the identity transform.
   (defun-typed init
     (
       (tm status-tm)
-      (keyed-parms cons)
-      &optional ➜
+      &optional
+      keyed-parms
+      ➜
       )
     (destructuring-bind
       (&key

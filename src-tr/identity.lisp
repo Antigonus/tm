@@ -31,8 +31,9 @@ have the base forms called).]
   (defun-typed init 
     (
       (tm identity-tr)
-      (init-value cons)
-      &optional ➜
+      &optional
+      init-value
+      ➜
       )
     (destructuring-bind
       (&key

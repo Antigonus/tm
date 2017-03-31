@@ -22,8 +22,9 @@ See LICENSE.txt
   (defun-typed init 
     (
       (tm bilist-tm)
-      (keyed-parms cons)
-      &optional ➜
+      &optional 
+      keyed-parms
+      ➜
       )
     (destructuring-bind
       (&key
