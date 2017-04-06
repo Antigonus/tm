@@ -25,3 +25,29 @@
   (dotimes (i 5) (square-worker tm-source tm-sink))
   (tm-print tm-sink)
   )
+
+(let*(
+      (tm-source (mk-Natural))
+      (tm10 (mk 'list-nd-tm {:tape {∅}}))
+      (tm-sink (mk 'status-tm {:base tm10 :empty t}))
+      )
+  (∀* (mk-interval 0 4)
+    (λ(tm)(declare (ignore tm))
+      (square-worker tm-source tm-sink)
+      ))
+  (tm-print tm-sink)
+  )
+
+
+(let*(
+      (tm-source (mk-Natural))
+      (tm10 (mk 'list-nd-tm {:tape {∅}}))
+      (tm-sink (mk 'status-tm {:base tm10 :empty t}))
+      (worker (λ()(square-worker tm-source tm-sink)))
+      )
+  (∀* (mk-interval 0 4)
+    (λ(tm)(declare (ignore tm)) 
+      [worker]
+      ))
+  (tm-print tm-sink)
+  )

@@ -123,6 +123,13 @@ See LICENSE.txt
                                (:file "ts1-type")
                                (:file "ts1-tm")
                                ))
+
+               (:module "src-worker"
+                 :components (
+                               (:file "worker")
+                               ))
+
+
 #|
                 (:module "src-array"
                 :components (

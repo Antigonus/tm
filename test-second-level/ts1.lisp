@@ -370,7 +370,7 @@ At the end we compare tm31 with tm11.
   (prins
     (nl)(princ "filling tm-pipe from tm11")
     )
-  (sleep .0025)
+  (sleep .003)
   (∀* tm11
     (λ(tm11)
       (as tm-pipe (r tm11))
@@ -431,7 +431,7 @@ At the end we compare tm31 with tm11.
     ))
 
 
-(defun test-ts1-5 (&optional (max-tries 1000))
+(defun test-ts1-5 (&optional (max-tries 2000))
   (let*(
          (data (loop for i from 1 to 5 collect i))
 

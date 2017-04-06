@@ -6,16 +6,12 @@ See LICENSE.txt
 'worker' is short for 'assembly line worker'.
 
 An assembly line worker connects to zero or more source tape machines, a state variable,
-and zero or more destination tape machines. 
+and zero or more destination tape machines.   (We should add an auto-worker, that
+just proceses the whole of the source tapes when called.)
 
-The definition of the worker produces a function with the given name, though in this
-implementation said function may be called directly, it is conventional that instead the
-function call be provided to a connect macro, which returns a step function. 
-
-Upon each call to the step function (or directly to the worker function), a new
-destination is written to one or more of the destination tapes.  Each call causes the
-write of one result unit.  After the call the destination tape heads are left on the cells
-for the new values, so they may be read.
+Upon each call to the worker function, a new destination is written to one or more of the
+destination tapes.  Each call causes the write of one result unit.  After the call the
+destination tape heads are left on the cells for the new values, so they may be read.
 
 In the simplest case there is one source machine, a state variable, and one destination
 machine, and the worker uses #'as to put a new value on the destination machine.  The
