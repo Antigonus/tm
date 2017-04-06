@@ -79,6 +79,59 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
+  (defun-typed -d ((tm bilist-solo-tm) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo) ; echoes the instance from the deleted cell
+        (➜leftmost (λ()(error 'left-dealloc-on-leftmost)))
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (indicated-cell (head tm))
+            )
+        (if
+          (¬ (binode-left-neighbor indicated-cell))
+          [➜leftmost]
+          (let*(
+                 (dealloc-cell (binode-left-neighbor indicated-cell))
+                 (instance (binode-instance dealloc-cell))
+                 )
+            (labels
+              (
+                (spill-circuit ()
+                  (if spill
+                    (as spill instance
+                      {
+                        :➜ok #'delete-cell
+                        :➜no-alloc ➜no-alloc
+                        }
+                      )
+                    (delete-cell)
+                    ))
+                
+                (delete-cell()
+                  (let(
+                        (new-left-neighbor (binode-left-neighbor dealloc-cell)) ; might be nil
+                        )
+                    (setf
+                      (binode-left-neighbor indicated-cell) 
+                      new-left-neighbor
+                      )
+                    (when new-left-neighbor
+                      (setf
+                        (binode-right-neighbor new-left-neighbor) 
+                        indicated-cell
+                        ))
+                    [➜ok instance]
+                    ))
+                )
+              (spill-circuit)
+              ))
+          ))))
+
+
 
   ;; We depend on the fact that the head must be on some cell.
   ;; It follows that if there is only one cell, it is leftmost, and the head is on it.

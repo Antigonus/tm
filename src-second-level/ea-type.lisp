@@ -8,10 +8,8 @@ See LICENSE.txt
   of the set are empty.  Before deleting a cell from the tape while using one machine,
   we must check that no other machine has a head on that cell.  etc.
 
-  Each entanglement set has a corresponding machine of type 'entanglements'.  An
-  entanglements machine holds instances of type 'weak pointer to an entangled machine'.
-  When an entangled machine goes out of scope and is garbage collected, its weak pointer
-  value becomes ∅.
+  Each ea-tm keeps a reference to a shared tape listener list called, 'entanglements', and
+  a copy of a pointer to its entry in that list.
 
 |#
 
@@ -24,6 +22,10 @@ See LICENSE.txt
       (entanglements
         :initarg :entanglements
         :accessor entanglements
+        )
+      (entanglements-pt ; our location in the entangelments list
+        :initarg :entanglements-pt
+        :accessor entanglements-pt
         )
       ))
 
@@ -62,9 +64,10 @@ See LICENSE.txt
       (call-next-method tm init-parms
         {
           :➜ok (λ(instance)
-                 (mk 'list-solo-tm {:tape {(tg:make-weak-pointer tm)}}
+                 (mk 'bilist-haz-tm {:tape {tm}}
                    {
                      :➜ok (λ(entanglements)
+                            (setf (entanglements-pt tm) (entangle entanglements))
                             (setf (entanglements tm) entanglements)
                             [➜ok instance]
                             )
@@ -79,7 +82,6 @@ See LICENSE.txt
 ;;
 
   ;; accepts an instance (typep 'ea-tm), returns an entangled instance of the same type
-  ;;   .. probably should have 'call-next-method' for some of the slots
   ;;
     (defun-typed entangle ((tm-orig ea-tm) &optional ➜)
       (destructuring-bind
@@ -89,22 +91,36 @@ See LICENSE.txt
           &allow-other-keys
           )
         ➜  
-        (let*(
-               (tm-entangled         (make-instance (type-of tm-orig)))
-               (pt-tm-entangled      (tg:make-weak-pointer tm-entangled))
-               (entanglements        (entanglements tm-orig))
-               )
-          (as entanglements pt-tm-entangled
-            {
-              :➜ok (λ()
-                       (setf (base tm-entangled) (entangle (base tm-orig)))
-                       (setf (entanglements tm-entangled) entanglements)
-                       (setf (address tm-entangled) (address tm-orig))
-                       (setf (address-rightmost tm-entangled) (address-rightmost tm-orig))
-                       [➜ok tm-entangled]
-                       )
-              :➜no-alloc ➜no-alloc
-              })
-          )))
+        ;; (prins (print "entangle ea-tm"))
+        (call-next-method tm-orig
+          {:➜ok
+            (λ(tm-entangled)
+              (let(
+                    (entanglements (entanglements tm-orig))
+                    )
+                (as entanglements tm-entangled
+                  {
+                    :➜ok (λ()
+                           (setf (entanglements tm-entangled) entanglements)
+                           (setf (entanglements-pt tm-entangled) (entangle entanglements))
+                           [➜ok tm-entangled]
+                           )
+                    :➜no-alloc ➜no-alloc
+                    })))
+            (o (remove-key-pair ➜ :➜ok))
+            })))
 
+
+;;--------------------------------------------------------------------------------
+;;
+  (defun-typed abandon ((tm ea-tm))
+    (let(
+          (e-pt (entanglements-pt tm))
+          )
+      (d. e-pt)
+      (setf (entanglements  tm) ∅)
+      (setf (entanglements-pt tm) ∅)
+      (call-next-method tm)
+      ))
+            
 

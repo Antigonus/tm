@@ -59,6 +59,7 @@ have the base forms called).]
         &allow-other-keys
         )
       ➜  
+      ;; (prins (print "entangle idenity-tm"))
       (let(
             (tm-entangled (make-instance (type-of tm-orig)))
             )

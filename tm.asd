@@ -41,11 +41,10 @@ See LICENSE.txt
                (:module "src-list" ; both the list and generic interface
                  :components (
                                (:file "tm-type")
-                               (:file "tm-decl-only")
+                               (:file "tm-decls")
                                (:file "tm-generic")
                                (:file "tm-quantifiers")
                                (:file "tm-quantified")
-;;                               (:file "tm-print")
 
                                (:file "list-tm-type")
                                (:file "list-tm-definitions")
@@ -53,7 +52,7 @@ See LICENSE.txt
 
                                ;; no destructive functions, but has entangled copy functions
                                (:file "nd-tm-type")
-                               (:file "nd-tm-decl-only")
+                               (:file "nd-tm-decls")
                                (:file "nd-tm-generic") 
 
                                (:file "nd-tm-quantified")
@@ -63,7 +62,7 @@ See LICENSE.txt
 
                                ;; includes destructive functions, but no entangled copy functions
                                (:file "solo-tm-type")
-                               (:file "solo-tm-decl-only")
+                               (:file "solo-tm-decls")
                                (:file "solo-tm-quantified")
 
                                ;; a solo-tm implemenation
@@ -77,12 +76,14 @@ See LICENSE.txt
                                ;; bi-directional list, support -s
                                (:file "bilist")
                                (:file "bilist-tm-type")
+                               (:file "bilist-tm-decls")
                                (:file "bilist-tm-definitions")
                                (:file "bilist-nd-tm-type")
                                (:file "bilist-nd-tm-definitions")
                                (:file "bilist-solo-tm-type")
                                (:file "bilist-solo-tm-definitions")
                                (:file "bilist-haz-tm-type")
+                               (:file "bilist-haz-definitions")
 
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
@@ -102,7 +103,7 @@ See LICENSE.txt
                                (:file "ensemble")
                                ))
 
-               (:module "src-second-order"
+               (:module "src-second-level"
                  :components (
                                (:file "status-type")
                                (:file "status-tm")
@@ -178,7 +179,7 @@ See LICENSE.txt
                               (:file "ensemble")
                               ))
 
-               (:module "test-second-order"
+               (:module "test-second-level"
                  :components (
                                (:file "status")
                                (:file "ea")

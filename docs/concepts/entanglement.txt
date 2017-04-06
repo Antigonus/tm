@@ -31,6 +31,8 @@
     list of the tm-orig machine.
 
   3.4
+    (this function is now called 'entangle')
+
     (cue-to tm-cued tm-orig)
 
     the tm-cued machine must be disentangled with itself, and then entangled with the

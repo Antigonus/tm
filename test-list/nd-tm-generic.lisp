@@ -10,101 +10,81 @@ See LICENSE.txt
 (in-package #:tm)
 
 (defun test-mk-entangled-0 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (entangle tm0)) ; this is an entangled copy
-         )
-    (∧
-      (eq (tape tm0) (tape tm1))
-      (s tm0)
-      (¬ (heads-on-same-cell tm0 tm1))
-      (s tm1)
-      (heads-on-same-cell tm0 tm1)
-      (s tm1)
-      (¬ (heads-on-same-cell tm0 tm1))
-      (¬ (s tm1))
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+        )
+    (with-entangled tm0
+      (λ(tm1)
+        (∧
+          (eq (tape tm0) (tape tm1))
+          (s tm0)
+          (¬ (heads-on-same-cell tm0 tm1))
+          (s tm1)
+          (heads-on-same-cell tm0 tm1)
+          (s tm1)
+          (¬ (heads-on-same-cell tm0 tm1))
+          (¬ (s tm1))
+          )))))
 (test-hook test-mk-entangled-0)
 
-
-#| we no longer have a recycle functions .. perhaps should put it back 
-(defun test-recycle-entangled-0 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
-         (tm2 (entangle tm0))
-         )
-    (∧
-      (eq (tape tm0) (tape tm2))
-      (¬ (eq (tape tm1) (tape tm2)))
-  can't do this-->      (init tm2 tm1)
-      (¬ (eq (tape tm0) (tape tm2)))
-      (eq (tape tm1) (tape tm2))
-
-      (s tm2)
-      (¬ (heads-on-same-cell tm1 tm2))
-      (s tm1)
-      (heads-on-same-cell tm1 tm2)
-      (s tm1)
-      (¬ (heads-on-same-cell tm1 tm2))
-      )))
-(test-hook test-recycle-entangled-0)
-|#
-
 (defun test-ec◧r-0 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
-         (tm2 (entangle tm0))
-         )
-    (∧
-      (= (ec◧r tm0) 7)
-      (= (ec◧r tm1) 11)
-      (= (ec◧r tm2) 7)
-      (ec◧w tm2 9)
-      (= (ec◧r tm0) 9)
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+        (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
+        )
+    (with-entangled tm0
+      (λ(tm2)
+        (∧
+          (= (ec◧r tm0) 7)
+          (= (ec◧r tm1) 11)
+          (= (ec◧r tm2) 7)
+          (ec◧w tm2 9)
+          (= (ec◧r tm0) 9)
+          )))))
 (test-hook test-ec◧r-0)
 
 (defun test-s≠-0 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (entangle tm0))
-         )
-    (∧
-      (sn tm0 3)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 3)
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
+        )
+    (with-entangled tm0
+      (λ(tm1)
+        (∧
+          (sn tm0 3)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 3)
+          )))))
 (test-hook test-s≠-0)
 
 (defun test-s≠-1 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (entangle tm0))
-         )
-    (∧
-      (s tm1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
-      (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 2)
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
+        )
+    (with-entangled tm0
+      (λ(tm1)
+        (∧
+          (s tm1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 1)
+          (= (s≠ tm1 tm0 {:➜ok (be 1) :➜rightmost (be 2) :➜bound (be 3)}) 2)
+          )))))
 (test-hook test-s≠-1)
 
 (defun test-a◨ ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
-         (tm1 (entangle tm0))
-         )
-    (∧
-      (a◨ tm1 13)
-      (a◨ tm0 15)
-      (equal (tape tm0) {3 5 7 9 11 13 15})
-      (on-leftmost tm0)
-      (on-leftmost tm1)
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
+        )
+    (with-entangled tm0
+      (λ(tm1)
+        (∧
+          (a◨ tm1 13)
+          (a◨ tm0 15)
+          (equal (tape tm0) {3 5 7 9 11 13 15})
+          (on-leftmost tm0)
+          (on-leftmost tm1)
+          )))))
 (test-hook test-a◨)
 

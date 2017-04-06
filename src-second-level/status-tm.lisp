@@ -13,11 +13,6 @@ overridden.
 ;;--------------------------------------------------------------------------------
 ;; status-tm specific
 ;;
-  (def-function-class park (tm &optional ➜))
-
-  (defun abandon (tm)
-    (change-class tm 'status-abandoned)
-    )
 
   (defun-typed tm-print ((tm status-tm))
     (princ (type-of tm))

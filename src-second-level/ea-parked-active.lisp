@@ -25,7 +25,7 @@ functions shared by parked and active
                  (c◧∀* (entanglements tm)
                    (λ(es)
                      (let(
-                           (etm (tg:weak-pointer-value (r es)))
+                           (etm (r es))
                            )
                        (when etm
                          (update-tape-after-a◧ (base etm) (base tm))
@@ -37,7 +37,7 @@ functions shared by parked and active
                          (incf (address-rightmost etm))
                          )))))
               )
-      (prins (print "a◧ ea-parked-active"))
+      ;; (prins (print "a◧ ea-parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -57,7 +57,7 @@ functions shared by parked and active
         &allow-other-keys
         )
       ➜
-      (prins (print "d◧ ea-parked-active"))
+      ;; (prins (print "d◧ ea-parked-active"))
       (labels
         (
 
@@ -68,7 +68,7 @@ functions shared by parked and active
             (c◧∀* (entanglements tm) 
               (λ(es)
                 (let(
-                      (etm (tg:weak-pointer-value (r es)))
+                      (etm (r es))
                       )
                   (when etm (to-empty etm))
                   ))))
@@ -80,7 +80,7 @@ functions shared by parked and active
             (c◧∀* (entanglements tm)
               (λ(es)
                 (let(
-                      (etm (tg:weak-pointer-value (r es)))
+                      (etm (r es))
                       )
                   (when etm
                     (when (typep etm 'status-parked)
@@ -91,7 +91,7 @@ functions shared by parked and active
             (c◧∀* (entanglements tm)
               (λ(es)
                 (let(
-                      (etm (tg:weak-pointer-value (r es)))
+                      (etm (r es))
                       )
                   (when etm
                     (update-tape-after-d◧ (base etm) (base tm))

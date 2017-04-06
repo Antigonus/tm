@@ -159,7 +159,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (prins (print "a◧ status-parked-active"))
+      ;; (prins (print "a◧ status-parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -178,7 +178,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (prins (print "d◧ status-active"))
+      ;; (prins (print "d◧ status-active"))
       (if (= (address-rightmost tm) 0)
         [➜collision]
         (d◧ (base tm) spill
@@ -190,6 +190,22 @@ a collision error.  Hence behavior is inherited from the identity transform.
                    )
             (o (remove-key-pair ➜ :➜ok))
             }))))
+
+  (defun-typed d. ((tm status-active) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (d. (base tm) spill ➜
+        {
+          :➜ok (λ(instance)
+                 (abandon tm)
+                 [➜ok instance]
+                 )
+          (o (remove-key-pair ➜ :➜ok))
+          })))
 
    
 ;;--------------------------------------------------------------------------------
@@ -209,45 +225,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (entangled tm0 tm1
-        {
-          :➜t (λ()
-                (if (= (address tm0) (address tm1))
-                  [➜t]
-                  [➜∅]
-                  ))
-          :➜∅ (λ()
-                [➜∅]
-                )
-          })))
-        
- 
-  (defun-typed heads-on-same-cell
-    (
-      (tm0 status-active)
-      (tm1 tape-machine)
-      &optional ➜
-      )
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜∅]
-      ))
-
-  (defun-typed heads-on-same-cell
-    (
-      (tm0 tape-machine)
-      (tm1 status-active)
-      &optional ➜
-      )
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜∅]
-      ))
+      (if (= (address tm0) (address tm1))
+        [➜t]
+        [➜∅]
+        )))

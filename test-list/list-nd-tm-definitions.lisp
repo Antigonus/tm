@@ -10,16 +10,17 @@ See LICENSE.txt
 (in-package #:tm)
 
 (defun test-heads-on-same-cell-0 ()
-  (let*(
-         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
-         (tm1 (entangle tm0))
-         )
-    (∧
-      (s tm0)
-      (¬ (heads-on-same-cell tm0 tm1))
-      (s tm1)
-      (heads-on-same-cell tm0 tm1)
-      (s tm1)
-      (¬ (heads-on-same-cell tm0 tm1))
-      )))
+  (let(
+        (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
+        )
+    (with-entangled tm0
+      (λ(tm1)
+        (∧
+          (s tm0)
+          (¬ (heads-on-same-cell tm0 tm1))
+          (s tm1)
+          (heads-on-same-cell tm0 tm1)
+          (s tm1)
+          (¬ (heads-on-same-cell tm0 tm1))
+          )))))
 (test-hook test-heads-on-same-cell-0)

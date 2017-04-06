@@ -8,9 +8,9 @@ See LICENSE.txt
 (in-package #:tm)
 
 (defstruct binode
+  instance
   right-neighbor
   left-neighbor
-  instance
   )
 
 (defun make-bilist-1 (a-list left-neighbor)

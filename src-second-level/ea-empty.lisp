@@ -55,12 +55,12 @@ The only way to change states away from 'empty' is to add a new cell.
         &allow-other-keys
         )
       ➜
-      (prins (print "a◧ ea-empty"))
+      ;; (prins (print "a◧ ea-empty"))
       (w (base tm) instance)
       (c◧∀* (entanglements tm)
         (λ(es) 
           (let(
-                (etm (tg:weak-pointer-value (r es)))
+                (etm (r es))
                 )
             (when etm (to-parked etm))
             )))

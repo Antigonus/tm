@@ -22,7 +22,7 @@ See LICENSE.txt
     (c◧∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
-              (etm (tg:weak-pointer-value (r es)))
+              (etm (r es))
               )
           (if 
             (∧
@@ -49,14 +49,14 @@ See LICENSE.txt
     (c◧∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
-              (etm (tg:weak-pointer-value (r es)))
+              (etm (r es))
               )
           (if 
             (∧
               etm
               (typep etm 'status-active)
-              (≠ (address tm) 0)
-              (= (address etm) (- (address tm) 1))
+              (≠ (address etm) 0)
+              (= (address tm) (- (address etm) 1))
               )
             [ct]
             [c∅]
@@ -81,7 +81,7 @@ See LICENSE.txt
                  (c◧∀* (entanglements tm)
                    (λ(es)
                      (let(
-                           (etm (tg:weak-pointer-value (r es)))
+                           (etm (r es))
                            )
                        (when etm
                            (incf (address-rightmost etm))
@@ -116,7 +116,7 @@ See LICENSE.txt
                  (c◧∀* (entanglements tm)
                    (λ(es)
                      (let(
-                           (etm (tg:weak-pointer-value (r es)))
+                           (etm (r es))
                            )
                        (when etm
                          (decf (address-rightmost etm))

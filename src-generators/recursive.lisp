@@ -301,3 +301,17 @@ implement the comparison of two machines as per #'head-on-same-cell.
   (defun mk-interval (a b &optional (stride 1))
     (mk 'recursive {:initial a :f (increment-to b stride)})
     )
+
+  ;; of course Lisp is not case sensitive, this usage of case is a convention
+  (defun mk-Natural ()
+    (labels(
+             (sucessor (i0 ct c∅)
+               (declare (ignore c∅))
+               (let(
+                     (i1 (+ i0 1))
+                     )
+                 [ct i1]
+                 ))
+             )
+      (mk 'recursive {:initial 0 :f #'sucessor})
+      ))

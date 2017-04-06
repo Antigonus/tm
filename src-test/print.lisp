@@ -21,8 +21,8 @@ See LICENSE.txt
   (defvar *prins-on* ∅)
   (defvar *prins-lock* (bt:make-lock))
 
-  (defun turn-prins-on () (setf *prins-on* t))
-  (defun turn-prins-off () (setf *prins-on* ∅))
+  (defun turn-on-prins () (setf *prins-on* t))
+  (defun turn-off-prins () (setf *prins-on* ∅))
 
   (defmacro prins (&body f)
     `(bt:with-lock-held (*prins-lock*)

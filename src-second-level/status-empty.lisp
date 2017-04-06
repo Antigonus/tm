@@ -169,7 +169,7 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
-      (prins (print "a◧ status-empty"))
+      ;; (prins (print "a◧ status-empty"))
       ;; address rightmost will already be zero
       ;; address will already be zero
       (w (base tm) instance)
@@ -198,8 +198,19 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
-      (prins (print "d◧ status-empty"))
+      ;; (prins (print "d◧ status-empty"))
       [➜empty]
+      ))
+
+  (defun-typed d. ((tm status-empty) &optional spill ➜)
+    (declare (ignore tm spill))
+    (destructuring-bind
+      (&key
+        (➜fail (λ()(error 'use-of-empty)))
+        &allow-other-keys
+        )
+      ➜
+      [➜fail]
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -220,7 +231,7 @@ belonging to a machine that has a parked head.
   (defun-typed heads-on-same-cell
     (
       (tm0 status-empty)
-      (tm1 tape-machine)
+      (tm1 status-tm)
       &optional ➜
       )
     (destructuring-bind
@@ -234,7 +245,7 @@ belonging to a machine that has a parked head.
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 tape-machine)
+      (tm0 status-tm)
       (tm1 status-empty)
       &optional ➜
       )

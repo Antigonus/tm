@@ -30,7 +30,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
 
   (defun-typed a ((tm ts1-tm) instance &optional ➜)
     (bt:with-recursive-lock-held ((deed tm))
-      (prins (print "a ts1-tm"))
+      ;; (prins (print "a ts1-tm"))
       (call-next-method tm instance ➜)
       ))
 
@@ -60,7 +60,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;
     (defun-typed as ((tm ts1-tm) instance &optional ➜)
       (bt:with-recursive-lock-held ((deed tm))
-        (prins (print "as ts1-tm"))
+        ;; (prins (print "as ts1-tm"))
         (call-next-method tm instance ➜)
         ))
 
@@ -93,7 +93,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;
     (defun-typed a◧ ((tm ts1-tm) instance &optional ➜)
       (bt:with-recursive-lock-held ((deed tm))
-        (prins (print "a◧ ts1-tm"))
+        ;; (prins (print "a◧ ts1-tm"))
         (call-next-method tm instance ➜)
         ))
 
@@ -102,13 +102,13 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;
     (defun-typed d ((tm ts1-tm) &optional spill ➜)
       (bt:with-recursive-lock-held ((deed tm))
-        (prins (print "d ts1-tm"))
+        ;; (prins (print "d ts1-tm"))
         (call-next-method tm spill ➜)
         ))
 
     (defun-typed d◧ ((tm ts1-tm) &optional spill ➜)
       (bt:with-recursive-lock-held ((deed tm))
-        (prins (print "d◧ ts1-tm"))
+        ;; (prins (print "d◧ ts1-tm"))
         (call-next-method tm spill ➜)
         ))
 
@@ -164,7 +164,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
         &optional ➜
         )
       (bt:with-recursive-lock-held ((deed tm))
-        (prins (print "a◨ ts1-tm"))
+        ;; (prins (print "a◨ ts1-tm"))
         (call-next-method tm instance ➜)
         ))
       

@@ -34,7 +34,7 @@ See LICENSE.txt
 
 (defun test-status-1 ()
   (let*(
-         (t0 (mk 'list-haz-tm {:tape {1 2 3}}))
+         (t0 (mk 'list-solo-tm {:tape {1 2 3}}))
          (t1 (mk 'status-tm {:base t0}))
          )
     (∧
@@ -52,7 +52,7 @@ See LICENSE.txt
        
 (defun test-status-4 ()
   (let*(
-         (tm0 (mk 'list-haz-tm {:tape {∅}}))
+         (tm0 (mk 'list-solo-tm {:tape {∅}}))
          (tm1 (mk 'status-tm {:base tm0 :empty t}))
          )
     (∧
@@ -73,7 +73,7 @@ See LICENSE.txt
 
 (defun test-status-5 ()
   (let*(
-         (tm0 (mk 'list-haz-tm {:tape {∅}}))
+         (tm0 (mk 'list-solo-tm {:tape {∅}}))
          (tm1 (mk 'status-tm {:base tm0 :empty t}))
          )
     (∧
@@ -95,9 +95,9 @@ See LICENSE.txt
 
 (defun test-status-6 ()
   (let*(
-         (tm10 (mk 'list-haz-tm {:tape {∅}}))
+         (tm10 (mk 'list-solo-tm {:tape {∅}}))
          (tm11 (mk 'status-tm {:base tm10 :empty t}))
-         (tm20 (mk 'list-haz-tm {:tape {∅}}))
+         (tm20 (mk 'list-solo-tm {:tape {∅}}))
          (tm21 (mk 'status-tm {:base tm20 :empty t}))
          )
     (∧

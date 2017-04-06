@@ -3,12 +3,8 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-We never make abandoned machines, rather managed machines are change classed
-to this type after they are deallocated.  This might happen in a finalizer
-for a weak pointer, for example.  Or in a scopped allocation operation.
-
-It is a program bug to use an abandoned machine.  We currently only provide 
-continuations for 
+It is a program bug to use an abandoned machine and we throw an exception. We currently
+don't provide a continuation for it.
 
 |#
 
@@ -73,7 +69,15 @@ continuations for
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
-    (prins (print "d◧ status-abandoned"))
+    ;; (prins (print "d◧ status-abandoned"))
+    (operation-on-abandoned)
+    )
+  (defun-typed d.
+     (
+      (tm status-abandoned)
+      &optional spill ➜
+      )
+    (declare (ignore tm spill ➜))
     (operation-on-abandoned)
     )
 

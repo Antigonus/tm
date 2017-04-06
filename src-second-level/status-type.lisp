@@ -158,6 +158,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜  
+      ;; (prins (print "entangle status-tm"))
       (call-next-method tm-orig
         {
           :➜ok (λ(tm-entangled)
@@ -168,3 +169,20 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
+  (def-function-class park (tm &optional ➜)) ; handled by subtypes
+
+  (def-function-class abandon (tm))
+
+  (defun-typed abandon ((tm status-tm))
+    (setf (base tm) ∅)
+    (to-abandoned tm)
+    )
+
+  (defun-typed with-entangled ((tm status-tm) continuation)
+    (let(
+          (etm (entangle tm))
+          )
+      (unwind-protect
+        [continuation etm]
+        (abandon etm)
+        )))

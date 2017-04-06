@@ -14,6 +14,13 @@ functions.
 |#
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; entanglement
+;;
+  (defun-typed with-entangled ((tm nd-tape-machine) continuation)
+    [continuation (entangle tm)]
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; printing
@@ -32,35 +39,22 @@ functions.
       ))
 
   (defun-typed tm-print ((tm0 nd-tape-machine))
-    (let(
-          (tm1 (entangle tm0))
-          )
-      (c◧ tm1)
-      (tm-print-1 tm0 tm1)
-      (s tm1 
-        {
-          :➜ok (λ()
-                 (∀* tm1 (λ(tm1)(princ " ")(tm-print-1 tm0 tm1)))
-                 )
-          })
-      t
-      ))
+    (with-entangled tm0
+      (λ(tm1)
+        (c◧ tm1)
+        (tm-print-1 tm0 tm1)
+        (s tm1 
+          {
+            :➜ok (λ()
+                   (∀* tm1 (λ(tm1)(princ " ")(tm-print-1 tm0 tm1)))
+                   )
+            })
+        t
+        )))
         
 ;;--------------------------------------------------------------------------------
 ;; stepping with a boundary, boundaries are inclusive
 ;;
-  ;; although we don't make any copies in this function, we do have two tape
-  ;; machines that are on the same tape.  That can not happen with a solo machine
-  ;; so nd-tape-machine is as far up the inheritance tree that this can go.
-  (def-function-class s≠ (tm0 tm1 &optional ➜)
-    (:documentation
-      "tm0 and tm1 are on the same tape. 
-       If tm0's head is on the same call as tm1's head, take cont-bound.  Otherwise
-       if tm0's head is on the rightmost cell, take cont-rightmost.  Otherwise,
-       step tm0.
-      "
-      ))
-
   (defun-typed s≠ 
     (
       (tm0 nd-tape-machine)
@@ -85,12 +79,6 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (def-function-class a◨ (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the right of rightmost (thus becoming the new rightmost).
-      "
-      ))
-
   (defun-typed a◨
     (
       (tm nd-tape-machine)
@@ -105,10 +93,9 @@ functions.
         &allow-other-keys
         )
       ➜
-      (let(
-            (tm1 (entangle tm))
-            )
-        (c◨ tm1)
-        (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
-        )))
+      (with-entangled tm
+        (λ(tm1)
+          (c◨ tm1)
+          (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
+          ))))
 

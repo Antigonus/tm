@@ -14,24 +14,32 @@ See LICENSE.txt
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
          (tm1 (mk 'ea-tm {:base tm0}))
-         (tm2 (entangle tm1))
+         tm2-stolen
+         flag
          )
+    (with-entangled tm1
+      (λ(tm2)
+        (setf tm2-stolen tm2)
+        (setf flag
+          (∧
+            (typep tm1 'status-active)
+            (typep tm2 'status-active)
+            (= (r tm1) 1)
+            (= (r tm2) 1)
+            (= (address tm1) 0)
+            (= (address tm2) 0)
+            (= (address-rightmost tm1) 2)
+            (= (address-rightmost tm2) 2)
+            (= (d tm1) 2)
+            (= (address-rightmost tm1) 1)
+            (= (address-rightmost tm2) 1)
+            (s tm2)
+            (= (r tm2) 3)
+            (= (address tm2) 1)
+            ))))
     (∧
-      (typep tm1 'status-active)
-      (typep tm2 'status-active)
-      (= (r tm1) 1)
-      (= (r tm2) 1)
-      (= (address tm1) 0)
-      (= (address tm2) 0)
-      (= (address-rightmost tm1) 2)
-      (= (address-rightmost tm2) 2)
-      (= (d tm1) 2)
-      (= (address-rightmost tm1) 1)
-      (= (address-rightmost tm2) 1)
-      (s tm2)
-      (= (r tm2) 3)
-      (= (address tm2) 1)
-      (clean-entanglements tm1)
+      (typep tm2-stolen 'status-abandoned)
+      flag
       )))
 (test-hook test-ea-0)
 
@@ -54,19 +62,20 @@ See LICENSE.txt
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {1 2 3}}))
          (tm1 (mk 'ea-tm {:base tm0}))
-         (tm2 (entangle tm1))
          )
-    (∧
-      (park tm1)
-      ;; this has a collision with tm2's head
-      ;;
-         (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
-      (park tm2)
-      (= (d◧ tm1) 1)
-      (= (d◧ tm1) 2)
-      (= (d◧ tm1) 3)
-      (typep tm2 'status-empty)
-      )))
+    (with-entangled tm1
+      (λ(tm2)
+        (∧
+          (park tm1)
+          ;; this has a collision with tm2's head
+          ;;
+          (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
+          (park tm2)
+          (= (d◧ tm1) 1)
+          (= (d◧ tm1) 2)
+          (= (d◧ tm1) 3)
+          (typep tm2 'status-empty)
+          )))))
 (test-hook test-ea-2)
 
 (defun test-ea-3 ()

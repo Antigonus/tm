@@ -93,13 +93,21 @@ See LICENSE.txt
     (def-function-class ∀* (tm pred &optional ➜t ➜∅))
   |#
 
+  ;; Seems that at least some errors in threads will cause the thread to hang ..
+  ;; Seems it will be a common mistake to give quantifiers continuation lists
+  ;; rather than directly specifying the functions (resolving this convention
+  ;; is on the to-do list).  Added the funcitonp guard here to make the error
+  ;; in the thread more obvious
   (defun ∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
     "Tests each instance in tm in succession starting from the current location of the head.
      Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via
      ➜∅ when stepping right from rightmost.  The head is left on the cell that holds the
      instance that passed.
     "
-    (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
+    (if (∧ (functionp pred) (functionp ➜t) (functionp ➜∅))
+      (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
+      (error 'non-function-continuation)
+      )
     )
 
   (defun c◧∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))

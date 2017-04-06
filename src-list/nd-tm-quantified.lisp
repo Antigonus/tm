@@ -19,28 +19,31 @@ See LICENSE.txt
       "
       ))
 
-  (defun-typed esnr 
-    (
-      (tm nd-tape-machine)
-      index
-      &optional ➜
+(defun-typed esnr 
+  (
+    (tm nd-tape-machine)
+    index
+    &optional ➜
+    )
+  (destructuring-bind
+    (&key
+      (➜ok #'echo)
+      (➜rightmost 
+        (λ(index)
+          (declare (ignore index))
+          (error 'step-from-rightmost)
+          ))
+      &allow-other-keys
       )
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜rightmost (λ(index)(declare (ignore index))(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm1 (entangle tm))
-            )
-          (sn tm1 index
-            {
-              :➜ok (λ()[➜ok (r tm1)])
-              :➜rightmost (λ(n)[➜rightmost n])
-              }
-            ))))
+    ➜
+    (with-entangled tm
+      (λ(tm1)
+        (sn tm1 index
+          {
+            :➜ok (λ()[➜ok (r tm1)])
+            :➜rightmost (λ(n)[➜rightmost n])
+            }
+          )))))
 
   (def-function-class esnw (tm index instsance &optional ➜)
     (:documentation
@@ -63,14 +66,14 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (let(
-            (tm1 (entangle tm))
-            )
+      (with-entangled tm
+        (λ(tm1)
           (sn tm1 index
             {
               :➜ok (λ()(w tm1 instance {:➜ok ➜ok}))
               :➜rightmost (λ(n)[➜rightmost n])
-              }))))
+              })))
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; repeated until end of tape operations
@@ -90,11 +93,8 @@ See LICENSE.txt
       fill
       &optional ➜
       )
-    (let(
-          (tm1 (entangle tm0))
-          )
-      (as* tm1 fill ➜)
-      ))
+    (with-entangled tm0 (λ(tm1) (as* tm1 fill ➜)))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; repeated by count operations
@@ -112,12 +112,8 @@ See LICENSE.txt
       fill
       &optional ➜
       )
-    (let(
-          (tm1 (entangle tm))
-          )
-      (asn tm1 n fill ➜)
-      ))
-
+    (with-entangled tm (λ(tm1)(asn tm1 n fill ➜)))
+    )
 
 
         

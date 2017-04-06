@@ -114,7 +114,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (prins (print "a◧ status-parked-active"))
+      ;; (prins (print "a◧ status-parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -135,48 +135,57 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (prins (print "d◧ status-parked"))
+      ;; (prins (print "d◧ status-parked"))
+      (if
+        (= (address-rightmost tm) 0)
 
-        (if
-          (= (address-rightmost tm) 0)
-
-          (let(
-                (instance (r (base tm)))
-                )
-            (labels(
-                     (faux-delete-the-only-cell ()
-                       (w (base tm) ∅)
-                       (to-empty tm)
-                       [➜ok instance]
-                       )
-                     )
-              (if spill
-                (as spill instance
-                  {
-                    :➜ok #'faux-delete-the-only-cell
-                    :➜no-alloc ➜no-alloc
-                    })
-                (faux-delete-the-only-cell)
-                )))
-
-          (progn
-            (s (base tm) ; need to get the base head off of ◧ where we leave it when parked
-              {:➜rightmost #'cant-happen} ; we know that address-rightmost is not 0
+        (let(
+              (instance (r (base tm)))
               )
-            (d◧ (base tm) spill
-              {
-                :➜ok (λ(instance)
-                       (decf (address tm))
-                       (decf (address-rightmost tm))
-                       [➜ok instance]
-                       )
-                :➜collision #'cant-happen ; the prior #'s call just moved the head out of the way
-                (o (remove-key-pairs ➜ {:➜ok :➜collision}))
-                })
-            ))))
+          (labels(
+                   (faux-delete-the-only-cell ()
+                     (w (base tm) ∅)
+                     (to-empty tm)
+                     [➜ok instance]
+                     )
+                   )
+            (if spill
+              (as spill instance
+                {
+                  :➜ok #'faux-delete-the-only-cell
+                  :➜no-alloc ➜no-alloc
+                  })
+              (faux-delete-the-only-cell)
+              )))
+
+        (progn
+          (s (base tm) ; need to get the base head off of ◧ where we leave it when parked
+            {:➜rightmost #'cant-happen} ; we know that address-rightmost is not 0
+            )
+          (d◧ (base tm) spill
+            {
+              :➜ok (λ(instance)
+                     (decf (address tm))
+                     (decf (address-rightmost tm))
+                     [➜ok instance]
+                     )
+              :➜collision #'cant-happen ; the prior #'s call just moved the head out of the way
+              (o (remove-key-pairs ➜ {:➜ok :➜collision}))
+              })
+          ))))
 
   (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
 
+  (defun-typed d. ((tm status-parked) &optional spill ➜)
+    (declare (ignore tm spill))
+    (destructuring-bind
+      (&key
+        (➜fail (λ()(error 'dealloc-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜fail]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; nd-tm-decl-only
@@ -193,7 +202,7 @@ See LICENSE.txt
   (defun-typed heads-on-same-cell
     (
       (tm0 status-parked)
-      (tm1 tape-machine) ; status can not empty (or all machines in group would be empty)
+      (tm1 status-tm)
       &optional ➜
       )
     (destructuring-bind
@@ -207,7 +216,7 @@ See LICENSE.txt
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 tape-machine)  ; status can not empty (or all machines in group would be empty)
+      (tm0 status-tm) 
       (tm1 status-parked)
       &optional ➜
       )

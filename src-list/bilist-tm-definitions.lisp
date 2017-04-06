@@ -143,7 +143,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜leftmost (be ∅))
         &allow-other-keys
         )
       ➜
@@ -153,7 +153,7 @@ See LICENSE.txt
           (setf (head tm) (binode-left-neighbor (head tm)))
           [➜ok]
           )
-        [➜rightmost]
+        [➜leftmost]
         )))
 
 
@@ -179,6 +179,28 @@ See LICENSE.txt
           (setf (binode-left-neighbor current-right-neighbor) new-right-neighbor)
           )
         (setf (binode-right-neighbor node) new-right-neighbor)
+        [➜ok]
+        )))
+
+  (defun-typed -a ((tm bilist-tm) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (node (head tm))
+            (current-left-neighbor (binode-left-neighbor (head tm)))
+            (new-left-neighbor (make-binode))
+            )
+        (setf (binode-instance       new-left-neighbor) instance)
+        (setf (binode-right-neighbor new-left-neighbor) node)
+        (setf (binode-left-neighbor  new-left-neighbor) current-left-neighbor)
+        (when current-left-neighbor
+          (setf (binode-right-neighbor current-left-neighbor) new-left-neighbor)
+          )
+        (setf (binode-left-neighbor node) new-left-neighbor)
         [➜ok]
         )))
 

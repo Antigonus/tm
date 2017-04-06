@@ -73,7 +73,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  ;; see ea-definitions for a◧, d◧
+  ;; see ea-parked-active for a◧, d◧
 
 
                     

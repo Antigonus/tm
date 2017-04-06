@@ -50,14 +50,6 @@ functions.
        right neighbor and ➜ok.  If there is no right neighbor, then ➜rightmost.
        "))
 
-  (def-function-class -s (tm &optional ➜)
-    (:documentation
-      "If the head is on a cell, and there is a left neighbor, puts the head on the
-       left neighbor and ➜ok.  If there is no left neighbor, then ➜leftmost.
-       This function is not available for singly linked lists.
-       "))
-
-
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;

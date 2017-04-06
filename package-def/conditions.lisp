@@ -32,7 +32,7 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
-;; tm decl only implementations
+;; tm first level
 ;;
   (define-condition step-from-rightmost (error)
     ((text :initarg :text :reader text)))
@@ -44,11 +44,26 @@ See LICENSE.txt
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition left-dealloc-on-leftmost (error)
+    ((text :initarg :text :reader text)))
+
   (define-condition dealloc-collision (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition dealloc-last (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition dealloc-parked (error)
+    ((text :initarg :text :reader text)))
+
 ;;--------------------------------------------------------------------------------
-;; tm with status
+;; quantifiers
+;;
+  (define-condition non-function-continuation (error)
+    ((text :initarg :text :reader text)))
+
+;;--------------------------------------------------------------------------------
+;; tm second level
 
   ;; machine was abandoned to the garbage collector, but someon uses it
   (define-condition operation-on-abandoned (error)

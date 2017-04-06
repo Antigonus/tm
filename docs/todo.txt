@@ -151,3 +151,10 @@ faster.
    compare at the end of test-ts1-4
 
 53. qauntifiers need typed for to support second order with possible empty machines
+
+54. ea-tm does not need both entangelments and entanglments-pt -- entanglments pt
+can be copied and cued to leftmost to recover entangelments.
+
+55. if a test does not return in a short time, call the test a failure, perhaps
+add a time to wait as part of test-hook
+
