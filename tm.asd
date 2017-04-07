@@ -43,7 +43,7 @@ See LICENSE.txt
                                (:file "tm-type")
                                (:file "tm-decls")
                                (:file "tm-generic")
-                               (:file "tm-quantifiers")
+                               (:file "quantifiers")
                                (:file "tm-quantified")
 
                                (:file "list-tm-type")
@@ -74,9 +74,10 @@ See LICENSE.txt
                                (:file "list-haz-tm-type")
 
                                ;; bi-directional list, support -s
+                               (:file "bi-tm-decls")
+                               (:file "haz-decls")
                                (:file "bilist")
                                (:file "bilist-tm-type")
-                               (:file "bilist-tm-decls")
                                (:file "bilist-tm-definitions")
                                (:file "bilist-nd-tm-type")
                                (:file "bilist-nd-tm-definitions")
@@ -122,11 +123,6 @@ See LICENSE.txt
 
                                (:file "ts1-type")
                                (:file "ts1-tm")
-                               ))
-
-               (:module "src-worker"
-                 :components (
-                               (:file "worker")
                                ))
 
 
