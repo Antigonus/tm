@@ -216,5 +216,14 @@ they belong to.
       #:idenity-tr ; type
       #:ensemble-tr  ; type
 
+    ;;second level
+    ;;
+      #:status-tm ; type
+      #:park
+      #:abandon
+      
+      #:ea-tm ; type
+      #:ts1-tm ; type
+
       ))
 
