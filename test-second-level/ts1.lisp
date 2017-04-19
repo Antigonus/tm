@@ -335,7 +335,7 @@ At the end we compare tm31 with tm11.
     (if (typep tm31 'status-empty)
       ∅
       (let(
-            (tm-ensemble (mk 'ensemble {:list {tm11 tm31}}))
+            (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
         (c◧ tm11)
         (c◧ tm31)
@@ -501,7 +501,7 @@ At the end we compare tm31 with tm11.
     (if (typep tm31 'status-empty)
       ∅
       (let(
-            (tm-ensemble (mk 'ensemble {:list {tm11 tm31}}))
+            (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
         (c◧ tm11)
         (c◧ tm31)

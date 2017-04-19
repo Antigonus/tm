@@ -12,7 +12,7 @@ See LICENSE.txt
         (tm0 (mk 'list-tm {:tape {1 2 3 31}}))
         (tm1 (mk 'list-tm {:tape {4 5 6}}))
         (tm2 (mk 'list-tm {:tape {7 8 9 91}}))
-        (tm10 (mk 'ensemble {:list {tm0 tm1 tm2}}))
+        (tm10 (mk 'ensemble-tr {:list {tm0 tm1 tm2}}))
         )
     (∧
       (= (r tm0) 1)

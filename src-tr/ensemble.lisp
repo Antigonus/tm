@@ -16,7 +16,7 @@ stepping the ensemble steps all the member machines.
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (def-type ensemble (tape-machine)
+  (def-type ensemble-tr (tape-machine)
     (
       (members ; members is a machine, where each instance on the tape is a machine
         :initarg members
@@ -29,7 +29,7 @@ stepping the ensemble steps all the member machines.
 ;;
   (defun-typed init 
     (
-      (tm ensemble)
+      (tm ensemble-tr)
       &optional
       init-value
       ➜
@@ -66,7 +66,7 @@ stepping the ensemble steps all the member machines.
     ;; sometimes better to just read the member machines directly
     ;; returns a machine of read values
     ;; the return machine has the same type as the first member
-    (defun-typed r ((tm ensemble) &optional ➜)
+    (defun-typed r ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -89,7 +89,7 @@ stepping the ensemble steps all the member machines.
             [➜ok result]
             ))))
 
-    (defun-typed esr ((tm ensemble) &optional ➜)
+    (defun-typed esr ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -121,7 +121,7 @@ stepping the ensemble steps all the member machines.
               ➜rightmost
               )))))
 
-    (defun-typed w ((tm ensemble) instance &optional ➜)
+    (defun-typed w ((tm ensemble-tr) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -132,7 +132,7 @@ stepping the ensemble steps all the member machines.
         [➜ok]
         ))
 
-    (defun-typed esw ((tm ensemble) instance &optional ➜)
+    (defun-typed esw ((tm ensemble-tr) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -152,7 +152,7 @@ stepping the ensemble steps all the member machines.
             ➜rightmost
             ))))
 
-    (defun-typed ec◧r ((tm ensemble) &optional ➜)
+    (defun-typed ec◧r ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -175,7 +175,7 @@ stepping the ensemble steps all the member machines.
             [➜ok result]
             ))))
 
-    (defun-typed ec◧sr ((tm ensemble) &optional ➜)
+    (defun-typed ec◧sr ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -207,7 +207,7 @@ stepping the ensemble steps all the member machines.
               ➜rightmost
               )))))
 
-    (defun-typed ec◧w ((tm ensemble) instance &optional ➜)
+    (defun-typed ec◧w ((tm ensemble-tr) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -218,7 +218,7 @@ stepping the ensemble steps all the member machines.
         [➜ok]
         ))
 
-  (defun-typed ec◧sw ((tm ensemble) instance &optional ➜)
+  (defun-typed ec◧sw ((tm ensemble-tr) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -243,7 +243,7 @@ stepping the ensemble steps all the member machines.
   ;; absolute head placement
   ;;
     ;; if a member is an empty status machine ?
-    (defun-typed c◧ ((tm ensemble) &optional ➜)
+    (defun-typed c◧ ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -258,8 +258,8 @@ stepping the ensemble steps all the member machines.
   ;; head stepping
   ;;
     ;; when taking rightmost, member's head indicates the first rightmost going machine
-    ;; perhaps later we should make a transactional version of ensemble
-    (defun-typed s ((tm ensemble) &optional ➜)
+    ;; perhaps later we should make a transactional version of ensemble-tr
+    (defun-typed s ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -288,7 +288,7 @@ stepping the ensemble steps all the member machines.
   ;; location
   ;;  
     ;; any on leftmost - predicts if -s would take a leftmost continuation
-    (defun-typed on-leftmost ((tm ensemble) &optional ➜)
+    (defun-typed on-leftmost ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -309,7 +309,7 @@ stepping the ensemble steps all the member machines.
             ))))
 
     ;; any on rightmost - predicts if step would take a rightmost continuation
-    (defun-typed on-rightmost ((tm ensemble) &optional ➜)
+    (defun-typed on-rightmost ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -333,7 +333,7 @@ stepping the ensemble steps all the member machines.
   ;; length-tape
   ;;
     ;; would ec◧s take a rightmost continuation?
-    (defun-typed tape-length-is-one ((tm ensemble) &optional ➜)
+    (defun-typed tape-length-is-one ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -354,7 +354,7 @@ stepping the ensemble steps all the member machines.
             ))))
 
     ;; would ec◧ss take a rightmost continuation?
-    (defun-typed tape-length-is-two ((tm ensemble) &optional ➜)
+    (defun-typed tape-length-is-two ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))

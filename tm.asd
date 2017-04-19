@@ -11,11 +11,11 @@ See LICENSE.txt
 
 (defsystem #:tm
   :name "tm"
-  :version "0.5"
+  :version "0.7"
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
-  :depends-on ("local-time" "trivial-garbage" "bordeaux-threads")
+  :depends-on ("local-time" "bordeaux-threads")
   :serial t
   :components(
                (:module "package-def"
@@ -71,11 +71,11 @@ See LICENSE.txt
 
                                ;; this machine must be managed
                                (:file "haz-tm-type")
+                               (:file "haz-tm-decls")
                                (:file "list-haz-tm-type")
 
                                ;; bi-directional list, support -s
                                (:file "bi-tm-decls")
-                               (:file "haz-decls")
                                (:file "bilist")
                                (:file "bilist-tm-type")
                                (:file "bilist-tm-definitions")

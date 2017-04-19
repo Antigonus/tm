@@ -36,8 +36,10 @@ they belong to.
       #:string≥
 
       #:λ
+      #:def-type
+      #:def-function-class
+      #:defun-typed
       #:nl
-      #:defparam
 
     ;;list-L
     ;;  also defines reader macros for {} and []
@@ -54,8 +56,16 @@ they belong to.
       #:echo
       #:be
       #:notλ
+      #:cant-happen
+      #:alloc-fail
+      #:not-implemented
+      #:operation-on-abandoned
+      #:use-of-empty
+      #:access-through-parked-head
       #:box
       #:unbox
+      #:remove-key-pair
+      #:remove-key-pairs
 
 ;;;--------------------------------------------------------------------------------
 ;;; src-test
@@ -69,172 +79,142 @@ they belong to.
       #:print-to-log
 
 ;;;--------------------------------------------------------------------------------
-;;; src-1
+;;; src-1ist
 ;;;     
-    ;;tm-def
+    ;;tm-type
     ;;
-      #:tape-machine ; class
-
-    ;;tm-mk
-    ;;
+      #:tape-machine ; type
       #:init
       #:mk
-      #:mount
 
-    ;;tm-primitives
+    ;;tm-decls
     ;;
-      #:mk-shallow-copy
       #:r
       #:esr
       #:w
       #:esw
-      #:cue-leftmost
+      #:ec◧r
+      #:ec◧sr
+      #:ec◧w
+      #:ec◧sw
+      #:c◧
       #:s
       #:a
+      #:on-leftmost
+      #:on-rightmost
+      #:tape-length-is-one
+      #:tape-length-is-two
 
-    ;;tm-derived
+    ;;tm-generic
     ;;
-      #:cue-rightmost
+      #:c◨
       #:as
       #:a&h◨
       #:as&h◨
 
-    ;;tm-quantifiers
+    ;;quantifiers
     ;;
       #:⟳
-      #:⟳-loop
-      #:⟳-return
-      #:⟳-work-step
+      #:always-true
+      #:always-false
 
       #:∃
-      #:¬∀
-      #:¬∃
+      #:c◧∃
       #:∀
-
+      #:c◧∀
       #:∃*
-      #:¬∀*
-      #:¬∃*
+      #:c◧∃*
       #:∀*
+      #:c◧∀*
 
-    ;;nd-tm-def
+    ;;tm-quantified
     ;;
-      #:nd-tape-machine ; class
+      #:w*
+      #:s*
+      #:-s*
+      #:a*
+      #:as*
+      #:sn
+      #:asn
 
-    ;;nd-tm-primitives
+    ;;nd-tm-type
     ;;
-      #:init-entangled
-      #:heads-on-same-cell
+      #:nd-tape-machine ; type
+      #:entangle
 
-    ;;nd-tm-derived
+    ;;nd-tm-decls
     ;;
-      #:mk-entangled
-      #:recycle-entangled
-      #:r◧
-      #:w◧
+      #:entangled ; a predicate
+      #:with-entangled
       #:s≠
-      #:on-leftmost
-      #:on-rightmost
+      #:heads-on-same-cell
       #:a◨
 
-    ;;nd-tm-quantifiers
+    ;;nd-tm-generic
     ;;
-      #:s-together
-      #:esnr
-      #:esnw
+      #:tm-print
 
     ;;nd-tm-quantified
     ;;
+      #:esnr
+      #:esnw
       #:eas*
       #:an
 
-    ;;solo-tm-def
+    ;;solo-tm-type
     ;;
-      #:solo-tape-machine ; class
-     
-    ;;solo-tm-primitives
+      #:solo-tape-machine ; type
+
+    ;;solo-tm-decls
     ;;
       #:a◧
       #:d
       #:d◧
 
-    ;;solo-tm-primitives
+    ;;solo-tm-quantified
     ;;
       #:d*
       #:d◧*
       #:dn
 
-    ;;ea-tm-def
+    ;;haz-tm-type
     ;;
-      #:ea-tape-machine
+      #:haz-tape-machine ; type
       
-    ;;ea-tm-primitives
+    ;;haz-tm-decls
     ;;
-    ;; adds no new generic functions
-
-    ;;ea-tm-derived
-    ;;
-    ;; adds no new generic functions
-
-    ;; location
-    ;;
-      #:on+1
-      #:on+n
-      #:on-rightmost-1
-      #:on-rightmost+n ; n will typically be negative
-      #:address
-      #:distance+1
-      #:distance+n
-      #:distance
-
-      #:location-cmp
-      #:location≥
-      #:location>
-      #:location<
-      #:location≤
-      #:location=
-      #:location≠
-
-    ;; number of allocated cells, i.e. length
-    ;;
-      #:singleton
-      #:doubleton
-      #:tripleton
-      #:length-cmp
-
-      #:length≥
-      #:length>
-      #:length<
-      #:length≤
-      #:length=
-      #:length≠
-
-      #:length-of
-
-
-    ;; dataflow
-    ;;
-      #:synch
+      #:d.
       
-;;;--------------------------------------------------------------------------------
-;;; src-2     
-;;
-
-    ;; arrays
-      #:tm-array
-      #:tm-array-adj
-      #:tm-aggregate
-
-    ;; worker
-    ;;  
-      #:def-worker
-
-    ;; worker-utilities
+    ;;bi-tm-decls
     ;;
-      #:binner  
+      #:-s
+      #:-a
+      #:-d
 
-    ;; list-lang
+    ;;list implementations
     ;;
-      #:Δ
+      #:list-tm
+      #:list-nd-tm
+      #:list-solo-tm
+      #:list-haz-tm
+
+      #:bilist-tm
+      #:bilist-nd-tm
+      #:bilist-solo-tm
+      #:bilist-haz-tm
+
+    ;;generators
+    ;;
+      #:recursive ; type
+      #:increment-to
+      #:decrement-to
+      #:mk-interval
+      #:mk-Natural
+
+    ;;transforms
+    ;;
+      #:idenity-tr ; type
+      #:ensemble-tr  ; type
 
       ))
 
