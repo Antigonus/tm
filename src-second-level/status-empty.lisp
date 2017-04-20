@@ -26,6 +26,51 @@ belonging to a machine that has a parked head.
   )
 
 ;;--------------------------------------------------------------------------------
+;; quantifiers
+;;
+  ;; no existence case can be found
+  (defun-typed ∃ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t))
+    [➜∅]
+    )
+  ;; no existence case can be found independent of head initialization
+  (defun-typed c◧∃ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t))
+    [➜∅]
+    )
+
+  ;; we can not find a case where existence is false
+  ;; .. there are zero cases where existence should be checked
+  (defun-typed ∀ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜∅))
+    [➜t]
+    )
+  (defun-typed c◧∀ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜∅))
+    [➜t]
+    )
+  
+  (defun-typed ∃* ((tm status-empty) pred)
+    (declare (ignore tm pred))
+    (cons 0 0)
+    )
+  (defun-typed c◧∃* ((tm status-empty) pred)
+    (declare (ignore tm pred))
+    (cons 0 0)
+    )
+
+  (defun-typed ∀* ((tm status-empty) function)
+    (declare (ignore tm function))
+    (values)
+    )
+  (defun-typed c◧∀* ((tm status-empty) function)
+    (declare (ignore tm function))
+    (values)
+    )
+
+
+
+;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
   ;; an empty machine is already parked
@@ -157,7 +202,6 @@ belonging to a machine that has a parked head.
 ;; tm-generic
 ;;
   (def-empty-1 c◨)
-
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only

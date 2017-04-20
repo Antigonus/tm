@@ -38,6 +38,21 @@ See LICENSE.txt
        [➜ok]
        ))
 
+;;--------------------------------------------------------------------------------
+;; quantifiers
+;;
+  (defun-typed ∃ ((tm status-parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (c◧∃ tm pred ➜t ➜∅)
+    )
+  (defun-typed ∀ ((tm status-parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (c◧∀ tm)
+    )
+  (defun-typed ∃* ((tm status-parked) pred)
+    (c◧∃* tm pred)
+    )
+  (defun-typed ∀* ((tm status-parked) function)
+    (c◧∀* tm function)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

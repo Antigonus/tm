@@ -23,6 +23,49 @@ don't provide a continuation for it.
   (def-abandoned-1 park)
 
 ;;--------------------------------------------------------------------------------
+;; quantifiers
+;;
+
+  (defun-typed ∃ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed c◧∃ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed ∀ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed c◧∀ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed ∃* ((tm status-abandoned) pred)
+    (declare (ignore tm pred))
+    (operation-on-abandoned)
+    )
+  (defun-typed c◧∃* ((tm status-abandoned) pred)
+    (declare (ignore tm pred))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed ∀* ((tm status-abandoned) function)
+    (declare (ignore tm function))
+    (operation-on-abandoned)
+    )
+  (defun-typed c◧∀* ((tm status-abandoned) function)
+    (declare (ignore tm function))
+    (operation-on-abandoned)
+    )
+
+
+;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
   (def-abandoned-1 r)

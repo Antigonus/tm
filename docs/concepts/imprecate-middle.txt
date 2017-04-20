@@ -1,17 +1,39 @@
 
-test routines say:
+1. imprecate middle and regression
 
-* (test-all)
-all 0 passed
-T
+  test routines say:
 
-this seems in correct.  0 failed, 0 passed would be correct.  But if nothing passed,
-did the regression not fail?   But if nothing failed, did regression not pass?
+  * (test-all)
+  all 0 passed
+  T
 
-perhpas:
 
-* (test-all)
-0 failed
-regression passes
+  .. 0 failed, 0 passed
 
-;-)
+  Nothing failed, so nothing is holding us back, so regression passed.
+
+  perhpas:
+
+  * (test-all)
+  0 failed
+  regression passes
+
+  But we can also say..
+  Nothing passed, so regression did not pass. 
+
+  We can appeal to a higher level analysis ..  Having no tests means we
+  did not do regression.  It can not pass or fail,  however the testing
+  methodology did fail -- as a good methodology needs regression.
+
+2. quantifiers
+
+  would like ramification on quantifiers for not true / not false cases
+
+  for existential quantification, if the set is empty, then existence failed.
+  all other quantifications follow
+
+  all == no case exists where pred is false
+
+  set is empty,  so no case exists.  No case exists where pred it true,
+  none exists where it is false.  so universal quantification is true for
+  an empty set.
