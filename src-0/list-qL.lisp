@@ -41,7 +41,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;  unwrap
 ;;     given a list returns a new list
-;;     removes one level of parens from instances that happen to be lists
+;;     new lists has one fewer level of parens from items that happen to be lists
 ;;       non-list instances are copied over directly
 ;;       top level null list instances are not included in the new list
 ;;
@@ -63,104 +63,57 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; meta-wrap
-;;   given a src list, returns a dst list
-;;   non-destructive to src list
+;;  given a list returns a meta list
 ;;
-;;   meta-wrap is intended to be used inside of macros where the items in the src-list are
-;;   to eventually be evalued, but haven't been yet.  Hence list heads are function calls,
-;;   but those functions have not yet been called.
+;;    The meta list will be turned into a result list when evaluated.
 ;;
-;;   'o as a list head is treated specially. It is used to mark a list of items which
-;;   actually belong to the parent list.  'o is in the function channel, but in fact we
-;;   process it in meta-wrap, so it is gone before eval sees it.  Hence, when meta-wrap is
-;;   used properly, 'o is in the function channel, and it can not alias with data.
-;;   (Pure data will be quoted, so 'quote will be in the function channel.)
+;;    The result list will have one more level of parens than the given list, except for
+;;    for items in the given list that are to be opened (are lists, and their heads are
+;;    'o).  
+;;  
+;;    The net effect when a result list is given to 'unwrap' is to bring 'o marked lists
+;;    up a level.
 ;;
-;;   meta-wrap makes all instances not to be opened into meta list instances.  A meta list is
-;;   one that starts with a literal 'list.  ... Rather than wrapping every element in a
-;;   metalist, we gather successive elements to be wrapped, then wrap them all at once.
-;;   Hence,
-;;
-;;     (defparam a '(4 5))
-;;     (meta-wrap '(1 2 3) (o a)) --> '(list (list 1 2 3) a).
-;;
-;;   Here the inner list, i.e. (list 1 2 3), shows that 1 2 and 3 were gathered up 
-;;   rather than wrapped individually.  In the prior version of meta-wrap we did 
-;;   actually generate '(list (list 1) (list 2) (list 3), but that made for more work
-;;   for unwrap. 
-;;
-;;   To complete the example above, When unwrap is called at run time, on the output of
-;;   meta-wrap as a macro return value, we get:
-;;
-;;   (unwrap (LIST (LIST 1 2 3) A)) -->  (1 2 3 4 5)
-;;
-;;
-  (defun to-be-opened (i) (and (consp i) (eq 'o (car i))))
+  (defun has-to-open-mark (i) (and (consp i) (eq 'o (car i))))
+  (defun remove-mark (i) (cdr i)) ; i must be marked  (o 1 2 3) --> (1 2 3)
+  (defun wrap (i) (cons 'list (reverse i)))
 
-  (defun meta-wrap (src)
+  ;; relay through items in the list marked for being opened
+  (defun meta-wrap-relay (open-stuff a-list)
     (cond
-      ((null src) '(list))
-      ((atom src) `(list ,src))
+      (open-stuff
+        (let(
+              (i (car open-stuff))
+              (r (cdr open-stuff))
+              )
+          (cons i (meta-wrap-relay r a-list))
+          ))
+      (t
+        (meta-wrap-gather ∅ a-list)
+        )))
+
+  ;; gathers up stuff to be wrapped in another layer of list
+  (defun meta-wrap-gather (gather-list a-list)
+    (cond
+      ((and (not a-list)(not gather-list)) nil)
+      ((not a-list) (list (wrap gather-list)))
       (t
         (let(
-              (dst (list 'list))
-              (gathered ∅)
+              (i (car a-list))
+              (r (rest a-list))
               )
-          (let(
-                (dst◨ dst)
-                (src◨ src)
-                (gathered◨ ∅)
-                )
-            (labels(
-                     (gather-instance()
-                       (unless
-                         gathered 
-                         (setq gathered (list 'list))
-                         (setq gathered◨ gathered)
-                         )
-                       (let(
-                             (new-cell (cons (car src◨) ∅))
-                             )
-                         (rplacd gathered◨ new-cell)
-                         (setq gathered◨ new-cell)
-                         ))
-                     (append-gathered(); append current gathered list to dst, reset gathered
-                       (when gathered
-                         (let(
-                               (new-cell (cons gathered ∅))
-                               )
-                           (rplacd dst◨ new-cell)
-                           (setq dst◨ new-cell)
-                           )
-                         (setq gathered ∅)
-                         ))
-                     (append-opened-list()
-                       (rplacd dst◨ (cdar src◨)) ; d dropps the 'o
-                       (loop ; seek rightmost
-                         (unless (cdr dst◨) (return))
-                         (setq dst◨ (cdr dst◨))
-                         ))
-                     (work()
-                       (if
-                         (to-be-opened (car src◨))
-                         (progn
-                           (append-gathered)
-                           (append-opened-list)
-                           )
-                         (gather-instance)
-                         ))
-                     (work-loop()
-                       (work)
-                       (setq src◨ (cdr src◨))
-                       (when src◨  (work-loop))
-                       )
-                     )
+          (if
+            (has-to-open-mark i)
+            (if gather-list
+              (cons (wrap gather-list) (meta-wrap-relay (remove-mark i) r))
+              (meta-wrap-relay (remove-mark i) r)
+              )
+            (meta-wrap-gather (cons i gather-list) r)
+            )))))
 
-              (work-loop)
-              (append-gathered)
-              dst
-              ))))))
-
+  (defun meta-wrap (src)
+    (cons 'list (meta-wrap-gather ∅ src))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;;  L - make a list
@@ -182,7 +135,7 @@ See LICENSE.txt
   (defmacro L (&rest instances)
     (cond
       ((¬ instances) ∅)
-      ((¬ (member-if #'to-be-opened instances))
+      ((¬ (member-if #'has-to-open-mark instances))
         `(list ,@instances)
         )
       (t

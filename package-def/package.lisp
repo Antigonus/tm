@@ -75,6 +75,7 @@ they belong to.
       #:test-hook
       #:test-remove
       #:test-all
+      #:test-all-and-self
       #:*log-default-file-name*
       #:print-to-log
 
@@ -219,6 +220,11 @@ they belong to.
     ;;second level
     ;;
       #:status-tm ; type
+      #:status-abandoned ; type
+      #:status-active ; type
+      #:status-empty ; type
+      #:status-parked ; type
+
       #:park
       #:abandon
       

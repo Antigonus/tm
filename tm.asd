@@ -43,7 +43,7 @@ See LICENSE.txt
                                (:file "tm-type")
                                (:file "tm-decls")
                                (:file "tm-generic")
-                               (:file "quantifiers")
+                               (:file "tm-quantifiers")
                                (:file "tm-quantified")
 
                                (:file "list-tm-type")

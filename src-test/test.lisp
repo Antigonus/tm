@@ -38,18 +38,18 @@ See LICENSE.txt
 
   (defmacro test-hook (a-test)
     `(progn
+       (nl)
        (princ "hooking test: ")
        (princ (symbol-name ',a-test))
-       (nl)
        (push ',a-test tm::*test-routines*)
        t
        ))
 
   (defmacro test-remove (a-test) 
     `(progn
+       (nl)
        (princ "removing test: ")
        (princ (symbol-name ',a-test))
-       (nl)
        (setq 
          tm::*test-routines*
          (delete-if (λ(e)(eq ',a-test e)) tm::*test-routines*)
@@ -72,10 +72,10 @@ See LICENSE.txt
               ;; see test-handler.lisp
               (test-result (handler-case (apply a-test '()) (condition (c)(setq cc c) ':exception)))
               )
-          (princ " ")
+          (nl)
           (cond
             ((eq test-result ':exception) (princ " exception"))
-            ((eq test-result ∅)         (princ "    failed"))
+            ((eq test-result ∅)           (princ "    failed"))
             ((eq test-result t)           (princ "         +"))
             (t                            (princ "   illegal"))
             )
@@ -87,46 +87,45 @@ See LICENSE.txt
             ((eq test-result t)           ∅)
             (t                            (princ " - returned other than t or ∅")
               ))
-          (nl)
           (list test-name (eq test-result t))
           )))
 
   ;; + means the test ran and passed
   ;; 'failed' means the test ran and failed
   ;; returns true if no test failed, otherwise false
-  (defun test-all ()
+  (defun test-all (&optional (verbose t))
     (let*(
           (results (map 'list #'test (reverse *test-routines*)))
-          (no-tests (length results))
+          (test-count (length results))
           (result-flags (map 'list #'cadr results))
           (error-count (count ∅ result-flags))
-          (all-passed (every (λ(e)e) result-flags))
           )
       (cond
-        (all-passed
+        ((= error-count 0)
           (if
-            (= no-tests 0)
-            (progn
-              (princ "0 tests total. None passed, but also none failed. Returning t.")
+            (= test-count 0)
+            (when verbose
               (nl)
+              (princ "0 tests total. None passed, but also none failed.")
               )
-            (progn
-              (princ "all ")
-              (princ no-tests)
-              (princ " passed")
+            (when verbose
               (nl)
+              (princ "all ")
+              (princ test-count)
+              (princ " passed")
               )))
         (t
-          (princ "------")
-          (nl)
-          (princ "failed: ") 
-          (princ error-count)
-          (princ " of ") 
-          (princ no-tests)
-          (nl)
-          )
+          (when verbose
+            (nl)
+            (princ "------")
+            (nl)
+            (princ "failed: ") 
+            (princ error-count)
+            (princ " of ") 
+            (princ test-count)
+            ))
         )
-      all-passed
+      {error-count test-count}
       ))
  
   (defun example-pass-test() (= (+ 1 1) 2))
@@ -135,96 +134,23 @@ See LICENSE.txt
 
   (defun example-illegal-test() 3) ; fails due to not returning t or ∅
 
-  (defun test-examples ()
+  (defun test-all-and-self (&optional verbose)
     (test-hook example-pass-test)
     (test-hook example-fail-test)
     (test-hook example-exception-test)
     (test-hook example-illegal-test)
-    (princ "running example tests...")
     (nl)(nl)
-    (let (
-           (result (test-all))
-           )
+    (princ "running tests...")
+    (let(
+          (result (test-all verbose))
+          )
       (test-remove example-pass-test)
       (test-remove example-fail-test)
       (test-remove example-exception-test)
       (test-remove example-illegal-test)
-      (nl)
-      result
+      result ; should have exactly three fails
       ))
 
-#|
-
-
-;;--------------------------------------------------------------------------------
-;; defines a trace-able module interface
-;;
-;;  (provide-with-trace "lib-name" provided-function ...)
-;;
-;;   lib-name-trace to turn on tracing
-;;   lib-name-untrace to turn off tracing
-;;
-  (define-syntax (provide-with-trace stx)
-    (let(
-           (datum  (syntax->datum stx))
-          )
-      (let(
-            (prefix              (cadr datum))
-            (interface-functions (cddr datum))    
-           )
-        (let(
-              (name-trace-fun   (string->symbol (string-append prefix "-trace")))
-              (name-untrace-fun (string->symbol (string-append prefix "-untrace")))
-              )
-          #|
-          (displayln name-trace-fun)
-          (displayln name-untrace-fun)
-          |#
-          (let(
-                (code-block `(begin))
-                (trace-require '(require racket/trace))
-                (trace-fun
-                  (append
-                    '(define)
-                    (list (list name-trace-fun))
-                    (map (λ(e)`(trace ,e)) interface-functions)
-                    )
-                  )
-                (untrace-fun
-                  (append
-                    '(define)
-                    (list (list name-untrace-fun))
-                    (map (λ(e)`(untrace ,e)) interface-functions)
-                    )
-                  )
-                (provide-calls (map (λ(e)`(provide ,e)) interface-functions))
-                (provide-trace `(provide ,name-trace-fun))
-                (provide-untrace `(provide ,name-untrace-fun))
-                )
-            #|
-            (displayln code-block)
-            (displayln trace-require)
-            (displayln trace-fun)
-            (displayln untrace-fun)
-            (displayln provide-calls)
-            |#
-            (let*(
-                   (program 
-                     (append
-                       code-block
-                       (list trace-require)
-                       (list trace-fun)
-                       (list untrace-fun)
-                       provide-calls
-                       (list provide-trace)
-                       (list provide-untrace)
-                       )
-                     )
-                   )
-              ;;(displayln program)
-              (datum->syntax stx program)
-              ))))))
-|#
 
 ;;--------------------------------------------------------------------------------
 ;; log utils
