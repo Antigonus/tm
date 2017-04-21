@@ -119,3 +119,29 @@ See LICENSE.txt
       )
     ))
 (test-hook test-status-6)
+
+(defun test-status-7 ()
+  (let*(
+         (tm10 (mk 'list-solo-tm {:tape {21 23 25}}))
+         (tm11 (mk 'status-tm {:base tm10 :status 'parked}))
+         (tm20 (mk 'list-solo-tm {:tape {∅}}))
+         (tm21 (mk 'status-tm {:base tm20 :status 'empty}))
+         )
+    (∧
+      (typep tm11 'parked)
+      (= (r tm11 {:➜ok #'cant-happen :➜parked (be 777)}) 777)
+      (=
+        (∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        717
+        )
+      (=
+        (∀ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        717
+        )
+      (=
+        (∃ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        719
+        )
+      )))
+(test-hook test-status-7)
+

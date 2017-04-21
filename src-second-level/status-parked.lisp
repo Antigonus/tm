@@ -45,7 +45,7 @@ See LICENSE.txt
     (c◧∃ tm pred ➜t ➜∅)
     )
   (defun-typed ∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧∀ tm)
+    (c◧∀ tm pred ➜t ➜∅)
     )
   (defun-typed ∃* ((tm parked) pred)
     (c◧∃* tm pred)
