@@ -111,14 +111,19 @@ a collision error.  Hence behavior is inherited from the identity transform.
         )
       ➜
       (destructuring-bind
-        (&key base empty &allow-other-keys) keyed-parms
+        (&key base status &allow-other-keys) keyed-parms
         (cond
 
           ;; base machine is to be marked empty. Would like to delete cells to force
           ;; empty, but base may be nd type, so instead we enforce the rule that base
           ;; machines that are declared ':empty' must have only one cell (deletion must be
           ;; external)
-          ((∧ base (typep base 'tape-machine) empty (tape-length-is-one base))
+          ((∧ 
+             base
+             (typep base 'tape-machine) 
+             (eq status 'status-empty) 
+             (tape-length-is-one base)
+             )
             (w base ∅)
             (setf (base tm) base) ; should call next method and have idenity do this ..
             (setf (address-rightmost tm) 0)
@@ -131,7 +136,11 @@ a collision error.  Hence behavior is inherited from the identity transform.
           ;; We don't know if the base machine can be entangled, so to get the
           ;; address counters we cue the machine to leftmost, and thus lose the
           ;; original head location
-          ((∧ base (typep base 'tape-machine))
+          ((∧ 
+             base
+             (typep base 'tape-machine)
+             (∨ (¬ status) (eq status 'status-active) (eq status 'status-parked))
+             )
             (let(
                   (cell-address 0)
                   )
@@ -143,7 +152,11 @@ a collision error.  Hence behavior is inherited from the identity transform.
               (c◧ base)
               (setf (address tm) 0)
               (setf (base tm) base)
-              (to-active tm)
+              (if
+                (∨ (¬ status) (eq status 'status-active))
+                (to-active tm)
+                (to-parked tm)
+                )
               [➜ok tm]
               ))
 
