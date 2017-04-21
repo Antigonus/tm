@@ -12,7 +12,7 @@ belonging to a machine that has a parked head.
 (in-package #:tm)
 
 (defmacro def-empty-1 (f &rest args)
-  `(defun-typed ,f ((tm status-empty) ,@args &optional ➜)
+  `(defun-typed ,f ((tm empty) ,@args &optional ➜)
      (declare (ignore ,@args))
      (destructuring-bind
        (
@@ -29,41 +29,41 @@ belonging to a machine that has a parked head.
 ;; quantifiers
 ;;
   ;; no existence case can be found
-  (defun-typed ∃ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t))
     [➜∅]
     )
   ;; no existence case can be found independent of head initialization
-  (defun-typed c◧∃ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed c◧∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t))
     [➜∅]
     )
 
   ;; we can not find a case where existence is false
   ;; .. there are zero cases where existence should be checked
-  (defun-typed ∀ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜∅))
     [➜t]
     )
-  (defun-typed c◧∀ ((tm status-empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed c◧∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜∅))
     [➜t]
     )
   
-  (defun-typed ∃* ((tm status-empty) pred)
+  (defun-typed ∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed c◧∃* ((tm status-empty) pred)
+  (defun-typed c◧∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
 
-  (defun-typed ∀* ((tm status-empty) function)
+  (defun-typed ∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed c◧∀* ((tm status-empty) function)
+  (defun-typed c◧∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
@@ -74,7 +74,7 @@ belonging to a machine that has a parked head.
 ;; status-tm definitions
 ;;
   ;; an empty machine is already parked
-  (defun-typed park ((tm status-empty) &optional ➜)
+  (defun-typed park ((tm empty) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -93,7 +93,7 @@ belonging to a machine that has a parked head.
 
   (def-empty-1 r)
 
-  (defun-typed esr ((tm status-empty) &optional ➜)
+  (defun-typed esr ((tm empty) &optional ➜)
     (declare (ignore tm))
     (destructuring-bind
       (
@@ -108,7 +108,7 @@ belonging to a machine that has a parked head.
 
   (def-empty-1 w instance)
 
-  (defun-typed esw ((tm status-empty) instance &optional ➜)
+  (defun-typed esw ((tm empty) instance &optional ➜)
     (declare (ignore tm))
     (destructuring-bind
       (
@@ -122,7 +122,7 @@ belonging to a machine that has a parked head.
 
   (def-empty-1 c◧)
 
-  (defun-typed s ((tm status-empty) &optional ➜)
+  (defun-typed s ((tm empty) &optional ➜)
     (declare (ignore tm))
     (destructuring-bind
       (
@@ -134,7 +134,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (defun-typed -s ((tm status-empty) &optional ➜)
+  (defun-typed -s ((tm empty) &optional ➜)
     (declare (ignore tm))
     (destructuring-bind
       (
@@ -151,11 +151,11 @@ belonging to a machine that has a parked head.
   ;; specialized types may depend on this synonym being present, and thus not
   ;; implement their own #'a
   ;;
-    (defun-typed a ((tm status-empty) instance &optional ➜)
+    (defun-typed a ((tm empty) instance &optional ➜)
       (a◧ tm instance ➜)
       )
 
-  (defun-typed on-leftmost ((tm status-empty) &optional ➜)
+  (defun-typed on-leftmost ((tm empty) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -166,7 +166,7 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
 
-  (defun-typed on-rightmost ((tm status-empty) &optional ➜)
+  (defun-typed on-rightmost ((tm empty) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -177,7 +177,7 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
 
-  (defun-typed tape-length-is-one ((tm status-active) &optional ➜)
+  (defun-typed tape-length-is-one ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -187,7 +187,7 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
       
-  (defun-typed tape-length-is-two ((tm status-active) &optional ➜)
+  (defun-typed tape-length-is-two ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -206,14 +206,14 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-empty) instance &optional ➜) 
+  (defun-typed a◧ ((tm empty) instance &optional ➜) 
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ status-empty"))
+      ;; (prins (print "a◧ empty"))
       ;; address rightmost will already be zero
       ;; address will already be zero
       (w (base tm) instance)
@@ -221,7 +221,7 @@ belonging to a machine that has a parked head.
       [➜ok]
       ))
 
-  (defun-typed d ((tm status-empty) &optional spill ➜)
+  (defun-typed d ((tm empty) &optional spill ➜)
     (declare (ignore tm spill))
     (destructuring-bind
       (
@@ -233,7 +233,7 @@ belonging to a machine that has a parked head.
       [➜empty]
       ))
 
-  (defun-typed d◧ ((tm status-empty) &optional spill ➜)
+  (defun-typed d◧ ((tm empty) &optional spill ➜)
     (declare (ignore tm spill))
     (destructuring-bind
       (
@@ -242,11 +242,11 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ status-empty"))
+      ;; (prins (print "d◧ empty"))
       [➜empty]
       ))
 
-  (defun-typed d. ((tm status-empty) &optional spill ➜)
+  (defun-typed d. ((tm empty) &optional spill ➜)
     (declare (ignore tm spill))
     (destructuring-bind
       (&key
@@ -265,8 +265,8 @@ belonging to a machine that has a parked head.
 ;;
   (defun-typed heads-on-same-cell 
     (
-      (tm0 status-empty)
-      (tm1 status-empty)
+      (tm0 empty)
+      (tm1 empty)
       &optional ➜
       )
     (entangled tm0 tm1 ➜)
@@ -274,7 +274,7 @@ belonging to a machine that has a parked head.
  
   (defun-typed heads-on-same-cell
     (
-      (tm0 status-empty)
+      (tm0 empty)
       (tm1 status-tm)
       &optional ➜
       )
@@ -290,7 +290,7 @@ belonging to a machine that has a parked head.
   (defun-typed heads-on-same-cell
     (
       (tm0 status-tm)
-      (tm1 status-empty)
+      (tm1 empty)
       &optional ➜
       )
     (destructuring-bind
@@ -313,8 +313,8 @@ belonging to a machine that has a parked head.
   ;; tm0 parked, tm1 can be active, vice versa
   (defun-typed s≠ 
     (
-      (tm0 status-empty)
-      (tm1 status-empty)
+      (tm0 empty)
+      (tm1 empty)
       &optional ➜
       )
     (declare (ignore tm0 tm1))
@@ -328,7 +328,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (defun-typed a◨ ((tm status-empty) instance &optional ➜)
+  (defun-typed a◨ ((tm empty) instance &optional ➜)
     (a◧ tm instance ➜)
     )
         

@@ -11,7 +11,7 @@ don't provide a continuation for it.
 (in-package #:tm)
 
 (defmacro def-abandoned-1 (f &rest args)
-  `(defun-typed ,f ((tm status-abandoned) ,@args &optional ➜)
+  `(defun-typed ,f ((tm abandoned) ,@args &optional ➜)
      (declare (ignore ,@args ➜))
      (operation-on-abandoned)
      )
@@ -26,40 +26,40 @@ don't provide a continuation for it.
 ;; quantifiers
 ;;
 
-  (defun-typed ∃ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∃ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
 
-  (defun-typed c◧∃ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed c◧∃ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
 
-  (defun-typed ∀ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∀ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
 
-  (defun-typed c◧∀ ((tm status-abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed c◧∀ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
 
-  (defun-typed ∃* ((tm status-abandoned) pred)
+  (defun-typed ∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∃* ((tm status-abandoned) pred)
+  (defun-typed c◧∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
 
-  (defun-typed ∀* ((tm status-abandoned) function)
+  (defun-typed ∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∀* ((tm status-abandoned) function)
+  (defun-typed c◧∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
@@ -100,7 +100,7 @@ don't provide a continuation for it.
   (def-abandoned-1 a◧ instance)
   (defun-typed d
     (
-      (tm status-abandoned)
+      (tm abandoned)
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
@@ -108,16 +108,16 @@ don't provide a continuation for it.
     )
   (defun-typed d◧
     (
-      (tm status-abandoned)
+      (tm abandoned)
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
-    ;; (prins (print "d◧ status-abandoned"))
+    ;; (prins (print "d◧ abandoned"))
     (operation-on-abandoned)
     )
   (defun-typed d.
      (
-      (tm status-abandoned)
+      (tm abandoned)
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
@@ -130,7 +130,7 @@ don't provide a continuation for it.
 ;;
   (defun-typed entangled
     (
-      (tm0 status-abandoned)
+      (tm0 abandoned)
       (tm1 tape-machine)
       &optional ➜
       )
@@ -141,7 +141,7 @@ don't provide a continuation for it.
   (defun-typed entangled
     (
       (tm0 tape-machine)
-      (tm1 status-abandoned)
+      (tm1 abandoned)
       &optional ➜
       )
     (declare (ignore tm0 tm1 ➜))
@@ -150,8 +150,8 @@ don't provide a continuation for it.
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 status-abandoned)
-      (tm1 status-abandoned)
+      (tm0 abandoned)
+      (tm1 abandoned)
       &optional ➜
       )
     (declare (ignore tm0 tm1 ➜))
@@ -160,7 +160,7 @@ don't provide a continuation for it.
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 status-abandoned)
+      (tm0 abandoned)
       (tm1 tape-machine)
       &optional ➜
       )
@@ -171,7 +171,7 @@ don't provide a continuation for it.
   (defun-typed heads-on-same-cell
     (
       (tm0 tape-machine)
-      (tm1 status-abandoned)
+      (tm1 abandoned)
       &optional ➜
       )
     (declare (ignore tm0 tm1 ➜))
@@ -183,8 +183,8 @@ don't provide a continuation for it.
 ;;
   (defun-typed s≠ 
     (
-      (tm0 status-abandoned)
-      (tm1 status-abandoned)
+      (tm0 abandoned)
+      (tm1 abandoned)
       &optional ➜
       )
     (declare (ignore tm0 tm1 ➜))

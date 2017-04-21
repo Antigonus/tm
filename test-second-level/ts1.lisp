@@ -21,8 +21,8 @@ See LICENSE.txt
         (setf tm2-stolen tm2)
         (setf flag 
           (∧
-            (typep tm1 'status-active)
-            (typep tm2 'status-active)
+            (typep tm1 'active)
+            (typep tm2 'active)
             (= (r tm1) 1)
             (= (r tm2) 1)
             (= (address tm1) 0)
@@ -37,7 +37,7 @@ See LICENSE.txt
             (= (address tm2) 1)
             ))))
     (∧
-      (typep tm2-stolen 'status-abandoned)
+      (typep tm2-stolen 'abandoned)
       flag
       )))
 
@@ -58,7 +58,7 @@ See LICENSE.txt
       (= (d◧ tm1) 2)
       (= (address-rightmost tm1) 0) 
       (= (d◧ tm1) 3)
-      (typep tm1 'status-empty)
+      (typep tm1 'empty)
       )
     ))
 (test-hook test-ts1-1)
@@ -72,17 +72,17 @@ See LICENSE.txt
       (typep tm0 'tape-machine)
       (typep tm1 'ts1-tm)
       (typep tm1 'status-tm)
-      (typep tm1 'status-active)
+      (typep tm1 'active)
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
       (park tm1)
       (typep tm1 'ts1-parked)
-      (typep tm1 'status-parked)
+      (typep tm1 'parked)
       (d tm1)
       (d tm1)
       (d tm1)
       (typep tm1 'ts1-empty)
-      (typep tm1 'status-empty)
+      (typep tm1 'empty)
       )))
 (test-hook test-ts1-2)
 
@@ -92,7 +92,7 @@ See LICENSE.txt
          (data (loop for i from 0 to n collect i))
          (tm10 (mk 'list-solo-tm {:tape data}))
          (tm20 (mk 'list-haz-tm {:tape {∅}}))
-         (tm21 (mk 'ts1-tm {:base tm20 :empty t}))
+         (tm21 (mk 'ts1-tm {:base tm20 :status 'empty}))
          (tm-wait-tries (mk-interval 1 max-retries))
          (tm-sum (mk-interval 1 max-retries))
          actual-sum
@@ -119,7 +119,7 @@ See LICENSE.txt
                         (λ(tm-retries ct c∅)
                           (declare (ignore tm-retries))
                           (if
-                            (typep tm22 'status-empty)
+                            (typep tm22 'empty)
                             (progn
                               (sleep .002)
                               [ct]
@@ -269,10 +269,10 @@ At the end we compare tm31 with tm11.
          (tm11 (mk 'status-tm {:base tm10}))
 
          (tm20 (mk 'list-haz-tm {:tape {∅}}))
-         (tm-pipe (mk 'ts1-tm {:base tm20 :empty t}))
+         (tm-pipe (mk 'ts1-tm {:base tm20 :status 'empty}))
 
          (tm30 (mk 'list-haz-tm {:tape {∅}}))
-         (tm31 (mk 'status-tm {:base tm30 :empty t}))
+         (tm31 (mk 'status-tm {:base tm30 :status 'empty}))
 
          (t1-finished ∅)
          (tm-wait-tries (mk-interval 1 max-tries))
@@ -332,7 +332,7 @@ At the end we compare tm31 with tm11.
         (print "did not experience collision")
         ))
 
-    (if (typep tm31 'status-empty)
+    (if (typep tm31 'empty)
       ∅
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
@@ -439,10 +439,10 @@ At the end we compare tm31 with tm11.
          (tm11 (mk 'status-tm {:base tm10}))
 
          (tm20 (mk 'list-haz-tm {:tape {∅}}))
-         (tm-pipe (mk 'ts1-tm {:base tm20 :empty t}))
+         (tm-pipe (mk 'ts1-tm {:base tm20 :status 'empty}))
 
          (tm30 (mk 'list-haz-tm {:tape {∅}}))
-         (tm31 (mk 'status-tm {:base tm30 :empty t}))
+         (tm31 (mk 'status-tm {:base tm30 :status 'empty}))
 
          (tm-drain-pipe-tries (mk-interval 1 max-tries))
          (experienced-empty ∅)
@@ -498,7 +498,7 @@ At the end we compare tm31 with tm11.
         (print "did not experience collision")
         ))
 
-    (if (typep tm31 'status-empty)
+    (if (typep tm31 'empty)
       ∅
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))

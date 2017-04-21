@@ -30,7 +30,7 @@ functions shared by parked and active
                        (when etm
                          (update-tape-after-a◧ (base etm) (base tm))
                          (if
-                           (typep etm 'status-parked)
+                           (typep etm 'parked)
                            (c◧ (base etm))
                            (incf (address etm))
                            )
@@ -83,7 +83,7 @@ functions shared by parked and active
                       (etm (r es))
                       )
                   (when etm
-                    (when (typep etm 'status-parked)
+                    (when (typep etm 'parked)
                       (s (base etm) {:➜rightmost #'cant-happen})
                       ))))))
           
@@ -95,7 +95,7 @@ functions shared by parked and active
                       )
                   (when etm
                     (update-tape-after-d◧ (base etm) (base tm))
-                    (when (typep etm 'status-active) (decf (address etm)))
+                    (when (typep etm 'active) (decf (address etm)))
                     (decf (address-rightmost etm))
                     )))))
           )

@@ -22,8 +22,8 @@ See LICENSE.txt
         (setf tm2-stolen tm2)
         (setf flag
           (∧
-            (typep tm1 'status-active)
-            (typep tm2 'status-active)
+            (typep tm1 'active)
+            (typep tm2 'active)
             (= (r tm1) 1)
             (= (r tm2) 1)
             (= (address tm1) 0)
@@ -38,7 +38,7 @@ See LICENSE.txt
             (= (address tm2) 1)
             ))))
     (∧
-      (typep tm2-stolen 'status-abandoned)
+      (typep tm2-stolen 'abandoned)
       flag
       )))
 (test-hook test-ea-0)
@@ -53,7 +53,7 @@ See LICENSE.txt
       (= (d◧ tm1) 1)
       (= (d◧ tm1) 2)
       (= (d◧ tm1) 3)
-      (typep tm1 'status-empty)
+      (typep tm1 'empty)
       )
     ))
 (test-hook test-ea-1)
@@ -74,7 +74,7 @@ See LICENSE.txt
           (= (d◧ tm1) 1)
           (= (d◧ tm1) 2)
           (= (d◧ tm1) 3)
-          (typep tm2 'status-empty)
+          (typep tm2 'empty)
           )))))
 (test-hook test-ea-2)
 
@@ -89,25 +89,25 @@ See LICENSE.txt
       (typep tm1 'status-tm)
       (park tm1)
       (typep tm1 'ea-parked)
-      (typep tm1 'status-parked)
+      (typep tm1 'parked)
       (d tm1)
       (d tm1)
       (d tm1)
       (typep tm1 'ea-empty)
-      (typep tm1 'status-empty)
+      (typep tm1 'empty)
       )))
 (test-hook test-ea-3)
 
 (defun test-ea-4 ()
   (let*(
          (tm0 (mk 'list-haz-tm {:tape {∅}}))
-         (tm1 (mk 'ea-tm {:base tm0 :empty t}))
+         (tm1 (mk 'ea-tm {:base tm0 :status 'empty}))
          )
     (∧
       (a◧ tm1 10)
       (a◧ tm1 20)
       (a◧ tm1 30)
-      (typep tm1 'status-parked)
+      (typep tm1 'parked)
       (s tm1)
       (= (r tm1) 30)
       (s tm1)

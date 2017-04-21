@@ -9,7 +9,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 (defmacro def-parked-1 (f &rest args)
-  `(defun-typed ,f ((tm status-parked) ,@args &optional ➜)
+  `(defun-typed ,f ((tm parked) ,@args &optional ➜)
      (declare (ignore ,@args))
      (destructuring-bind
        (
@@ -26,7 +26,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed park ((tm status-parked) &optional ➜)
+  (defun-typed park ((tm parked) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -41,16 +41,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (defun-typed ∃ ((tm status-parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∃ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (c◧∃ tm pred ➜t ➜∅)
     )
-  (defun-typed ∀ ((tm status-parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (c◧∀ tm)
     )
-  (defun-typed ∃* ((tm status-parked) pred)
+  (defun-typed ∃* ((tm parked) pred)
     (c◧∃* tm pred)
     )
-  (defun-typed ∀* ((tm status-parked) function)
+  (defun-typed ∀* ((tm parked) function)
     (c◧∀* tm function)
     )
 
@@ -59,13 +59,13 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm status-parked) &optional ➜) (ec◧r tm ➜))
+  (defun-typed esr ((tm parked) &optional ➜) (ec◧r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm status-parked) instance &optional ➜) (ec◧w tm ➜))
+  (defun-typed esw ((tm parked) instance &optional ➜) (ec◧w tm ➜))
 
-  (defun-typed c◧ ((tm status-parked) &optional ➜)
+  (defun-typed c◧ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -76,12 +76,12 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed s ((tm status-parked) &optional ➜) (c◧ tm ➜))
-  (defun-typed -s ((tm status-parked) &optional ➜) (c◨ tm ➜))
+  (defun-typed s ((tm parked) &optional ➜) (c◧ tm ➜))
+  (defun-typed -s ((tm parked) &optional ➜) (c◨ tm ➜))
 
-  (defun-typed a ((tm status-parked) instance &optional ➜) (a◧ tm instance ➜))
+  (defun-typed a ((tm parked) instance &optional ➜) (a◧ tm instance ➜))
 
-  (defun-typed on-leftmost ((tm status-parked) &optional ➜)
+  (defun-typed on-leftmost ((tm parked) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -92,7 +92,7 @@ See LICENSE.txt
       [➜∅]
       ))
 
-  (defun-typed on-rightmost ((tm status-parked) &optional ➜)
+  (defun-typed on-rightmost ((tm parked) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -106,7 +106,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed c◨ ((tm status-parked) &optional ➜)
+  (defun-typed c◨ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -122,14 +122,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-parked) instance &optional ➜)
+  (defun-typed a◧ ((tm parked) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ status-parked-active"))
+      ;; (prins (print "a◧ parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -141,7 +141,7 @@ See LICENSE.txt
           })))
 
 
-  (defun-typed d◧ ((tm status-parked) &optional spill ➜)
+  (defun-typed d◧ ((tm parked) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -150,7 +150,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ status-parked"))
+      ;; (prins (print "d◧ parked"))
       (if
         (= (address-rightmost tm) 0)
 
@@ -189,9 +189,9 @@ See LICENSE.txt
               })
           ))))
 
-  (defun-typed d ((tm status-parked) &optional spill ➜) (d◧ tm spill ➜))
+  (defun-typed d ((tm parked) &optional spill ➜) (d◧ tm spill ➜))
 
-  (defun-typed d. ((tm status-parked) &optional spill ➜)
+  (defun-typed d. ((tm parked) &optional spill ➜)
     (declare (ignore tm spill))
     (destructuring-bind
       (&key
@@ -207,8 +207,8 @@ See LICENSE.txt
 ;;
   (defun-typed heads-on-same-cell 
     (
-      (tm0 status-parked)
-      (tm1 status-parked)
+      (tm0 parked)
+      (tm1 parked)
       &optional ➜
       )
     (entangled tm0 tm1 ➜)
@@ -216,7 +216,7 @@ See LICENSE.txt
 
   (defun-typed heads-on-same-cell
     (
-      (tm0 status-parked)
+      (tm0 parked)
       (tm1 status-tm)
       &optional ➜
       )
@@ -232,7 +232,7 @@ See LICENSE.txt
   (defun-typed heads-on-same-cell
     (
       (tm0 status-tm) 
-      (tm1 status-parked)
+      (tm1 parked)
       &optional ➜
       )
     (destructuring-bind
@@ -255,8 +255,8 @@ See LICENSE.txt
   ;; tm0 parked, tm1 can be active, vice versa
   (defun-typed s≠ 
     (
-      (tm0 status-parked)
-      (tm1 status-parked)
+      (tm0 parked)
+      (tm1 parked)
       &optional ➜
       )
     (destructuring-bind
@@ -274,8 +274,8 @@ See LICENSE.txt
 
   (defun-typed s≠ 
     (
-      (tm0 status-parked)
-      (tm1 status-active)
+      (tm0 parked)
+      (tm1 active)
       &optional ➜
       )
     (declare (ignore tm1))

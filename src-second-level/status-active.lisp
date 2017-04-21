@@ -22,7 +22,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed park ((tm status-active) &optional ➜)
+  (defun-typed park ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -44,7 +44,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed c◧ ((tm status-active) &optional ➜)
+  (defun-typed c◧ ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -61,7 +61,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
            (o (remove-key-pair ➜ :➜ok))
            })))
 
-  (defun-typed s ((tm status-active) &optional ➜)
+  (defun-typed s ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -76,7 +76,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed -s ((tm status-active) &optional ➜)
+  (defun-typed -s ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -108,7 +108,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed on-leftmost ((tm status-active) &optional ➜)
+  (defun-typed on-leftmost ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -119,7 +119,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
       (if (= (address tm) 0) [➜t] [➜∅])
       ))
 
-  (defun-typed on-rightmost ((tm status-active) &optional ➜)
+  (defun-typed on-rightmost ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -133,7 +133,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed c◨ ((tm status-active) &optional ➜)
+  (defun-typed c◨ ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -152,14 +152,14 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm status-active) instance &optional ➜)
+  (defun-typed a◧ ((tm active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ status-parked-active"))
+      ;; (prins (print "a◧ parked-active"))
       (a◧ (base tm) instance
         {
           :➜ok (λ()
@@ -170,7 +170,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed d◧ ((tm status-active) &optional spill ➜)
+  (defun-typed d◧ ((tm active) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -178,7 +178,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ status-active"))
+      ;; (prins (print "d◧ active"))
       (if (= (address-rightmost tm) 0)
         [➜collision]
         (d◧ (base tm) spill
@@ -191,7 +191,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
             (o (remove-key-pair ➜ :➜ok))
             }))))
 
-  (defun-typed d. ((tm status-active) &optional spill ➜)
+  (defun-typed d. ((tm active) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -213,8 +213,8 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;
   (defun-typed heads-on-same-cell 
     (
-      (tm0 status-active)
-      (tm1 status-active)
+      (tm0 active)
+      (tm1 active)
       &optional ➜
       )
     (destructuring-bind

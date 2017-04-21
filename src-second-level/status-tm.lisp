@@ -30,7 +30,7 @@ overridden.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  ;; specialized versions have been defined for status-empty and status-abandoned
+  ;; specialized versions have been defined for empty and abandoned
   (defun-typed tape-length-is-one ((tm status-tm) &optional ➜)
     (destructuring-bind
       (&key
@@ -42,7 +42,7 @@ overridden.
       (if (= (address-rightmost tm) 0) [➜t] [➜∅])
       ))
       
-  ;; specialized versions have been defined for status-empty and status-abandoned
+  ;; specialized versions have been defined for empty and abandoned
   (defun-typed tape-length-is-two ((tm status-tm) &optional ➜)
     (destructuring-bind
       (&key

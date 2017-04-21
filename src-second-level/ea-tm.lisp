@@ -17,7 +17,7 @@ See LICENSE.txt
       (λ(es ct c∅)
         (if
           (∧
-            (typep (r es) 'status-active)
+            (typep (r es) 'active)
             (= (address (r es)) 0)
             )
           [ct]

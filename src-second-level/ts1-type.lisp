@@ -50,9 +50,9 @@ ts1-active is inherited from ts1-tm and ea-active.
 We inherit from ts1-tm so that ts1-active will have the same slots as ts1-tm. Thus the
 change-class calls will not have any work to do. 
 
-We inherit from ea-active so that (typep 'status-active) will be true for the
+We inherit from ea-active so that (typep 'active) will be true for the
 call-next-method executions.  Perhaps we should have instead just inherited directly from
-status-active instead of ea-active, but synonyms do not need locks, so perhaps there are
+active instead of ea-active, but synonyms do not need locks, so perhaps there are
 some ea-active synonyms defined.
 
 If any of non-synonym calls fall through to the superclass then we are in trouble as that
@@ -79,7 +79,7 @@ specific functions.
         )
       ))
 
-  (def-type ts1-abandoned (status-abandoned ts1-tm)()) ;ts1-tm is inherited so that slots will not differ
+  (def-type ts1-abandoned (abandoned ts1-tm)()) ;ts1-tm is inherited so that slots will not differ
   (def-type ts1-active    (ts1-tm ea-active)())
   (def-type ts1-empty     (ts1-tm ea-empty)())
   (def-type ts1-parked    (ts1-tm ea-parked)())

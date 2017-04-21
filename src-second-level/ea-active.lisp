@@ -28,7 +28,7 @@ See LICENSE.txt
             (∧
               etm
               (¬ (eq etm tm))
-              (typep etm 'status-active)
+              (typep etm 'active)
               (= (address etm) (address tm))
               )
             [ct]
@@ -54,7 +54,7 @@ See LICENSE.txt
           (if 
             (∧
               etm
-              (typep etm 'status-active)
+              (typep etm 'active)
               (≠ (address etm) 0)
               (= (address tm) (- (address etm) 1))
               )

@@ -31,10 +31,10 @@ See LICENSE.txt
 
   (def-type ea-parked-active (ea-tm)())
 
-  (def-type ea-abandoned (status-abandoned ea-tm)())
-  (def-type ea-active    (ea-parked-active status-active ea-tm)())
-  (def-type ea-empty     (status-empty ea-tm)())
-  (def-type ea-parked    (ea-parked-active status-parked ea-tm)())
+  (def-type ea-abandoned (abandoned ea-tm)())
+  (def-type ea-active    (ea-parked-active active ea-tm)())
+  (def-type ea-empty     (empty ea-tm)())
+  (def-type ea-parked    (ea-parked-active parked ea-tm)())
 
 
 ;;--------------------------------------------------------------------------------

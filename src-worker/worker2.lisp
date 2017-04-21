@@ -33,7 +33,7 @@ just proceses the whole of the source tapes when called.)
 (defmacro def-worker (name src dst state conts &body body)
   (let(
         (tm10      (mk-tm 'list-nd-tm {:tape {∅}}))
-        (the-args  (mk-tm 'status-tm {:base tm10 :empty t}))
+        (the-args  (mk-tm 'status-tm {:base tm10 :status 'empty}))
         )
     (∨ src dst (error 'worker-must-have-src-or-dst))
     (when src (append-list the-args src))

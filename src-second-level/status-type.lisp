@@ -8,7 +8,7 @@ See LICENSE.txt
   First order machines only exist when there is something to put in them.  Here I
   introduce a second order concept of emptiness.  A first order machine becomes empty when
   it is first parked, and then the last cell is requested to be deleted.  When this
-  happens, we change-class the second order machine to be the status-empty machine, and
+  happens, we change-class the second order machine to be the empty machine, and
   the machine will be functionally empty from the point of view of the interface.
   However, the base first order machine will still be there, and will still have one cell.
   For sake of memory efficiency, we invoke garbage collection for the instance held in
@@ -42,8 +42,8 @@ a collision error.  Hence behavior is inherited from the identity transform.
 
 ---
 
-  No instance is ever made of the type status-parked-active.  Rather functions are
-  declared to match tm's of this type.  We include status-parked-active in the
+  No instance is ever made of the type parked-active.  Rather functions are
+  declared to match tm's of this type.  We include parked-active in the
   inheritance tree, so that the dispatch will check these functions from the parked or
   from active state before generalizing further.
 
@@ -70,10 +70,10 @@ a collision error.  Hence behavior is inherited from the identity transform.
         )
       ))
 
-  (def-type status-abandoned (status-tm)())
-  (def-type status-active    (status-tm)())
-  (def-type status-empty     (status-tm)())
-  (def-type status-parked    (status-tm)())
+  (def-type abandoned (status-tm)())
+  (def-type active    (status-tm)())
+  (def-type empty     (status-tm)())
+  (def-type parked    (status-tm)())
 
 
 ;;--------------------------------------------------------------------------------
@@ -82,17 +82,17 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;   these are private functions used by status code and specializations
 ;;   we need these so that specialized types can change to their specialized versions for
 ;;   example an ea machine will have a to-empty that goes to 'ea-empty instead of to
-;;   status-empty
+;;   empty
 ;;
   (def-function-class to-abandoned (tm))
   (def-function-class to-active    (tm))
   (def-function-class to-empty     (tm))
   (def-function-class to-parked    (tm))
 
-  (defun-typed to-abandoned ((tm status-tm)) (change-class tm 'status-abandoned))
-  (defun-typed to-active    ((tm status-tm)) (change-class tm 'status-active))
-  (defun-typed to-empty     ((tm status-tm)) (change-class tm 'status-empty))
-  (defun-typed to-parked    ((tm status-tm)) (change-class tm 'status-parked))
+  (defun-typed to-abandoned ((tm status-tm)) (change-class tm 'abandoned))
+  (defun-typed to-active    ((tm status-tm)) (change-class tm 'active))
+  (defun-typed to-empty     ((tm status-tm)) (change-class tm 'empty))
+  (defun-typed to-parked    ((tm status-tm)) (change-class tm 'parked))
 
 ;;--------------------------------------------------------------------------------
 ;;
@@ -121,7 +121,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           ((∧ 
              base
              (typep base 'tape-machine) 
-             (eq status 'status-empty) 
+             (eq status 'empty) 
              (tape-length-is-one base)
              )
             (w base ∅)
@@ -139,7 +139,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           ((∧ 
              base
              (typep base 'tape-machine)
-             (∨ (¬ status) (eq status 'status-active) (eq status 'status-parked))
+             (∨ (¬ status) (eq status 'active) (eq status 'parked))
              )
             (let(
                   (cell-address 0)
@@ -153,7 +153,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
               (setf (address tm) 0)
               (setf (base tm) base)
               (if
-                (∨ (¬ status) (eq status 'status-active))
+                (∨ (¬ status) (eq status 'active))
                 (to-active tm)
                 (to-parked tm)
                 )
