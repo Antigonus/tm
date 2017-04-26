@@ -51,7 +51,7 @@ See LICENSE.txt
     (∧
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (park tm1)
+      (cp tm1)
       (= (address-rightmost tm1) 2) 
       (= (d◧ tm1) 1)
       (= (address-rightmost tm1) 1) 
@@ -75,7 +75,7 @@ See LICENSE.txt
       (typep tm1 'active)
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (park tm1)
+      (cp tm1)
       (typep tm1 'ts1-parked)
       (typep tm1 'parked)
       (d tm1)
@@ -189,7 +189,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .001)
       ))
-  (park tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (cp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)
@@ -376,7 +376,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .0025)
       ))
-  (park tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (cp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)

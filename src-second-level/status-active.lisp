@@ -22,7 +22,9 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed park ((tm active) &optional ➜)
+
+  ;; cue the head to the parking spot
+  (defun-typed cp ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -39,6 +41,26 @@ a collision error.  Hence behavior is inherited from the identity transform.
                   )
            (o (remove-key-pair ➜ :➜ok))
            })))
+
+;;--------------------------------------------------------------------------------
+;; quantifiers
+;;
+  (defun-typed cp∃ ((tm active) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (cp tm)
+    (∃ tm ➜t ➜∅)
+    )
+  (defun-typed cp∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (cp tm)
+    (∀ tm ➜t ➜∅)
+    )
+  (defun-typed cp∃* ((tm parked) pred)
+    (cp tm)
+    (∃* tm pred)
+    )
+  (defun-typed cp∀* ((tm parked) function)
+    (cp tm)
+    (∀* tm function)
+    )
 
 
 ;;--------------------------------------------------------------------------------

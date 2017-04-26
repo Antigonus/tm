@@ -111,9 +111,15 @@ a collision error.  Hence behavior is inherited from the identity transform.
         )
       ➜
       (destructuring-bind
-        (&key base status &allow-other-keys) keyed-parms
-        (cond
+        (&key base base-type tape status &allow-other-keys) keyed-parms
 
+        (when base-type
+          (if tape
+            (setf base (mk base-type {:tape tape}))
+            (setf base (mk base-type {:tape {∅}}))
+            ))
+
+        (cond
           ;; base machine is to be marked empty. Would like to delete cells to force
           ;; empty, but base may be nd type, so instead we enforce the rule that base
           ;; machines that are declared ':empty' must have only one cell (deletion must be
@@ -181,8 +187,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
                  )
           (o (remove-key-pair ➜ :➜ok))
           })))
-
-  (def-function-class park (tm &optional ➜)) ; handled by subtypes
 
   (def-function-class abandon (tm))
 

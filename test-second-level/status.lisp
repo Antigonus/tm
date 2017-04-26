@@ -23,7 +23,7 @@ See LICENSE.txt
       (= (r tm1) 3)
       (= (s tm1 {:➜ok (be 7) :➜rightmost (be 8)}) 8)
       (= (r tm1 {:➜parked (be 21) :➜ok (be 22)}) 22)
-      (= (park tm1 {:➜ok (be 11)}) 11)
+      (= (cp tm1 {:➜ok (be 11)}) 11)
       (typep tm1 'parked)
       (= (r tm1 {:➜parked (be 21) :➜ok (be 22)}) 21)
       (= (c◧ tm1 {:➜ok (be 41)}) 41)
@@ -38,12 +38,12 @@ See LICENSE.txt
          (t1 (mk 'status-tm {:base t0}))
          )
     (∧
-      (park t1)
+      (cp t1)
       (= (d◧ t1) 1)
       (= (d  t1) 2)
       (s t1)
       (= (r t1) 3)
-      (park t1)
+      (cp t1)
       (= (d t1) 3)
       (typep t1 'empty)
       )))
@@ -122,16 +122,14 @@ See LICENSE.txt
 
 (defun test-status-7 ()
   (let*(
-         (tm10 (mk 'list-solo-tm {:tape {21 23 25}}))
-         (tm11 (mk 'status-tm {:base tm10 :status 'parked}))
-         (tm20 (mk 'list-solo-tm {:tape {∅}}))
-         (tm21 (mk 'status-tm {:base tm20 :status 'empty}))
+         (tm11 (mk 'status-tm {:base-type 'list-solo-tm :tape {21 23 25} :status 'parked}))
+         (tm21 (mk 'status-tm {:base-type 'list-solo-tm :status 'empty}))
          )
     (∧
       (typep tm11 'parked)
       (= (r tm11 {:➜ok #'cant-happen :➜parked (be 777)}) 777)
       (=
-        (∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        (c◧∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
         717
         )
       (=
@@ -144,4 +142,31 @@ See LICENSE.txt
         )
       )))
 (test-hook test-status-7)
+
+
+(defun test-status-8 ()
+  (let*(
+         (tm11 (mk 'status-tm {:base-type 'list-solo-tm :tape {21 23 25} :status 'parked}))
+         )
+    (∧
+      (typep tm11 'parked)
+      (= (r tm11 {:➜ok #'cant-happen :➜parked (be 777)}) 777)
+      (=
+        (∀ tm11 ; quantifier starts at the parked head position
+          (λ(tm ct c∅)
+            (if
+              (∨
+                (on-rightmost tm)
+                (oddp (esr tm))
+                )
+              [ct]
+              [c∅]
+              ))
+          (be 717)
+          (be 719)
+          )
+        717
+        )
+      )))
+(test-hook test-status-8)
 

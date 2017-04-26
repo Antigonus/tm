@@ -26,7 +26,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed park ((tm parked) &optional ➜)
+  (defun-typed cp ((tm parked) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -42,17 +42,47 @@ See LICENSE.txt
 ;; quantifiers
 ;;
   (defun-typed ∃ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧∃ tm pred ➜t ➜∅)
+    [pred tm ➜t (λ()(c◧∃ tm pred ➜t ➜∅))]
     )
+  (defun-typed cp∃ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (∃ tm ➜t ➜∅)
+    )
+
   (defun-typed ∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧∀ tm pred ➜t ➜∅)
+    [pred tm (λ()(c◧∀ tm pred ➜t ➜∅)) ➜∅]
     )
+  (defun-typed cp∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (∀ tm ➜t ➜∅)
+    )
+
   (defun-typed ∃* ((tm parked) pred)
-    (c◧∃* tm pred)
+    [pred tm 
+      (λ()
+        (let(
+              (counts (c◧∃* pred))
+              )
+          (cons (1+ (car counts)) (1+ (cdr counts)))
+          ))
+      (λ()
+        (let(
+              (counts (c◧∃* pred))
+              )
+          (cons (car counts) (1+ (cdr counts)))
+          ))
+      ])
+
+  (defun-typed cp∃* ((tm parked) pred)
+    (∃* tm pred)
     )
+
   (defun-typed ∀* ((tm parked) function)
+    [function tm]
     (c◧∀* tm function)
     )
+  (defun-typed cp∀* ((tm parked) function)
+    (∀* tm function)
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

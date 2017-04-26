@@ -20,7 +20,7 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (def-abandoned-1 park)
+  (def-abandoned-1 cp)
 
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
@@ -30,18 +30,25 @@ don't provide a continuation for it.
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
-
   (defun-typed c◧∃ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
+  (defun-typed cp∃ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+
 
   (defun-typed ∀ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
-
   (defun-typed c◧∀ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t ➜∅))
+    (operation-on-abandoned)
+    )
+  (defun-typed cp∀ ((tm abandoned) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜t ➜∅))
     (operation-on-abandoned)
     )
@@ -54,12 +61,20 @@ don't provide a continuation for it.
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
+  (defun-typed cp∃* ((tm abandoned) pred)
+    (declare (ignore tm pred))
+    (operation-on-abandoned)
+    )
 
   (defun-typed ∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
   (defun-typed c◧∀* ((tm abandoned) function)
+    (declare (ignore tm function))
+    (operation-on-abandoned)
+    )
+  (defun-typed cp∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )

@@ -220,6 +220,10 @@ they belong to.
     ;;second level
     ;;
       #:status-tm ; type
+      #:abandoned
+      #:empty
+      #:parked
+      #:active
       #:status-abandoned ; type
       #:status-active ; type
       #:status-empty ; type

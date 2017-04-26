@@ -18,7 +18,7 @@
         )
     (nl)(princ "tm with test self tests: ")(princ results-0)
     (if
-      (equal results-0 {3 83})
+      (equal results-0 {3 84})
       (progn
         (nl)(princ "tm with test self tests passes")
         (nl)(princ "running again without the self tests")
@@ -26,7 +26,7 @@
               (results-1 (test-all))
               )
           (if
-            (equal results-1 {0 79})
+            (equal results-1 {0 80})
             (progn (nl)(princ "tests second run pass"))
             (progn (nl)(princ "tests second run failed"))
             )

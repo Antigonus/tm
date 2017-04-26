@@ -27,6 +27,17 @@ overridden.
     t
     )
 
+  ;; cue head to parked
+  (def-function-class cp (tm &optional ➜)) ; handled by subtypes
+
+;;--------------------------------------------------------------------------------
+;; quantifiers
+;;
+  (def-function-class cp∃ (tm pred &optional ➜t ➜∅))
+  (def-function-class cp∀ (tm pred &optional ➜t ➜∅))
+  (def-function-class cp∃* (tm pred))
+  (def-function-class cp∀* (tm function))
+
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;

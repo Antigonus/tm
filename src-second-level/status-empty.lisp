@@ -38,6 +38,10 @@ belonging to a machine that has a parked head.
     (declare (ignore tm pred ➜t))
     [➜∅]
     )
+  (defun-typed cp∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜t))
+    [➜∅]
+    )
 
   ;; we can not find a case where existence is false
   ;; .. there are zero cases where existence should be checked
@@ -46,6 +50,10 @@ belonging to a machine that has a parked head.
     [➜t]
     )
   (defun-typed c◧∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (declare (ignore tm pred ➜∅))
+    [➜t]
+    )
+  (defun-typed cp∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
     (declare (ignore tm pred ➜∅))
     [➜t]
     )
@@ -58,12 +66,20 @@ belonging to a machine that has a parked head.
     (declare (ignore tm pred))
     (cons 0 0)
     )
+  (defun-typed cp∃* ((tm empty) pred)
+    (declare (ignore tm pred))
+    (cons 0 0)
+    )
 
   (defun-typed ∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
   (defun-typed c◧∀* ((tm empty) function)
+    (declare (ignore tm function))
+    (values)
+    )
+  (defun-typed cp∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
@@ -74,7 +90,7 @@ belonging to a machine that has a parked head.
 ;; status-tm definitions
 ;;
   ;; an empty machine is already parked
-  (defun-typed park ((tm empty) &optional ➜)
+  (defun-typed cp ((tm empty) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
