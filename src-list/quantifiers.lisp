@@ -79,56 +79,83 @@ See LICENSE.txt
 ;; pred is a function that accepts a machine and two continuations, ➜t, and ➜∅.
 ;;
 
-  #|
-    so far haven't seen a need to make these typed
+    (def-function-class ∃ (tm pred &optional ➜))
+    (def-function-class ∀ (tm pred &optional ➜))
 
-    (def-function-class ∃ (tm pred &optional ➜t ➜∅))
-    (def-function-class ∀ (tm pred &optional ➜t ➜∅))
+    (def-function-class c◧∃ (tm pred &optional ➜))
+    (def-function-class c◧∀ (tm pred &optional ➜))
 
-    (def-function-class c◧∃ (tm pred &optional ➜t ➜∅))
-    (def-function-class c◧∀ (tm pred &optional ➜t ➜∅))
+    (def-function-class ∃* (tm pred))
+    (def-function-class ∀* (tm function))
 
-    (def-function-class ∃* (tm pred &optional ➜t ➜∅))
-    (def-function-class ∀* (tm pred &optional ➜t ➜∅))
-  |#
+    (def-function-class c◧∃* (tm pred))
+    (def-function-class c◧∀* (tm function))
 
   ;; Seems that at least some errors in threads will cause the thread to hang ..
   ;; Seems it will be a common mistake to give quantifiers continuation lists
   ;; rather than directly specifying the functions (resolving this convention
   ;; is on the to-do list).  Added the funcitonp guard here to make the error
   ;; in the thread more obvious
-  (defun ∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
+  (defun-typed ∃ ((tm tape-machine) pred &optional ➜)
     "Tests each instance in tm in succession starting from the current location of the head.
      Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via
      ➜∅ when stepping right from rightmost.  The head is left on the cell that holds the
      instance that passed.
     "
-    (if (∧ (functionp pred) (functionp ➜t) (functionp ➜∅))
-      (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
-      (error 'non-function-continuation)
-      )
-    )
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (if (∧ (functionp pred) (functionp ➜t) (functionp ➜∅))
+        (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
+        (error 'non-function-continuation)
+        )
+      ))
 
-  (defun c◧∃ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧ tm)
-    (∃ tm pred ➜t ➜∅)
-    )
+  (defun-typed c◧∃ ((tm tape-machine) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (c◧ tm)
+      (∃ tm pred {:➜t ➜t :➜∅ ➜∅})
+      ))
 
   ;; there does not exist an instance for which pred is false
   ;; pred is true for all instances
-  (defun ∀ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    "➜t when all instances on the tape pass the test, otherwise ➜∅, head left on cell with first failed test."
-    (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) ➜∅ ➜t)
-    )
+  (defun-typed ∀ ((tm tape-machine) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      "➜t when all instances on the tape pass the test, otherwise ➜∅, head left on cell with first failed test."
+      (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) {:➜t ➜∅ :➜∅ ➜t})
+      ))
 
-  (defun c◧∀ (tm pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧ tm)
-    (∀ tm pred ➜t ➜∅)
-    )
+  (defun-typed c◧∀ ((tm tape-machine) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (c◧ tm)
+      (∀ tm pred {:➜t ➜t :➜∅ ➜∅})
+      ))
 
   ;; similar to ∃, but tests every instance.  Returns a number pair, the total tests done
   ;; (= length of tape tail), and the number of tests that returned true.
-  (defun ∃* (tm pred)
+  (defun-typed ∃* ((tm tape-machine) pred)
     "Calls (pred tm ➜t ➜∅), and steps head, until reaching the end fo the tape, returns
      number pair: (true.count.false-count)."
     (let(
@@ -149,12 +176,12 @@ See LICENSE.txt
       (cons true-count false-count)
       ))
 
-  (defun c◧∃* (tm pred)
+  (defun-typed c◧∃* ((tm tape-machine) pred)
     (c◧ tm)
     (∃ tm pred)
     )
 
-  (defun ∀* (tm function)
+  (defun-typed ∀* ((tm tape-machine) function)
     "Calls (function tm), and steps head, until reaching the end of the tape. Returns
      nothing."
     (⟳(λ(again)
@@ -166,7 +193,7 @@ See LICENSE.txt
             }
           ))))
 
-  (defun c◧∀* (tm function)
+  (defun-typed c◧∀* ((tm tape-machine) function)
     (c◧ tm)
     (∀* tm function)
     )

@@ -29,34 +29,70 @@ belonging to a machine that has a parked head.
 ;; quantifiers
 ;;
   ;; no existence case can be found
-  (defun-typed ∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜t))
-    [➜∅]
-    )
+  (defun-typed ∃ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
   ;; no existence case can be found independent of head initialization
-  (defun-typed c◧∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜t))
-    [➜∅]
-    )
-  (defun-typed cp∃ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜t))
-    [➜∅]
-    )
+  (defun-typed c◧∃ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+  (defun-typed cp∃ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
 
   ;; we can not find a case where existence is false
   ;; .. there are zero cases where existence should be checked
-  (defun-typed ∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜∅))
-    [➜t]
-    )
-  (defun-typed c◧∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜∅))
-    [➜t]
-    )
-  (defun-typed cp∀ ((tm empty) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (declare (ignore tm pred ➜∅))
-    [➜t]
-    )
+  (defun-typed ∀ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜t]
+      ))
+  (defun-typed c◧∀ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜t]
+      ))
+  (defun-typed cp∀ ((tm empty) pred &optional ➜)
+    (declare (ignore tm pred))
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜t]
+      ))
   
   (defun-typed ∃* ((tm empty) pred)
     (declare (ignore tm pred))

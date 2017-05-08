@@ -61,10 +61,10 @@ See LICENSE.txt
             [➜t]
             [➜∅]
             ))
-        (λ()(equal (r ytm) '(3 4)))
-        #'cant-happen
-        )))
-
+        {
+          :t (λ()(equal (r ytm) '(3 4)))
+          :∅ #'cant-happen
+          })))
   (test-hook test-∃-1) 
 
   (defun test-∀-0 ()
@@ -85,8 +85,10 @@ See LICENSE.txt
            )
       (∀ ytm 
         (λ(tm ct c∅)(if (and (numberp (r tm)) (oddp (r tm))) [ct] [c∅]))
-        (be ∅)
-        (be t)
+        {
+          :➜t (be ∅)
+          :➜∅ (be t)
+          }
         )
       (= (r ytm) 4)
       ))

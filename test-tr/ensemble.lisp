@@ -31,14 +31,14 @@ See LICENSE.txt
       (on-rightmost (r (members tm10)))
 
       (c◧ (members tm10))
-      (on-rightmost (r (members tm10)))
-      (= (r (r (members tm10))) 31) ; this machine stepped
+      (¬ (on-rightmost (r (members tm10))))
+      (= (r (r (members tm10))) 3)
       (s (members tm10))
       (on-rightmost (r (members tm10)))
-      (= (r (r (members tm10))) 6)  ; this machine failed to step
+      (= (r (r (members tm10))) 6) 
       (s (members tm10))
       (¬ (on-rightmost (r (members tm10))))
-      (= (r (r (members tm10))) 9)  ; we hadn't gotten to trying to step this one yet
+      (= (r (r (members tm10))) 9) 
       (¬ (s (members tm10)))
 
       (c◧∃ (members tm10)

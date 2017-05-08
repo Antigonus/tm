@@ -34,8 +34,10 @@ See LICENSE.txt
             [ct]
             [c∅]
             )))
-      ➜t
-      ➜∅
+      {
+        :➜t ➜t
+        :➜∅ ➜∅
+        }
       )))
 
 (defun-typed entangled-on-right-neighbor-cell ((tm ea-active) &optional ➜)
@@ -61,8 +63,10 @@ See LICENSE.txt
             [ct]
             [c∅]
             )))
-      ➜t
-      ➜∅
+      {
+        :➜t ➜t
+        :➜∅ ➜∅
+        }
       )))
 
 

@@ -117,8 +117,10 @@ stepping the ensemble steps all the member machines.
                             ))
                     :➜rightmost c∅
                     }))
-              (λ()[➜ok result])
-              ➜rightmost
+              {
+                :➜t (λ()[➜ok result])
+                :➜∅ ➜rightmost
+                }
               )))))
 
     (defun-typed w ((tm ensemble-tr) instance &optional ➜)
@@ -148,8 +150,10 @@ stepping the ensemble steps all the member machines.
             (λ(mtm ct c∅)
               (esw (r mtm) {:➜ok ct :➜rightmost c∅})
               )
-            ➜ok
-            ➜rightmost
+            {
+              :➜t ➜ok
+              :➜∅ ➜rightmost
+              }
             ))))
 
     (defun-typed ec◧r ((tm ensemble-tr) &optional ➜)
@@ -203,8 +207,10 @@ stepping the ensemble steps all the member machines.
                             ))
                     :➜rightmost c∅
                     }))
-              (λ()[➜ok result])
-              ➜rightmost
+              {
+                :➜t (λ()[➜ok result])
+                :➜∅ ➜rightmost
+                }
               )))))
 
     (defun-typed ec◧w ((tm ensemble-tr) instance &optional ➜)
@@ -234,8 +240,10 @@ stepping the ensemble steps all the member machines.
           (λ(mtm ct c∅)
             (ec◧sw (r mtm) {:➜ok ct :➜rightmost c∅})
             )
-          ➜ok
-          ➜rightmost
+          {
+            :➜t ➜ok
+            :➜∅ ➜rightmost
+            }
           ))))
 
 
@@ -257,8 +265,7 @@ stepping the ensemble steps all the member machines.
   ;;--------------------------------------------------------------------------------
   ;; head stepping
   ;;
-    ;; when taking rightmost, member's head indicates the first rightmost going machine
-    ;; perhaps later we should make a transactional version of ensemble-tr
+    ;; if there exists a member machine on rightmost, the ensemble is on rightmost
     (defun-typed s ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
@@ -270,14 +277,17 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (c◧ mtm)
-          (∀ mtm
-            (λ(mtm ct c∅)
-              (s (r mtm) {:➜ok ct :➜rightmost c∅})
-              )
-            ➜ok
-            ➜rightmost
-            ))))
+          (c◧∃ mtm (λ(mtm ct c∅)(on-rightmost (r mtm) {:➜t ct :➜∅ c∅}))
+            {
+              :➜t ➜rightmost
+              :➜∅ (λ()(c◧∀*
+                        mtm
+                        (λ(mtm)
+                          (s (r mtm) {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+                          ))
+                    [➜ok]
+                    )
+              }))))
 
   ;;--------------------------------------------------------------------------------
   ;; cell allocation
@@ -304,8 +314,10 @@ stepping the ensemble steps all the member machines.
             (λ(mtm ct c∅)
               (on-leftmost (r mtm) {:➜t ct :➜∅ c∅})
               )
-            ➜t
-            ➜∅
+            {
+              :➜t ➜t
+              :➜∅ ➜∅
+              }
             ))))
 
     ;; any on rightmost - predicts if step would take a rightmost continuation
@@ -325,8 +337,10 @@ stepping the ensemble steps all the member machines.
             (λ(mtm ct c∅)
               (on-rightmost (r mtm) {:➜t ct :➜∅ c∅})
               )
-            ➜t
-            ➜∅
+            {
+              :➜t ➜t
+              :➜∅ ➜∅
+              }
             ))))
 
   ;;--------------------------------------------------------------------------------
@@ -349,8 +363,10 @@ stepping the ensemble steps all the member machines.
             (λ(mtm ct c∅)
               (tape-length-is-one (r mtm) {:➜t ct :➜∅ c∅})
               )
-            ➜t
-            ➜∅
+            {
+              :➜t ➜t
+              :➜∅ ➜∅
+              }
             ))))
 
     ;; would ec◧ss take a rightmost continuation?
@@ -370,7 +386,9 @@ stepping the ensemble steps all the member machines.
             (λ(mtm ct c∅)
               (tape-length-is-two (r mtm) {:➜t ct :➜∅ c∅})
               )
-            ➜t
-            ➜∅
+            {
+              :➜t ➜t
+              :➜∅ ➜∅
+              }
             ))))
 

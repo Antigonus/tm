@@ -23,8 +23,10 @@ See LICENSE.txt
           [ct]
           [c∅]
           ))
-      ➜t
-      ➜∅
+      {
+        :➜t ➜t
+        :➜∅ ➜∅
+        }
       ))
 
   ;another machine in entanglement group on same cell as tm?

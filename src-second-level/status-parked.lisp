@@ -41,31 +41,59 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (defun-typed ∃ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    [pred tm ➜t (λ()(c◧∃ tm pred ➜t ➜∅))]
-    )
-  (defun-typed cp∃ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (∃ tm ➜t ➜∅)
-    )
+  (defun-typed ∃ ((tm parked) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [pred tm ➜t (λ()(c◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
+      ))
+  (defun-typed cp∃ ((tm parked) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (∃ tm {:➜t ➜t :➜∅ ➜∅})
+      ))
 
-  (defun-typed ∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    [pred tm (λ()(c◧∀ tm pred ➜t ➜∅)) ➜∅]
-    )
-  (defun-typed cp∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (∀ tm ➜t ➜∅)
-    )
+  (defun-typed ∀ ((tm parked) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [pred tm (λ()(c◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
+      ))
+  (defun-typed cp∀ ((tm parked) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (∀ tm {:➜t ➜t :➜∅ ➜∅})
+      ))
 
   (defun-typed ∃* ((tm parked) pred)
     [pred tm 
       (λ()
         (let(
-              (counts (c◧∃* pred))
+              (counts (c◧∃* tm pred))
               )
           (cons (1+ (car counts)) (1+ (cdr counts)))
           ))
       (λ()
         (let(
-              (counts (c◧∃* pred))
+              (counts (c◧∃* tm pred))
               )
           (cons (car counts) (1+ (cdr counts)))
           ))

@@ -1,0 +1,26 @@
+
+
+Have a structure with a number of fields.  Call it S.
+
+Instances of S are placed in a hash table.   Say (k0,s0), (k1,s1), (k2,s2) ...
+
+user doesn't really care about the structure, but rather cares about
+the fields.  So on the interface we would like to have,  'get k, field-0'  'get k, field-1'
+etc.
+
+Here is the problem, if we give the user get field access functions the user
+will invoke many spurious lookups of the structures.  For example to use
+field-0 and then to use field-1.
+
+So the fix is that we provide a get-S function that returns an S instance, and then
+get-field takes the S instance as an argument, rather than the hash table.  However,
+this is unpleasant, as it exposes our internal implementation and packing to the
+interface.  The user doesn't care how we packed the data.  Indeed maybe later we
+will change the implemenation and pack the data differently or not at all.
+
+Perhaps a cache is the fix.  When k is presented we see if it is equal to our
+cached k, and if so return the corresponding field, otherwise we go to the hash table.
+
+.. it is an interesting pattern to consider.  In multithreading they can be a coherency
+issue...  also a bit funny, as the hash-table is a cache form ...  little hash
+table and big hash table hierarchy not likely to be helpful in software ..

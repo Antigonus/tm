@@ -43,7 +43,7 @@ See LICENSE.txt
                                (:file "tm-type")
                                (:file "tm-decls")
                                (:file "tm-generic")
-                               (:file "tm-quantifiers")
+                               (:file "quantifiers")
                                (:file "tm-quantified")
 
                                (:file "list-tm-type")
@@ -85,6 +85,8 @@ See LICENSE.txt
                                (:file "bilist-solo-tm-definitions")
                                (:file "bilist-haz-tm-type")
                                (:file "bilist-haz-definitions")
+
+                               (:file "copy")
 
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
@@ -168,7 +170,8 @@ See LICENSE.txt
                               (:file "solo-tm-quantified")
                               (:file "tm-generic")
                               (:file "tm-quantified")
-                              (:file "tm-quantifiers")
+                              (:file "quantifiers")
+                              (:file "copy")
                               ))
 
                (:module "test-generators"

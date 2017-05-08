@@ -129,15 +129,15 @@ See LICENSE.txt
       (typep tm11 'parked)
       (= (r tm11 {:➜ok #'cant-happen :➜parked (be 777)}) 777)
       (=
-        (c◧∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        (c◧∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) {:➜t (be 717) :➜∅ (be 719)})
         717
         )
       (=
-        (∀ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        (∀ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) {:➜t (be 717) :➜∅ (be 719)})
         717
         )
       (=
-        (∃ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) (be 717) (be 719))
+        (∃ tm21 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) {:➜t (be 717) :➜∅ (be 719)})
         719
         )
       )))
@@ -162,8 +162,10 @@ See LICENSE.txt
               [ct]
               [c∅]
               ))
-          (be 717)
-          (be 719)
+          {
+            :➜t (be 717)
+            :➜∅ (be 719)
+            }
           )
         717
         )

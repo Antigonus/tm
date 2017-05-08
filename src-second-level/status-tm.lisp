@@ -33,8 +33,8 @@ overridden.
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (def-function-class cp∃ (tm pred &optional ➜t ➜∅))
-  (def-function-class cp∀ (tm pred &optional ➜t ➜∅))
+  (def-function-class cp∃ (tm pred &optional ➜))
+  (def-function-class cp∀ (tm pred &optional ➜))
   (def-function-class cp∃* (tm pred))
   (def-function-class cp∀* (tm function))
 

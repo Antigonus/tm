@@ -45,19 +45,33 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (defun-typed cp∃ ((tm active) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (cp tm)
-    (∃ tm ➜t ➜∅)
-    )
-  (defun-typed cp∀ ((tm parked) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (cp tm)
-    (∀ tm ➜t ➜∅)
-    )
-  (defun-typed cp∃* ((tm parked) pred)
+  (defun-typed cp∃ ((tm active) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (cp tm)
+      (∃ tm {:➜t ➜t :➜∅ ➜∅})
+      ))
+  (defun-typed cp∀ ((tm active) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (cp tm)
+      (∀ tm {:➜t ➜t :➜∅ ➜∅})
+      ))
+  (defun-typed cp∃* ((tm active) pred)
     (cp tm)
     (∃* tm pred)
     )
-  (defun-typed cp∀* ((tm parked) function)
+  (defun-typed cp∀* ((tm active) function)
     (cp tm)
     (∀* tm function)
     )

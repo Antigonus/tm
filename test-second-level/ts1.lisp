@@ -126,7 +126,9 @@ See LICENSE.txt
                               )
                             [c∅] ; stop waiting, tm22 is not empty
                             ))
-                        (λ()(prins (print "too many retries tm-wait-tries")))
+                        {
+                          :➜t (λ()(prins (print "too many retries tm-wait-tries")))
+                          }
                         )
 
                       (prins (print "entering tm-sum loop"))
@@ -144,8 +146,10 @@ See LICENSE.txt
                               )
                             [c∅]
                             ))
-                          (λ()(prins (print "too many retries tm-sum")))
-                          )
+                        {
+                          :➜t (λ()(prins (print "too many retries tm-sum")))
+                          }
+                        )
                     )))
                 :name "t2"
                 ))
@@ -209,9 +213,12 @@ At the end we compare tm31 with tm11.
           )
         c∅
         ))
-    (λ()
-      (prins (print "hit maximum tm-wait-tries"))
-      )))
+    {
+      :➜t 
+      (λ()
+        (prins (print "hit maximum tm-wait-tries"))
+        )}))
+
   
 (defun test-ts1-4-t2-drain
   (
@@ -257,7 +264,10 @@ At the end we compare tm31 with tm11.
             [ct]
             )
           }))
-    (λ() (prins (print "hit maximum retries while trying to drain tm-pipe")))
+    {
+      :➜t
+      (λ() (prins (print "hit maximum retries while trying to drain tm-pipe")))
+      }
     ))
 
 
@@ -427,7 +437,10 @@ At the end we compare tm31 with tm11.
             [ct]
             )
           }))
-    (λ() (prins (print "hit maximum retries while trying to drain tm-pipe")))
+    {
+      :➜t
+      (λ() (prins (print "hit maximum retries while trying to drain tm-pipe")))
+      }
     ))
 
 

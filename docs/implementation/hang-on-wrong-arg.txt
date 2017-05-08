@@ -1,0 +1,3 @@
+
+Just witnessed a quantifer hang because it was given a function
+in place of the continuation list.  Hmm, this is not good.
