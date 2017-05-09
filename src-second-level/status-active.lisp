@@ -18,6 +18,23 @@ a collision error.  Hence behavior is inherited from the identity transform.
 
 (in-package #:tm)
 
+;;--------------------------------------------------------------------------------
+;; copy
+;;
+  (defun-typed copy-shallow ((src active) (dst empty)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜dst-full (be ∅))  ;; but still instances uncopied from src
+        &allow-other-keys
+        )
+      ➜
+      [➜dst-full]
+      ))
+
+  (defun-typed copy-shallow ((src active) (dst parked)  &optional ➜)
+    (c◧ dst)
+    (copy-shallow src dst ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
@@ -76,6 +93,13 @@ a collision error.  Hence behavior is inherited from the identity transform.
     (∀* tm function)
     )
 
+
+;;--------------------------------------------------------------------------------
+;; quantified
+;;
+  (defun-typed d* ((tm active) &optional spill ➜)
+    (d* (base tm) spill ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

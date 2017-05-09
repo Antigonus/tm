@@ -120,6 +120,41 @@ belonging to a machine that has a parked head.
     (values)
     )
 
+;;--------------------------------------------------------------------------------
+;; quantified
+;;
+  (defun-typed d* ((tm empty) &optional spill ➜)
+    (declare (ignore spill))
+    (destructuring-bind
+      (&key
+        (➜rightmost (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
+
+;;--------------------------------------------------------------------------------
+;; copy
+;;
+  (defun-typed copy-shallow ((src empty) (dst empty)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      [➜ok]
+      ))
+  (defun-typed copy-shallow ((src empty) (dst tape-machine)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜src-depleted (be ∅)) ;; but still room on dst
+        &allow-other-keys
+        )
+      ➜
+      [➜src-depleted]
+      ))
 
 
 ;;--------------------------------------------------------------------------------

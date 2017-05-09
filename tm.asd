@@ -189,6 +189,7 @@ See LICENSE.txt
                                (:file "status")
                                (:file "ea")
                                (:file "ts1")
+                               (:file "copy")
                                ))
 
 #|

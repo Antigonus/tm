@@ -22,6 +22,29 @@ See LICENSE.txt
        ))
   )
 
+;;--------------------------------------------------------------------------------
+;; copy
+;;
+  (defun-typed copy-shallow ((src parked) (dst empty)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜dst-full (be ∅))  ;; but still instances uncopied from src
+        &allow-other-keys
+        )
+      ➜
+      [➜dst-full]
+      ))
+
+  (defun-typed copy-shallow ((src parked) (dst parked)  &optional ➜)
+    (c◧ src)
+    (c◧ dst)
+    (copy-shallow src dst ➜)
+    )
+
+  (defun-typed copy-shallow ((src parked) (dst tape-machine) &optional ➜)
+    (c◧ src)
+    (copy-shallow src dst ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
@@ -111,6 +134,26 @@ See LICENSE.txt
     (∀* tm function)
     )
 
+;;--------------------------------------------------------------------------------
+;; quantified
+;;
+  (defun-typed d* ((tm parked) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (be t))
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (d* (base tm) spill
+        {
+          :➜rightmost (λ()
+                        (w (base tm) ∅)
+                        (to-empty tm)
+                        [➜rightmost]
+                        )
+          :➜no-alloc ➜no-alloc
+          })))
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

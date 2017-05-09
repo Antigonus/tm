@@ -18,6 +18,19 @@ don't provide a continuation for it.
   )
 
 ;;--------------------------------------------------------------------------------
+;; copy
+;;
+  (defun-typed copy-shallow ((src abandoned) (dst tape-machine)  &optional ➜)
+    (declare (ignore src dst ➜))
+    (operation-on-abandoned)
+    )
+
+  (defun-typed copy-shallow ((src tape-machine) (dst abandoned)  &optional ➜)
+    (declare (ignore src dst ➜))
+    (operation-on-abandoned)
+    )
+
+;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
   (def-abandoned-1 cp)
@@ -79,6 +92,13 @@ don't provide a continuation for it.
     (operation-on-abandoned)
     )
 
+;;--------------------------------------------------------------------------------
+;; quantified
+;;
+  (defun-typed d* ((tm abandoned) &optional spill ➜)
+    (declare (ignore tm spill ➜))
+    (operation-on-abandoned)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
