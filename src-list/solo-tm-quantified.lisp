@@ -3,114 +3,70 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Functions derived through quantification.
-
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; repeated until end of tape operations
+;; cell deallocation
 ;;
-   (def-function-class d* (tm &optional spill ➜)
-     (:documentation
-       "Deallocates all cells right of the head up to and including rightmost.
-       If spill is not ∅, then the deallocated right side cells are moved to it.
-       Preferably the cells are moved, but it is premissable for an implementation to
-       create a new allocation on spill and then copy contents.
-      "
-     ))
-
-   (defun-typed d*
-     (
-       (tm solo-tape-machine)
-       &optional spill ➜
-       )
-     (destructuring-bind
-       (&key
-         (➜ok (be t))
-         (➜no-alloc #'alloc-fail)
-         &allow-other-keys
-         )
-       ➜
-       (⟳(λ(again)
-           (d tm spill
-             {
-               :➜ok (λ(instance)(declare (ignore instance)) [again])
-               :➜rightmost ➜ok
-               :➜no-alloc ➜no-alloc
-               })))
-       ))
-
-   (def-function-class d◧* (tm &optional spill ➜)
-     (:documentation
-       "Deallocates leftmost, repeatedly, until colliding with the cell the head is on,
-        which is not deallocated.  If spill is not ∅, then the deallocated cells are moved
-        to it.  Preferably the cells are moved, but it is premissable for an
-        implementation to create a new allocations on spill and then copy the instance
-        references.
-        "
-        ))
-
-   ;; pacman the tape until colliding with the cell the head is on (guaranteed to happen)
-   (defun-typed d◧*
-     (
-       (tm solo-tape-machine)
-       &optional spill ➜
-       )
-     (destructuring-bind
-       (&key
-         (➜collision (be t)) ; true, we hit the cell the head is on, we are done
-         (➜no-alloc #'alloc-fail)
-         &allow-other-keys
-         )
-       ➜
-       (⟳(λ(again)
-           (d◧ tm spill
-             {
-               :➜ok (λ(instance)(declare (ignore instance))[again])
-               :➜no-alloc ➜no-alloc
-               :➜collision ➜collision ; can't delete a cell the head is on
-               })))
-       ))
-
-;;--------------------------------------------------------------------------------
-;; repeated by count operations
-;;
-  (def-function-class dn (tm count &optional spill ➜)
+  (def-function-class d* (tm &optional spill ➜)
     (:documentation
-      "Given a tape machine and a natural number.
-      Like repeating d count times, but specialized versions might be more efficient.
-      "
+      "Deallocate the right hand side of the tape."
       ))
 
-  (defun-typed dn
-    (
-      (tm solo-tape-machine)
-      (n integer)
-      &optional spill ➜
-      )
+   ;;; It doesn't make sense to have d◧*, (which would be the same as ecpd* for a status
+   ;;; machine) because it results in a collision in all cases except when the head is on
+   ;;; leftmost. Instead do c◧ followed by d*
+
+  (def-function-class dn (tm n &optional spill ➜)
+    (:documentation
+      "Deallocate rightmost n times, or take a rightmost continuation.  The remaining
+       n is passed to the continutation"
+      ))
+
+  ;; generic implementation
+  ;; this is a solo machine, so we can't have a collision
+  (defun-typed d* ((tm solo-tape-machine) &optional spill ➜)
     (destructuring-bind
       (&key
-        (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜rightmost (be t))
         (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
       ➜
-      (labels(
-               (do-work()
-                 (when (≤ n 0) (return-from dn [➜ok]))
-                 (d tm spill
-                   {
-                     :➜ok (λ(instance)
-                            (declare (ignore instance))
-                            (decf n)
-                            (do-work)
-                            )
-                     :➜rightmost (λ()(return-from dn [➜rightmost n]))
-                     :➜no-alloc ➜no-alloc
-                     })
-                 ))
-        (do-work)
+      (⟳ (λ(repeat)
+           (d tm spill
+             {
+               :➜ok (λ(instance)(declare (ignore instance))[repeat])
+               :➜rightmost ➜rightmost
+               :➜no-alloc ➜no-alloc
+               })))
+      ))
+
+  ;; this is a solo machine, so we can't have a collision
+  (defun-typed dn ((tm solo-tape-machine) (n number) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜rightmost #'echo)
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (if (> n 0)
+        (⟳ (λ(repeat)
+             (d tm spill
+               {
+                 :➜ok (λ(instance)(declare (ignore instance))
+                        (decf n)
+                        (if (> n 0)
+                          [repeat]
+                          [➜ok]
+                          ))
+                 :➜rightmost (λ()[➜rightmost n])
+                 :➜no-alloc ➜no-alloc
+                 })))
+        [➜ok]
         )))
+

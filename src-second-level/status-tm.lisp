@@ -39,6 +39,15 @@ overridden.
   (def-function-class cp∀* (tm function))
 
 ;;--------------------------------------------------------------------------------
+;; quantified
+;;
+  (def-function-class cpd* (tm &optional spill ➜)
+    (:documentation
+      "Deallocates the tape"
+      ))
+
+
+;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
   ;; specialized versions have been defined for empty and abandoned

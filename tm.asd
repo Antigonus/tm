@@ -86,8 +86,6 @@ See LICENSE.txt
                                (:file "bilist-haz-tm-type")
                                (:file "bilist-haz-definitions")
 
-                               (:file "copy")
-
 ;;                               (:file "nd-tm-subspace") ; issues with 'manifold'
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")
@@ -104,6 +102,7 @@ See LICENSE.txt
                  :components (
                                (:file "identity")
                                (:file "ensemble")
+                               (:file "copy") ;; uses ensemble
                                ))
 
                (:module "src-second-level"
@@ -171,7 +170,6 @@ See LICENSE.txt
                               (:file "tm-generic")
                               (:file "tm-quantified")
                               (:file "quantifiers")
-                              (:file "copy")
                               ))
 
                (:module "test-generators"
@@ -183,6 +181,7 @@ See LICENSE.txt
                 :components (
                               (:file "identity")
                               (:file "ensemble")
+                              (:file "copy")
                               ))
 
                (:module "test-second-level"

@@ -175,7 +175,6 @@ they belong to.
     ;;solo-tm-quantified
     ;;
       #:d*
-      #:d◧*
       #:dn
 
     ;;haz-tm-type
@@ -216,6 +215,8 @@ they belong to.
     ;;
       #:idenity-tr ; type
       #:ensemble-tr  ; type
+      #:copy-shallow ; here becauses it uses ensemble
+      #:copy-shallow-fit ; here becauses it uses ensemble
 
     ;;second level
     ;;

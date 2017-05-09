@@ -158,3 +158,14 @@ can be copied and cued to leftmost to recover entangelments.
 55. if a test does not return in a short time, call the test a failure, perhaps
 add a time to wait as part of test-hook
 
+56. ensemble needs something to help the programer know which machines hit
+   rightmost.  Look at shallow copy for example.  After a quantifier we
+   are left trying to make sense of what happened.  Perhaps an additional
+   slot in ensemble that can be used to understand more about the
+   ensemble.  We do have this, upon hiting rightmost, the members machine's
+   head is left on the cell holding the machine that hit rightmost.
+
+57. only have generic implementation for d*, which is rather inefficient,
+    need to add implementation specific versions.  Might also give some
+    consideration to the spill behavior - perhaps spill in the forward
+    direction

@@ -22,21 +22,6 @@ See LICENSE.txt
       )))
 (test-hook test-d*-0)
 
-(defun test-d◧*-0 ()
-  (let*(
-         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
-         (tm1 (mk 'list-solo-tm {:tape {-100}}))
-         )
-    (∧
-      (sn tm0 2)
-      (d◧* tm0 tm1)
-      (equal (tape tm0) {3})
-      (equal (tape tm1) {-100 1 2})
-      (on-rightmost tm1)
-      )))
-(test-hook test-d◧*-0)
-
-
 (defun test-dn-0 ()
   (let*(
          (tm0 (mk 'list-solo-tm {:tape {1 2 3 4 5}}))

@@ -5,7 +5,6 @@ See LICENSE.txt
 
   Copying Machines
 
-
 |#
 
 (in-package #:tm)
@@ -26,23 +25,15 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (∀ dst
-        (λ(dst ➜t ➜∅)
-          (w dst (r src))
-          (s src
-            {
-              :➜ok ➜t
-              :➜rightmost ➜∅
-              }))
-        {
-          :➜t
-          (λ()
-            (on-rightmost src {:➜t ➜ok :➜∅ ➜dst-full})
+      (let(
+            (ens (mk 'ensemble-tr {:list {src dst}}))
             )
-          :➜∅
-          (λ()
-            (on-rightmost dst {:➜t ➜ok :➜∅ ➜src-depleted})
-            )})))
+        (∀* ens (λ(ens)(declare (ignore ens)) (w dst (r src))))
+        (cond
+          ((∧ (on-rightmost src) (on-rightmost dst)) [➜ok])
+          ((on-rightmost src) [➜src-depleted])
+          (t [➜dst-full])
+          ))))
 
   ;; the Procrustean version ..
   (defun-typed copy-shallow-fit ((src tape-machine) (dst tape-machine))
@@ -54,7 +45,9 @@ See LICENSE.txt
         (λ()(d* dst))
 
         :➜dst-full
-        (λ()(∀ src (λ(src)(as dst (r src)))))
+        (λ()
+          (s src {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+          (∀* src (λ(src)(as dst (r src)))))
         }))
 
 #|
