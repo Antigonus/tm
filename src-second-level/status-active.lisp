@@ -93,7 +93,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
     (∀* tm function)
     )
 
-
 ;;--------------------------------------------------------------------------------
 ;; quantified
 ;;

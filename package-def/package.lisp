@@ -203,6 +203,9 @@ they belong to.
       #:bilist-solo-tm
       #:bilist-haz-tm
 
+;;;--------------------------------------------------------------------------------
+;;; src-generators
+;;;     
     ;;generators
     ;;
       #:recursive ; type
@@ -211,6 +214,9 @@ they belong to.
       #:mk-interval
       #:mk-Natural
 
+;;;--------------------------------------------------------------------------------
+;;; src-tr
+;;;     
     ;;transforms
     ;;
       #:idenity-tr ; type
@@ -218,6 +224,9 @@ they belong to.
       #:copy-shallow ; here becauses it uses ensemble
       #:copy-shallow-fit ; here becauses it uses ensemble
 
+;;;--------------------------------------------------------------------------------
+;;; src-second-level
+;;;     
     ;;second level
     ;;
       #:status-tm ; type
@@ -230,9 +239,13 @@ they belong to.
       #:status-empty ; type
       #:status-parked ; type
 
-      #:park
+      #:cp
       #:abandon
-      
+      #:cp∃
+      #:cp∀
+      #:cp∃*
+      #:cp∀*
+
       #:ea-tm ; type
       #:ts1-tm ; type
 
