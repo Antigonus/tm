@@ -54,7 +54,9 @@ a collision error.  Hence behavior is inherited from the identity transform.
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type status-tm (identity-tr)
+  (def-type status-tape-machine (identity-transform)())
+
+  (def-type status-tm (status-tape-machine identity-tr)
     (
       (base ; the machine being managed
         :initarg :base

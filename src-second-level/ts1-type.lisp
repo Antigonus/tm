@@ -71,7 +71,9 @@ specific functions.
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type ts1-tm (ea-tm)
+  (def-type ts1-tape-machine (ea-tape-machine)())
+
+  (def-type ts1-tm (ts1-tape-machine ea-tm)
     (
       (deed
         :initarg :deed

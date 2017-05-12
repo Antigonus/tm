@@ -1,12 +1,74 @@
 
-1. personality of an object, say 'X' type, is lost when it is inherited into a class,
-hence one can not acces methods for working on the 'X' part of an object.  The solution
-has been to use a slot for holding parent types instead of using inheritance.  The
-object in the slot maintains its type.
+1. When inheriting a 'super' class into a 'subclass' to create a 'specialization' the
+interface of the super class is not available to subclass code for the parts that are
+specialized, with only one except, a function called 'call-next-method', but
+call next method will only call the X version of the same name as the Y version.
 
-2. call next method only works when that method has the same name, and only one next
+In other words, if I have an object type X, and I want to create a specialization Y, the
+code for Y can not use the X interface to manipulate the X part of the specialization - when
+Y defines a function of the same name as does X.
+
+In ohter words, if I have a function class X,  and I want to specialize by adding further
+functions to the class, to create Y which is a specialiation of X, then my functions
+which in Y which specialize functions in X, are arbitrarily denied access to the more
+general X class versions.
+
+My solution has been to, instead of inheriting, make a new type, say Y, and assign to that
+type a slot for holding an X.  I then duplicate the whole of the X interface over Y so
+that it can look like an X.  However, this approach has serious short comming -- CLOS
+dispatch will not recognize Y as a specialization of X.
+
+..call next method only works when that method has the same name, and only when next
 method is needed. Not possible are simple co-routine relationships,  where say,  x->y
 and y->x   (child to parent).
+
+2  flipping that over, here is another interesting observation, I have a compatible
+interface, but different implementations.  These different implemenations are not related
+through inheritance.  However I don't care about the implemantation, it is the interface
+that matters.  However, a function that uses one interface can not be called with
+objects of typed to use the other interface.  There is a conflation of two different
+concepts -- that of data formatting, and that of abstract data type.  Two different
+formats can have different formats, but have the same abstract type.  CLOS forces a
+binding between data format and abstract type.  .. note for format and abstract
+data type to be seprate, functions can not mix abstract data type calls and formatting
+type calls - i.e. can not access slots directly -- all access must be through the
+interface.  Though we can put on the interface calls that perform the same function
+as the format type calls, it is just that they might not have anything to do with format.
+
+** I have gotten around this problem by defining slotless architectural types, and keeping
+these distinct from implemented types,  then when arguments are typed on the function
+call interface e.g. ... (x number) ..  we use the architectual type as a specifier,
+not an implementation type.   Our architectural types of spelled out suffices, .e.g.
+'tape-machine', while our implementations have abreviated suffixes such as 'tm'.
+
+;;
+this says that a typed function written to take an argument of an solo-tape-machine
+or that of an nd-tape-machine, will also accept an argument of type haz-tape-machine.
+
+  (def-type haz-tape-machine (solo-tape-machine nd-tape-machine)())
+
+where as this says that the data format of an instance of list-haz-tm is a composite
+of the formats for list-solo-tm and list-nd-tm:
+
+  (def-type list-haz-tm (haz-tape-machine list-solo-tm list-nd-tm)())
+
+These are two very different statements.  The first one speaks to architecture (aka
+interface definition, aka abstract data type) while the second speaks to actual
+format of data in memory (aka implementation).
+
+.. should add a macro def-interface  to be used in place of def-type when defining
+the interface.  We drop the option of having slots:
+
+  (def-abstract-type haz-tape-machine (solo-tape-machine nd-tape-machine))
+  (def-format-type list-haz-tm (haz-tape-machine list-solo-tm list-nd-tm)())
+
+or perhaps
+
+  (def-interface haz-tape-machine (solo-tape-machine nd-tape-machine))
+  (def-implementation list-haz-tm (haz-tape-machine list-solo-tm list-nd-tm)())
+
+
+Then all defun-typed functions use interface specifiers.  Mk calls use implementations.
 
 3. defgeneric does not allow the definition of optional values on arguments that are
 common to all methods.  We can get around this by having a function, say f, with optional

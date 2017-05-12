@@ -17,7 +17,9 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type ea-tm (status-tm)
+  (def-type ea-tape-machine (status-tape-machine)())
+
+  (def-type ea-tm (ea-tape-machine status-tm)
     (
       (entanglements
         :initarg :entanglements

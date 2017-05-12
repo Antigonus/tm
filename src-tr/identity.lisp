@@ -18,7 +18,9 @@ have the base forms called).]
 ;;--------------------------------------------------------------------------------
 ;; a tape machine
 ;;
-  (def-type identity-tr (tape-machine)
+  (def-type identity-transform (haz-tape-machine)())
+
+  (def-type identity-tr (identity-transform)
     (
       (base ; the machine we transform
         :initarg base
