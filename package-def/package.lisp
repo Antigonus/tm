@@ -191,6 +191,13 @@ they belong to.
       #:-a
       #:-d
 
+
+    ;;
+    ;; copying
+      #:c ; a shallow copy
+      #:c-fit ; procrustrean version
+
+
     ;;list implementations
     ;;
       #:list-tm
@@ -202,6 +209,9 @@ they belong to.
       #:bilist-nd-tm
       #:bilist-solo-tm
       #:bilist-haz-tm
+
+   
+
 
 ;;;--------------------------------------------------------------------------------
 ;;; src-generators
@@ -221,8 +231,6 @@ they belong to.
     ;;
       #:idenity-tr ; type
       #:ensemble-tr  ; type
-      #:copy-shallow ; here becauses it uses ensemble
-      #:copy-shallow-fit ; here becauses it uses ensemble
 
 ;;;--------------------------------------------------------------------------------
 ;;; src-second-level

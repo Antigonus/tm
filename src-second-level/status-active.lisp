@@ -21,7 +21,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (defun-typed copy-shallow ((src active) (dst empty)  &optional ➜)
+  (defun-typed c ((src active) (dst empty)  &optional ➜)
     (destructuring-bind
       (&key
         (➜dst-full (be ∅))  ;; but still instances uncopied from src
@@ -31,9 +31,9 @@ a collision error.  Hence behavior is inherited from the identity transform.
       [➜dst-full]
       ))
 
-  (defun-typed copy-shallow ((src active) (dst parked)  &optional ➜)
+  (defun-typed c ((src active) (dst parked)  &optional ➜)
     (h◧ dst)
-    (copy-shallow src dst ➜)
+    (c src dst ➜)
     )
 
 ;;--------------------------------------------------------------------------------

@@ -20,12 +20,12 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (defun-typed copy-shallow ((src abandoned) (dst tape-machine)  &optional ➜)
+  (defun-typed c ((src abandoned) (dst tape-machine)  &optional ➜)
     (declare (ignore src dst ➜))
     (operation-on-abandoned)
     )
 
-  (defun-typed copy-shallow ((src tape-machine) (dst abandoned)  &optional ➜)
+  (defun-typed c ((src tape-machine) (dst abandoned)  &optional ➜)
     (declare (ignore src dst ➜))
     (operation-on-abandoned)
     )

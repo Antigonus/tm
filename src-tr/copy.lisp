@@ -11,8 +11,8 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-function-class copy-shallow (src dst &optional ➜))
-  (def-function-class copy-shallow-fit (src dst))
+  (def-function-class c (src dst &optional ➜))
+  (def-function-class c-fit (src dst))
 
   ;; src is a resource we pull from
   ;; dst is a container we are filling
@@ -27,7 +27,7 @@ See LICENSE.txt
   ;;     ➜src-depleted: the last cell already written, or if appropriate, empty
   ;;     ➜dst-full: the last cell already written, or if appropriate, empty
   ;;
-  (defun-typed copy-shallow ((src tape-machine) (dst tape-machine) &optional ➜)
+  (defun-typed c ((src tape-machine) (dst tape-machine) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be 'ok))
@@ -59,8 +59,8 @@ See LICENSE.txt
   ;;   src on leftost cell to be copied from
   ;;   dst on leftmost cell to be copied to
   ;;
-  (defun-typed copy-shallow-fit ((src tape-machine) (dst tape-machine))
-    (copy-shallow src dst
+  (defun-typed c-fit ((src tape-machine) (dst tape-machine))
+    (c src dst
       {
         :➜ok (be t)
 

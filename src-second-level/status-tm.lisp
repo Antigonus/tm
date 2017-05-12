@@ -48,7 +48,7 @@ overridden.
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (defun-typed copy-shallow ((src tape-machine) (dst empty)  &optional ➜)
+  (defun-typed c ((src tape-machine) (dst empty)  &optional ➜)
     (destructuring-bind
       (&key
         (➜dst-full (be ∅))
@@ -58,9 +58,9 @@ overridden.
       [➜dst-full]
       ))
 
-  (defun-typed copy-shallow ((src tape-machine) (dst parked)  &optional ➜)
+  (defun-typed c ((src tape-machine) (dst parked)  &optional ➜)
     (s dst {:➜ok #'do-nothing :➜rightmost #'cant-happen})
-    (copy-shallow src dst ➜)
+    (c src dst ➜)
     )
 
 ;;--------------------------------------------------------------------------------

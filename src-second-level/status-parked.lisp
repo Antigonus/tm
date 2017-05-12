@@ -25,7 +25,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (defun-typed copy-shallow ((src parked) (dst empty)  &optional ➜)
+  (defun-typed c ((src parked) (dst empty)  &optional ➜)
     (destructuring-bind
       (&key
         (➜dst-full (be ∅))  ;; but still instances uncopied from src
@@ -36,15 +36,15 @@ See LICENSE.txt
       [➜dst-full]
       ))
 
-  (defun-typed copy-shallow ((src parked) (dst parked)  &optional ➜)
+  (defun-typed c ((src parked) (dst parked)  &optional ➜)
     (h◧ src)
     (h◧ dst)
-    (copy-shallow src dst ➜)
+    (c src dst ➜)
     )
 
-  (defun-typed copy-shallow ((src parked) (dst tape-machine) &optional ➜)
+  (defun-typed c ((src parked) (dst tape-machine) &optional ➜)
     (h◧ src)
-    (copy-shallow src dst ➜)
+    (c src dst ➜)
     )
 
 ;;--------------------------------------------------------------------------------

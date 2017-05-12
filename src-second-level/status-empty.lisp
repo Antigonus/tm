@@ -137,7 +137,7 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (defun-typed copy-shallow ((src empty) (dst empty)  &optional ➜)
+  (defun-typed c ((src empty) (dst empty)  &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -146,7 +146,7 @@ belonging to a machine that has a parked head.
       ➜
       [➜ok]
       ))
-  (defun-typed copy-shallow ((src empty) (dst tape-machine)  &optional ➜)
+  (defun-typed c ((src empty) (dst tape-machine)  &optional ➜)
     (destructuring-bind
       (&key
         (➜src-depleted (be ∅)) ;; but still room on dst
@@ -156,12 +156,12 @@ belonging to a machine that has a parked head.
       [➜src-depleted]
       ))
 
-  (defun-typed copy-shallow-fit ((src empty) (dst empty))
+  (defun-typed c-fit ((src empty) (dst empty))
     (declare (ignore src dst))
     t
     )
 
-  (defun-typed copy-shallow-fit ((src empty) (dst status-tape-machine))
+  (defun-typed c-fit ((src empty) (dst status-tape-machine))
     (declare (ignore src))
     (hp dst)
     (d* dst)
