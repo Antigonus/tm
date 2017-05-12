@@ -32,6 +32,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
+      (c◧ src)
       [➜dst-full]
       ))
 

@@ -16,10 +16,10 @@ See LICENSE.txt
         (copy-shallow src dst
           {
             :➜ok (be 10) 
-            :➜dst-full (be 11)
-            :➜src-depleted (be 12)
+            :➜src-depleted (be 11)
+            :➜dst-full (be 12)
             })
-        12
+        11
         )
       (equal (tape dst) (q 1 2 3 4 e f))
       (eq (r src) 4)
@@ -34,11 +34,11 @@ See LICENSE.txt
         )
     (∧
       (=
-        (copy-shallow src dst {:➜ok (be 10) :➜dst-full (be 11) :➜src-depleted (be 12)})
-        11
+        (copy-shallow src dst {:➜ok (be 10) :➜src-depleted (be 11) :➜dst-full (be 12)})
+        12
         )
       (equal (tape dst) (q a b c d))
-      (eq (r src) 'd)
+      (eq (r src) 'e)
       (eq (r dst) 'd)
       )))
 (test-hook test-copy-shallow-1)

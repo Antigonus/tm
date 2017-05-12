@@ -156,6 +156,17 @@ belonging to a machine that has a parked head.
       [➜src-depleted]
       ))
 
+  (defun-typed copy-shallow-fit ((src empty) (dst empty))
+    (declare (ignore src dst))
+    t
+    )
+
+  (defun-typed copy-shallow-fit ((src empty) (dst status-tape-machine))
+    (declare (ignore src))
+    (cp dst)
+    (d* dst)
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions

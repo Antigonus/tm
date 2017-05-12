@@ -16,26 +16,49 @@ See LICENSE.txt
 
   ;; src is a resource we pull from
   ;; dst is a container we are filling
+  ;;
+  ;; after call tape is left on:
+  ;;   src
+  ;;     ➜ok: rightmost
+  ;;     ➜src-depleted: the rightmost cell that has been copied, or if appropriate, empty
+  ;;     ➜dst-full: the cell we would have copied had dst not been full
+  ;;   dst
+  ;;     ➜ok: rightmost
+  ;;     ➜src-depleted: the last cell already written, or if appropriate, empty
+  ;;     ➜dst-full: the last cell already written, or if appropriate, empty
+  ;;
   (defun-typed copy-shallow ((src tape-machine) (dst tape-machine) &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok (be t))
-        (➜src-depleted (be ∅)) ;; but still room on dst
-        (➜dst-full (be ∅))  ;; but still instances uncopied from src
+        (➜ok (be 'ok))
+        (➜src-depleted (be 'src-depleted)) ;; room remains on dst
+        (➜dst-full (be 'dst-full))  ;; uncopied instances remain on src
         &allow-other-keys
         )
       ➜
-      (let(
-            (ens (mk 'ensemble-tr {:list {src dst}}))
-            )
-        (∀* ens (λ(ens)(declare (ignore ens)) (w dst (r src))))
-        (cond
-          ((∧ (on-rightmost src) (on-rightmost dst)) [➜ok])
-          ((on-rightmost src) [➜src-depleted])
-          (t [➜dst-full])
-          ))))
+      (∀ dst
+        (λ(dst ct c∅)
+          (w dst (r src))
+          (s src
+            {
+              :➜ok ct
+              :➜rightmost c∅
+              }))
+        {
+          :➜t ➜dst-full
+          :➜∅ (λ()
+                (on-rightmost dst
+                  {
+                    :➜t ➜ok
+                    :➜∅ ➜src-depleted
+                    }))
+          })))
 
   ;; the Procrustean version ..
+  ;; upon entry:
+  ;;   src on leftost cell to be copied from
+  ;;   dst on leftmost cell to be copied to
+  ;;
   (defun-typed copy-shallow-fit ((src tape-machine) (dst tape-machine))
     (copy-shallow src dst
       {
@@ -45,14 +68,8 @@ See LICENSE.txt
         (λ()(d* dst))
 
         :➜dst-full
-        (λ()
-          (s src {:➜ok #'do-nothing :➜rightmost #'cant-happen})
-          (∀* src (λ(src)(as dst (r src)))))
+        (λ()(∀* src (λ(src)(as dst (r src)))))
+
         }))
 
-#|
-  (defun test-copy-shallow ()
-    (let(
-          (tm0 (mk 'list-tm {:tape {1 2 3 4}}))
-          (tm1 (mk 'list-tm {:
-|#        
+

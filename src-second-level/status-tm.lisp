@@ -45,6 +45,23 @@ overridden.
     (:documentation
       "Deallocates the tape"
       ))
+;;--------------------------------------------------------------------------------
+;; copy
+;;
+  (defun-typed copy-shallow ((src tape-machine) (dst empty)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜dst-full (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜dst-full]
+      ))
+
+  (defun-typed copy-shallow ((src tape-machine) (dst parked)  &optional ➜)
+    (s dst {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+    (copy-shallow src dst ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

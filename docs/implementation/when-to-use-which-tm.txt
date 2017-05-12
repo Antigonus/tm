@@ -1,0 +1,22 @@
+
+
+tm-print will only work on machines that we can entangle with, so nd-tape-machine
+is the most primitive option.
+
+when we want to emphasize that structural operations are not allowed, nd-tape-machine
+
+if we want to have the ability to make entangled copies, and have destructive operations,
+then ea-tape-machine with a base-type that implements a haz-tape-machine.
+
+if we would have chosen solo-tape-machine, but we need to tm-print (or perform any
+function that does not keep a copy, but only makes an entangled copy, works while
+performing no destructive operations, and then returns, within a single thread) then
+haz-tape-machine.
+
+If you don't need entanglement accounting, but the machine must have the ability
+to be empty, status-tape-machine.
+
+if the machine is used across threads - a ts1-tape-machine.
+
+If you don't know, and in a single threaded environment, ea-tape-machine.
+
