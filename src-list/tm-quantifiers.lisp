@@ -69,7 +69,7 @@ See LICENSE.txt
 ;;
 ;; careful:
 ;;
-;; The quantifiers start where the head is located, they do not c◧ first.  I do
+;; The quantifiers start where the head is located, they do not h◧ first.  I do
 ;; this so that prefix values may be processed before calling a quantifier.
 ;;
 ;; I pass to the predicate the entire tape machine, rather than just the instance in the
@@ -82,14 +82,14 @@ See LICENSE.txt
     (def-function-class ∃ (tm pred &optional ➜t ➜∅))
     (def-function-class ∀ (tm pred &optional ➜t ➜∅))
 
-    (def-function-class c◧∃ (tm pred &optional ➜t ➜∅))
-    (def-function-class c◧∀ (tm pred &optional ➜t ➜∅))
+    (def-function-class h◧∃ (tm pred &optional ➜t ➜∅))
+    (def-function-class h◧∀ (tm pred &optional ➜t ➜∅))
 
     (def-function-class ∃* (tm pred))
     (def-function-class ∀* (tm fun))
 
-    (def-function-class c◧∃* (tm pred))
-    (def-function-class c◧∀* (tm fun))
+    (def-function-class h◧∃* (tm pred))
+    (def-function-class h◧∀* (tm fun))
 
 
   ;; Seems that at least some errors in threads will cause the thread to hang ..
@@ -109,8 +109,8 @@ See LICENSE.txt
       )
     )
 
-  (defun-typed c◧∃ ((tm tape-machine) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧ tm)
+  (defun-typed h◧∃ ((tm tape-machine) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (h◧ tm)
     (∃ tm pred ➜t ➜∅)
     )
 
@@ -121,8 +121,8 @@ See LICENSE.txt
     (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) ➜∅ ➜t)
     )
 
-  (defun-typed c◧∀ ((tm tape-machine) pred &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧ tm)
+  (defun-typed h◧∀ ((tm tape-machine) pred &optional (➜t (be t)) (➜∅ (be ∅)))
+    (h◧ tm)
     (∀ tm pred ➜t ➜∅)
     )
 
@@ -149,8 +149,8 @@ See LICENSE.txt
       (cons true-count false-count)
       ))
 
-  (defun-typed c◧∃* ((tm tape-machine) pred)
-    (c◧ tm)
+  (defun-typed h◧∃* ((tm tape-machine) pred)
+    (h◧ tm)
     (∃ tm pred)
     )
 
@@ -166,8 +166,8 @@ See LICENSE.txt
             }
           ))))
 
-  (defun-typed c◧∀* ((tm tape-machine) function)
-    (c◧ tm)
+  (defun-typed h◧∀* ((tm tape-machine) function)
+    (h◧ tm)
     (∀* tm function)
     )
 

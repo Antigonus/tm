@@ -13,7 +13,7 @@ See LICENSE.txt
 
   ;machine in entanglement group is on ◧ ?
   (defun entangled-on-leftmost (es &optional (➜t (be t)) (➜∅ (be ∅)))
-    (c◧∃ es
+    (h◧∃ es
       (λ(es ct c∅)
         (if
           (∧

@@ -142,7 +142,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
 
     ;; recursive has no esw function
 
-    (defun-typed ec◧r ((tm recursive) &optional ➜)
+    (defun-typed eh◧r ((tm recursive) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -151,7 +151,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
         [➜ok (initial tm)]
         ))
 
-    (defun-typed ec◧sr ((tm recursive) &optional ➜)
+    (defun-typed eh◧sr ((tm recursive) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -165,7 +165,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
           ]
         ))
 
-    (defun-typed ec◧w ((tm recursive) instance &optional ➜)
+    (defun-typed eh◧w ((tm recursive) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
@@ -176,12 +176,12 @@ implement the comparison of two machines as per #'head-on-same-cell.
         [➜ok]
         ))
 
-    ;; recursive has no ec◧sw function
+    ;; recursive has no eh◧sw function
 
   ;;--------------------------------------------------------------------------------
   ;; absolute head placement
   ;;
-    (defun-typed c◧ ((tm recursive) &optional ➜)
+    (defun-typed h◧ ((tm recursive) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))

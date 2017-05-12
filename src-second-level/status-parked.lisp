@@ -32,25 +32,25 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (c◧ src)
+      (h◧ src)
       [➜dst-full]
       ))
 
   (defun-typed copy-shallow ((src parked) (dst parked)  &optional ➜)
-    (c◧ src)
-    (c◧ dst)
+    (h◧ src)
+    (h◧ dst)
     (copy-shallow src dst ➜)
     )
 
   (defun-typed copy-shallow ((src parked) (dst tape-machine) &optional ➜)
-    (c◧ src)
+    (h◧ src)
     (copy-shallow src dst ➜)
     )
 
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed cp ((tm parked) &optional ➜)
+  (defun-typed hp ((tm parked) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -73,9 +73,9 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm ➜t (λ()(c◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
+      [pred tm ➜t (λ()(h◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
       ))
-  (defun-typed cp∃ ((tm parked) pred &optional ➜)
+  (defun-typed hp∃ ((tm parked) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -94,9 +94,9 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm (λ()(c◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
+      [pred tm (λ()(h◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
       ))
-  (defun-typed cp∀ ((tm parked) pred &optional ➜)
+  (defun-typed hp∀ ((tm parked) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -111,27 +111,27 @@ See LICENSE.txt
     [pred tm 
       (λ()
         (let(
-              (counts (c◧∃* tm pred))
+              (counts (h◧∃* tm pred))
               )
           (cons (1+ (car counts)) (1+ (cdr counts)))
           ))
       (λ()
         (let(
-              (counts (c◧∃* tm pred))
+              (counts (h◧∃* tm pred))
               )
           (cons (car counts) (1+ (cdr counts)))
           ))
       ])
 
-  (defun-typed cp∃* ((tm parked) pred)
+  (defun-typed hp∃* ((tm parked) pred)
     (∃* tm pred)
     )
 
   (defun-typed ∀* ((tm parked) function)
     [function tm]
-    (c◧∀* tm function)
+    (h◧∀* tm function)
     )
-  (defun-typed cp∀* ((tm parked) function)
+  (defun-typed hp∀* ((tm parked) function)
     (∀* tm function)
     )
 
@@ -161,13 +161,13 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm parked) &optional ➜) (ec◧r tm ➜))
+  (defun-typed esr ((tm parked) &optional ➜) (eh◧r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm parked) instance &optional ➜) (ec◧w tm ➜))
+  (defun-typed esw ((tm parked) instance &optional ➜) (eh◧w tm ➜))
 
-  (defun-typed c◧ ((tm parked) &optional ➜)
+  (defun-typed h◧ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -178,8 +178,8 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed s ((tm parked) &optional ➜) (c◧ tm ➜))
-  (defun-typed -s ((tm parked) &optional ➜) (c◨ tm ➜))
+  (defun-typed s ((tm parked) &optional ➜) (h◧ tm ➜))
+  (defun-typed -s ((tm parked) &optional ➜) (h◨ tm ➜))
 
   (defun-typed a ((tm parked) instance &optional ➜) (a◧ tm instance ➜))
 
@@ -208,14 +208,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed c◨ ((tm parked) &optional ➜)
+  (defun-typed h◨ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (c◨ (base tm)
+      (h◨ (base tm)
         {
           :➜ok (λ()(to-active tm)[➜ok])
           }
@@ -235,7 +235,7 @@ See LICENSE.txt
       (a◧ (base tm) instance
         {
           :➜ok (λ()
-                 (c◧ (base tm)) ; for a parked machine we always leave the base head on leftmost
+                 (h◧ (base tm)) ; for a parked machine we always leave the base head on leftmost
                  (incf (address-rightmost tm))
                  [➜ok]
                  )
@@ -370,7 +370,7 @@ See LICENSE.txt
       (entangled tm0 tm1
         {
           :➜t ➜rightmost
-          :➜∅ (λ()(c◧ tm0 ➜))
+          :➜∅ (λ()(h◧ tm0 ➜))
           }
         )))
 
@@ -381,6 +381,6 @@ See LICENSE.txt
       &optional ➜
       )
     (declare (ignore tm1))
-    (c◧ tm0 ➜)
+    (h◧ tm0 ➜)
     )
 

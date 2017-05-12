@@ -32,7 +32,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
       ))
 
   (defun-typed copy-shallow ((src active) (dst parked)  &optional ➜)
-    (c◧ dst)
+    (h◧ dst)
     (copy-shallow src dst ➜)
     )
 
@@ -41,7 +41,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;
 
   ;; cue the head to the parking spot
-  (defun-typed cp ((tm active) &optional ➜)
+  (defun-typed hp ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -49,7 +49,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (c◧ (base tm)
+       (h◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -62,7 +62,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (defun-typed cp∃ ((tm active) pred &optional ➜)
+  (defun-typed hp∃ ((tm active) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -70,10 +70,10 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (cp tm)
+      (hp tm)
       (∃ tm {:➜t ➜t :➜∅ ➜∅})
       ))
-  (defun-typed cp∀ ((tm active) pred &optional ➜)
+  (defun-typed hp∀ ((tm active) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -81,15 +81,15 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      (cp tm)
+      (hp tm)
       (∀ tm {:➜t ➜t :➜∅ ➜∅})
       ))
-  (defun-typed cp∃* ((tm active) pred)
-    (cp tm)
+  (defun-typed hp∃* ((tm active) pred)
+    (hp tm)
     (∃* tm pred)
     )
-  (defun-typed cp∀* ((tm active) function)
-    (cp tm)
+  (defun-typed hp∀* ((tm active) function)
+    (hp tm)
     (∀* tm function)
     )
 
@@ -103,7 +103,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed c◧ ((tm active) &optional ➜)
+  (defun-typed h◧ ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -111,7 +111,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (c◧ (base tm)
+       (h◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -192,14 +192,14 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed c◨ ((tm active) &optional ➜)
+  (defun-typed h◨ ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (c◨ (base tm)
+      (h◨ (base tm)
         {
           :➜ok (λ()
                  (setf (address tm) (address-rightmost tm))

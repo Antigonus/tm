@@ -49,7 +49,7 @@ See LICENSE.txt
          (tm1 (mk 'ea-tm {:base tm0}))
          )
     (∧
-      (cp tm1)
+      (hp tm1)
       (= (d◧ tm1) 1)
       (= (d◧ tm1) 2)
       (= (d◧ tm1) 3)
@@ -66,11 +66,11 @@ See LICENSE.txt
     (with-entangled tm1
       (λ(tm2)
         (∧
-          (cp tm1)
+          (hp tm1)
           ;; this has a collision with tm2's head
           ;;
           (= (d◧ tm1 ∅ {:➜ok #'echo :➜collision (be 7)}) 7)
-          (cp tm2)
+          (hp tm2)
           (= (d◧ tm1) 1)
           (= (d◧ tm1) 2)
           (= (d◧ tm1) 3)
@@ -87,7 +87,7 @@ See LICENSE.txt
       (typep tm0 'tape-machine)
       (typep tm1 'ea-tm)
       (typep tm1 'status-tm)
-      (cp tm1)
+      (hp tm1)
       (typep tm1 'ea-parked)
       (typep tm1 'parked)
       (d tm1)
@@ -141,11 +141,11 @@ See LICENSE.txt
       (¬ (entangled-on-same-cell tm20))
       (s tm20)
       (entangled-on-same-cell tm20)
-      (cp tm22)
+      (hp tm22)
       (entangled-on-same-cell tm20)
-      (cp tm21)
+      (hp tm21)
       (¬ (entangled-on-same-cell tm20))
-      (cp tm20)
+      (hp tm20)
       (¬ (entangled-on-same-cell tm20)) ; the head is not on a cell, so can't be on the same cell
       (¬ (entangled-on-leftmost (entanglements tm20)))
       )))

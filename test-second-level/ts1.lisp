@@ -51,7 +51,7 @@ See LICENSE.txt
     (∧
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (cp tm1)
+      (hp tm1)
       (= (address-rightmost tm1) 2) 
       (= (d◧ tm1) 1)
       (= (address-rightmost tm1) 1) 
@@ -75,7 +75,7 @@ See LICENSE.txt
       (typep tm1 'active)
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (cp tm1)
+      (hp tm1)
       (typep tm1 'ts1-parked)
       (typep tm1 'parked)
       (d tm1)
@@ -135,7 +135,7 @@ See LICENSE.txt
                       (∀ tm-sum
                         (λ(tm-sum ct c∅)
                           (declare (ignore tm-sum))
-                          (c◧ tm22)
+                          (h◧ tm22)
                           (setf actual-sum 0)
                           (∀* tm22 (λ(tm22) (setf actual-sum (+ actual-sum (r tm22)))))
                           (if
@@ -193,7 +193,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .001)
       ))
-  (cp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (hp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)
@@ -347,8 +347,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (c◧ tm11)
-        (c◧ tm31)
+        (h◧ tm11)
+        (h◧ tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))
@@ -386,7 +386,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .0025)
       ))
-  (cp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (hp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)
@@ -516,8 +516,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (c◧ tm11)
-        (c◧ tm31)
+        (h◧ tm11)
+        (h◧ tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))

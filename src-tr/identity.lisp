@@ -82,10 +82,10 @@ have the base forms called).]
   (def-identity-tr-1 w instance)
   (def-identity-tr-1 esw instance)
 
-  (def-identity-tr-1 ec◧r)
-  (def-identity-tr-1 ec◧w instance)
+  (def-identity-tr-1 eh◧r)
+  (def-identity-tr-1 eh◧w instance)
 
-  (def-identity-tr-1 c◧)
+  (def-identity-tr-1 h◧)
   (def-identity-tr-1 s)
   (def-identity-tr-1 a instance)
   (def-identity-tr-1 on-leftmost)

@@ -22,7 +22,7 @@ functions shared by parked and active
       ➜
       (labels(
                (fix-tapes-inc-addresses ()
-                 (c◧∀* (entanglements tm)
+                 (h◧∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))
@@ -31,7 +31,7 @@ functions shared by parked and active
                          (update-tape-after-a◧ (base etm) (base tm))
                          (if
                            (typep etm 'parked)
-                           (c◧ (base etm))
+                           (h◧ (base etm))
                            (incf (address etm))
                            )
                          (incf (address-rightmost etm))
@@ -65,7 +65,7 @@ functions shared by parked and active
           ;;so we transition to empty
           (make-empty () 
             (w (base tm) ∅)
-            (c◧∀* (entanglements tm) 
+            (h◧∀* (entanglements tm) 
               (λ(es)
                 (let(
                       (etm (r es))
@@ -77,7 +77,7 @@ functions shared by parked and active
           ;;when this is called:
           ;;   -we already checked we are not on rightmost (there is a cell to step to)
           (step-parked-machines () 
-            (c◧∀* (entanglements tm)
+            (h◧∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
@@ -88,7 +88,7 @@ functions shared by parked and active
                       ))))))
           
           (fix-tapes-dec-addresses ()
-            (c◧∀* (entanglements tm)
+            (h◧∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
@@ -105,7 +105,7 @@ functions shared by parked and active
           ➜collision
           (λ()
             (let(
-                  (spill-instance (ec◧r (base tm)))
+                  (spill-instance (eh◧r (base tm)))
                   )
               (labels(
                        (delete-0 ()

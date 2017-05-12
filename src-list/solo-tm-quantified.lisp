@@ -15,9 +15,9 @@ See LICENSE.txt
       "Deallocate the right hand side of the tape."
       ))
 
-   ;;; It doesn't make sense to have d◧*, (which would be the same as ecpd* for a status
+   ;;; It doesn't make sense to have d◧*, (which would be the same as ehpd* for a status
    ;;; machine) because it results in a collision in all cases except when the head is on
-   ;;; leftmost. Instead do c◧ followed by d*
+   ;;; leftmost. Instead do h◧ followed by d*
 
   (def-function-class dn (tm n &optional spill ➜)
     (:documentation

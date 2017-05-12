@@ -16,7 +16,7 @@ See LICENSE.txt
       (on-leftmost tm1)
       (= (r tm1) 7)
       (¬ (on-rightmost tm1))
-      (c◨ tm1)
+      (h◨ tm1)
       (¬ (on-leftmost tm1))
       (on-rightmost tm1)
       (= (r tm1) -3)
@@ -54,7 +54,7 @@ See LICENSE.txt
          (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
-      (c◨ tm1)
+      (h◨ tm1)
       (a&h◨ tm1 77)
       (= (r tm1) -3)
       (¬ (on-rightmost tm1))
@@ -72,7 +72,7 @@ See LICENSE.txt
          (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
-      (c◨ tm1)
+      (h◨ tm1)
       (as&h◨ tm1 77)
       (= (r tm1) 77)
       (on-rightmost tm1)

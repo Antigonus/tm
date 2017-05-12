@@ -57,7 +57,7 @@ See LICENSE.txt
         (&key tape &allow-other-keys) init-parms
         (cond
           ((∧ tape (typep tape 'sequence))
-            (c◧ tm)
+            (h◧ tm)
             (w tm (elt tape 0))
             (loop
               for item in (subseq tape 1) do

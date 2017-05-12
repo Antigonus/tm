@@ -28,20 +28,20 @@ overridden.
     )
 
   ;; cue head to parked
-  (def-function-class cp (tm &optional ➜)) ; handled by subtypes
+  (def-function-class hp (tm &optional ➜)) ; handled by subtypes
 
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
 ;;
-  (def-function-class cp∃ (tm pred &optional ➜))
-  (def-function-class cp∀ (tm pred &optional ➜))
-  (def-function-class cp∃* (tm pred))
-  (def-function-class cp∀* (tm function))
+  (def-function-class hp∃ (tm pred &optional ➜))
+  (def-function-class hp∀ (tm pred &optional ➜))
+  (def-function-class hp∃* (tm pred))
+  (def-function-class hp∀* (tm function))
 
 ;;--------------------------------------------------------------------------------
 ;; quantified
 ;;
-  (def-function-class cpd* (tm &optional spill ➜)
+  (def-function-class hpd* (tm &optional spill ➜)
     (:documentation
       "Deallocates the tape"
       ))

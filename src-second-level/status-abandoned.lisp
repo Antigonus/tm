@@ -33,7 +33,7 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (def-abandoned-1 cp)
+  (def-abandoned-1 hp)
 
 ;;--------------------------------------------------------------------------------
 ;; quantifiers
@@ -43,11 +43,11 @@ don't provide a continuation for it.
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∃ ((tm abandoned) pred &optional ➜)
+  (defun-typed h◧∃ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed cp∃ ((tm abandoned) pred &optional ➜)
+  (defun-typed hp∃ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -57,11 +57,11 @@ don't provide a continuation for it.
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∀ ((tm abandoned) pred &optional ➜)
+  (defun-typed h◧∀ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed cp∀ ((tm abandoned) pred &optional ➜)
+  (defun-typed hp∀ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -70,11 +70,11 @@ don't provide a continuation for it.
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∃* ((tm abandoned) pred)
+  (defun-typed h◧∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed cp∃* ((tm abandoned) pred)
+  (defun-typed hp∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
@@ -83,11 +83,11 @@ don't provide a continuation for it.
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed c◧∀* ((tm abandoned) function)
+  (defun-typed h◧∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed cp∀* ((tm abandoned) function)
+  (defun-typed hp∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
@@ -108,10 +108,10 @@ don't provide a continuation for it.
   (def-abandoned-1 w instance)
   (def-abandoned-1 esw instance)
 
-  (def-abandoned-1 ec◧r)
-  (def-abandoned-1 ec◧w instance)
+  (def-abandoned-1 eh◧r)
+  (def-abandoned-1 eh◧w instance)
 
-  (def-abandoned-1 c◧)
+  (def-abandoned-1 h◧)
   (def-abandoned-1 s)
   (def-abandoned-1 -s)
   (def-abandoned-1 a instance)
@@ -124,7 +124,7 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-abandoned-1 c◨)
+  (def-abandoned-1 h◨)
   (def-abandoned-1 as instance) 
   (def-abandoned-1 a&h◨ instance)
   (def-abandoned-1 as&h◨ instance)

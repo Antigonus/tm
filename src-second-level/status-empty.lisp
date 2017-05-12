@@ -40,7 +40,7 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
   ;; no existence case can be found independent of head initialization
-  (defun-typed c◧∃ ((tm empty) pred &optional ➜)
+  (defun-typed h◧∃ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -50,7 +50,7 @@ belonging to a machine that has a parked head.
       ➜
       [➜∅]
       ))
-  (defun-typed cp∃ ((tm empty) pred &optional ➜)
+  (defun-typed hp∃ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -73,7 +73,7 @@ belonging to a machine that has a parked head.
       ➜
       [➜t]
       ))
-  (defun-typed c◧∀ ((tm empty) pred &optional ➜)
+  (defun-typed h◧∀ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -83,7 +83,7 @@ belonging to a machine that has a parked head.
       ➜
       [➜t]
       ))
-  (defun-typed cp∀ ((tm empty) pred &optional ➜)
+  (defun-typed hp∀ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -98,11 +98,11 @@ belonging to a machine that has a parked head.
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed c◧∃* ((tm empty) pred)
+  (defun-typed h◧∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed cp∃* ((tm empty) pred)
+  (defun-typed hp∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
@@ -111,11 +111,11 @@ belonging to a machine that has a parked head.
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed c◧∀* ((tm empty) function)
+  (defun-typed h◧∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed cp∀* ((tm empty) function)
+  (defun-typed hp∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
@@ -163,7 +163,7 @@ belonging to a machine that has a parked head.
 
   (defun-typed copy-shallow-fit ((src empty) (dst status-tape-machine))
     (declare (ignore src))
-    (cp dst)
+    (hp dst)
     (d* dst)
     )
 
@@ -172,7 +172,7 @@ belonging to a machine that has a parked head.
 ;; status-tm definitions
 ;;
   ;; an empty machine is already parked
-  (defun-typed cp ((tm empty) &optional ➜)
+  (defun-typed hp ((tm empty) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -218,7 +218,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (def-empty-1 c◧)
+  (def-empty-1 h◧)
 
   (defun-typed s ((tm empty) &optional ➜)
     (declare (ignore tm))
@@ -299,7 +299,7 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-empty-1 c◨)
+  (def-empty-1 h◨)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only

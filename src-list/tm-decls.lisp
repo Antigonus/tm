@@ -28,17 +28,17 @@ functions.
   (def-function-class w (tm instance &optional ➜))
   (def-function-class esw (tm instance &optional ➜))
 
-  (def-function-class ec◧r (tm &optional ➜))
-  (def-function-class ec◧sr (tm &optional ➜))
+  (def-function-class eh◧r (tm &optional ➜))
+  (def-function-class eh◧sr (tm &optional ➜))
 
-  (def-function-class ec◧w (tm instance &optional ➜))
-  (def-function-class ec◧sw (tm instance &optional ➜))
+  (def-function-class eh◧w (tm instance &optional ➜))
+  (def-function-class eh◧sw (tm instance &optional ➜))
 
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (def-function-class c◧ (tm &optional ➜))
+  (def-function-class h◧ (tm &optional ➜))
 
 
 ;;--------------------------------------------------------------------------------

@@ -13,7 +13,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed c◧ ((tm ts1-tm) &optional ➜)
+  (defun-typed h◧ ((tm ts1-tm) &optional ➜)
     (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
@@ -50,7 +50,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;--------------------------------------------------------------------------------
   ;; cueing
   ;;  
-    (defun-typed c◨ ((tm ts1-tm) &optional ➜)
+    (defun-typed h◨ ((tm ts1-tm) &optional ➜)
       (bt:with-recursive-lock-held ((deed tm))
         (call-next-method tm ➜)
         ))

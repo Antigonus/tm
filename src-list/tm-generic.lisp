@@ -13,12 +13,12 @@ new tape machine implementation to specialize them.
 ;;--------------------------------------------------------------------------------
 ;; cueing
 ;;  
-  (def-function-class c◨ (tm &optional ➜)
+  (def-function-class h◨ (tm &optional ➜)
     (:documentation
       "Cue tm's head to the rightmost cell."
       ))
 
-  (defun-typed c◨ ((tm tape-machine) &optional ➜)
+  (defun-typed h◨ ((tm tape-machine) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

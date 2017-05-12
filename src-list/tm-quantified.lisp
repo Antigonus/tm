@@ -53,19 +53,19 @@ See LICENSE.txt
 
   (def-function-class s* (tm)
     (:documentation 
-      "This is a synonym for c◨. There is no guarantee that intermediate
+      "This is a synonym for h◨. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defun-typed s* ((tm tape-machine)) (c◨ tm))
+  (defun-typed s* ((tm tape-machine)) (h◨ tm))
 
   (def-function-class -s* (tm)
     (:documentation 
-      "This is a synonym for c◧. There is no guarantee that intermediate
+      "This is a synonym for h◧. There is no guarantee that intermediate
        cells will be visited."
       ))
 
-  (defun-typed -s*((tm tape-machine))(c◧ tm))
+  (defun-typed -s*((tm tape-machine))(h◧ tm))
 
   ;; note the fill data will be reversed at the tm insert point
   ;; use as* to fill without reversal
