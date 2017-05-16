@@ -169,6 +169,22 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
+  (defun-typed d ((tm active) &optional spill ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo) ; echoes the instance from the deleted cell
+        &allow-other-keys
+        )
+      ➜
+      (d (base tm) spill
+        {
+          :➜ok (λ(instance)
+                 (decf (address-rightmost tm))
+                 [➜ok instance]
+                 )
+          (o (remove-key-pair ➜ :➜ok))
+          })))
+
   (defun-typed d◧ ((tm active) &optional spill ➜)
     (destructuring-bind
       (&key
@@ -190,6 +206,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
             (o (remove-key-pair ➜ :➜ok))
             }))))
 
+  ;; machine can not be used after this operaton
   (defun-typed d. ((tm active) &optional spill ➜)
     (destructuring-bind
       (&key

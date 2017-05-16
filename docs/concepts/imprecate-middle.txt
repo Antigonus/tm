@@ -37,3 +37,21 @@
   set is empty,  so no case exists.  No case exists where pred it true,
   none exists where it is false.  so universal quantification is true for
   an empty set.
+
+
+3.  another interesting case
+
+   Is on-rightmost true for an empty machine?
+
+   on-rightmost is short for 'on rightmost cell' but the machine is not on
+   a cell. So on-rightmost is false.
+
+   step has only two responses,  ➜ok,  or ➜rightmost, we can't step, so
+   on-rightmost is true.
+
+   Perhaps ➜rightmost and on-rightmost should be renamed, perhaps to
+   ➜cant-step  and cant-step or some such.  Perhaps step should have
+   another continuation -- actually it already does, 'accessing-empty'.
+
+   Also note this issues relates to the quantiers, and their impricate cases.
+

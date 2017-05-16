@@ -131,3 +131,7 @@ Chapter 2
     and arrays don't need it.  However, entanglement accounting is done at the second
     level, where it is intended to work independent of the base implementation.
 
+    .. an indicator that the swap trick should be done, and then cue leftmost
+    fix for entangled machines, is that we then do not need to break the
+    model with 'update-after-a/d◧'. By using the swap trick, the second level
+    machines use the first level machines without modification.

@@ -172,3 +172,7 @@ add a time to wait as part of test-hook
 
 58. rename d◧ to epd (entangled copy, p, delete). 
      Then unambiguously, hp -> p h◧->◧ h◨->◨ 
+
+59. see the_story_of_swap  in docs,  implement the swap trick add the
+    update function to entanglement accounting, and remove the 'update-tape-after ..'
+    functions.

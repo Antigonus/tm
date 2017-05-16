@@ -95,26 +95,31 @@ belonging to a machine that has a parked head.
       (a◧ tm instance ➜)
       )
 
+  ;; note the doc on imprecate middle, this might be revised
+  ;; on leftmost implies the machine has been rewound is is ready
   (defun-typed on-leftmost ((tm empty) &optional ➜)
     (destructuring-bind
       (
         &key
-        (➜∅        (be ∅))
+        (➜t        (be t))
         &allow-other-keys
         )
       ➜
-      [➜∅]
+      [➜t]
       ))
 
+  ;; note the doc on imprecate middle, this might be revised
+  ;; there are no cells to the right
+  ;; can not step right from parked when the machine is empty
   (defun-typed on-rightmost ((tm empty) &optional ➜)
     (destructuring-bind
       (
         &key
-        (➜∅        (be ∅))
+        (➜t        (be t))
         &allow-other-keys
         )
       ➜
-      [➜∅]
+      [➜t]
       ))
 
   (defun-typed tape-length-is-one ((tm active) &optional ➜)
