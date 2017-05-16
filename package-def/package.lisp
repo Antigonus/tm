@@ -176,6 +176,7 @@ they belong to.
     ;;
       #:d*
       #:dn
+      #:filter
 
     ;;haz-tm-type
     ;;
