@@ -1,65 +1,133 @@
+        
+I. chapter 1 ;-)
 
-I discovered a cute trick for implementing deallocate leftmost, #'d◧, in a gereric manner
-(making it a 'derived' function), so that it does not have to be a primitive function.
-Every tape machine type has to implement all the primitive function, so this saves
-some work and reduces the risk of introducing bugs.  This is all good.
+  I discovered a cute trick for implementing deallocate leftmost, #'d◧, in a gereric manner
+  (making it a 'derived' function), so that it does not have to be a primitive function.
+  Every tape machine type has to implement all the primitive function, so this saves
+  some work and reduces the risk of introducing bugs.  This is all good.
 
-It goes like this, first I take the object in the right neighbor of leftmost, and I write
-it into leftmost.  Then I deallocate the right neighbor.
+  It goes like this, first I take the instance in the right neighbor of leftmost, and I
+  write it into leftmost.  Then I deallocate the right neighbor.
 
-Even if the leftmost being deallocated was being pointed at from a symbol
-table or such, this still works for creating the appearance of deallocating
-leftmost.
+  Even if the leftmost being deallocated was being pointed at from a symbol
+  table or such, this still works for creating the appearance of deallocating
+  leftmost.
 
-But I ran into two problems.  Firstly, in some structures end deallocation was possible,
-but middle allocation was not.  For example, I can displace an array base pointer,
-provided I can get to the base pointer, but I can't delete a cell out of it.  And actually
-I can get to the base pointer, as it lives in (tape tm).  Such pointers aren't from symbol
-tables, so this concern of symbol tables is unnecessary.  This problem with arrays was
-easily smoothed over by defining a leftmost dealloc method with a type signature on
-arrays.  But now there are multiple #'d◧ functions, so we lose some of the benefit.
+  But I ran into problems.  
 
-Then I revised the library to use transitioning dynamic types for tape machines.  This
-approach moves end case code to the dispatch.  As dispatch has to be done anyway, so this
-is a win. (My C++ version some years ago did this also.)  So a funciton like step, #'s,
-doesn't have to have end case checks looking for void upon every invocation - and this
-might matter when it is called in a loop.
+    1. in some structures end deallocation was possible, but middle allocation was
+    not.  For example, I can displace an array base pointer, provided I can get to the
+    base pointer, but I can't delete a cell out of it.  And actually I can get to the base
+    pointer, as it lives in (tape tm).  Such pointers aren't from symbol tables, so this
+    concern of symbol tables is unnecessary.  This problem with arrays was easily smoothed
+    over by defining a leftmost dealloc method with a type signature on arrays.  But now
+    there are multiple #'d◧ functions, so we lose some of the benefit.
 
-The object cell swap trick requires two cells, so I reasoned that a singleton machine was
-also special.  As I've been making allusions to discrete topology, I also called these
-machine singular.  This is because all machine that holds a single value are actually the
-same.  We just store the pointer to that value in the place we would have a tape pointer
-in the various machines.  Then the all collapse into the same thing.  I have implemented
-this, in two languages now, and it does appear elegant to watch a tape machine start just
-a void type declaration, to a unified holder of one value, and then grow into a larger
-typed structure as new objects are added.  All seemed good - until getting to transforms.
+    Then I revised the library to use transitioning dynamic types for tape machines.  This
+    approach moves end case code to the dispatch.  As dispatch has to be done anyway, so
+    this is a win. (My C++ version some years ago did this also.)  So a funciton like
+    step, #'s, doesn't have to have end case checks looking for void upon every invocation
+    - and this might matter when it is called in a loop.
 
-A tape machine transform is a tape machine that bases its work on another tape machine.
-For example the depth first transform has a base machine where some objects are also
-sequences.  The depth first machine then gives us a linear tape view when in fact
-we are taking a  depth first traversal.
+    The instance cell swap trick requires two cells, so I reasoned that a singleton
+    machine was also special.  As I've been making allusions to discrete topology, I also
+    called these machines singular.  This is because all machines that hold a single value
+    are actually the same.  We just store the pointer to that value in the place we would
+    have a tape pointer in the various machines.  Then the all collapse into the same
+    thing.  I have implemented this, in two languages now, and it does appear elegant to
+    watch a tape machine start just a void type declaration, to a unified holder of one
+    value, and then grow into a larger typed structure as new instances are added.  All
+    seemed good - until getting to transforms.
 
-As another example, the interval transform is a tape machine that picks a contiguous group
-of cells (the interval space) and makes them look like their own machine.  Thus leftmost
-and rightmost continuations will happen at the end of the interval rather the end of the
-tape, etc.
+    2. As a second problem, transforms and subspaces:
 
-So what happens when an interval is reduce to one cell?  If we make it singular, a
-reference to that one object moves into (tape tm) and replaces the tape reference.  We
-no longer have a reference to the cell on the original tape.  If we
-then call dealloc, the interval machine becomes void.  This is all good, however the base
-machine will still have the cell that was intended to be deallocated, so though the
-interval looks right, the base machine does not.  
+    A tape machine transform is a tape machine that bases its work on another tape machine.
+    For example the depth first transform has a base machine where some instances are also
+    sequences.  The depth first machine then gives us a linear tape view when in fact
+    we are taking a  depth first traversal.
 
-Transforms are important, probably more so than having a generic (i.e. derived from
-primitives) deallocate routine.  Hence, I am moving deallocate leftmost back to
-primitives, and removing singular machines from the library.  So now when the
-second to last cell is removed from an interval, it remains as view to the base
-machine.  When the last cell is removed, the interval becomes void, as do all
-machines with no cells.  But this does not cause problems because, after all,
-we can't dealloc any cells from a void space.  We use the same mechanism as
-currently employed to go from singular back to a larger interval, though now
-we do it from void.
+    As another example, the interval transform is a tape machine that picks a contiguous group
+    of cells (the interval space) and makes them look like their own machine.  Thus leftmost
+    and rightmost continuations will happen at the end of the interval rather the end of the
+    tape, etc.
 
-.. at least the swap trick still works for allocating a new cell to leftmost,
-so a◧ still has a generic implementation.
+    So what happens when an interval is reduce to one cell?  If we make it singular, a
+    reference to that one instance moves into (tape tm) and replaces the tape reference.  We
+    no longer have a reference to the cell on the original tape.  If we
+    then call dealloc, the interval machine becomes void.  This is all good, however the base
+    machine will still have the cell that was intended to be deallocated, so though the
+    interval looks right, the base machine does not.  
+
+    Transforms are important, probably more so than having a generic (i.e. derived from
+    primitives) deallocate routine.  Hence, I am moving deallocate leftmost back to
+    primitives, and removing singular machines from the library.  So now when the
+    second to last cell is removed from an interval, it remains as view to the base
+    machine.  When the last cell is removed, the interval becomes void, as do all
+    machines with no cells.  But this does not cause problems because, after all,
+    we can't dealloc any cells from a void space.  We use the same mechanism as
+    currently employed to go from singular back to a larger interval, though now
+    we do it from void.
+
+    .. at least the swap trick still works for allocating a new cell to leftmost,
+    so a◧ still has a generic implementation.
+
+    3. entangled machines
+
+    We must fix pointers on entangled machines that reference the rightneighbor where
+    the swap data came from, as otherwise they will be unaware of the swap and be left
+    pointing to the wrong cell. And if we are going to walk through the entanglements list
+    fixing pointers, why not just fix the original problem .. the leftmost pointer.
+
+Chapter 2
+
+    We are now on the second generation of the library, and I am revisiting this from a
+    new point of view.  The question is really if it is possible to implement 's-d' (step
+    delete left) in a general fashion by means of the swap trick.  The answer still
+    appears to be 'no'.
+
+    Of course doubly linked lists don't need this trick.  's-d' can already be implemented
+    discretely.  For status machines one can park and then delete to delete the leftmost
+    cell.
+
+    The programmer using the library can always code the swap trick themselves.  The user
+    manipulates data rather than cells, so he or she isn't breaking the model by doing so.
+    However our library has entanglement accounting and is cell based.
+
+    The swap trick requires moving an instance.  In Lisp this is easy as all instances
+    are by reference, but in other language models this might require an expensive
+    data copy.
+
+    Solo machines are not entangled, so the swap trick is safe for them.  However, if we
+    implement it for solo, then specializations will also have to define it, or they fall
+    back to the solo version.  We can add swaps side effect to the list of the hazards for
+    when using tm haz-tm.  Put further along we run into a problem for the second level
+    ea-tape-machine when the base type is a single linked list, as we have no way to move
+    the head location left by one to follow the change in cells where the right neighbor
+    data is now living. (*1)(*2) Consequently, the swap trick delete should be qualified
+    based on the solo implementation rather than on the architectural interface.  That
+    makes it a kludge.  
+
+    (*1) actually we do have knowledge of the pointer to the left neighbor, as we
+    just did the swap, it can be passed into the entangled machine fix up routine.
+    The fix up would then need the 'cue-to' function for affected machines.
+
+    (*2) instead of the swap trick, for single linked lists, keep the head pointer one
+    left to the cell actually being referenced.  Delete collisions on the cell actually
+    pointed to would require a fix up to the left neighbor cell as defined before the
+    delete.  As for (*1) we do have that pointer.  Though if we were to do this, all
+    references to the data held in the cell referenced by the head would require an extra
+    level of dereferencing.  nd-tape-machines would not have to do this, but
+    haz-tape-machines and those more specific would have to pay for this even when no
+    destructive operations are performed.
+
+    We can add a filter quantifier to the library, one that deletes cells for which the
+    predicate is true for.  This can be done without need for the swap trick, and may
+    cover many cases where the user would want to have 'd.'
+
+    If we use a bit to signal an empty array cell, or adjust the address space, it appears
+    at this time that d. can just be implemented directly.
+
+    So (*1) looks reasonable for single linked list implementations.  Double linked lists
+    and arrays don't need it.  However, entanglement accounting is done at the second
+    level, where it is intended to work independent of the base implementation.
+

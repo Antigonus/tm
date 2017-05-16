@@ -91,12 +91,13 @@ See LICENSE.txt
     (def-function-class h◧∃* (tm pred))
     (def-function-class h◧∀* (tm function))
 
+
   ;; Seems that at least some errors in threads will cause the thread to hang ..
   ;; Seems it will be a common mistake to give quantifiers continuation lists
   ;; rather than directly specifying the functions (resolving this convention
   ;; is on the to-do list).  Added the funcitonp guard here to make the error
   ;; in the thread more obvious
-  (defun-typed ∃ ((tm tape-machine) pred &optional ➜)
+  (defun-typed ∃ ((tm tape-machine) (pred function) &optional ➜)
     "Tests each instance in tm in succession starting from the current location of the head.
      Exits via ➜t upon the test passing.  Otherwise steps and repeats. Exits via
      ➜∅ when stepping right from rightmost.  The head is left on the cell that holds the
@@ -109,7 +110,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (∧ (functionp pred) (functionp ➜t) (functionp ➜∅))
+      (if (∧ (functionp ➜t) (functionp ➜∅))
         (⟳(λ(again)[pred tm ➜t (λ()(s tm {:➜ok again :➜rightmost ➜∅}))]))
         (error 'non-function-continuation)
         )
@@ -197,4 +198,6 @@ See LICENSE.txt
     (h◧ tm)
     (∀* tm function)
     )
+
+
 

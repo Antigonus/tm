@@ -108,7 +108,12 @@ See LICENSE.txt
                (:module "src-second-level"
                  :components (
                                (:file "status-type")
+
                                (:file "status-tm")
+                               (:file "status-quantifiers")
+                               (:file "status-quantified")
+                               (:file "status-copy")
+
                                (:file "status-abandoned")
                                (:file "status-empty")
                                (:file "status-parked")
@@ -116,6 +121,7 @@ See LICENSE.txt
 
                                (:file "ea-type")
                                (:file "ea-tm")
+
                                (:file "ea-abandoned")
                                (:file "ea-empty")
                                (:file "ea-parked")
@@ -187,6 +193,8 @@ See LICENSE.txt
                (:module "test-second-level"
                  :components (
                                (:file "status")
+                               (:file "status-quantifiers")
+                               (:file "status-quantified")
                                (:file "ea")
                                (:file "ts1")
                                (:file "copy")

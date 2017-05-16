@@ -11,9 +11,46 @@ overridden.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; some status specific helpers
+;;
+  (defmacro def-abandoned-1 (f &rest args)
+    `(defun-typed ,f ((tm abandoned) ,@args &optional ➜)
+       (declare (ignore ,@args ➜))
+       (operation-on-abandoned)
+       )
+    )
+
+  (defmacro def-empty-1 (f &rest args)
+    `(defun-typed ,f ((tm empty) ,@args &optional ➜)
+       (declare (ignore ,@args))
+       (destructuring-bind
+         (
+           &key
+           (➜empty #'use-of-empty)
+           &allow-other-keys
+           )
+         ➜
+         [➜empty]
+         ))
+    )
+
+  (defmacro def-parked-1 (f &rest args)
+    `(defun-typed ,f ((tm parked) ,@args &optional ➜)
+       (declare (ignore ,@args))
+       (destructuring-bind
+         (
+           &key
+           (➜parked #'access-through-parked-head)
+           &allow-other-keys
+           )
+         ➜
+         [➜parked]
+         ))
+    )
+
+;;--------------------------------------------------------------------------------
 ;; status-tm specific
 ;;
-
   (defun-typed tm-print ((tm status-tm))
     (princ (type-of tm))
     (princ " ")
@@ -37,7 +74,7 @@ overridden.
   (def-function-class hp∀ (tm pred &optional ➜))
   (def-function-class hp∃* (tm pred))
   (def-function-class hp∀* (tm function))
-
+    
 ;;--------------------------------------------------------------------------------
 ;; quantified
 ;;

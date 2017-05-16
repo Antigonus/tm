@@ -70,3 +70,38 @@ See LICENSE.txt
         [➜ok]
         )))
 
+;;--------------------------------------------------------------------------------
+;; filtering
+;;
+  ;; filtering is just conditional d*
+  ;; first filtered cell is the right neighbor to the cell the head is currently on
+  ;; to affect the whole for first level machines, put the leftmost test in a priming loop
+  ;; to affect the whole tape while using a status machine, first park it, 
+  (def-function-class filter (tm spill pred &optional ➜))
+
+  (defun-typed filter ((tm solo-tape-machine) (spill tape-machine) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜no-alloc #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (⟳
+        (λ(➜again)
+          (if (on-rightmost tm)
+            [➜ok]
+            [pred tm
+              (λ()(d tm spill
+                    {
+                      :➜ok (λ(instance)(declare (ignore instance))[➜again])
+                      :➜rightmost #'cant-happen
+                      :➜no-alloc ➜no-alloc
+                      }))
+              (λ() (s tm
+                     {
+                       :➜ok ➜again
+                       :➜rightmost #'cant-happen
+                       }))
+              ])))))
+

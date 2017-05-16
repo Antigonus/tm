@@ -19,27 +19,8 @@ a collision error.  Hence behavior is inherited from the identity transform.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; copy
-;;
-  (defun-typed c ((src active) (dst empty)  &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜dst-full (be ∅))  ;; but still instances uncopied from src
-        &allow-other-keys
-        )
-      ➜
-      [➜dst-full]
-      ))
-
-  (defun-typed c ((src active) (dst parked)  &optional ➜)
-    (h◧ dst)
-    (c src dst ➜)
-    )
-
-;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-
   ;; cue the head to the parking spot
   (defun-typed hp ((tm active) &optional ➜)
      (destructuring-bind
@@ -58,47 +39,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
                   )
            (o (remove-key-pair ➜ :➜ok))
            })))
-
-;;--------------------------------------------------------------------------------
-;; quantifiers
-;;
-  (defun-typed hp∃ ((tm active) pred &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (hp tm)
-      (∃ tm {:➜t ➜t :➜∅ ➜∅})
-      ))
-  (defun-typed hp∀ ((tm active) pred &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (hp tm)
-      (∀ tm {:➜t ➜t :➜∅ ➜∅})
-      ))
-  (defun-typed hp∃* ((tm active) pred)
-    (hp tm)
-    (∃* tm pred)
-    )
-  (defun-typed hp∀* ((tm active) function)
-    (hp tm)
-    (∀* tm function)
-    )
-
-;;--------------------------------------------------------------------------------
-;; quantified
-;;
-  (defun-typed d* ((tm active) &optional spill ➜)
-    (d* (base tm) spill ➜)
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

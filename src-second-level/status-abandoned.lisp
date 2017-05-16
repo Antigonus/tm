@@ -10,95 +10,10 @@ don't provide a continuation for it.
 
 (in-package #:tm)
 
-(defmacro def-abandoned-1 (f &rest args)
-  `(defun-typed ,f ((tm abandoned) ,@args &optional ➜)
-     (declare (ignore ,@args ➜))
-     (operation-on-abandoned)
-     )
-  )
-
-;;--------------------------------------------------------------------------------
-;; copy
-;;
-  (defun-typed c ((src abandoned) (dst tape-machine)  &optional ➜)
-    (declare (ignore src dst ➜))
-    (operation-on-abandoned)
-    )
-
-  (defun-typed c ((src tape-machine) (dst abandoned)  &optional ➜)
-    (declare (ignore src dst ➜))
-    (operation-on-abandoned)
-    )
-
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
   (def-abandoned-1 hp)
-
-;;--------------------------------------------------------------------------------
-;; quantifiers
-;;
-
-  (defun-typed ∃ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-  (defun-typed h◧∃ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-  (defun-typed hp∃ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-
-
-  (defun-typed ∀ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-  (defun-typed h◧∀ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-  (defun-typed hp∀ ((tm abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (operation-on-abandoned)
-    )
-
-  (defun-typed ∃* ((tm abandoned) pred)
-    (declare (ignore tm pred))
-    (operation-on-abandoned)
-    )
-  (defun-typed h◧∃* ((tm abandoned) pred)
-    (declare (ignore tm pred))
-    (operation-on-abandoned)
-    )
-  (defun-typed hp∃* ((tm abandoned) pred)
-    (declare (ignore tm pred))
-    (operation-on-abandoned)
-    )
-
-  (defun-typed ∀* ((tm abandoned) function)
-    (declare (ignore tm function))
-    (operation-on-abandoned)
-    )
-  (defun-typed h◧∀* ((tm abandoned) function)
-    (declare (ignore tm function))
-    (operation-on-abandoned)
-    )
-  (defun-typed hp∀* ((tm abandoned) function)
-    (declare (ignore tm function))
-    (operation-on-abandoned)
-    )
-
-;;--------------------------------------------------------------------------------
-;; quantified
-;;
-  (defun-typed d* ((tm abandoned) &optional spill ➜)
-    (declare (ignore tm spill ➜))
-    (operation-on-abandoned)
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

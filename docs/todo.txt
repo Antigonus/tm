@@ -169,3 +169,6 @@ add a time to wait as part of test-hook
     need to add implementation specific versions.  Might also give some
     consideration to the spill behavior - perhaps spill in the forward
     direction
+
+58. rename d◧ to epd (entangled copy, p, delete). 
+     Then unambiguously, hp -> p h◧->◧ h◨->◨ 

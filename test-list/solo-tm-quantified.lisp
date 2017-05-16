@@ -37,3 +37,30 @@ See LICENSE.txt
       )))
 (test-hook test-dn-0)
 
+(defun test-filter-0 ()
+  (let*(
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:tape {-100}}))
+         (pred (λ(tm ct c∅) (declare (ignore tm c∅)) [ct]))
+         )
+    (∧
+      (filter tm0 tm1 pred)
+      (equal (tape tm0) {1})
+      (equal (tape tm1) {-100 2 3})
+      (on-rightmost tm1)
+      )))
+(test-hook test-filter-0)
+
+(defun test-filter-1 ()
+  (let*(
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (tm1 (mk 'list-solo-tm {:tape {-100}}))
+         (pred (λ(tm ct c∅)(if (oddp (esr tm)) [c∅] [ct]))) ;; need 'esr' here !
+         )
+    (∧
+      (filter tm0 tm1 pred)
+      (equal (tape tm0) {1 3})
+      (equal (tape tm1) {-100 2})
+      (on-rightmost tm1)
+      )))
+(test-hook test-filter-1)
