@@ -90,6 +90,7 @@ See LICENSE.txt
 ;;                               (:file "tm-subspace")
 ;;                               (:file "convert")
 
+                               (:file "copy")
                                ))
 
                (:module "src-generators"
@@ -102,7 +103,6 @@ See LICENSE.txt
                  :components (
                                (:file "identity")
                                (:file "ensemble")
-                               (:file "copy") ;; uses ensemble
                                ))
 
                (:module "src-second-level"
@@ -113,6 +113,7 @@ See LICENSE.txt
                                (:file "status-quantifiers")
                                (:file "status-quantified")
                                (:file "status-copy")
+                               (:file "status=")
 
                                (:file "status-abandoned")
                                (:file "status-empty")
@@ -176,6 +177,7 @@ See LICENSE.txt
                               (:file "tm-generic")
                               (:file "tm-quantified")
                               (:file "quantifiers")
+                              (:file "copy")
                               ))
 
                (:module "test-generators"
@@ -187,7 +189,6 @@ See LICENSE.txt
                 :components (
                               (:file "identity")
                               (:file "ensemble")
-                              (:file "copy")
                               ))
 
                (:module "test-second-level"
@@ -195,6 +196,7 @@ See LICENSE.txt
                                (:file "status")
                                (:file "status-quantifiers")
                                (:file "status-quantified")
+;;                               (:file "status=")
                                (:file "ea")
                                (:file "ts1")
                                (:file "copy")

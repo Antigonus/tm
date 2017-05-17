@@ -68,39 +68,6 @@ overridden.
   (def-function-class hp (tm &optional ➜)) ; handled by subtypes
 
 ;;--------------------------------------------------------------------------------
-;; quantifiers
-;;
-  (def-function-class hp∃ (tm pred &optional ➜))
-  (def-function-class hp∀ (tm pred &optional ➜))
-  (def-function-class hp∃* (tm pred))
-  (def-function-class hp∀* (tm function))
-    
-;;--------------------------------------------------------------------------------
-;; quantified
-;;
-  (def-function-class hpd* (tm &optional spill ➜)
-    (:documentation
-      "Deallocates the tape"
-      ))
-;;--------------------------------------------------------------------------------
-;; copy
-;;
-  (defun-typed c ((src tape-machine) (dst empty)  &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜dst-full (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜dst-full]
-      ))
-
-  (defun-typed c ((src tape-machine) (dst parked)  &optional ➜)
-    (s dst {:➜ok #'do-nothing :➜rightmost #'cant-happen})
-    (c src dst ➜)
-    )
-
-;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
   ;; specialized versions have been defined for empty and abandoned

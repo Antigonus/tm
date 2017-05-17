@@ -64,3 +64,15 @@ See LICENSE.txt
       (on-rightmost tm1)
       )))
 (test-hook test-filter-1)
+
+(defun test-filter-2 ()
+  (let*(
+         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
+         (pred (λ(tm ct c∅) (declare (ignore tm c∅)) [ct]))
+         )
+    (∧
+      (filter tm0 ∅ pred)
+      (equal (tape tm0) {1})
+      (on-rightmost tm0)
+      )))
+(test-hook test-filter-2)

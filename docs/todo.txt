@@ -7,12 +7,11 @@ expand access lang
 
 4. need to write mn and m* as repeating m is very inefficient
 
-6. binner is commented out in worker-utilities, due to a change before
-the last release
-
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine .. will rename it tm-sums
    (really it sums a finite difference to recover the original sequence)
+
+   need more generators
 
 8. ... need tm on a stream, also the utf8 converters --> tm needs to re
 
@@ -27,13 +26,13 @@ independent of the names space, and (test-all 'space) to run only the given name
 space. also if one runs load twice all the tests double up.  something should
 be done so that only the most recent version plays.
 
-13. removed the affine versions, need to add an affine transform, when
-passed a projective machine, turns it into an affine one.  .. the old
-affine machine are sitting in scratch
+13. affine transform
 
-22. no-alloc continuations need to be implemented
+22. no-alloc continuations need to be implemented ** fairly serious, though
+   we haven't pulled in the heap model from the C++ version yet, if ever for
+   this version.
 
-23. add somethign to the manual about functional programming (state machines),  state
+23. add something to the manual about functional programming (state machines),  state
 variables,  and transactional behavior for tm functions (so that state doesn't change
 when state transitions are not taken) .. about region and cell addresses, note
 copy to new list doe snot have the problem and it is also transactional
@@ -60,37 +59,29 @@ copy to new list doe snot have the problem and it is also transactional
    in.  Most predicates don't need the list, they just want the read object.
    key parms?
 
+   difficulty being the lambda is where the optional keyword would be placed,
+   and that is typed by the library user. We would have be able to check the
+   lambda passed in to see how many parms it takes.
 
 35. init should fail if there are unused keys. init functions that 'call-next-method'
   need to renove their keys, so that the more general init can detect unused
   keys.  (wrote remove key, it is in src0)
 
-36. test           + TEST-META-WRAP-0   fails after being run multiple times ...
+  actually this whole thing with key parameters is a bit muddled. It seems
+  we need to settle on a set of parameters and remove the &allow-other-keys.
+  functions that are specialized and have other parameters can include those
+  in their more specific versions.  .. heck but the problem comes with functions
+  that pass keyed parameter list through.
 
-37. scoped form of mk.  See implementation/status.txt
+58. rename d◧ to epd (entangled copy, p, delete). 
+     Then unambiguously, hp -> p h◧->◧ h◨->◨ 
 
-38. split, split machine in half
-
-39. moved r◧, w◧ from nd-tm to tm. Added some other left of the tape operators, and one
-next to the left of tape operators.  Need to propagate these through to the transforms.
-Also, do the quantified ops need to be propagated into, at least, the identity transform.
-
-40. breakup/breakout ea-entanglment routines into eather ea-decl or ea-generic
-
-41. nil write on d&parked&length-one -- should make empty be a machine specific routine?
-
-42. esw rightmost continuation should take the instance as an operand
-
-43. cue-leftmost / rightmost names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
-    I don't think we will have 'copy' because that would be w* with a fill.  We
-    will have move.  So c might be available.
+     43. cue-leftmost / rightmost names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
+         I don't think we will have 'copy' because that would be w* with a fill.  We
+         will have move.  So c might be available.
 
 44. add c-to works with two machines that are entangled, cues one to be at the same
     location as the other.
-
-45. predicate functions should take two continuations,  but what if there is a case
-   where something is neither true nor false for a specialization .. perhaps that
-   is not salient ..
 
 46. interesting situation in d◧ for ea-definitions.  We would like to enclose a call
    'with-lock-held', but we can't because we must release the lock before calling
@@ -127,11 +118,6 @@ Also, do the quantified ops need to be propagated into, at least, the identity t
 
    seems to work
 
-
-
-47. looks like we need some fundamental circular structures.  for example, the entanglements
-   list would like to be circular.  Yes we will add an affine transform, but might
-   be higher performance to have a couple of native circular machines.
 
 48.
    d◧  needs to be epd  'entangle, park, delete'
@@ -170,9 +156,13 @@ add a time to wait as part of test-hook
     consideration to the spill behavior - perhaps spill in the forward
     direction
 
-58. rename d◧ to epd (entangled copy, p, delete). 
-     Then unambiguously, hp -> p h◧->◧ h◨->◨ 
-
 59. see the_story_of_swap  in docs,  implement the swap trick add the
     update function to entanglement accounting, and remove the 'update-tape-after ..'
     functions.
+
+60. would like some sort of access to the scoped context for entanglement
+    copying.   Would like for (e tm)  to be an entangled copy or somee such.
+    Perhaps with-entanglements defines such a scope, with a variable accessible
+    in that scope that the function #'e above accesses.  Or perhaps it is
+    time to implement our symbol tables,  (e st0 tm), or some such, st0 being
+    the table to place the entangled copy on.

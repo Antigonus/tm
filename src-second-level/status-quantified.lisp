@@ -3,9 +3,6 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-These functions are common to all states where they are not directly 
-overridden.  
-
 |#
 
 (in-package #:tm)
@@ -26,12 +23,7 @@ overridden.
     (operation-on-abandoned)
     )
 
-  (defun-typed filter ((tm abandoned) (spill tape-machine) pred &optional ➜)
-    (declare (ignore tm spill pred ➜))
-    (operation-on-abandoned)
-    )
-
-  (defun-typed filter ((tm tape-machine) (spill abandoned) pred &optional ➜)
+  (defun-typed filter ((tm abandoned) spill pred &optional ➜)
     (declare (ignore tm spill pred ➜))
     (operation-on-abandoned)
     )
@@ -50,7 +42,7 @@ overridden.
       [➜rightmost]
       ))
 
-  (defun-typed filter ((tm empty) (spill tape-machine) pred &optional ➜)
+  (defun-typed filter ((tm empty) spill pred &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

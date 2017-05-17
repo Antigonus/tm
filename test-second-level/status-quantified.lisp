@@ -37,3 +37,13 @@ See LICENSE.txt
       )))
 (test-hook test-status-filter-1)
 
+(defun test-status-filter-2 ()
+  (let*(
+         (tm0 (mk 'status-tm {:base-type 'list-haz-tm :tape {1 2 3 4 5} :status 'parked}))
+         (pred (λ(tm ct c∅) (declare (ignore tm c∅)) [ct]))
+         )
+    (∧
+      (filter tm0 ∅ pred)
+      (typep tm0 'empty)
+      )))
+(test-hook test-status-filter-2)

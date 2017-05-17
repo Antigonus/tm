@@ -36,7 +36,7 @@ See LICENSE.txt
         ) 
       ➜
       (w tm (r fill))
-      (⟳(λ(again)
+      (⟳(λ(➜again)
           (s fill
             {
               :➜ok (λ()
@@ -44,7 +44,7 @@ See LICENSE.txt
                       {
                         :➜ok (λ()
                               (w tm (r fill))
-                              [again]
+                              [➜again]
                               )
                         :➜rightmost ➜rightmost-tm ; fill's head stepped but tm's didn't
                         }))
@@ -91,10 +91,10 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (⟳(λ(again)
+      (⟳(λ(➜again)
           (a tm (r fill) 
             {
-              :➜ok (λ()(s fill {:➜ok again :➜rightmost ➜ok}))
+              :➜ok (λ()(s fill {:➜ok ➜again :➜rightmost ➜ok}))
               :➜no-alloc ➜no-alloc
               })
           ))))
@@ -115,10 +115,10 @@ See LICENSE.txt
       (cont-ok (be t))
       (cont-no-alloc #'alloc-fail)
       )
-    (⟳(λ(again)
+    (⟳(λ(➜again)
         (as tm (r fill) 
           {
-            :➜ok (λ()(s fill {:➜ok again :➜rightmost cont-ok}))
+            :➜ok (λ()(s fill {:➜ok ➜again :➜rightmost cont-ok}))
             :➜no-alloc cont-no-alloc
             })))
     )
@@ -166,12 +166,12 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (⟳(λ(again)
+      (⟳(λ(➜again)
           (if
             (> n 0)
             (s tm
               {
-                :➜ok (λ()(decf n)[again])
+                :➜ok (λ()(decf n)[➜again])
                 :➜rightmost (λ()[➜rightmost n])
                 })
             [➜ok]
@@ -200,7 +200,7 @@ See LICENSE.txt
         (➜no-alloc (λ(tm n)(declare (ignore tm n))(error 'alloc-fail)))
         )
       ➜
-      (⟳(λ(again)
+      (⟳(λ(➜again)
           (if
             (> n 0)
             (as tm (r fill)
@@ -208,7 +208,7 @@ See LICENSE.txt
                 :➜ok (λ()
                        (s fill 
                          {
-                           :➜ok (λ()(decf n) [again])
+                           :➜ok (λ()(decf n) [➜again])
                            :➜rightmost (λ()[➜rightmost-fill n])
                            }))
               
@@ -218,4 +218,46 @@ See LICENSE.txt
               )))))
 
 
-
+;;--------------------------------------------------------------------------------  
+;; equivalence
+;;   entanglement only works on nd-tape-machines or more special, but we want 
+;;   equivalence for all tape machines, hence tm0 and tm1 are not entangle
+;;   copied.
+;;  
+;;
+  (def-function-class tm-equiv (tm0 tm1 &optional ➜))
+  (defun-typed tm= ((tm0 tape-machine) (tm1 tape-machine) &optional ➜)
+    (destructuring-bind
+      (&key
+        (equiv 
+          (λ(tm0 tm1 ct c∅)
+            (if
+              (equal (r tm0) (r tm1)) 
+              [ct]
+              [c∅]
+              )))
+        (➜t (be t))
+        (➜∅ (be ∅))
+        (➜tm0 (be ∅)) ; ran out of a instances, it needs to be continued to make this equal
+        (➜tm1 (be ∅)) ; ran out of b instances
+        &allow-other-keys
+        )
+      ➜
+      (⟳(λ(➜again)
+          [equiv tm0 tm1
+            (λ()
+              (s tm0
+                {
+                  :➜ok (λ() (s tm1
+                              {
+                                :➜ok ➜again
+                                :➜rightmost ➜tm1
+                                }))
+                  :➜rightmost (λ() (s tm1
+                                     {
+                                       :➜ok ➜tm0
+                                       :➜rightmost ➜t
+                                       }))
+                  }))
+            ➜∅
+            ]))))

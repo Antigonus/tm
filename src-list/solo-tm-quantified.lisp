@@ -77,9 +77,10 @@ See LICENSE.txt
   ;; first filtered cell is the right neighbor to the cell the head is currently on
   ;; to affect the whole for first level machines, put the leftmost test in a priming loop
   ;; to affect the whole tape while using a status machine, first park it, 
+  ;; when spill is ∅, the spilled cells are deallocated
   (def-function-class filter (tm spill pred &optional ➜))
 
-  (defun-typed filter ((tm solo-tape-machine) (spill tape-machine) pred &optional ➜)
+  (defun-typed filter ((tm solo-tape-machine) spill pred &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

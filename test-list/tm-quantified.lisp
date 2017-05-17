@@ -135,3 +135,40 @@ See LICENSE.txt
         (= (r fill) 25)
         )))
   (test-hook test-asn-0)
+
+  (defun test-tm=-0 ()
+    (let(
+          (tm0 (mk 'list-nd-tm {:tape {10 11 12}}))
+          (tm1 (mk 'list-nd-tm {:tape {12 13 14}}))
+          (tm2 (mk 'list-nd-tm {:tape {10 11 12}}))
+          (tm3 (mk 'list-nd-tm {:tape {10 11 12 13 14}}))
+          (equiv-fun
+            (λ(a b ct c∅)
+              (if 
+                (∨
+                  (∧ (oddp (r a)) (oddp (r b)))
+                  (∧ (evenp (r a)) (evenp (r b)))
+                  )
+                [ct]
+                [c∅]
+                ))))
+      (∧
+        (tm= tm0 tm2)
+        (h◧ tm0)
+        (h◧ tm2)
+        (¬ (tm= tm0 tm1))
+        (h◧ tm0)
+        (h◧ tm1)
+        (¬ (tm= tm1 tm2))
+        (h◧ tm1)
+        (h◧ tm2)
+        (tm= tm0 tm1 {:equiv equiv-fun})
+        (h◧ tm0)
+        (h◧ tm1)
+        (= (tm= tm2 tm3 {:➜tm0 (be 5)}) 5)
+        (h◧ tm2)
+        (h◧ tm3)
+        (= (tm= tm3 tm2 {:➜tm1 (be 7)}) 7)
+        )))
+          
+    

@@ -50,7 +50,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜rightmost #'echo)
         &allow-other-keys
         )
       ➜
@@ -60,7 +60,7 @@ See LICENSE.txt
           (setf (cadr (head tm)) instance)
           [➜ok]
           )
-        [➜rightmost]
+        [➜rightmost instance]
         )))
 
   (defun-typed eh◧r ((tm list-tm) &optional ➜)
