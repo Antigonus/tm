@@ -166,3 +166,6 @@ add a time to wait as part of test-hook
     in that scope that the function #'e above accesses.  Or perhaps it is
     time to implement our symbol tables,  (e st0 tm), or some such, st0 being
     the table to place the entangled copy on.
+
+61. move tests to the export side instead of being in the package.  Give them
+    a package of their own, so that they don't take up so much space in the lib

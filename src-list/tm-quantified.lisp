@@ -225,8 +225,8 @@ See LICENSE.txt
 ;;   copied.
 ;;  
 ;;
-  (def-function-class tm= (tm0 tm1 &optional ➜))
-  (defun-typed tm= ((tm0 tape-machine) (tm1 tape-machine) &optional ➜)
+  (def-function-class equiv (tm0 tm1 &optional ➜))
+  (defun-typed equiv ((tm0 tape-machine) (tm1 tape-machine) &optional ➜)
     (destructuring-bind
       (&key
         (equiv 

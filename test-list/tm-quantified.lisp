@@ -136,7 +136,7 @@ See LICENSE.txt
         )))
   (test-hook test-asn-0)
 
-  (defun test-tm=-0 ()
+  (defun test-equiv-0 ()
     (let(
           (tm0 (mk 'list-nd-tm {:tape {10 11 12}}))
           (tm1 (mk 'list-nd-tm {:tape {12 13 14}}))
@@ -153,22 +153,23 @@ See LICENSE.txt
                 [c∅]
                 ))))
       (∧
-        (tm= tm0 tm2)
+        (equiv tm0 tm2)
         (◧ tm0)
         (◧ tm2)
-        (¬ (tm= tm0 tm1))
+        (¬ (equiv tm0 tm1))
         (◧ tm0)
         (◧ tm1)
-        (¬ (tm= tm1 tm2))
+        (¬ (equiv tm1 tm2))
         (◧ tm1)
         (◧ tm2)
-        (tm= tm0 tm1 {:equiv equiv-fun})
+        (equiv tm0 tm1 {:equiv equiv-fun})
         (◧ tm0)
         (◧ tm1)
-        (= (tm= tm2 tm3 {:➜tm0 (be 5)}) 5)
+        (= (equiv tm2 tm3 {:➜tm0 (be 5)}) 5)
         (◧ tm2)
         (◧ tm3)
-        (= (tm= tm3 tm2 {:➜tm1 (be 7)}) 7)
+        (= (equiv tm3 tm2 {:➜tm1 (be 7)}) 7)
         )))
+  (test-hook test-equiv-0)
           
     

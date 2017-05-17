@@ -137,6 +137,7 @@ they belong to.
       #:as*
       #:sn
       #:asn
+      #:equiv
 
     ;;nd-tm-type
     ;;
