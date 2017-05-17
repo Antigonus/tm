@@ -13,7 +13,7 @@ functions shared by parked and active
 ;; solo-tm-decl-only
 ;;
 
-  (defun-typed a◧ ((tm ea-parked-active) instance &optional ➜)
+  (defun-typed epa ((tm ea-parked-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -22,23 +22,23 @@ functions shared by parked and active
       ➜
       (labels(
                (fix-tapes-inc-addresses ()
-                 (h◧∀* (entanglements tm)
+                 (◧∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))
                            )
                        (when etm
-                         (update-tape-after-a◧ (base etm) (base tm))
+                         (update-tape-after-epa (base etm) (base tm))
                          (if
                            (typep etm 'parked)
-                           (h◧ (base etm))
+                           (◧ (base etm))
                            (incf (address etm))
                            )
                          (incf (address-rightmost etm))
                          )))))
               )
-      ;; (prins (print "a◧ ea-parked-active"))
-      (a◧ (base tm) instance
+      ;; (prins (print "epa ea-parked-active"))
+      (epa (base tm) instance
         {
           :➜ok (λ()
                  (fix-tapes-inc-addresses)
@@ -48,7 +48,7 @@ functions shared by parked and active
           })
         )))
 
-  (defun-typed d◧ ((tm ea-parked-active) &optional spill ➜)
+  (defun-typed epd ((tm ea-parked-active) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -57,7 +57,7 @@ functions shared by parked and active
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ ea-parked-active"))
+      ;; (prins (print "epd ea-parked-active"))
       (labels
         (
 
@@ -65,7 +65,7 @@ functions shared by parked and active
           ;;so we transition to empty
           (make-empty () 
             (w (base tm) ∅)
-            (h◧∀* (entanglements tm) 
+            (◧∀* (entanglements tm) 
               (λ(es)
                 (let(
                       (etm (r es))
@@ -77,7 +77,7 @@ functions shared by parked and active
           ;;when this is called:
           ;;   -we already checked we are not on rightmost (there is a cell to step to)
           (step-parked-machines () 
-            (h◧∀* (entanglements tm)
+            (◧∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
@@ -88,24 +88,24 @@ functions shared by parked and active
                       ))))))
           
           (fix-tapes-dec-addresses ()
-            (h◧∀* (entanglements tm)
+            (◧∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
                       )
                   (when etm
-                    (update-tape-after-d◧ (base etm) (base tm))
+                    (update-tape-after-epd (base etm) (base tm))
                     (when (typep etm 'active) (decf (address etm)))
                     (decf (address-rightmost etm))
                     )))))
           )
 
-        ;; d◧ function starts here -----
+        ;; epd function starts here -----
         (entangled-on-leftmost (entanglements tm)
           ➜collision
           (λ()
             (let(
-                  (spill-instance (eh◧r (base tm)))
+                  (spill-instance (e◧r (base tm)))
                   )
               (labels(
                        (delete-0 ()
@@ -113,7 +113,7 @@ functions shared by parked and active
                            (make-empty)
                            (progn
                              (step-parked-machines)
-                             (d◧ (base tm) ∅
+                             (epd (base tm) ∅
                                {:➜ok (λ(instance)
                                        (declare (ignore instance))
                                        (fix-tapes-dec-addresses)

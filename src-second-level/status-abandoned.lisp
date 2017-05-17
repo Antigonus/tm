@@ -13,7 +13,7 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (def-abandoned-1 hp)
+  (def-abandoned-1 p)
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
@@ -23,10 +23,10 @@ don't provide a continuation for it.
   (def-abandoned-1 w instance)
   (def-abandoned-1 esw instance)
 
-  (def-abandoned-1 eh◧r)
-  (def-abandoned-1 eh◧w instance)
+  (def-abandoned-1 e◧r)
+  (def-abandoned-1 e◧w instance)
 
-  (def-abandoned-1 h◧)
+  (def-abandoned-1 ◧)
   (def-abandoned-1 s)
   (def-abandoned-1 -s)
   (def-abandoned-1 a instance)
@@ -39,15 +39,15 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-abandoned-1 h◨)
+  (def-abandoned-1 ◨)
   (def-abandoned-1 as instance) 
-  (def-abandoned-1 a&h◨ instance)
-  (def-abandoned-1 as&h◨ instance)
+  (def-abandoned-1 a&◨ instance)
+  (def-abandoned-1 as&◨ instance)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (def-abandoned-1 a◧ instance)
+  (def-abandoned-1 epa instance)
   (defun-typed d
     (
       (tm abandoned)
@@ -56,13 +56,13 @@ don't provide a continuation for it.
     (declare (ignore tm spill ➜))
     (operation-on-abandoned)
     )
-  (defun-typed d◧
+  (defun-typed epd
     (
       (tm abandoned)
       &optional spill ➜
       )
     (declare (ignore tm spill ➜))
-    ;; (prins (print "d◧ abandoned"))
+    ;; (prins (print "epd abandoned"))
     (operation-on-abandoned)
     )
   (defun-typed d.

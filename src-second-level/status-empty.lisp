@@ -15,7 +15,7 @@ belonging to a machine that has a parked head.
 ;; status-tm definitions
 ;;
   ;; an empty machine is already parked
-  (defun-typed hp ((tm empty) &optional ➜)
+  (defun-typed p ((tm empty) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -60,7 +60,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (def-empty-1 h◧)
+  (def-empty-1 ◧)
 
   (defun-typed s ((tm empty) &optional ➜)
     (declare (ignore tm))
@@ -92,7 +92,7 @@ belonging to a machine that has a parked head.
   ;; implement their own #'a
   ;;
     (defun-typed a ((tm empty) instance &optional ➜)
-      (a◧ tm instance ➜)
+      (epa tm instance ➜)
       )
 
   ;; note the doc on imprecate middle, this might be revised
@@ -146,19 +146,19 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-empty-1 h◨)
+  (def-empty-1 ◨)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm empty) instance &optional ➜) 
+  (defun-typed epa ((tm empty) instance &optional ➜) 
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ empty"))
+      ;; (prins (print "epa empty"))
       ;; address rightmost will already be zero
       ;; address will already be zero
       (w (base tm) instance)
@@ -178,7 +178,7 @@ belonging to a machine that has a parked head.
       [➜empty]
       ))
 
-  (defun-typed d◧ ((tm empty) &optional spill ➜)
+  (defun-typed epd ((tm empty) &optional spill ➜)
     (declare (ignore tm spill))
     (destructuring-bind
       (
@@ -187,7 +187,7 @@ belonging to a machine that has a parked head.
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ empty"))
+      ;; (prins (print "epd empty"))
       [➜empty]
       ))
 
@@ -274,6 +274,6 @@ belonging to a machine that has a parked head.
       ))
 
   (defun-typed a◨ ((tm empty) instance &optional ➜)
-    (a◧ tm instance ➜)
+    (epa tm instance ➜)
     )
         

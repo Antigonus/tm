@@ -12,21 +12,21 @@ See LICENSE.txt
 ;; cell allocation
 ;;
   ;; add a new leftmost
-  (def-function-class a◧ (tm instance &optional ➜)
+  (def-function-class epa (tm instance &optional ➜)
     (:documentation
       "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
       "
       ))
 
   ;; this function is private. intended to be used with entanglement accounting.
-  ;; after another machine in the entanglement group does an a◧, we need to
+  ;; after another machine in the entanglement group does an epa, we need to
   ;; update the tape reference for the other memebers of the group.
-  (def-function-class update-tape-after-a◧ (tm tm-ref))
+  (def-function-class update-tape-after-epa (tm tm-ref))
 
   ;; this function is private. intended to be used with entanglement accounting.
-  ;; after another machine in the entanglement group does an a◧, we need to
+  ;; after another machine in the entanglement group does an epa, we need to
   ;; update the tape reference for the other memebers of the group.
-  (def-function-class update-tape-after-d◧ (tm tm-ref))
+  (def-function-class update-tape-after-epd (tm tm-ref))
 
 
 ;;--------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ See LICENSE.txt
       "
       ))
 
-  (def-function-class d◧ (tm &optional spill ➜)
+  (def-function-class epd (tm &optional spill ➜)
     (:documentation
       "Deallocates leftmost.
        Returns the instance from the deallocated cell.

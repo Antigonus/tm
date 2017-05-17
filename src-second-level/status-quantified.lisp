@@ -10,7 +10,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; new function classes for status
 ;;
-  (def-function-class hpd* (tm &optional spill ➜)
+  (def-function-class pd* (tm &optional spill ➜)
     (:documentation
       "Deallocates the tape"
       ))

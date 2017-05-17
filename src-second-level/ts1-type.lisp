@@ -7,7 +7,7 @@ See LICENSE.txt
 
   The ea machine keeps an entangelements machine so as to know:
    1. which machines to make empty, or not empty
-   2. which machines to update their leftmost cell pointer for a◧  or d◧
+   2. which machines to update their leftmost cell pointer for epa  or epd
    3. which machines to check for a collision before deleteing a cell
 
   With multiple threads we must also synchronize between certain interface

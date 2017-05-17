@@ -10,7 +10,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun-typed a◧ ((tm list-solo-tm) instance &optional ➜)
+  (defun-typed epa ((tm list-solo-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -21,10 +21,10 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed update-tape-after-a◧ ((tm list-solo-tm) (tm-ref list-solo-tm))
+  (defun-typed update-tape-after-epa ((tm list-solo-tm) (tm-ref list-solo-tm))
     (setf (tape tm) (tape tm-ref))
     )
-  (defun-typed update-tape-after-d◧ ((tm list-solo-tm) (tm-ref list-solo-tm))
+  (defun-typed update-tape-after-epd ((tm list-solo-tm) (tm-ref list-solo-tm))
     (setf (tape tm) (tape tm-ref))
     )
 
@@ -73,7 +73,7 @@ See LICENSE.txt
   ;; It follows that if there is only one cell, it is leftmost, and the head is on it.
   ;; As we refuse to delete the cell with the head on it, the last cell can not be deleted.
   ;; Consequently we can never have a ➜rightmost.
-  (defun-typed d◧ ((tm list-solo-tm) &optional spill ➜)
+  (defun-typed epd ((tm list-solo-tm) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)

@@ -48,16 +48,16 @@ The only way to change states away from 'empty' is to add a new cell.
 ;;
 
   ;; for an empty machine address and address-rightmost are already 0
-  (defun-typed a◧ ((tm ea-empty) instance &optional ➜)
+  (defun-typed epa ((tm ea-empty) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ ea-empty"))
+      ;; (prins (print "epa ea-empty"))
       (w (base tm) instance)
-      (h◧∀* (entanglements tm)
+      (◧∀* (entanglements tm)
         (λ(es) 
           (let(
                 (etm (r es))

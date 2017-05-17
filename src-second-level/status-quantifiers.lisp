@@ -10,10 +10,10 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; new function classes for status
 ;;
-  (def-function-class hp∃ (tm pred &optional ➜))
-  (def-function-class hp∀ (tm pred &optional ➜))
-  (def-function-class hp∃* (tm pred))
-  (def-function-class hp∀* (tm function))
+  (def-function-class p∃ (tm pred &optional ➜))
+  (def-function-class p∀ (tm pred &optional ➜))
+  (def-function-class p∃* (tm pred))
+  (def-function-class p∀* (tm function))
 
 ;;--------------------------------------------------------------------------------
 ;; abandoned
@@ -22,11 +22,11 @@ See LICENSE.txt
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed h◧∃ ((tm abandoned) pred &optional ➜)
+  (defun-typed ◧∃ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed hp∃ ((tm abandoned) pred &optional ➜)
+  (defun-typed p∃ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -35,11 +35,11 @@ See LICENSE.txt
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed h◧∀ ((tm abandoned) pred &optional ➜)
+  (defun-typed ◧∀ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed hp∀ ((tm abandoned) pred &optional ➜)
+  (defun-typed p∀ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -48,11 +48,11 @@ See LICENSE.txt
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed h◧∃* ((tm abandoned) pred)
+  (defun-typed ◧∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed hp∃* ((tm abandoned) pred)
+  (defun-typed p∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
@@ -61,11 +61,11 @@ See LICENSE.txt
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed h◧∀* ((tm abandoned) function)
+  (defun-typed ◧∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed hp∀* ((tm abandoned) function)
+  (defun-typed p∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
@@ -86,7 +86,7 @@ See LICENSE.txt
       [➜∅]
       ))
   ;; no existence case can be found independent of head initialization
-  (defun-typed h◧∃ ((tm empty) pred &optional ➜)
+  (defun-typed ◧∃ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -96,7 +96,7 @@ See LICENSE.txt
       ➜
       [➜∅]
       ))
-  (defun-typed hp∃ ((tm empty) pred &optional ➜)
+  (defun-typed p∃ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -119,7 +119,7 @@ See LICENSE.txt
       ➜
       [➜t]
       ))
-  (defun-typed h◧∀ ((tm empty) pred &optional ➜)
+  (defun-typed ◧∀ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -129,7 +129,7 @@ See LICENSE.txt
       ➜
       [➜t]
       ))
-  (defun-typed hp∀ ((tm empty) pred &optional ➜)
+  (defun-typed p∀ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -144,11 +144,11 @@ See LICENSE.txt
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed h◧∃* ((tm empty) pred)
+  (defun-typed ◧∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed hp∃* ((tm empty) pred)
+  (defun-typed p∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
@@ -157,11 +157,11 @@ See LICENSE.txt
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed h◧∀* ((tm empty) function)
+  (defun-typed ◧∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed hp∀* ((tm empty) function)
+  (defun-typed p∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
@@ -177,9 +177,9 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm ➜t (λ()(h◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
+      [pred tm ➜t (λ()(◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
       ))
-  (defun-typed hp∃ ((tm parked) pred &optional ➜)
+  (defun-typed p∃ ((tm parked) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -198,9 +198,9 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm (λ()(h◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
+      [pred tm (λ()(◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
       ))
-  (defun-typed hp∀ ((tm parked) pred &optional ➜)
+  (defun-typed p∀ ((tm parked) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -215,27 +215,27 @@ See LICENSE.txt
     [pred tm 
       (λ()
         (let(
-              (counts (h◧∃* tm pred))
+              (counts (◧∃* tm pred))
               )
           (cons (1+ (car counts)) (1+ (cdr counts)))
           ))
       (λ()
         (let(
-              (counts (h◧∃* tm pred))
+              (counts (◧∃* tm pred))
               )
           (cons (car counts) (1+ (cdr counts)))
           ))
       ])
 
-  (defun-typed hp∃* ((tm parked) pred)
+  (defun-typed p∃* ((tm parked) pred)
     (∃* tm pred)
     )
 
   (defun-typed ∀* ((tm parked) function)
     [function tm]
-    (h◧∀* tm function)
+    (◧∀* tm function)
     )
-  (defun-typed hp∀* ((tm parked) function)
+  (defun-typed p∀* ((tm parked) function)
     (∀* tm function)
     )
 
@@ -243,7 +243,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; active
 ;;
-  (defun-typed hp∃ ((tm active) pred &optional ➜)
+  (defun-typed p∃ ((tm active) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -251,10 +251,10 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (hp tm)
+      (p tm)
       (∃ tm {:➜t ➜t :➜∅ ➜∅})
       ))
-  (defun-typed hp∀ ((tm active) pred &optional ➜)
+  (defun-typed p∀ ((tm active) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -262,15 +262,15 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (hp tm)
+      (p tm)
       (∀ tm {:➜t ➜t :➜∅ ➜∅})
       ))
-  (defun-typed hp∃* ((tm active) pred)
-    (hp tm)
+  (defun-typed p∃* ((tm active) pred)
+    (p tm)
     (∃* tm pred)
     )
-  (defun-typed hp∀* ((tm active) function)
-    (hp tm)
+  (defun-typed p∀* ((tm active) function)
+    (p tm)
     (∀* tm function)
     )
 

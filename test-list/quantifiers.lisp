@@ -94,7 +94,7 @@ See LICENSE.txt
       ))
   (test-hook test-¬∀-0) 
 
-  (defun test-h◧∃-0 ()
+  (defun test-◧∃-0 ()
     (let(
           (l1 (mk 'list-tm {:tape {1 3 5 7}}))
           )
@@ -102,20 +102,20 @@ See LICENSE.txt
       (∧
         (sn l1 3)
         (= (r l1) 7)
-        (h◧∃ l1
+        (◧∃ l1
           (λ(tm ct c∅)(if (= (r tm) 5) [ct] [c∅]))
           )
-        (h◧∃ l1
+        (◧∃ l1
           (λ(tm ct c∅)(if (= (r tm) 3) [ct] [c∅]))
           )
-        (h◧∃ l1
+        (◧∃ l1
           (λ(tm ct c∅)(if (= (r tm) 11) [c∅] [ct]))
           )
         )))
-  (test-hook test-h◧∃-0)
+  (test-hook test-◧∃-0)
 
 
-  (defun test-h◧∀-0 ()
+  (defun test-◧∀-0 ()
     (let(
           (l1 (mk 'list-tm {:tape {1 3 5 7}}))
           (cnt 0)
@@ -124,9 +124,9 @@ See LICENSE.txt
       (∧
         (sn l1 3)
         (= (r l1) 7)
-        (h◧∀ l1
+        (◧∀ l1
           (λ(tm ct c∅)(declare (ignore tm c∅))(incf cnt)[ct])
           )
         (= cnt 4)
         )))
-  (test-hook test-h◧∀-0)
+  (test-hook test-◧∀-0)

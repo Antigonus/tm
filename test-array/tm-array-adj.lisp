@@ -34,7 +34,7 @@ See LICENSE.txt
       (eq (r x) 'b)
       (eq (r y) 'b)
       (heads-on-same-cell x y)
-      (h◨ x)
+      (◨ x)
       (eq (r x) 'c)
       )))
 (test-hook test-cue-array-adj-0)

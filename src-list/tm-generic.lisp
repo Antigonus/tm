@@ -13,12 +13,12 @@ new tape machine implementation to specialize them.
 ;;--------------------------------------------------------------------------------
 ;; cueing
 ;;  
-  (def-function-class h◨ (tm &optional ➜)
+  (def-function-class ◨ (tm &optional ➜)
     (:documentation
       "Cue tm's head to the rightmost cell."
       ))
 
-  (defun-typed h◨ ((tm tape-machine) &optional ➜)
+  (defun-typed ◨ ((tm tape-machine) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -62,13 +62,13 @@ new tape machine implementation to specialize them.
           })
       ))
 
-  (def-function-class a&h◨ (tm instance &optional ➜)
+  (def-function-class a&◨ (tm instance &optional ➜)
     (:documentation
       "#'a with a contract that the head is on rightmost.
       "))
 
   ;; specializations might make better use of the contract
-  (defun-typed a&h◨ 
+  (defun-typed a&◨ 
     (
       (tm tape-machine)
       instance
@@ -77,13 +77,13 @@ new tape machine implementation to specialize them.
       (a tm instance ➜)
       )
 
-  (def-function-class as&h◨ (tm instance &optional ➜)
+  (def-function-class as&◨ (tm instance &optional ➜)
     (:documentation
       "#'as with a contract that the head is on rightmost.
       "))
 
    ;; specializations might make better use of the contract
-  (defun-typed as&h◨ 
+  (defun-typed as&◨ 
     (
       (tm tape-machine)
       instance

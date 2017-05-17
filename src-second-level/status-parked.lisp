@@ -11,7 +11,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; status-tm definitions
 ;;
-  (defun-typed hp ((tm parked) &optional ➜)
+  (defun-typed p ((tm parked) &optional ➜)
      (declare (ignore tm))
      (destructuring-bind
        (
@@ -28,13 +28,13 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm parked) &optional ➜) (eh◧r tm ➜))
+  (defun-typed esr ((tm parked) &optional ➜) (e◧r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm parked) instance &optional ➜) (eh◧w tm ➜))
+  (defun-typed esw ((tm parked) instance &optional ➜) (e◧w tm ➜))
 
-  (defun-typed h◧ ((tm parked) &optional ➜)
+  (defun-typed ◧ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -45,10 +45,10 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed s ((tm parked) &optional ➜) (h◧ tm ➜))
-  (defun-typed -s ((tm parked) &optional ➜) (h◨ tm ➜))
+  (defun-typed s ((tm parked) &optional ➜) (◧ tm ➜))
+  (defun-typed -s ((tm parked) &optional ➜) (◨ tm ➜))
 
-  (defun-typed a ((tm parked) instance &optional ➜) (a◧ tm instance ➜))
+  (defun-typed a ((tm parked) instance &optional ➜) (epa tm instance ➜))
 
   (defun-typed on-leftmost ((tm parked) &optional ➜)
     (destructuring-bind
@@ -75,14 +75,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed h◨ ((tm parked) &optional ➜)
+  (defun-typed ◨ ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (h◨ (base tm)
+      (◨ (base tm)
         {
           :➜ok (λ()(to-active tm)[➜ok])
           }
@@ -91,18 +91,18 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm parked) instance &optional ➜)
+  (defun-typed epa ((tm parked) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ parked-active"))
-      (a◧ (base tm) instance
+      ;; (prins (print "epa parked-active"))
+      (epa (base tm) instance
         {
           :➜ok (λ()
-                 (h◧ (base tm)) ; for a parked machine we always leave the base head on leftmost
+                 (◧ (base tm)) ; for a parked machine we always leave the base head on leftmost
                  (incf (address-rightmost tm))
                  [➜ok]
                  )
@@ -110,7 +110,7 @@ See LICENSE.txt
           })))
 
 
-  (defun-typed d◧ ((tm parked) &optional spill ➜)
+  (defun-typed epd ((tm parked) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -119,7 +119,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ parked"))
+      ;; (prins (print "epd parked"))
       (if
         (= (address-rightmost tm) 0)
 
@@ -146,7 +146,7 @@ See LICENSE.txt
           (s (base tm) ; need to get the base head off of ◧ where we leave it when parked
             {:➜rightmost #'cant-happen} ; we know that address-rightmost is not 0
             )
-          (d◧ (base tm) spill
+          (epd (base tm) spill
             {
               :➜ok (λ(instance)
                      (decf (address tm))
@@ -158,7 +158,7 @@ See LICENSE.txt
               })
           ))))
 
-  (defun-typed d ((tm parked) &optional spill ➜) (d◧ tm spill ➜))
+  (defun-typed d ((tm parked) &optional spill ➜) (epd tm spill ➜))
 
   (defun-typed d. ((tm parked) &optional spill ➜)
     (declare (ignore tm spill))
@@ -237,7 +237,7 @@ See LICENSE.txt
       (entangled tm0 tm1
         {
           :➜t ➜rightmost
-          :➜∅ (λ()(h◧ tm0 ➜))
+          :➜∅ (λ()(◧ tm0 ➜))
           }
         )))
 
@@ -248,6 +248,6 @@ See LICENSE.txt
       &optional ➜
       )
     (declare (ignore tm1))
-    (h◧ tm0 ➜)
+    (◧ tm0 ➜)
     )
 

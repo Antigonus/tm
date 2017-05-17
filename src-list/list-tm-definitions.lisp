@@ -63,7 +63,7 @@ See LICENSE.txt
         [➜rightmost instance]
         )))
 
-  (defun-typed eh◧r ((tm list-tm) &optional ➜)
+  (defun-typed e◧r ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (car (tape tm))]
       ))
 
-  (defun-typed eh◧sr ((tm list-tm) &optional ➜)
+  (defun-typed e◧sr ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -86,7 +86,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed eh◧w ((tm list-tm) instance &optional ➜)
+  (defun-typed e◧w ((tm list-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -97,7 +97,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed eh◧sw ((tm list-tm) instance &optional ➜)
+  (defun-typed e◧sw ((tm list-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -118,7 +118,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed h◧ ((tm list-tm) &optional ➜)
+  (defun-typed ◧ ((tm list-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

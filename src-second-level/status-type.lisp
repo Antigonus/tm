@@ -152,12 +152,12 @@ a collision error.  Hence behavior is inherited from the identity transform.
             (let(
                   (cell-address 0)
                   )
-              (h◧ base)
+              (◧ base)
               (s base {:➜ok (λ()
                               (∀* base (λ(base)(declare (ignore base))(incf cell-address)))
                               )})
               (setf (address-rightmost tm) cell-address)
-              (h◧ base)
+              (◧ base)
               (setf (address tm) 0)
               (setf (base tm) base)
               (if

@@ -9,17 +9,17 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-a◧-0 ()
+(defun test-epa-0 ()
   (let*(
          (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
          )
     (∧
       (s tm0)
-      (a◧ tm0 7)
+      (epa tm0 7)
       (equal (tape tm0) {7 1 2 3})
       (¬ (on-leftmost tm0))
       )))
-(test-hook test-a◧-0)
+(test-hook test-epa-0)
 
 (defun test-d-0 ()
   (let*(
@@ -40,7 +40,7 @@ See LICENSE.txt
       (= (d tm0 ∅ {:➜ok (be -1) :➜rightmost (be -2) :➜no-alloc (be -3)}) -2)
       (equal (tape tm0) {1 2})
       (on-rightmost tm0)
-      (h◧ tm0)
+      (◧ tm0)
       (d tm0)
       (on-rightmost tm0)
       (on-leftmost tm0)
@@ -48,7 +48,7 @@ See LICENSE.txt
       )))
 (test-hook test-d-0)
 
-(defun test-d◧-0 ()
+(defun test-epd-0 ()
   (let*(
          (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
          (tm1 (mk 'list-solo-tm {:tape {-100}}))
@@ -56,32 +56,32 @@ See LICENSE.txt
     (∧
       (s tm0)
       (¬ (on-leftmost tm0))
-      (d◧ tm0 tm1)
+      (epd tm0 tm1)
       (equal (tape tm0) {2 3})
       (equal (tape tm1) {-100 1})
       (= (r tm0) 2)
       (= (r tm1) 1)
       (on-leftmost tm0)
       (on-rightmost tm1)
-      (eq (d◧ tm0 ∅ {:➜ok (be 'ok) :➜no-alloc (be 'na) :➜collision (be 'c)}) 'c)
+      (eq (epd tm0 ∅ {:➜ok (be 'ok) :➜no-alloc (be 'na) :➜collision (be 'c)}) 'c)
       )))
-(test-hook test-d◧-0)
+(test-hook test-epd-0)
 
-(defun test-d◧-1 ()
+(defun test-epd-1 ()
   (let*(
          (tm1 (mk 'list-solo-tm {:tape {1 2 3 'end}}))
          (tm2 (mk 'list-solo-tm {:tape {0}}))
          )
     (∧
       (s tm1)
-      (d◧ tm1 tm2)
+      (epd tm1 tm2)
       (s tm1)
-      (d◧ tm1 tm2)
+      (epd tm1 tm2)
       (s tm1)
-      (d◧ tm1 tm2)
+      (epd tm1 tm2)
       (¬ (s tm1))
       (= (r tm2) 3)
-      (h◧ tm2)
+      (◧ tm2)
       (= (r tm2) 0)
       (s tm2)
       (= (r tm2) 1)
@@ -92,4 +92,4 @@ See LICENSE.txt
       (¬ (s tm2))
       )
     ))
-(test-hook test-d◧-1)
+(test-hook test-epd-1)

@@ -97,7 +97,7 @@ This is copied from tm-region.lisp:
       (λ(subspace)
         (if 
           (typep subspace 'tape-machine)
-          (a◧ subspace instance cont-ok cont-no-alloc)
+          (epa subspace instance cont-ok cont-no-alloc)
           cont-mount-fail
           ))
       cont-mount-fail
@@ -135,7 +135,7 @@ This is copied from tm-region.lisp:
       (λ(subspace)
         (if 
           (typep subspace 'tape-machine)
-          (d◧ subspace spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+          (epd subspace spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
           cont-mount-fail
           ))
       cont-mount-fail

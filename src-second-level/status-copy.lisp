@@ -67,7 +67,7 @@ See LICENSE.txt
 
   (defun-typed c-fit ((src empty) (dst status-tape-machine))
     (declare (ignore src))
-    (hp dst)
+    (p dst)
     (d* dst)
     )
 
@@ -81,18 +81,18 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (h◧ src)
+      (◧ src)
       [➜dst-full]
       ))
 
   (defun-typed c ((src parked) (dst parked)  &optional ➜)
-    (h◧ src)
-    (h◧ dst)
+    (◧ src)
+    (◧ dst)
     (c src dst ➜)
     )
 
   (defun-typed c ((src parked) (dst tape-machine) &optional ➜)
-    (h◧ src)
+    (◧ src)
     (c src dst ➜)
     )
 
@@ -110,7 +110,7 @@ See LICENSE.txt
       ))
 
   (defun-typed c ((src active) (dst parked)  &optional ➜)
-    (h◧ dst)
+    (◧ dst)
     (c src dst ➜)
     )
 

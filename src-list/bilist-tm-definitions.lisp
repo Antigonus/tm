@@ -63,7 +63,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed eh◧r ((tm bilist-tm) &optional ➜)
+  (defun-typed e◧r ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (binode-instance (tape tm))]
       ))
 
-  (defun-typed eh◧sr ((tm bilist-tm) &optional ➜)
+  (defun-typed e◧sr ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -86,7 +86,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed eh◧w ((tm bilist-tm) instance &optional ➜)
+  (defun-typed e◧w ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -97,7 +97,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed eh◧sw ((tm bilist-tm) instance &optional ➜)
+  (defun-typed e◧sw ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -117,7 +117,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  ;; h◧ inherited from list-tm
+  ;; ◧ inherited from list-tm
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping

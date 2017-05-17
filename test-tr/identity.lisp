@@ -12,7 +12,7 @@ See LICENSE.txt
         (tm0 (mk 'list-solo-tm {:tape {1 2 3}}))
         (tm1 (mk 'identity-tr {:base tm0}))
         )
-    (d◧ tm1 ∅ {:➜ok (be ∅) :➜no-alloc (be ∅) :➜collision (be t)})
+    (epd tm1 ∅ {:➜ok (be ∅) :➜no-alloc (be ∅) :➜collision (be t)})
     ))
 (test-hook test-identity-0)
 

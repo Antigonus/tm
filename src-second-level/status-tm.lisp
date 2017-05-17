@@ -65,7 +65,7 @@ overridden.
     )
 
   ;; cue head to parked
-  (def-function-class hp (tm &optional ➜)) ; handled by subtypes
+  (def-function-class p (tm &optional ➜)) ; handled by subtypes
 
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only

@@ -82,10 +82,10 @@ have the base forms called).]
   (def-identity-tr-1 w instance)
   (def-identity-tr-1 esw instance)
 
-  (def-identity-tr-1 eh◧r)
-  (def-identity-tr-1 eh◧w instance)
+  (def-identity-tr-1 e◧r)
+  (def-identity-tr-1 e◧w instance)
 
-  (def-identity-tr-1 h◧)
+  (def-identity-tr-1 ◧)
   (def-identity-tr-1 s)
   (def-identity-tr-1 a instance)
   (def-identity-tr-1 on-leftmost)
@@ -94,7 +94,7 @@ have the base forms called).]
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (def-identity-tr-1 a◧ instance)
+  (def-identity-tr-1 epa instance)
   (defun-typed d
     (
       (tm identity-tr)
@@ -102,12 +102,12 @@ have the base forms called).]
       )
     (d (base tm) spill ➜)
     )
-  (defun-typed d◧
+  (defun-typed epd
     (
       (tm identity-tr)
       &optional spill ➜
       )
-    (d◧ (base tm) spill ➜)
+    (epd (base tm) spill ➜)
     )
 
 

@@ -51,13 +51,13 @@ See LICENSE.txt
     (∧
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (hp tm1)
+      (p tm1)
       (= (address-rightmost tm1) 2) 
-      (= (d◧ tm1) 1)
+      (= (epd tm1) 1)
       (= (address-rightmost tm1) 1) 
-      (= (d◧ tm1) 2)
+      (= (epd tm1) 2)
       (= (address-rightmost tm1) 0) 
-      (= (d◧ tm1) 3)
+      (= (epd tm1) 3)
       (typep tm1 'empty)
       )
     ))
@@ -75,7 +75,7 @@ See LICENSE.txt
       (typep tm1 'active)
       (= (address tm1) 0) 
       (= (address-rightmost tm1) 2) 
-      (hp tm1)
+      (p tm1)
       (typep tm1 'ts1-parked)
       (typep tm1 'parked)
       (d tm1)
@@ -135,7 +135,7 @@ See LICENSE.txt
                       (∀ tm-sum
                         (λ(tm-sum ct c∅)
                           (declare (ignore tm-sum))
-                          (h◧ tm22)
+                          (◧ tm22)
                           (setf actual-sum 0)
                           (∀* tm22 (λ(tm22) (setf actual-sum (+ actual-sum (r tm22)))))
                           (if
@@ -193,7 +193,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .001)
       ))
-  (hp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (p tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)
@@ -231,34 +231,34 @@ At the end we compare tm31 with tm11.
   (prins (print "entering tm-drain-pipe-tries loop"))
   (∀ tm-drain-pipe-tries
     (λ(tm-drain-pipe-tries ct c∅)(declare (ignore tm-drain-pipe-tries))
-      (d◧ tm-pipe tm31
+      (epd tm-pipe tm31
         {
           :➜ok
           (λ(instance)
             (prins
-              (nl)(princ "in t2 d◧ ok cont, tm-pipe and tm31 ")
+              (nl)(princ "in t2 epd ok cont, tm-pipe and tm31 ")
               (nl)(tm-print tm-pipe)
               (nl)(tm-print tm31))
             (sleep .003)
             (if (eq instance 'end)
               (progn 
-                (prins (nl)(princ "in t2 d◧ ok cont, found 'end instance, exiting"))
+                (prins (nl)(princ "in t2 epd ok cont, found 'end instance, exiting"))
                 [c∅]
                 )
               (progn
-                (prins (nl)(princ "in t2 d◧ ok cont, pulling next instance"))
+                (prins (nl)(princ "in t2 epd ok cont, pulling next instance"))
                 [ct]
                 )))
           :➜empty
           (λ()
-            (prins (nl)(princ "in t2 d◧  empty cont, will retry"))
+            (prins (nl)(princ "in t2 epd  empty cont, will retry"))
             (setf (unbox experienced-empty-in-box) t)
             (sleep .001)
             [ct]
             )
           :➜collision
           (λ()
-            (prins (nl)(princ "in t2 d◧ collision cont, will retry"))
+            (prins (nl)(princ "in t2 epd collision cont, will retry"))
             (setf (unbox experienced-collision-in-box) t)
             (sleep .002)
             [ct]
@@ -347,8 +347,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (h◧ tm11)
-        (h◧ tm31)
+        (◧ tm11)
+        (◧ tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))
@@ -386,7 +386,7 @@ At the end we compare tm31 with tm11.
       (as tm-pipe (r tm11))
       (sleep .0025)
       ))
-  (hp tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
+  (p tm-pipe) ;; this frees t2 to move the last instance from tm-pipe
   (prins
     (nl)(princ "tm-pipe full:")
     (nl)(tm-print tm-pipe)
@@ -404,34 +404,34 @@ At the end we compare tm31 with tm11.
   (prins (print "entering tm-drain-pipe-tries loop"))
   (∀ tm-drain-pipe-tries
     (λ(tm-drain-pipe-tries ct c∅)(declare (ignore tm-drain-pipe-tries))
-      (d◧ tm-pipe tm31
+      (epd tm-pipe tm31
         {
           :➜ok
           (λ(instance)
             (prins
-              (nl)(princ "in t2 d◧ ok cont, tm-pipe and tm31 ")
+              (nl)(princ "in t2 epd ok cont, tm-pipe and tm31 ")
               (nl)(tm-print tm-pipe)
               (nl)(tm-print tm31))
             (sleep .001)
             (if (eq instance 'end)
               (progn 
-                (prins (nl)(princ "in t2 d◧ ok cont, found 'end instance, exiting"))
+                (prins (nl)(princ "in t2 epd ok cont, found 'end instance, exiting"))
                 [c∅]
                 )
               (progn
-                (prins (nl)(princ "in t2 d◧ ok cont, pulling next instance"))
+                (prins (nl)(princ "in t2 epd ok cont, pulling next instance"))
                 [ct]
                 )))
           :➜empty
           (λ()
-            (prins (nl)(princ "in t2 d◧  empty cont, will retry"))
+            (prins (nl)(princ "in t2 epd  empty cont, will retry"))
             (setf (unbox experienced-empty-in-box) t)
             (sleep .002)
             [ct]
             )
           :➜collision
           (λ()
-            (prins (nl)(princ "in t2 d◧ collision cont, will retry"))
+            (prins (nl)(princ "in t2 epd collision cont, will retry"))
             (setf (unbox experienced-collision-in-box) t)
             (sleep .002)
             [ct]
@@ -516,8 +516,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (h◧ tm11)
-        (h◧ tm31)
+        (◧ tm11)
+        (◧ tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))

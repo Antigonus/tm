@@ -19,7 +19,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-    (h◧∃ (entanglements tm)
+    (◧∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
               (etm (r es))
@@ -48,7 +48,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-    (h◧∃ (entanglements tm)
+    (◧∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
               (etm (r es))
@@ -82,7 +82,7 @@ See LICENSE.txt
       ➜
       (labels(
                (inc-rightside-addresses (tm)
-                 (h◧∀* (entanglements tm)
+                 (◧∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))
@@ -106,7 +106,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  ;; see ea-parked-active for a◧ and d◧
+  ;; see ea-parked-active for epa and epd
   (defun-typed d ((tm ea-active) &optional spill ➜)
     (destructuring-bind
       (&key
@@ -117,7 +117,7 @@ See LICENSE.txt
       ➜
       (labels(
                (dec-rightside-addresses (tm)
-                 (h◧∀* (entanglements tm)
+                 (◧∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))

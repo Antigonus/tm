@@ -22,7 +22,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;; status-tm definitions
 ;;
   ;; cue the head to the parking spot
-  (defun-typed hp ((tm active) &optional ➜)
+  (defun-typed p ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -30,7 +30,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (h◧ (base tm)
+       (◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -43,7 +43,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed h◧ ((tm active) &optional ➜)
+  (defun-typed ◧ ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -51,7 +51,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (h◧ (base tm)
+       (◧ (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -132,14 +132,14 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed h◨ ((tm active) &optional ➜)
+  (defun-typed ◨ ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (h◨ (base tm)
+      (◨ (base tm)
         {
           :➜ok (λ()
                  (setf (address tm) (address-rightmost tm))
@@ -151,15 +151,15 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
 ;;
-  (defun-typed a◧ ((tm active) instance &optional ➜)
+  (defun-typed epa ((tm active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "a◧ parked-active"))
-      (a◧ (base tm) instance
+      ;; (prins (print "epa parked-active"))
+      (epa (base tm) instance
         {
           :➜ok (λ()
                  (incf (address tm))
@@ -185,7 +185,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
           (o (remove-key-pair ➜ :➜ok))
           })))
 
-  (defun-typed d◧ ((tm active) &optional spill ➜)
+  (defun-typed epd ((tm active) &optional spill ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -193,10 +193,10 @@ a collision error.  Hence behavior is inherited from the identity transform.
         &allow-other-keys
         )
       ➜
-      ;; (prins (print "d◧ active"))
+      ;; (prins (print "epd active"))
       (if (= (address-rightmost tm) 0)
         [➜collision]
-        (d◧ (base tm) spill
+        (epd (base tm) spill
           {
             :➜ok (λ(instance)
                    (decf (address tm))

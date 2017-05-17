@@ -69,7 +69,7 @@ See LICENSE.txt
 ;;
 ;; careful:
 ;;
-;; The quantifiers start where the head is located, they do not h◧ first.  I do
+;; The quantifiers start where the head is located, they do not ◧ first.  I do
 ;; this so that prefix values may be processed before calling a quantifier.
 ;;
 ;; I pass to the predicate the entire tape machine, rather than just the instance in the
@@ -82,14 +82,14 @@ See LICENSE.txt
     (def-function-class ∃ (tm pred &optional ➜))
     (def-function-class ∀ (tm pred &optional ➜))
 
-    (def-function-class h◧∃ (tm pred &optional ➜))
-    (def-function-class h◧∀ (tm pred &optional ➜))
+    (def-function-class ◧∃ (tm pred &optional ➜))
+    (def-function-class ◧∀ (tm pred &optional ➜))
 
     (def-function-class ∃* (tm pred))
     (def-function-class ∀* (tm function))
 
-    (def-function-class h◧∃* (tm pred))
-    (def-function-class h◧∀* (tm function))
+    (def-function-class ◧∃* (tm pred))
+    (def-function-class ◧∀* (tm function))
 
 
   ;; Seems that at least some errors in threads will cause the thread to hang ..
@@ -116,7 +116,7 @@ See LICENSE.txt
         )
       ))
 
-  (defun-typed h◧∃ ((tm tape-machine) pred &optional ➜)
+  (defun-typed ◧∃ ((tm tape-machine) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -124,7 +124,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (h◧ tm)
+      (◧ tm)
       (∃ tm pred {:➜t ➜t :➜∅ ➜∅})
       ))
 
@@ -142,7 +142,7 @@ See LICENSE.txt
       (∃ tm (λ(tm ct c∅)[pred tm c∅ ct]) {:➜t ➜∅ :➜∅ ➜t})
       ))
 
-  (defun-typed h◧∀ ((tm tape-machine) pred &optional ➜)
+  (defun-typed ◧∀ ((tm tape-machine) pred &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -150,7 +150,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (h◧ tm)
+      (◧ tm)
       (∀ tm pred {:➜t ➜t :➜∅ ➜∅})
       ))
 
@@ -177,8 +177,8 @@ See LICENSE.txt
       (cons true-count false-count)
       ))
 
-  (defun-typed h◧∃* ((tm tape-machine) pred)
-    (h◧ tm)
+  (defun-typed ◧∃* ((tm tape-machine) pred)
+    (◧ tm)
     (∃ tm pred)
     )
 
@@ -194,8 +194,8 @@ See LICENSE.txt
             }
           ))))
 
-  (defun-typed h◧∀* ((tm tape-machine) function)
-    (h◧ tm)
+  (defun-typed ◧∀* ((tm tape-machine) function)
+    (◧ tm)
     (∀* tm function)
     )
 

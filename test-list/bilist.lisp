@@ -46,7 +46,7 @@ See LICENSE.txt
           (¬ (s tm1))
           (-s tm1)
           (heads-on-same-cell tm0 tm1)
-          (h◧ tm1)
+          (◧ tm1)
           (= (r tm1) 7)
           (s tm1)
           (= (r tm1) 2)
@@ -84,15 +84,15 @@ See LICENSE.txt
         )
     (∧
       (s tm0)
-      (= (d◧ tm0) 7)
+      (= (epd tm0) 7)
       (= (r tm0) 2)
 
       (s tm0)
-      (= (d◧ tm0) 2)
+      (= (epd tm0) 2)
       (= (r tm0) -3)
 
       (s tm0)
-      (= (d◧ tm0) -3)
+      (= (epd tm0) -3)
       (= (r tm0)  4)
 
       (¬ (s tm0))
@@ -105,7 +105,7 @@ See LICENSE.txt
         )
     (∧
       (= (-s tm0 {:➜ok (be 3) :➜leftmost (be 4)}) 4)
-      (= (d◧ tm0 ∅ {:➜ok (be 22) :➜collision (be 55)}) 55)
+      (= (epd tm0 ∅ {:➜ok (be 22) :➜collision (be 55)}) 55)
       )))
 (test-hook test-bilist-4)
 
