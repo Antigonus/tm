@@ -94,11 +94,11 @@ they belong to.
       #:esr
       #:w
       #:esw
-      #:eh◧r
-      #:eh◧sr
-      #:eh◧w
-      #:eh◧sw
-      #:h◧
+      #:e◧r
+      #:e◧sr
+      #:e◧w
+      #:e◧sw
+      #:◧
       #:s
       #:a
       #:on-leftmost
@@ -120,13 +120,13 @@ they belong to.
       #:always-false
 
       #:∃
-      #:h◧∃
+      #:◧∃
       #:∀
-      #:h◧∀
+      #:◧∀
       #:∃*
-      #:h◧∃*
+      #:◧∃*
       #:∀*
-      #:h◧∀*
+      #:◧∀*
 
     ;;tm-quantified
     ;;
@@ -168,9 +168,9 @@ they belong to.
 
     ;;solo-tm-decls
     ;;
-      #:a◧
+      #:epa
       #:d
-      #:d◧
+      #:epd
 
     ;;solo-tm-quantified
     ;;
@@ -248,12 +248,12 @@ they belong to.
       #:status-empty ; type
       #:status-parked ; type
 
-      #:hp
+      #:p
       #:abandon
-      #:hp∃
-      #:hp∀
-      #:hp∃*
-      #:hp∀*
+      #:p∃
+      #:p∀
+      #:p∃*
+      #:p∀*
 
       #:ea-tm ; type
       #:ts1-tm ; type
