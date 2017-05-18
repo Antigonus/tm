@@ -51,6 +51,8 @@ See LICENSE.txt
             [➜ok tm]
             )
           (t
+            (setf (tape tm) (cons ∅ ∅))
+            (setf (head tm) (tape tm))
             (call-next-method keyed-parms ➜) ; pick up tape-machine's init for non consp tapes
             ))
         )))

@@ -23,7 +23,7 @@ See LICENSE.txt
   towards the end of a tape will be monotonic. 2) the range of cells used by the funciton
   will be apparent.
 
-|#
+|# 
 
 (in-package #:tm)
 
@@ -36,8 +36,8 @@ See LICENSE.txt
 ;;
   (def-function-class init (instance &optional init-value ➜))
 
-  ;; init will throw an error that the function #'w is not found if tape-machine
-  ;; does not have an implementation
+  ;; Often this will be called via 'call-next-method.  The first cell must already exist
+  ;; on the tape when this is called. That cell must have an instance of '∅'.
   (defun-typed init
     (
       (tm tape-machine)
@@ -54,7 +54,7 @@ See LICENSE.txt
         )
       ➜
       (destructuring-bind
-        (&key tape &allow-other-keys) init-parms
+        (&key tape tm &allow-other-keys) init-parms
         (cond
           ((∧ tape (typep tape 'sequence))
             (◧ tm)
@@ -65,9 +65,15 @@ See LICENSE.txt
               )
             [➜ok tm]
             )
+          ((∧ tape (typep tape 'tape-machine))
+            (c-fit tape tm)
+            [➜ok tm]
+            )
           (tape [➜fail]) 
-          (t [➜ok tm]) ; there is no obligation to provide an initialization sequence
+          (t ; there is no obligation to provide an initialization sequence
+            [➜ok tm]) 
           ))))
+
 
   (defun mk (tm-class &optional init-parms ➜)
     (let(

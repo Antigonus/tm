@@ -41,6 +41,13 @@ call interface e.g. ... (x number) ..  we use the architectual type as a specifi
 not an implementation type.   Our architectural types of spelled out suffices, .e.g.
 'tape-machine', while our implementations have abreviated suffixes such as 'tm'.
 
+.. thus we can distinuish architecture (abstract type, interface) from implementation by
+the existence of slots.  Thus the implementation type slot accessors should be used through
+iterface functions, and not directly - as another implementation of the same architecture
+might not have such slots.  .. actaually the :accessor keywords allow us to create
+functions of the correct form - if the slot disappears we can add a function back to
+maintain the architecture.
+
 ;;
 this says that a typed function written to take an argument of an solo-tape-machine
 or that of an nd-tape-machine, will also accept an argument of type haz-tape-machine.

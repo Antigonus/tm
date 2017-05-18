@@ -119,30 +119,17 @@ copy to new list doe snot have the problem and it is also transactional
    seems to work
 
 
-48.
-   d◧  needs to be epd  'entangle, park, delete'
-   a◧  "
+49. need to turn #'cant-happen to carry a documentation string so we know
+    why.
 
-
-49. need to turn #'cant-happen into a function like be that when prins is turned
-  on prints a where message and why it isn't supposed to happen
-
-50.  ⟳ needs a max-iteration count continuation option
+50.  ⟳ needs an optional max-iteration count continuation option, or an
+  error continuation
 
 51. tape length tests for status machines should be based on addresses as that is
 faster.
 
-52. clean up ea-parked-active d◧ .. make some of those labeled functions
-   generally available, such as collision◧  collision ... need to add the
-   compare at the end of test-ts1-4
-
-53. qauntifiers need typed for to support second order with possible empty machines
-
-54. ea-tm does not need both entangelments and entanglments-pt -- entanglments pt
-can be copied and cued to leftmost to recover entangelments.
-
 55. if a test does not return in a short time, call the test a failure, perhaps
-add a time to wait as part of test-hook
+add a time to wait as part of test-hook (similar to #50 above)
 
 56. ensemble needs something to help the programer know which machines hit
    rightmost.  Look at shallow copy for example.  After a quantifier we
@@ -167,5 +154,16 @@ add a time to wait as part of test-hook
     time to implement our symbol tables,  (e st0 tm), or some such, st0 being
     the table to place the entangled copy on.
 
+    It is safe to entangle tm-list and solo-list to a scoped non destructive machine
+    within a single thread. Solo can delete cells, so the scoping assures there are no
+    other heads on the tape by the time the thread gets back to the solo code.  We should
+    define such entanglements so as to get our tm-print to work with all machines.
+
 61. move tests to the export side instead of being in the package.  Give them
     a package of their own, so that they don't take up so much space in the lib
+
+62. functions such as ◧  and p should allow more than one argument in then
+    affect them all
+
+
+
