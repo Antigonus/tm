@@ -28,18 +28,16 @@ functions.
   (def-function-class w (tm instance &optional ➜))
   (def-function-class esw (tm instance &optional ➜))
 
-  (def-function-class e◧r (tm &optional ➜))
-  (def-function-class e◧sr (tm &optional ➜))
-
-  (def-function-class e◧w (tm instance &optional ➜))
-  (def-function-class e◧sw (tm instance &optional ➜))
-
-
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
   (def-function-class ◧ (tm &optional ➜))
 
+  (def-function-class e◧r (tape &optional ➜))
+  (def-function-class e◧sr (tape &optional ➜))
+
+  (def-function-class e◧w (tape instance &optional ➜))
+  (def-function-class e◧sw (tape instance &optional ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping
@@ -86,5 +84,6 @@ functions.
 ;;
   (def-function-class tape-length-is-one (tm &optional ➜))
   (def-function-class tape-length-is-two (tm &optional ➜))
+
 
 

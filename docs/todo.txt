@@ -1,4 +1,8 @@
-
+ 
+1. make tape inherited by tape machine.  A number of interface functions
+   work on just tapes,  e.g.  a◧ (now epa).   It is tape which has an
+   address space.  Would be good to introduce it sooner than status machine,
+   though its appears to be optional, a tape transform.
 
 2. access lang needs to be finished, also chapter needs to be added
 to the manual.
@@ -165,5 +169,13 @@ add a time to wait as part of test-hook (similar to #50 above)
 62. functions such as ◧  and p should allow more than one argument in then
     affect them all
 
-
-
+63. In src-array need to add a bit fields type similar to tiled number, but each field can
+    be a different width.  It should support random access against field index.
+    We will later have a tiled-number type, so the current tiled-number type with
+    an assumption of constant bit fields for a number up until the tailing zeros,
+    should be renamed, and then the tiled-number should point to it until it is
+    replaced. The current tiled-number starts at bit 0, with a field up to the tile
+    length.  I suppose for the bit field machines they will not have to start
+    at bit 0.  Or perhaps that is done with a region transform. .. yes the current
+    tiled number should be somethign like 'by-digits'.  hex, octal,  and we
+    need 'by-character'  ascii or unicode.  .. also need a simple array

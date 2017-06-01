@@ -1,0 +1,36 @@
+
+Our address space comes with an allocator and deallocator of addresses.  The address space
+has topological properties. We make use of this and always allocate the smallest available
+free address.  In this manner the space tends towards being compact, i.e. dense, and tends
+to be based at zero.  At any given time we might have some holes in the address space
+due to recently deallocations, but we will make up for this at the first opportunity by
+allocating the smallest free address first.
+
+We use such allocated addresses to stand for symbols. This leads to symbols being quick to
+compare, and gives them an arbitrary, though dependeable complete ordering. To the extent
+that the address space is compact, it causes symbols to be as small as theoretically
+possible.  Hence we can pack a bunch of them in a caches, transfer them quickly, and give
+programs reasonable context size.
+
+There can be topological relationships between symbols, due to what I call 'concept
+spaces', but those relationships are captured externally rather than through distance
+between addresses.  There are multiple reasons for this, and among them, we need the
+address space topology for the allocator.  If we used it instead for concept spaces, then
+the address space would become sparse rather than dense. As another reason is that a given
+symbol can participate in a number of concept spaces.  The relationships between symbols
+is typically more complex than it is between addresses.
+
+In a tape machine with absolute addressing, we can look up an instances while given an
+address. Depending on the application, this instance might be nil, the symbol's 'value', a
+reference object to relationships between symbols, or yet something else.
+
+Humans use strings for symbols. We call such a string the symbol's 'name'. Thus part of
+our parsing problem is that of reducing symbol names to symbols (addresses).  We use a
+dictionary to do this.  The name is the 'word' we lookup in the dictionary, and the
+'definition' is then the address from a tm address space that is being used to represent
+the symbol.
+
+Sometimes we care more about the symbol string than the symbol itself.  For example
+if we want to spell check while parsing symbol strings. However, then the symbol name
+is the value for another symbol.  This shifts computation domains.
+

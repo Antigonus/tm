@@ -134,29 +134,11 @@ See LICENSE.txt
                                ))
 
 
-#|
                 (:module "src-array"
-                :components (
+                  :components (
+                                (:file "tiled-number")
+                                ))
 
-                              (:file "worker")
-                              (:file "worker-utilities")
-
-                              (:file "tm-array-adj-mk")
-                              (:file "tm-array-adj-primitives")
-                              (:file "tm-array-adj-derived")
-                              (:file "tm-array-adj-convert")
-
-                              (:file "tm-array-mk")
-                              (:file "tm-array-primitives")
-                              (:file "tm-array-derived")
-                              (:file "tm-array-convert")
-
-                              (:file "tm-aggregate-mk")
-                              (:file "tm-aggregate-primitives")
-
-                              (:file "access-lang")
-                              ))
-|#
               (:module "test-0"
                  :components (
                                (:file "list-qL")
@@ -202,15 +184,10 @@ See LICENSE.txt
                                (:file "copy")
                                ))
 
-#|
-               (:module "test-2"
+               (:module "test-array"
                  :components (
-                               (:file "worker")
-                               (:file "tm-array-adj")
-                               (:file "tm-aggregate")
-                               (:file "access-lang")
+                               (:file "tiled-number")
                                ))
-|#
                ))
   
   

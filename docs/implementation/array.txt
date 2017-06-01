@@ -1,0 +1,98 @@
+
+The array tape is implemented in blocks.  Say 64 element blocks.
+
+Array has a native deallocate command, d., and an allocate command, e◨a. 
+
+Array has a slot for holding the smallest index to a deallocated element.  Each deallocated
+element holds the index(reference?) of the next smallest deallocated element index.
+
+If nothing has been deallocated from the array, then allocation-new will extend the array.
+
+Upon allocation-new we hand back the smallest index.  Hence the array tends to be compact,
+tending towards the smaller indexes.
+
+Array has a slot for holding the largest index.  Should the largest index element
+be deallocated, then the array contracts.  Should it contract past the block size limit
+then the block will be deallocated from its owner.
+
+dealloc of 1 element suffices as instances are held by reference.  It is interesting
+to contemplate a version where deallocated can be done in blocks, though then the
+blocks size paraemeter must be held somewhere.
+
+An index into the array is a head, so the user can only have one by creating
+a tape machine over the array.  Stepping, i.e. incrementing, the index is cognizant
+of deallocated elements, and will skip over them.
+
+Each block keeps a count of deallocated elements, when this count reaches the size of the
+block, the block is released.  The counts are also used to speed up address calculation.
+
+A tape machine may be created over the array to step through allocated elements,
+deallocated elements, or all elements.
+
+It is illegal for the programmer to access and a deallocated element.  However, the
+entanglement mechanism makes this difficult for a programmer to do.  An index is a
+tape head, so the entanglement mechanism will provide a collision error should the
+programmer make an active index stale.
+
+For 64 element blocks, the bottom six bits of an index can be incremented directly, while
+also taking care to skip over deallocated blocks.  The remaining bits go through a
+translation table to find their blocks.  As one possible implementation for this table is
+another array tape, where its elements are references to blocks plus some additional
+information.  When a block is is deallocated at the lower level, its entry is deallocated
+on the higher level array tape.  For arrays of greater than 6+6 = 12 ==> 2048 elements we
+open a third level, etc.  Pointers to the levels are stacks, perhaps made of blocks in
+a linked list.
+
+The additional information for the block pointer can hold mark if the block is deallocated,
+or perhaps even swapped out, read only, or gosh, perhaps access permissions.
+
+Note also my implementation of table for accomodating variable word sizes, that is in the
+cpp source tree.
+
+----
+
+  An array index is broken into fields, currently each of 4 bits.
+
+       ..., i7 i6 i5 i4, i3 i2 i1 i0
+
+  The bottom 4 bits look up the element in the block.  The remaining bits
+  lookup the block in the directory.
+
+  directory bits:
+
+       ..., i11 i10 i9 i8, i7 i6 i5 i4
+
+   Note the directory is implemented with an array, so the bottom 4 bits
+   lookup the block, while the remaining bits are sent to the higher level
+   directory.
+
+   An address with four or fewer bits addresses into block zero:
+
+       ..., 0 0 0 0, i3 i2 i1 i0
+
+   An address with 8 or fewer bits has one level of directory lookup:
+
+       ..., 0 0 0 0, 
+
+----
+
+   Say we store the addresses most significant digit first:
+
+    ..  0 0 0 0 i7 i6 i5 i4 i3 i2 i1 i0
+
+    i3 i2 i1 i0  are used to look into the first level of the directory
+
+    i7 i6 i5 i4  are used to look into the block indicated by the directory
+
+    1. shift off 4 bits -> a-rest | a-first
+    2.1 if a-rest is zero, then a-first is an address into the block
+    2.2 if a-rest is non-zero,
+           
+       
+
+    
+
+
+
+
+

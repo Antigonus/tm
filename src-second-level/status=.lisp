@@ -3,14 +3,14 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-We do not rewind the machines before running the equality test.  So
-this can be used for checking that suffixes are equal.
+We do not rewind the machines before running the equivalence test.  So
+this can be used for checking that suffixes are equivalent.
 
-We say two tape machines are equal when they have equal instances in
+We say two tape machines are equivalent when they have equivalent instances in
 corresponding locations of the tape.
 
-Set equal drops the requirement for corresponding locations.
-
+Would be nice to also have an equivalence test that did not require location 
+correspondence so tm's could be used for equivalence between sets.
 
 |#
 
@@ -19,11 +19,11 @@ Set equal drops the requirement for corresponding locations.
 ;;--------------------------------------------------------------------------------
 ;; abandoned
 ;;
-  (defun-typed tm= ((a abandoned) b &optional ➜)
+  (defun-typed equiv ((a abandoned) b &optional ➜)
     (declare (ignore a b ➜))
     (operation-on-abandoned)
     )
-  (defun-typed tm= (a (b abandoned) &optional ➜)
+  (defun-typed equiv (a (b abandoned) &optional ➜)
     (declare (ignore a b ➜))
     (operation-on-abandoned)
     )
@@ -31,7 +31,7 @@ Set equal drops the requirement for corresponding locations.
 ;;--------------------------------------------------------------------------------
 ;; empty
 ;;
-  (defun-typed tm= ((a empty) (b empty) &optional ➜)
+  (defun-typed equiv ((a empty) (b empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -41,7 +41,7 @@ Set equal drops the requirement for corresponding locations.
       [➜t]
       ))
 
-  (defun-typed tm= ((a empty) (b tape-machine) &optional ➜)
+  (defun-typed equiv ((a empty) (b tape-machine) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -51,7 +51,7 @@ Set equal drops the requirement for corresponding locations.
       [➜∅]
       ))
 
-  (defun-typed tm= ((a tape-machine) (b empty) &optional ➜)
+  (defun-typed equiv ((a tape-machine) (b empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -64,28 +64,28 @@ Set equal drops the requirement for corresponding locations.
 ;;--------------------------------------------------------------------------------
 ;; parked
 ;;
-  (defun-typed tm= ((a parked) (b parked) &optional ➜)
+  (defun-typed equiv ((a parked) (b parked) &optional ➜)
     (s a
       {
         :➜ok (λ()(s b
                    {
-                     :➜ok (λ()(tm= a b ➜))
+                     :➜ok (λ()(equiv a b ➜))
                      :➜rightmost #'cant-happen
                      }))
         :➜rightmost #'cant-happen
         }))
 
-  (defun-typed tm= ((a parked) (b tape-machine) &optional ➜)
+  (defun-typed equiv ((a parked) (b tape-machine) &optional ➜)
     (s a
       {
-        :➜ok (λ()(tm= a b ➜)) ; a will now be active
+        :➜ok (λ()(equiv a b ➜)) ; a will now be active
         :➜rightmost #'cant-happen
         }))
 
-  (defun-typed tm= ((a tape-machine) (b parked) &optional ➜)
+  (defun-typed equiv ((a tape-machine) (b parked) &optional ➜)
     (s b
       {
-        :➜ok (λ()(tm= a b ➜)) ; b will now be active
+        :➜ok (λ()(equiv a b ➜)) ; b will now be active
         :➜rightmost #'cant-happen
         }))
 

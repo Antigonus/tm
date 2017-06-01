@@ -120,3 +120,13 @@ we would not need the recursive lock.  This could be done in two ways, either wh
 next method, we tell close to treat the type as the more general type, everywhere.  Or
 secondly, we could reproduce 'clean-entanglements' and inside it explicitly make calls
 to the more general function versions (something we can not do now).
+
+9.
+
+(defun-typed dispatch-project ((p project) 
+
+would like to drop '-project'  from the function name.  It appears to be redundant
+as p is qualified on project.  However, all functions in a function class must
+have the same number of arguments and &option form, etc.  Hence, dispatch for other
+than project might collide with this.  But if I add the '-project'  I am creating
+a namespace for project functions, and don't really need the type qualification.
