@@ -108,10 +108,10 @@ they belong to.
 
     ;;tm-generic
     ;;
-      #:h◨
+      #:s*
       #:as
-      #:a&h◨
-      #:as&h◨
+      #:a&hs*
+      #:as&hs*
 
     ;;quantifiers
     ;;
@@ -120,13 +120,13 @@ they belong to.
       #:always-false
 
       #:∃
-      #:◧∃
+      #:-s*∃
       #:∀
-      #:◧∀
+      #:-s*∀
       #:∃*
-      #:◧∃*
+      #:-s*∃*
       #:∀*
-      #:◧∀*
+      #:-s*∀*
 
     ;;tm-quantified
     ;;
@@ -150,7 +150,7 @@ they belong to.
       #:with-entangled
       #:s≠
       #:heads-on-same-cell
-      #:a◨
+      #:es*a
 
     ;;nd-tm-generic
     ;;
@@ -211,8 +211,6 @@ they belong to.
       #:bilist-nd-tm
       #:bilist-solo-tm
       #:bilist-haz-tm
-
-   
 
 
 ;;;--------------------------------------------------------------------------------

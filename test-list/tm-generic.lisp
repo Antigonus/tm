@@ -55,7 +55,7 @@ See LICENSE.txt
          )
     (∧
       (s* tm1)
-      (a&s* tm1 77)
+      (a&hs* tm1 77)
       (= (r tm1) -3)
       (¬ (on-rightmost tm1))
       (s tm1)
@@ -73,7 +73,7 @@ See LICENSE.txt
          )
     (∧
       (s* tm1)
-      (as&s* tm1 77)
+      (as&hs* tm1 77)
       (= (r tm1) 77)
       (on-rightmost tm1)
       )))

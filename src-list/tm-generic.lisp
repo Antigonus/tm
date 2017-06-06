@@ -62,13 +62,13 @@ new tape machine implementation to specialize them.
           })
       ))
 
-  (def-function-class a&s* (tm instance &optional ➜)
+  (def-function-class a&hs* (tm instance &optional ➜)
     (:documentation
       "#'a with a contract that the head is on rightmost.
       "))
 
   ;; specializations might make better use of the contract
-  (defun-typed a&s* 
+  (defun-typed a&hs* 
     (
       (tm tape-machine)
       instance
@@ -77,13 +77,13 @@ new tape machine implementation to specialize them.
       (a tm instance ➜)
       )
 
-  (def-function-class as&s* (tm instance &optional ➜)
+  (def-function-class as&hs* (tm instance &optional ➜)
     (:documentation
       "#'as with a contract that the head is on rightmost.
       "))
 
    ;; specializations might make better use of the contract
-  (defun-typed as&s* 
+  (defun-typed as&hs* 
     (
       (tm tape-machine)
       instance
