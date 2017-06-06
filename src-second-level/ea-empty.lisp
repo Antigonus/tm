@@ -57,7 +57,7 @@ The only way to change states away from 'empty' is to add a new cell.
       ➜
       ;; (prins (print "epa ea-empty"))
       (w (base tm) instance)
-      (◧∀* (entanglements tm)
+      (-s*∀* (entanglements tm)
         (λ(es) 
           (let(
                 (etm (r es))

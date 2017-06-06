@@ -30,7 +30,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (◧ (base tm)
+       (-s* (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -43,7 +43,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed ◧ ((tm active) &optional ➜)
+  (defun-typed -s* ((tm active) &optional ➜)
      (destructuring-bind
        (
          &key
@@ -51,7 +51,7 @@ a collision error.  Hence behavior is inherited from the identity transform.
          &allow-other-keys
          )
        ➜
-       (◧ (base tm)
+       (-s* (base tm)
          {
            :➜ok (λ()
                   (setf (address tm) 0)
@@ -132,14 +132,14 @@ a collision error.  Hence behavior is inherited from the identity transform.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (defun-typed ◨ ((tm active) &optional ➜)
+  (defun-typed s* ((tm active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (◨ (base tm)
+      (s* (base tm)
         {
           :➜ok (λ()
                  (setf (address tm) (address-rightmost tm))

@@ -135,7 +135,7 @@ See LICENSE.txt
                       (∀ tm-sum
                         (λ(tm-sum ct c∅)
                           (declare (ignore tm-sum))
-                          (◧ tm22)
+                          (-s* tm22)
                           (setf actual-sum 0)
                           (∀* tm22 (λ(tm22) (setf actual-sum (+ actual-sum (r tm22)))))
                           (if
@@ -347,8 +347,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (◧ tm11)
-        (◧ tm31)
+        (-s* tm11)
+        (-s* tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))
@@ -516,8 +516,8 @@ At the end we compare tm31 with tm11.
       (let(
             (tm-ensemble (mk 'ensemble-tr {:list {tm11 tm31}}))
             )
-        (◧ tm11)
-        (◧ tm31)
+        (-s* tm11)
+        (-s* tm31)
         (∧
           (∀ tm-ensemble
             (λ(tm ct c∅)(declare (ignore tm))

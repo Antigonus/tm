@@ -22,7 +22,7 @@ functions shared by parked and active
       ➜
       (labels(
                (fix-tapes-inc-addresses ()
-                 (◧∀* (entanglements tm)
+                 (-s*∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))
@@ -31,7 +31,7 @@ functions shared by parked and active
                          (update-tape-after-epa (base etm) (base tm))
                          (if
                            (typep etm 'parked)
-                           (◧ (base etm))
+                           (-s* (base etm))
                            (incf (address etm))
                            )
                          (incf (address-rightmost etm))
@@ -61,11 +61,11 @@ functions shared by parked and active
       (labels
         (
 
-          ;;tape originally has only one cell, no active machine is on ◧
+          ;;tape originally has only one cell, no active machine is on -s*
           ;;so we transition to empty
           (make-empty () 
             (w (base tm) ∅)
-            (◧∀* (entanglements tm) 
+            (-s*∀* (entanglements tm) 
               (λ(es)
                 (let(
                       (etm (r es))
@@ -73,11 +73,11 @@ functions shared by parked and active
                   (when etm (to-empty etm))
                   ))))
 
-          ;;problem: parked machines leave the base head on ◧
+          ;;problem: parked machines leave the base head on -s*
           ;;when this is called:
           ;;   -we already checked we are not on rightmost (there is a cell to step to)
           (step-parked-machines () 
-            (◧∀* (entanglements tm)
+            (-s*∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
@@ -88,7 +88,7 @@ functions shared by parked and active
                       ))))))
           
           (fix-tapes-dec-addresses ()
-            (◧∀* (entanglements tm)
+            (-s*∀* (entanglements tm)
               (λ(es)
                 (let(
                       (etm (r es))
@@ -105,7 +105,7 @@ functions shared by parked and active
           ➜collision
           (λ()
             (let(
-                  (spill-instance (e◧r (base tm)))
+                  (spill-instance (e-s*r (base tm)))
                   )
               (labels(
                        (delete-0 ()

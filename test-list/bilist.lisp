@@ -46,7 +46,7 @@ See LICENSE.txt
           (¬ (s tm1))
           (-s tm1)
           (heads-on-same-cell tm0 tm1)
-          (◧ tm1)
+          (-s* tm1)
           (= (r tm1) 7)
           (s tm1)
           (= (r tm1) 2)

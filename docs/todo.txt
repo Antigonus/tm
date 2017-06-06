@@ -4,12 +4,21 @@
    address space.  Would be good to introduce it sooner than status machine,
    though its appears to be optional, a tape transform.
 
+   looks like we will need a second order tape-status so that tapes can
+   be empty.  The tape machine will not make use of tape-status, but will
+   implement its own status.  Or maybe it should make use of tape status
+   .. hmm.
+
+   when we have tapes as independent objects, we can create tape
+   machines by 'mounting' them.  We can expand the :tape keyword
+   in the current intialization list to accomodate this.  Perhaps
+   replace #'mk with #'mount ?
+
 2. access lang needs to be finished, also chapter needs to be added
-to the manual.
+to the manual.  .. not sure what we need access lang for, we already
+have Lisp and it can do the same thing ;-)
 
-expand access lang
-
-4. need to write mn and m* as repeating m is very inefficient
+4. need to write mn and m*, current m* as repeating m is very inefficient
 
 7. right now tm-difference-engine is only linear, need to finish implementation
    tm-line -> tm-difference-engine .. will rename it tm-sums

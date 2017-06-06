@@ -23,10 +23,10 @@ don't provide a continuation for it.
   (def-abandoned-1 w instance)
   (def-abandoned-1 esw instance)
 
-  (def-abandoned-1 e◧r)
-  (def-abandoned-1 e◧w instance)
+  (def-abandoned-1 e-s*r)
+  (def-abandoned-1 e-s*w instance)
 
-  (def-abandoned-1 ◧)
+  (def-abandoned-1 -s*)
   (def-abandoned-1 s)
   (def-abandoned-1 -s)
   (def-abandoned-1 a instance)
@@ -39,10 +39,10 @@ don't provide a continuation for it.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-abandoned-1 ◨)
+  (def-abandoned-1 s*)
   (def-abandoned-1 as instance) 
-  (def-abandoned-1 a&◨ instance)
-  (def-abandoned-1 as&◨ instance)
+  (def-abandoned-1 a&s* instance)
+  (def-abandoned-1 as&s* instance)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
@@ -141,5 +141,5 @@ don't provide a continuation for it.
     (operation-on-abandoned)
     )
 
-  (def-abandoned-1 a◨ instance)
+  (def-abandoned-1 es*a instance)
 

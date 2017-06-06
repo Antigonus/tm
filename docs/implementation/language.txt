@@ -4,39 +4,42 @@
       r read cell under the head
       w write cell under the head
    
+      ◧ move head to leftmost
+      ◨ move head to rightmost
       s step 
+
       a allocate/add/append a new cell, place it just to the right of head cell, requires fill
       d deallocate/drop/delete cell - optional spill (i.e. realloc), affects cell to the right of the head
 
-      m move data, no allocation or deallocation of cells, requires fill
+      m move instances, no allocation or deallocation of cells, requires fill
+        .. perhaps call this open or shift,  o or h.
 
       e entangle, we operate on an entangled copy of the machine operand instead of the
         the machine itself
 
       ☥ returns an entangled copy on a new thread
 
+
 syntax of derived functions:
 
 ---
 
-  [direction] command [modifier] [v tag] [& contract]*
+  ([direction] command [<tag>]* [& contract]*[modifier])+
 
   direction:: -
 
   command::  r | w | s | a | d | m | e | ☥
 
-  modifier:: ◧ ◨ n 
+  modifier:: * n 
 
-  variation:: v followed by a tag, tag can be text or an integer
+  <tag>:: '<' and '>' are literal tag is anything that can go in a symbol
 
-  when direction is not specified, it is right
-
-
+direction
+  with a '-' flip the tape over (left becomes right vice versa)
 
 modifier
-    ◧  operate on leftmost
-    ◨  operate on rightost
-    n  repeats n times, n provided through an argument
+  '*' means to repeat until something breaks (hitting rightmost for example)
+  'n' means n times, the function will take a numeric argument
 
    when operate on leftmost or rightmost is not specified, operates on the cell
    the head is on
@@ -49,124 +52,14 @@ contracts:
 
 examples:
    -s     ; step left
-   s*     ; cue rightmost
-   -s*    ; cue leftmost
-   sch¬p  ; step with a contract that the head is not parked
-   a◧     ; creates a new leftmost cell
-   a◨     ; append to rightmost
+   s*     ; step to rightmost
+   -s*    ; step to leftmost
+   s&¬p   ; step with a contract that the head is not parked
+   epa    ; creates a new leftmost cell
+   ◨a     ; append to rightmost
    sn     ; step n times
 
 to derive a longer command, combine:
    as    ;  append then step
    -a-s  ; append to the left, step to the left
    
-
-
-
-
-
-=== the rest of this file should probably be ignored.  The above will go into
-the access lange chapter in the manual
-
-
-    tape-side command tape-end-specifier head-contract quantification 
-
-
-𝝐 = not present
-tape-side:  [-𝝐]    ;minus for lhs, or not present for rhs
-command: [rwsadm]   ;pick one letter
-head-contract: [h◧ h◨ h¬p 𝝐]     ;head on leftmost, head on rightmost, head not parked or no contract
-tape-end-specifier:  [◧ ◨ 𝝐] ; operates on, ◧ leftmost, ◨ rightmost, 𝝐 on head
-quantification: [n*𝝐]  ; count, repeat to end, or do once
-
-if there is to be a step after the command runs, add an s to the end of
-the command.
-
-as  append and step
-
--a-s  append to the left, step to the left
-
-
-
-
-----
-
-gather, g, accepts a cell and puts it on to the tape just to the right of the head cell.
-Somewhat similar to alloc, a, but the initialization data is a cell rather than
-an object.
-
-allocation on an fixed array requires moving data out of the way, but the
-data move causes data to be knocked off the end.  The function move,m, behaves
-this way.  In contrast the function alloc, a, does not spill data, rather
-the container must become more capacious.  Both m and a require fill data
-be provided for inializing the newly allocated or newly vacated cells.
-
-copy copies objects, there is no allocation or deallocation.  If both
-tape machines are on the same tape, then there can be overlaps, currently
-this is not contemplated, it is a todo item.
-
-
-
----
-modification of AH changes state
-modifications of tape changes structure
-
-  In deterministic computing a state variable has a single value at any given
-  step during computation.  This is the definition of deterministic computing,
-  and the implications of determinism, and its complement, non-determinism, have
-  been well studied.
-
-  In programming with the use of arrays, an index often hold state for the program.  We
-  destructively modify indexes typically without concern of creating conflicts with the
-  various users of an index.  This stands in contrast to the destructive modification of
-  data, for example a list, where another user of a destructively modifed list will
-  suddenly have its copy changed - thus causing the list to become a vehicle for
-  communication, but one without the required protocol overhead to make such communication
-  work well.
-
-  A tape machine is an abstraction of an index for arbitrary containers rather than
-  just for arrays.  It is theoretically related to Turing machines, and in implementation
-  related to iterators. Hence, we destructively modify our tape machines in order
-  to represent advancing state, just as is done with loop indexes when scanning arrays.
-
-  tape machine
-
-  A tape is a linear sequence of cells, where each cell may contain a data object.  In this
-  model such an object may another tape.  Of course my tape is commonly referred to as a
-  sequence in the modern LISP world.  One example sequence is a singly linked list.
-
-  A tape machine has a read write head which at any given time is placed over exactly one
-  cell of the tape. I adopt the convention that the tape is placed horizontally, and then
-  speak of stepping the head once cell at a time to the right or to the left. Also, the
-  head may be moved into objects when the objects happen to be tapes.
-
-  Hence, a tape machine tri-partitions a tape into left hand side, cell under the 
-  head, and right hand side.  The far left cell is called the leftmost cell.  The
-  far right hand cell is the rightmost cell.  If a tape does not have a rightmost
-  cell it is conventionally implemented as a stream.
-
-  Various tape specializations may constrain head movement.  For exmaple on a tape
-  implemented from a singly linked list, the head may only be moved right, or into an
-  object.
-
-  An object may be written to a cell or read back from one. 
-
-  I provide a number of derived useful functions for moving the tape head, and for
-  dealing with multiple tapes, as listed below.  The names are kept short to support a
-  simple composition language.  See my paper "Towards a Better Understanding of CAR and
-  CDR".  See tape-machine-lang, for the composition langauge implementation.
-
-  The return value of the head motion operations is success (t) or failure (∅).
-
-  A two dimensional array is a sequence of objects, where each object is a sequence of fixed
-  length.  I.e. a sequence of rows, or a sequence of columns.  This can be extended.  In
-  general that an n-dimensional array is an n level tree with constraints on the sequence
-  lengths. Hence, this iterator method may also be used on n dimensional arrays.
-
-  Some containers used as sequences (tapes) do not support growing or cutting out cells.
-  (Physical memory is notorious for making this operation very slow ;-) However moving
-  data around is an analogous operation, and we provide functions for that.
-
-  Two tape machines working on the same tape form an interval.  We say that the 
-  interval has a left and a right tape machine.
-

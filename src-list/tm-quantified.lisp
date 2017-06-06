@@ -51,22 +51,6 @@ See LICENSE.txt
               :➜rightmost ➜ok ; we wrote all of fill's instances
               })))))
 
-  (def-function-class s* (tm)
-    (:documentation 
-      "This is a synonym for ◨. There is no guarantee that intermediate
-       cells will be visited."
-      ))
-
-  (defun-typed s* ((tm tape-machine)) (◨ tm))
-
-  (def-function-class -s* (tm)
-    (:documentation 
-      "This is a synonym for ◧. There is no guarantee that intermediate
-       cells will be visited."
-      ))
-
-  (defun-typed -s*((tm tape-machine))(◧ tm))
-
   ;; note the fill data will be reversed at the tm insert point
   ;; use as* to fill without reversal
   ;; use eas* to fill forward without moving tm (requires at least nd-tm)
@@ -106,27 +90,10 @@ See LICENSE.txt
        "
       ))
 
-
-  (defun as*-1
-    (
-      tm 
-      fill
-      &optional
-      (cont-ok (be t))
-      (cont-no-alloc #'alloc-fail)
-      )
-    (⟳(λ(➜again)
-        (as tm (r fill) 
-          {
-            :➜ok (λ()(s fill {:➜ok ➜again :➜rightmost cont-ok}))
-            :➜no-alloc cont-no-alloc
-            })))
-    )
-
   (defun-typed as*
     (
-      (tm0 tape-machine)
-      fill
+      (tm tape-machine)
+      (fill tape-machine)
       &optional ➜
       )
     (destructuring-bind
@@ -136,8 +103,14 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (as*-1 tm0 fill ➜ok ➜no-alloc)
+      (⟳(λ(➜again)
+          (as tm (r fill) 
+            {
+              :➜ok (λ()(s fill {:➜ok ➜again :➜rightmost ➜ok}))
+              :➜no-alloc ➜no-alloc
+              })))
       ))
+
 
 
 ;;--------------------------------------------------------------------------------

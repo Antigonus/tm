@@ -11,9 +11,9 @@ See LICENSE.txt
 ;; entanglements support
 ;;
 
-  ;machine in entanglement group is on ◧ ?
+  ;machine in entanglement group is on -s* ?
   (defun entangled-on-leftmost (es &optional (➜t (be t)) (➜∅ (be ∅)))
-    (◧∃ es
+    (-s*∃ es
       (λ(es ct c∅)
         (if
           (∧

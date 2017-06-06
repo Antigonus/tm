@@ -4,7 +4,7 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
 Base is a tape machine, where the instances found on the tape are tape machines.  These
-tape machines are members of the ensemble.
+leaf tape machines are members of the ensemble.
 
 Operations on the ensemble affect all members of the ensemble.  For example,
 stepping the ensemble steps all the member machines.
@@ -77,7 +77,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (let(
                 (result (mk (type-of (r mtm)))) ; result type same as that of first member
                 )
@@ -101,7 +101,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (let(
                 (result (mk (type-of (r mtm)))) ; result type same as that of first member
                 )
@@ -130,7 +130,7 @@ stepping the ensemble steps all the member machines.
           &allow-other-keys
           )
         ➜
-        (◧∀* (members tm) (λ(mtm)(w (r mtm) instance)))
+        (-s*∀* (members tm) (λ(mtm)(w (r mtm) instance)))
         [➜ok]
         ))
 
@@ -145,7 +145,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (∀ mtm
             (λ(mtm ct c∅)
               (esw (r mtm) {:➜ok ct :➜rightmost c∅})
@@ -156,7 +156,7 @@ stepping the ensemble steps all the member machines.
               }
             ))))
 
-    (defun-typed e◧r ((tm ensemble-tr) &optional ➜)
+    (defun-typed e-s*r ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -167,19 +167,19 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (let(
                 (result (mk (type-of (r mtm)))) ; result type same as that of first member
                 )
             (∀* mtm (λ(mtm)
-                      (as result (e◧r (r mtm))
+                      (as result (e-s*r (r mtm))
                         {
-                          :➜no-alloc (λ()(return-from e◧r [➜no-alloc]))
+                          :➜no-alloc (λ()(return-from e-s*r [➜no-alloc]))
                           })))
             [➜ok result]
             ))))
 
-    (defun-typed e◧sr ((tm ensemble-tr) &optional ➜)
+    (defun-typed e-s*sr ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -191,18 +191,18 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (let(
                 (result (mk (type-of (r mtm)))) ; result type same as that of first member
                 )
             (∀ mtm
               (λ(mtm ct c∅)
-                (e◧sr (r mtm)
+                (e-s*sr (r mtm)
                   {:➜ok (λ(instance)
                           (as result instance
                             {
                               :➜ok ct
-                              :➜no-alloc (λ()(return-from e◧sr [➜no-alloc]))
+                              :➜no-alloc (λ()(return-from e-s*sr [➜no-alloc]))
                               }
                             ))
                     :➜rightmost c∅
@@ -213,18 +213,18 @@ stepping the ensemble steps all the member machines.
                 }
               )))))
 
-    (defun-typed e◧w ((tm ensemble-tr) instance &optional ➜)
+    (defun-typed e-s*w ((tm ensemble-tr) instance &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
           &allow-other-keys
           )
         ➜
-        (◧∀* (members tm) (λ(mtm)(e◧w (r mtm) instance)))
+        (-s*∀* (members tm) (λ(mtm)(e-s*w (r mtm) instance)))
         [➜ok]
         ))
 
-  (defun-typed e◧sw ((tm ensemble-tr) instance &optional ➜)
+  (defun-typed e-s*sw ((tm ensemble-tr) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -235,10 +235,10 @@ stepping the ensemble steps all the member machines.
       (let(
             (mtm (members tm))
             )
-        (◧ mtm)
+        (-s* mtm)
         (∀ mtm
           (λ(mtm ct c∅)
-            (e◧sw (r mtm) {:➜ok ct :➜rightmost c∅})
+            (e-s*sw (r mtm) {:➜ok ct :➜rightmost c∅})
             )
           {
             :➜t ➜ok
@@ -251,14 +251,14 @@ stepping the ensemble steps all the member machines.
   ;; absolute head placement
   ;;
     ;; if a member is an empty status machine ?
-    (defun-typed ◧ ((tm ensemble-tr) &optional ➜)
+    (defun-typed -s* ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
           &allow-other-keys
           )
         ➜
-        (◧∀* (members tm) (λ(mtm)(◧ (r mtm))))
+        (-s*∀* (members tm) (λ(mtm)(-s* (r mtm))))
         [➜ok]
         ))
 
@@ -277,10 +277,10 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧∃ mtm (λ(mtm ct c∅)(on-rightmost (r mtm) {:➜t ct :➜∅ c∅}))
+          (-s*∃ mtm (λ(mtm ct c∅)(on-rightmost (r mtm) {:➜t ct :➜∅ c∅}))
             {
               :➜t ➜rightmost
-              :➜∅ (λ()(◧∀*
+              :➜∅ (λ()(-s*∀*
                         mtm
                         (λ(mtm)
                           (s (r mtm) {:➜ok #'do-nothing :➜rightmost #'cant-happen})
@@ -309,7 +309,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
               (on-leftmost (r mtm) {:➜t ct :➜∅ c∅})
@@ -332,7 +332,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
               (on-rightmost (r mtm) {:➜t ct :➜∅ c∅})
@@ -346,7 +346,7 @@ stepping the ensemble steps all the member machines.
   ;;--------------------------------------------------------------------------------
   ;; length-tape
   ;;
-    ;; would e◧s take a rightmost continuation?
+    ;; would e-s*s take a rightmost continuation?
     (defun-typed tape-length-is-one ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
@@ -358,7 +358,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
               (tape-length-is-one (r mtm) {:➜t ct :➜∅ c∅})
@@ -369,7 +369,7 @@ stepping the ensemble steps all the member machines.
               }
             ))))
 
-    ;; would e◧ss take a rightmost continuation?
+    ;; would e-s*ss take a rightmost continuation?
     (defun-typed tape-length-is-two ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
@@ -381,7 +381,7 @@ stepping the ensemble steps all the member machines.
         (let(
               (mtm (members tm))
               )
-          (◧ mtm)
+          (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
               (tape-length-is-two (r mtm) {:➜t ct :➜∅ c∅})

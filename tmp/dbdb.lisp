@@ -803,7 +803,7 @@ result : a T"
    :VALUES NIL
    :METHODS NIL)
 #S(|IT.UNIMIB.DISCO.MA.CL.HELambdaP|::GENERIC-FUNCTION-DOC-BIT
-   :NAME A◧
+   :NAME A-s*
    :KIND FUNCTION
    :KIND-TAG "Generic Function"
    :DOC-STRING "Allocates a new leftmost cell."
@@ -827,7 +827,7 @@ result : a T"
    :VALUES NIL
    :METHODS NIL)
 #S(|IT.UNIMIB.DISCO.MA.CL.HELambdaP|::GENERIC-FUNCTION-DOC-BIT
-   :NAME AH◨
+   :NAME AHs*
    :KIND FUNCTION
    :KIND-TAG "Generic Function"
    :DOC-STRING "#'a with a contract that the head is on rightmost.
@@ -841,7 +841,7 @@ result : a T"
    :VALUES NIL
    :METHODS NIL)
 #S(|IT.UNIMIB.DISCO.MA.CL.HELambdaP|::GENERIC-FUNCTION-DOC-BIT
-   :NAME AH◨S
+   :NAME AHs*S
    :KIND FUNCTION
    :KIND-TAG "Generic Function"
    :DOC-STRING "#'as with a contract that the head is on rightmost.
@@ -879,7 +879,7 @@ result : a T"
    :VALUES NIL
    :METHODS NIL)
 #S(|IT.UNIMIB.DISCO.MA.CL.HELambdaP|::GENERIC-FUNCTION-DOC-BIT
-   :NAME D◧
+   :NAME D-s*
    :KIND FUNCTION
    :KIND-TAG "Generic Function"
    :DOC-STRING "Similar to #'d but the leftmost cell is deallocated independent of where the head
@@ -975,7 +975,7 @@ result : a T"
    :DOC-STRING "Pushes an object on to the stack"
    :TIMESTAMP 3668149119
    :LOCATION #P"/home/tm/src-1/buffers.lisp"
-   :LAMBDA-LIST (TM::TM-H◧ TM::OBJECT)
+   :LAMBDA-LIST (TM::TM-H-s* TM::OBJECT)
    :TYPE-DECLARATIONS NIL
    :FTYPE-DECLARATIONS NIL
    :VALUES NIL)
@@ -986,7 +986,7 @@ result : a T"
    :DOC-STRING "Pulls an object off of the stack"
    :TIMESTAMP 3668149119
    :LOCATION #P"/home/tm/src-1/buffers.lisp"
-   :LAMBDA-LIST (TM::TM-H◧ &OPTIONAL (TM::CONT-OK #'ECHO)
+   :LAMBDA-LIST (TM::TM-H-s* &OPTIONAL (TM::CONT-OK #'ECHO)
                  (TM::CONT-EMPTY
                   (ERROR 'TM::DEQUEUE-FROM-EMPTY :TEXT "stack is empty")))
    :TYPE-DECLARATIONS NIL

@@ -60,7 +60,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (def-empty-1 ◧)
+  (def-empty-1 -s*)
 
   (defun-typed s ((tm empty) &optional ➜)
     (declare (ignore tm))
@@ -146,7 +146,7 @@ belonging to a machine that has a parked head.
 ;;--------------------------------------------------------------------------------
 ;; tm-generic
 ;;
-  (def-empty-1 ◨)
+  (def-empty-1 s*)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only
@@ -273,7 +273,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (defun-typed a◨ ((tm empty) instance &optional ➜)
+  (defun-typed es*a ((tm empty) instance &optional ➜)
     (epa tm instance ➜)
     )
         

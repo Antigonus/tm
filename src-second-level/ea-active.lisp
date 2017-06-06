@@ -19,7 +19,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-    (◧∃ (entanglements tm)
+    (-s*∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
               (etm (r es))
@@ -48,7 +48,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-    (◧∃ (entanglements tm)
+    (-s*∃ (entanglements tm)
       (λ(es ct c∅)
         (let(
               (etm (r es))
@@ -82,7 +82,7 @@ See LICENSE.txt
       ➜
       (labels(
                (inc-rightside-addresses (tm)
-                 (◧∀* (entanglements tm)
+                 (-s*∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))
@@ -117,7 +117,7 @@ See LICENSE.txt
       ➜
       (labels(
                (dec-rightside-addresses (tm)
-                 (◧∀* (entanglements tm)
+                 (-s*∀* (entanglements tm)
                    (λ(es)
                      (let(
                            (etm (r es))

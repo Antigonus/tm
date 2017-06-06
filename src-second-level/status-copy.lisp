@@ -81,18 +81,18 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (◧ src)
+      (-s* src)
       [➜dst-full]
       ))
 
   (defun-typed c ((src parked) (dst parked)  &optional ➜)
-    (◧ src)
-    (◧ dst)
+    (-s* src)
+    (-s* dst)
     (c src dst ➜)
     )
 
   (defun-typed c ((src parked) (dst tape-machine) &optional ➜)
-    (◧ src)
+    (-s* src)
     (c src dst ➜)
     )
 
@@ -110,7 +110,7 @@ See LICENSE.txt
       ))
 
   (defun-typed c ((src active) (dst parked)  &optional ➜)
-    (◧ dst)
+    (-s* dst)
     (c src dst ➜)
     )
 

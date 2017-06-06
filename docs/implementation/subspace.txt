@@ -1,0 +1,45 @@
+
+----
+
+  We have a multiple world view of a tape.
+
+  Accordingly when we first make an entangled copy, we either do so as a shared, same world,
+  copy, or as multiple world copy. 
+
+  The multiple world view works something like a cache.  If we read something not in the
+  cache, then we grab it from original tape.  If it is in the cache, then we used the cached
+  copy.  If we write, we write to the cache.  If there is a cell allocation, that allocation
+  is only available in the cache.  If there is a cell deallocation, then the deallocation
+  occurs in the multiple world view only, i.e. in the cache.
+
+  When an entangled copy with a multiple world view is made, both the new branch, and the
+  original branch write into local caches. All entangled by sharing copies will share a
+  cache.
+
+  There is an explicit command for writing a cache or caches back to the tape.  This
+  is known as merging, and the function for doing a merge can be complex.
+
+     a b c e f g
+           *
+           1 2 3
+           *
+           E F G
+
+  We use a directory and page values from the tape into the cache.  missing pages
+  are found in the cache.
+
+---
+  A subspace is a transform that has as its base another tape machine. We add the
+  transform as an instance in a cell of the containing space. We then
+  add to the containing tm interface these functions for using a subspace:
+
+     step-depth
+     step-breadth
+     step-down - pushes return on stack
+     step-up  - uses return
+     step-down primitive - steps into subspace with no ability to call step-up later
+     on-subspace - (typep instance 'subspace)
+
+
+
+

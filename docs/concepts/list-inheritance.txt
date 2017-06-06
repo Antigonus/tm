@@ -1,4 +1,17 @@
 
+generic routines are type signatured against architecture
+
+routines that use format information to reach fields can not be generic, and their
+type signatures are based on implementation.
+
+this can be used to create a definition for what a generic routine is.  Would
+prefer a different term than 'generic'
+
+---
+
+
+
+
 
 generic                    tape-machine(tm-def)
 |                             /           \

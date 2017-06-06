@@ -9,7 +9,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun-typed a&◨ (tm instance &optional ➜)
+  (defun-typed a&s* (tm instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -20,7 +20,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed as&◨ (tm instance &optional ➜)
+  (defun-typed as&s* (tm instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

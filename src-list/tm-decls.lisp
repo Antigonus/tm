@@ -31,13 +31,13 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (def-function-class ◧ (tm &optional ➜))
+  (def-function-class -s* (tm &optional ➜))
 
-  (def-function-class e◧r (tape &optional ➜))
-  (def-function-class e◧sr (tape &optional ➜))
+  (def-function-class e-s*r (tape &optional ➜))
+  (def-function-class e-s*sr (tape &optional ➜))
 
-  (def-function-class e◧w (tape instance &optional ➜))
-  (def-function-class e◧sw (tape instance &optional ➜))
+  (def-function-class e-s*w (tape instance &optional ➜))
+  (def-function-class e-s*sw (tape instance &optional ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping

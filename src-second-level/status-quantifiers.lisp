@@ -22,7 +22,7 @@ See LICENSE.txt
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed ◧∃ ((tm abandoned) pred &optional ➜)
+  (defun-typed -s*∃ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -35,7 +35,7 @@ See LICENSE.txt
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
-  (defun-typed ◧∀ ((tm abandoned) pred &optional ➜)
+  (defun-typed -s*∀ ((tm abandoned) pred &optional ➜)
     (declare (ignore tm pred ➜))
     (operation-on-abandoned)
     )
@@ -48,7 +48,7 @@ See LICENSE.txt
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
-  (defun-typed ◧∃* ((tm abandoned) pred)
+  (defun-typed -s*∃* ((tm abandoned) pred)
     (declare (ignore tm pred))
     (operation-on-abandoned)
     )
@@ -61,7 +61,7 @@ See LICENSE.txt
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
-  (defun-typed ◧∀* ((tm abandoned) function)
+  (defun-typed -s*∀* ((tm abandoned) function)
     (declare (ignore tm function))
     (operation-on-abandoned)
     )
@@ -86,7 +86,7 @@ See LICENSE.txt
       [➜∅]
       ))
   ;; no existence case can be found independent of head initialization
-  (defun-typed ◧∃ ((tm empty) pred &optional ➜)
+  (defun-typed -s*∃ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -119,7 +119,7 @@ See LICENSE.txt
       ➜
       [➜t]
       ))
-  (defun-typed ◧∀ ((tm empty) pred &optional ➜)
+  (defun-typed -s*∀ ((tm empty) pred &optional ➜)
     (declare (ignore tm pred))
     (destructuring-bind
       (&key
@@ -144,7 +144,7 @@ See LICENSE.txt
     (declare (ignore tm pred))
     (cons 0 0)
     )
-  (defun-typed ◧∃* ((tm empty) pred)
+  (defun-typed -s*∃* ((tm empty) pred)
     (declare (ignore tm pred))
     (cons 0 0)
     )
@@ -157,7 +157,7 @@ See LICENSE.txt
     (declare (ignore tm function))
     (values)
     )
-  (defun-typed ◧∀* ((tm empty) function)
+  (defun-typed -s*∀* ((tm empty) function)
     (declare (ignore tm function))
     (values)
     )
@@ -177,7 +177,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm ➜t (λ()(◧∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
+      [pred tm ➜t (λ()(-s*∃ tm pred {:➜t ➜t :➜∅ ➜∅}))]
       ))
   (defun-typed p∃ ((tm parked) pred &optional ➜)
     (destructuring-bind
@@ -198,7 +198,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [pred tm (λ()(◧∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
+      [pred tm (λ()(-s*∀ tm pred {:➜t ➜t :➜∅ ➜∅})) ➜∅]
       ))
   (defun-typed p∀ ((tm parked) pred &optional ➜)
     (destructuring-bind
@@ -215,13 +215,13 @@ See LICENSE.txt
     [pred tm 
       (λ()
         (let(
-              (counts (◧∃* tm pred))
+              (counts (-s*∃* tm pred))
               )
           (cons (1+ (car counts)) (1+ (cdr counts)))
           ))
       (λ()
         (let(
-              (counts (◧∃* tm pred))
+              (counts (-s*∃* tm pred))
               )
           (cons (car counts) (1+ (cdr counts)))
           ))
@@ -233,7 +233,7 @@ See LICENSE.txt
 
   (defun-typed ∀* ((tm parked) function)
     [function tm]
-    (◧∀* tm function)
+    (-s*∀* tm function)
     )
   (defun-typed p∀* ((tm parked) function)
     (∀* tm function)

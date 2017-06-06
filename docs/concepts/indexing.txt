@@ -1,0 +1,139 @@
+
+A set of cells plus a topology gives us a space.  A topology is another set.  Does the Von
+Neuman thing really work to give us order?  {{} {{}}} = {{{}} {}} so we must have a 'is a
+null set' operator to determine which member comes first, as we strip parens.
+
+So we take the Turing machine tape, with its nearest number topology, as a fundamental
+object.
+
+--------------------------------------------------------------------------------
+compact space
+
+see directory.odg
+
+A directory is a uniformally structured blocked tree structure for managing an address
+space. Because of its uniform structure at each node we can make use of a hardware address
+decoder to complete the tree. This address decoder is a physical object that is called out
+from the nodes of the tree.  The only related state is the input address; hence the same
+hardware can be resused in computation at each level of the tree.  The leaves of the
+tree are locations in memory.  The last hardware decode step is said to address into a
+'page' of memory.
+
+The directory grows in levels as required to span the address space.  Hence short
+addresses enter the tree at a different root than longer ones do. For example, if pages
+are 16 bytes (two 64 bit words), then each address is broken into 4 bit fields.  Should an
+address be 4 bits or less, it addresses directly into the first page.  The directory is
+not used.  An address of more than 4 bits, but less than 8 bits uses the first level of
+the directory only. Etc. This is shown as a diagram in directory.odg
+
+A directory converts an address into a compact space into a cell reference.
+
+--------------------------------------------------------------------------------
+sparse space
+
+But What if our space is large and sparse.  I.e. there are not so many cells used in this
+space, but each cell address tends to be be quite long.  Say for example the bits in
+strings form the addresses, and these strings are words or short phrases coming from a
+human language.  In such a case we won't have many of these strings, so each takes on a
+special significance.  We give strings found in such situations the name 'symbol'.
+
+We really don't care what the strings are used to represent a symbols.  Whether something
+is called a 'shoe', 'chaussure', 'zapato', or '靴' - it represents the same thing.  Rather
+it is the topology, i.e. the connectedness between the cells that these symbols address
+that we care about.  Such a topology is known as a 'concept space' or a 'semantic
+network'.  I.e. there are isomorphisms between concept spaces that use different strings.
+
+Because the strings that are used do not matter, we can use addresses from a compact
+space.  This has great advantages, because the compact addresses can be compared and
+decoded in hardware.  It also means that it is practical to place the cells on a 
+tape.
+
+As a semantic network topology is more involved than the two neighbor topology of our tape
+machine tape, we will probably need to place in the cells of this space a machine that
+holds the addresses for the connected cells. We then use the nearest neighbor topology to
+help us maintain the network, though it will have no semmantic in the network itself.
+
+We are then left with the problem of converting symbol strings to the symbol addresses.  In
+the parlence of parsing this is known as tokenizing.
+
+Allocation will help with this. Every time we see a new symbol that we haven't seen
+before, we allocate the next available address to it.  Thus the symbol strings which
+addressed into a sparse space become addresses into a compact space.
+
+But how do we know a string is new?  And when a string is not new, how do we know
+which address to apply to it?
+
+Candidate approaches. 
+
+1. Hash tables
+
+One is to run the string into a CRC checker, or similar mathematical function, to map
+addresses in the sparse 'string' space where addresses are character strings, to addresses
+in a more compact 'hash' space where addresses are CRC numbers.
+
+Evalluating a hash function has the nice quality that not many non-local memory fetches
+are required, so the algorith is likely to fit in the cache and to run at processor
+speed. However it doesn't really scale, we have to have an idea of the hash space ahead of
+time.  Also a mapping will not be one to one.  Say n is the number of symbols we have, and
+each of the n symbols has a unique string.  Then M is the number of locations in the hash
+space.  If M < n, then some strings will have to map to the same hash value.  Even when M
+>= n, there will be a chance that the hash function sends two strings to the same hash
+value.  This chance will be quite high when M = n, and then taper down fairly quickly.
+
+Consequently just applying a hashing function is not sufficient for implementing the
+isomophism map between strings and addresses in a compact space.  Something more is
+required.  This something more is typically a search through hash buckets, while running a
+stirng compare on pairs.  The bucket search is a minature version of our original problem,
+and as a tree search is log time, the fact that the bucket is smaller than the original
+search doesn't help unless it is very small.
+
+2. lookup tree
+
+A second candidate approach is to use a tree, for example a red/black tree.  We then
+take the symbol string character by characther and traverse the tree.  The leaves of
+our tree are the compact addresses. This approach has predictable performance, though it
+will require proportion to a log number of memory fetches.  Typically we notice that
+prefixes and such cause us to waste the first few compares.  Would would like to scramble
+the string first to prevent this, but then we are back to using a hash function.
+
+--------------------------------------------------------------------------------
+fuzzy space
+
+1. distance to dictionary entries
+
+You know, though, most dictionaries are relatively small.  Perhaps it makes more sense to
+go through every entry in the dictionary and to provide a vector of syntactical distance
+scores. Each component in the vector would be the distance against a different metric. 
+
+Or perhaps do this just for misses.
+
+Possible Metrics:
+  1. contiguous letters in common, prefix, contained, suffix, going either direction,
+     or equal.
+
+For each metric we keep a tm of scores, placing the lowest for each metric first ..
+which implies a sort to address into the tm.  Perhaps only keep the top 3.
+
+we would favor having an upfront parsing step where all the symbol issues are worked
+out, rather than incremental work at run time.
+
+Keep a distance metric, sum of squares of distances for all metrics.
+
+2. syntax spaces.  
+
+These are similar to concept spacers, but based on the string syntax.  There would be a
+map for each different metric.  Then we grab each syntax space and do gradient descent to
+find our new string's score.  There can be some semantic relationship between words with
+syntactical relationships, common prefixes etc.  .. we have to find a start node for
+each map, that looks a bit like the distance to dictionary entries problem.
+
+---- so, say, we have a string symbol.  We provide an alternative string based on phonetic
+guesses for the spelling.  We can check our phonetic guesser and keeps stats for
+occurances of particular proununciation against spelling when the dictionary entry is
+found.
+
+
+
+
+
+

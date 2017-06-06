@@ -41,7 +41,7 @@ functions.
   (defun-typed tm-print ((tm0 nd-tape-machine))
     (with-entangled tm0
       (λ(tm1)
-        (◧ tm1)
+        (-s* tm1)
         (tm-print-1 tm0 tm1)
         (s tm1 
           {
@@ -79,7 +79,7 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun-typed a◨
+  (defun-typed es*a
     (
       (tm nd-tape-machine)
       instance
@@ -95,7 +95,7 @@ functions.
       ➜
       (with-entangled tm
         (λ(tm1)
-          (◨ tm1)
+          (s* tm1)
           (a tm1 instance {:➜ok ➜ok :➜no-alloc ➜no-alloc})
           ))))
 

@@ -28,13 +28,13 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm parked) &optional ➜) (e◧r tm ➜))
+  (defun-typed esr ((tm parked) &optional ➜) (e-s*r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm parked) instance &optional ➜) (e◧w tm ➜))
+  (defun-typed esw ((tm parked) instance &optional ➜) (e-s*w tm ➜))
 
-  (defun-typed ◧ ((tm parked) &optional ➜)
+  (defun-typed -s* ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -45,8 +45,8 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed s ((tm parked) &optional ➜) (◧ tm ➜))
-  (defun-typed -s ((tm parked) &optional ➜) (◨ tm ➜))
+  (defun-typed s ((tm parked) &optional ➜) (-s* tm ➜))
+  (defun-typed -s ((tm parked) &optional ➜) (s* tm ➜))
 
   (defun-typed a ((tm parked) instance &optional ➜) (epa tm instance ➜))
 
@@ -75,14 +75,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed ◨ ((tm parked) &optional ➜)
+  (defun-typed s* ((tm parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (◨ (base tm)
+      (s* (base tm)
         {
           :➜ok (λ()(to-active tm)[➜ok])
           }
@@ -102,7 +102,7 @@ See LICENSE.txt
       (epa (base tm) instance
         {
           :➜ok (λ()
-                 (◧ (base tm)) ; for a parked machine we always leave the base head on leftmost
+                 (-s* (base tm)) ; for a parked machine we always leave the base head on leftmost
                  (incf (address-rightmost tm))
                  [➜ok]
                  )
@@ -143,7 +143,7 @@ See LICENSE.txt
               )))
 
         (progn
-          (s (base tm) ; need to get the base head off of ◧ where we leave it when parked
+          (s (base tm) ; need to get the base head off of -s* where we leave it when parked
             {:➜rightmost #'cant-happen} ; we know that address-rightmost is not 0
             )
           (epd (base tm) spill
@@ -237,7 +237,7 @@ See LICENSE.txt
       (entangled tm0 tm1
         {
           :➜t ➜rightmost
-          :➜∅ (λ()(◧ tm0 ➜))
+          :➜∅ (λ()(-s* tm0 ➜))
           }
         )))
 
@@ -248,6 +248,6 @@ See LICENSE.txt
       &optional ➜
       )
     (declare (ignore tm1))
-    (◧ tm0 ➜)
+    (-s* tm0 ➜)
     )
 

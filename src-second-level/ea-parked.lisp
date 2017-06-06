@@ -37,7 +37,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed ◧ ((tm ea-parked) &optional ➜)
+  (defun-typed -s* ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -53,7 +53,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;;tm-generic
 ;;
-  (defun-typed ◨ ((tm ea-parked) &optional ➜)
+  (defun-typed s* ((tm ea-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

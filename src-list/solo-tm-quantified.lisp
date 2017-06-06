@@ -17,7 +17,7 @@ See LICENSE.txt
 
    ;;; It doesn't make sense to have epd*, (which would be the same as epd* for a status
    ;;; machine) because it results in a collision in all cases except when the head is on
-   ;;; leftmost. Instead do ◧ followed by d*
+   ;;; leftmost. Instead do -s* followed by d*
 
   (def-function-class dn (tm n &optional spill ➜)
     (:documentation

@@ -13,7 +13,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
 ;;--------------------------------------------------------------------------------
 ;; tm-decl-only
 ;;
-  (defun-typed ◧ ((tm ts1-tm) &optional ➜)
+  (defun-typed -s* ((tm ts1-tm) &optional ➜)
     (bt:with-recursive-lock-held ((deed tm))
       (call-next-method tm ➜)
       ))
@@ -50,7 +50,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;--------------------------------------------------------------------------------
   ;; cueing
   ;;  
-    (defun-typed ◨ ((tm ts1-tm) &optional ➜)
+    (defun-typed s* ((tm ts1-tm) &optional ➜)
       (bt:with-recursive-lock-held ((deed tm))
         (call-next-method tm ➜)
         ))
@@ -64,7 +64,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
         (call-next-method tm instance ➜)
         ))
 
-    (defun-typed a&◨ 
+    (defun-typed a&s* 
       (
         (tm ts1-tm)
         instance
@@ -74,7 +74,7 @@ We don't have to worry about synchronizing destructive operations on an empty ma
         (call-next-method tm instance ➜)
         ))
 
-    (defun-typed as&◨ 
+    (defun-typed as&s* 
       (
         (tm ts1-tm)
         instance
@@ -157,14 +157,14 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;--------------------------------------------------------------------------------
   ;; cell allocation
   ;;
-    (defun-typed a◨
+    (defun-typed es*a
       (
         (tm ts1-tm)
         instance
         &optional ➜
         )
       (bt:with-recursive-lock-held ((deed tm))
-        ;; (prins (print "a◨ ts1-tm"))
+        ;; (prins (print "es*a ts1-tm"))
         (call-next-method tm instance ➜)
         ))
       

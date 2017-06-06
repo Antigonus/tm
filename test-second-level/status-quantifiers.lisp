@@ -18,7 +18,7 @@ See LICENSE.txt
       (typep tm11 'parked)
       (= (r tm11 {:➜ok #'cant-happen :➜parked (be 777)}) 777)
       (=
-        (◧∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) {:➜t (be 717) :➜∅ (be 719)})
+        (-s*∀ tm11 (λ(tm ct c∅) (if (oddp (r tm)) [ct] [c∅])) {:➜t (be 717) :➜∅ (be 719)})
         717
         )
       (=

@@ -36,14 +36,14 @@ See LICENSE.txt
 (test-hook test-worker-1)    
 
 
-(def-worker counter-2 tm-src tm-dst boxed-counter (cont-ok cont-◨)
+(def-worker counter-2 tm-src tm-dst boxed-counter (cont-ok cont-s*)
   (as tm-dst (unbox boxed-counter))
   (s tm-src 
     (λ()
       (incf (unbox boxed-counter)) 
       (funcall cont-ok)
       )
-    cont-◨
+    cont-s*
     ))
 
 (defun test-worker-2 ()

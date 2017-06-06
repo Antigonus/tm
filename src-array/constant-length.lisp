@@ -24,33 +24,30 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; a specialization
 ;;
-  (defparameter *tile-length* 4) ; 4 bit tiles, 16 bytes addressed = two 64 bit words
 
-  (defun shift-left (x n)
-    (floor (* x (expt 2 (- n))))
-    )
-
-  (defun prinx (x) (format nil "~x"x))
-
-  ;; this tm walks the tiles in an address
-  (def-type tiled-number-tm (tape-machine)
-    (
-      (head ; current bit location
-        :initarg :head 
-        :accessor head
-        )
-      (tape ; numeric-address
-        :initarg :tape
-        :accessor tape
-        )))
+;; this tm walks the tiles in an address
+(def-type constant-length-array-tm (tape-machine)
+  (
+    (head
+      :initarg :head 
+      :accessor head
+      )
+    (max 
+      :initarg :max
+      :accessor max
+      )
+    (tape
+      :initarg :tape
+      :accessor tape
+      )))
 
 ;;--------------------------------------------------------------------------------
-;;  Make tiled-number machines. Typically the tm will be a array-nd-tm or a array-solo-tm
-;;  instance, and then this gets called due to the inheritance structure.
+;;  Make constant-length-array machines. A constant length array must be specified with a
+;;  maximum index. The tape parameter is interpreted as initialization data.
 ;;
   (defun-typed init 
     (
-      (tm tiled-number-tm)
+      (tm constant-length-array-tm)
       &optional 
       keyed-parms
       ➜
@@ -58,30 +55,34 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
+        (➜fail (λ()(error 'bad-init-value)))
         &allow-other-keys          
         )
       ➜
       (destructuring-bind
-        (&key tape) keyed-parms
+        (&key tape length initial-element element-type) keyed-parms
         (setf (head tm) 0)
         (cond
-          ((∧ tape (numberp tape))
-            (setf (tape tm) tape)
+          ((∧ length (numberp length) (> 0 length))
+            (setf (tape tm)
+              (make-array length
+                :element-type (if element-type element-type t)
+                :initial-element initial-element
+                :adjustable ∅
+                :fill-pointer ∅
+                :displaced-to ∅
+                )
+            (call-next-method)
             [➜ok tm]
             )
           (t
-            (setf (tape tm) 0)
-            (call-next-method keyed-parms ➜) ; pick up tape-machine's init for non consp tapes
-            ))
-        )))
+            [➜fail]
+            ))))))
 
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;  
-  ;; We should always be aligned on a tile, so being at position 0 is leftmost.
-  ;; However, so that a tile alignment bug doesn't cause an infinite loop I've 
-  ;; made the test a bit defensive.
-  (defun-typed on-leftmost ((tm tiled-number-tm) &optional ➜)
+  (defun-typed on-leftmost ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -89,10 +90,10 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if (< (head tm) *tile-length*) [➜t] [➜∅])
+      (if (= (head tm) 0) [➜t] [➜∅])
       ))
 
-  (defun-typed on-rightmost ((tm tiled-number-tm) &optional ➜)
+  (defun-typed on-rightmost ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -100,26 +101,23 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (if 
-        (= 0 (shift-left (tape tm) (+ (head tm) *tile-length*)))
-        [➜t]
-        [➜∅]
-      )))
+      (if (= (head tm) (max tm)) [➜t] [➜∅])
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; accessing data
 ;;
-  (defun-typed r ((tm tiled-number-tm) &optional ➜)
+  (defun-typed r ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (ldb (byte *tile-length* (head tm)) (tape tm))]
+      [➜ok (aref (tape tm) (head tm))]
       ))
 
-  (defun-typed esr ((tm tiled-number-tm) &optional ➜)
+  (defun-typed esr ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -131,22 +129,22 @@ See LICENSE.txt
         {
           :➜t ➜rightmost
           :➜∅ (λ()
-                [➜ok  (ldb (byte *tile-length* (+ (head tm) *tile-length*)) (tape tm))]
+                [➜ok  (aref (tape tm) (1+ (head tm)))]
                 )
           })))
 
-  (defun-typed w ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed w ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (setf (tape tm) (dpb instance (byte *tile-length* (head tm)) (tape tm)))
+      (setf (aref (tape tm) (head tm)) instance)
       [➜ok]
       ))
 
-  (defun-typed esw ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed esw ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -158,24 +156,21 @@ See LICENSE.txt
         {
           :➜t ➜rightmost
           :➜∅ (λ()
-                (setf
-                  (tape tm)
-                  (dpb instance (byte *tile-length* (+ (head tm) *tile-length*)) (tape tm))
-                  )
+                (setf (aref (tape tm) (1+ (head tm))) instance)
                 [➜ok]
                 )
           })))
 
-  (defun-typed e-s*r ((tm tiled-number-tm) &optional ➜)
+  (defun-typed e-s*r ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         )
       ➜
-      [➜ok (ldb (byte *tile-length* 0) (tape tm))]
+      [➜ok (aref (tape tm) 0)]
       ))
 
-  (defun-typed e-s*sr ((tm tiled-number-tm) &optional ➜)
+  (defun-typed e-s*sr ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -184,23 +179,23 @@ See LICENSE.txt
         )
       ➜
       (if
-        (= 0 (shift-left (tape tm) *tile-length*))
+        (≤ (max tm) 0)
         [➜rightmost]
-        [➜ok (ldb (byte (+ *tile-length* *tile-length*) *tile-length*) (tape tm))]
+        [➜ok (aref (tape tm) 1)]
         )))
 
-  (defun-typed e-s*w ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed e-s*w ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (setf (tape tm) (dpb instance (byte *tile-length* 0) (tape tm)))
+      (setf (aref (tape tm) 0) instance)
       [➜ok]
       ))
 
-  (defun-typed e-s*sw ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed e-s*sw ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -209,19 +204,16 @@ See LICENSE.txt
         )
       ➜
       (if
-        (= 0 (shift-left (tape tm) *tile-length*))
+        (≤ (max tm) 0)
         [➜rightmost]
-        (progn
-          (setf 
-            (tape tm)
-            (dpb instance (byte (+ (* 2 *tile-length*)) *tile-length*) (tape tm)))
-          [➜ok]
-          ))))
+        [➜ok (setf (aref (tape tm) 1) instance)]
+        )))
+
 
 ;;--------------------------------------------------------------------------------
 ;; absolute head placement
 ;;
-  (defun-typed -s* ((tm tiled-number-tm) &optional ➜)
+  (defun-typed -s* ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -235,7 +227,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; head stepping
 ;;
-  (defun-typed s ((tm tiled-number-tm) &optional ➜)
+  (defun-typed s ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -246,10 +238,10 @@ See LICENSE.txt
       (on-rightmost tm
         {
           :➜t ➜rightmost
-          :➜∅ (λ()(incf (head tm) *tile-length*)[➜ok])
+          :➜∅ (λ()(incf (head tm))[➜ok])
           })))
                 
-  (defun-typed -s ((tm tiled-number-tm) &optional ➜)
+  (defun-typed -s ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -260,43 +252,20 @@ See LICENSE.txt
       (on-leftmost tm
         {
           :➜t ➜leftmost
-          :➜∅ (λ()(decf (head tm) *tile-length*)[➜ok])
+          :➜∅ (λ()(decf (head tm))[➜ok])
           })))
 
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun-typed a ((tm tiled-number-tm) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (let*(
-             (the-number (tape tm))
-             (address-current-tile (head tm))
-             (address-next-tile (+ address-current-tile *tile-length*))
-             )
-        (let*(
-               (left-hand-side (ldb (byte address-next-tile 0) the-number))
-               (right-hand-side (- the-number left-hand-side))
-               (number-with-hole  (+ left-hand-side (* (expt 2 *tile-length*) right-hand-side)))
-             )
-        (setf
-          (tape tm)
-          (dpb
-            instance
-            (byte *tile-length* address-next-tile)
-            number-with-hole
-            ))
-          [➜ok]
-          ))))
+  ;; 'a is not supported for a constant-length array, as the allocation
+  ;; is made when the array is created, and can not be changed.
+  ;; (defun-typed a ((tm constant-length-array-tm) instance &optional ➜)
 
 ;;--------------------------------------------------------------------------------
 ;; length-tape
 ;;
-  (defun-typed tape-length-is-one ((tm tiled-number-tm) &optional ➜)
+  (defun-typed tape-length-is-one ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -305,16 +274,13 @@ See LICENSE.txt
         )
       ➜
       (if
-        (∧
-          (≠ 0 (tape tm))
-          (= 0 (floor (* (expt 2 (- *tile-length*)) (tape tm))))
-          )
+        (= (max tm) 0)
         [➜t]
         [➜∅]
         )
       ))
 
-  (defun-typed tape-length-is-two ((tm tiled-number-tm) &optional ➜)
+  (defun-typed tape-length-is-two ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -323,10 +289,7 @@ See LICENSE.txt
         )
       ➜
       (if
-        (∧
-          (≠ 0 (floor (* (expt 2 (- *tile-length*)) (tape tm))))
-          (= 0 (floor (* (expt 2 (- (* 2 *tile-length*))) (tape tm))))
-          )
+        (= (max tm) 1)
         [➜t]
         [➜∅]
         )))

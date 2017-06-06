@@ -17,7 +17,7 @@ See LICENSE.txt
           (tm-dst (mk 'list-tm {:tape {1}}))
           )
       (labels(
-               (cont◨ () 
+               (conts* () 
                  (equal (tape tm-src) (cdr (tape tm-dst)))
                  )
                (worker (repeat)
@@ -25,7 +25,7 @@ See LICENSE.txt
                  (s tm-src
                    {
                      :➜ok repeat
-                     :➜rightmost #'cont◨
+                     :➜rightmost #'conts*
                      }))
                )
         (⟳ #'worker)
@@ -94,7 +94,7 @@ See LICENSE.txt
       ))
   (test-hook test-¬∀-0) 
 
-  (defun test-◧∃-0 ()
+  (defun test--s*∃-0 ()
     (let(
           (l1 (mk 'list-tm {:tape {1 3 5 7}}))
           )
@@ -102,20 +102,20 @@ See LICENSE.txt
       (∧
         (sn l1 3)
         (= (r l1) 7)
-        (◧∃ l1
+        (-s*∃ l1
           (λ(tm ct c∅)(if (= (r tm) 5) [ct] [c∅]))
           )
-        (◧∃ l1
+        (-s*∃ l1
           (λ(tm ct c∅)(if (= (r tm) 3) [ct] [c∅]))
           )
-        (◧∃ l1
+        (-s*∃ l1
           (λ(tm ct c∅)(if (= (r tm) 11) [c∅] [ct]))
           )
         )))
-  (test-hook test-◧∃-0)
+  (test-hook test--s*∃-0)
 
 
-  (defun test-◧∀-0 ()
+  (defun test--s*∀-0 ()
     (let(
           (l1 (mk 'list-tm {:tape {1 3 5 7}}))
           (cnt 0)
@@ -124,9 +124,9 @@ See LICENSE.txt
       (∧
         (sn l1 3)
         (= (r l1) 7)
-        (◧∀ l1
+        (-s*∀ l1
           (λ(tm ct c∅)(declare (ignore tm c∅))(incf cnt)[ct])
           )
         (= cnt 4)
         )))
-  (test-hook test-◧∀-0)
+  (test-hook test--s*∀-0)

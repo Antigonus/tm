@@ -16,7 +16,7 @@ See LICENSE.txt
       (on-leftmost tm1)
       (= (r tm1) 7)
       (¬ (on-rightmost tm1))
-      (◨ tm1)
+      (s* tm1)
       (¬ (on-leftmost tm1))
       (on-rightmost tm1)
       (= (r tm1) -3)
@@ -46,7 +46,7 @@ See LICENSE.txt
 (test-hook test-tm-derived-1)
 
 
-;; a&◨ will come from the more specific list implementation, rather from
+;; a&s* will come from the more specific list implementation, rather from
 ;; the generic implemenation.  I know of no direct way to force LISP to
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-2 ()
@@ -54,8 +54,8 @@ See LICENSE.txt
          (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
-      (◨ tm1)
-      (a&◨ tm1 77)
+      (s* tm1)
+      (a&s* tm1 77)
       (= (r tm1) -3)
       (¬ (on-rightmost tm1))
       (s tm1)
@@ -64,7 +64,7 @@ See LICENSE.txt
       )))
 (test-hook test-tm-derived-2)
 
-;; as&◨ will come from the more specific list implementation, rather from
+;; as&s* will come from the more specific list implementation, rather from
 ;; the generic implemenation.  I know of no direct way to force LISP to
 ;; ignore the more specific implemnation in favor of the the generic one.
 (defun test-tm-derived-3 ()
@@ -72,8 +72,8 @@ See LICENSE.txt
          (tm1 (mk 'list-tm {:tape {7 2 -3}}))
          )
     (∧
-      (◨ tm1)
-      (as&◨ tm1 77)
+      (s* tm1)
+      (as&s* tm1 77)
       (= (r tm1) 77)
       (on-rightmost tm1)
       )))
