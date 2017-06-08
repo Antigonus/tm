@@ -1,11 +1,14 @@
 
 See:
 
+The shortlink
+  https://goo.gl/JC8IuF
+
 Free, in pdf:
   https://www.researchgate.net/publication/315808386_Tom%27s_Turing_Complete_Architecture_Volume_1_Foundation_and_TM_Library_Interface (free)
 
-Hard copy, cheaper than it costs me to copy it:
+Hard copy
   https://www.amazon.com/dp/1520589301 (hard copy)
 
-Kindle, if you are inclined to that format:
+Kindle
   https://www.amazon.com/Toms-Turing-Complete-Architecture-Foundation-ebook/dp/B06VV7BLPY (kindle)

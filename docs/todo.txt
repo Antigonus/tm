@@ -188,3 +188,8 @@ add a time to wait as part of test-hook (similar to #50 above)
     at bit 0.  Or perhaps that is done with a region transform. .. yes the current
     tiled number should be somethign like 'by-digits'.  hex, octal,  and we
     need 'by-character'  ascii or unicode.  .. also need a simple array
+
+64. improve the print facility.  We should be able to see output port as a
+    tape machine.  Then be moving things between tape machine.  Current print
+    stuff is there for helping with debug.
+

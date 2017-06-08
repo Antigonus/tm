@@ -1,0 +1,47 @@
+
+It is interesting that a tape can not hold a value.   (def-type tape())
+for example.  We want various specialized types for tape, but we only have one
+value for each.  We are forced to define a slot to carry the single value.
+
+  (def-type tape ()())
+
+  (def-type list-tape (tape)
+    (
+      (tape
+        :initarg :tape
+        :accessor tape
+        )
+      ))
+
+Now when this is inherited into another implementation structure, the tape interface
+continues to work without any special tricks because there are no list-tm functions
+masking them.
+
+  (def-type list-tm (list-tape)
+    (
+      (head
+        :initarg :head
+        :accessor head
+        )
+      ))
+
+list-tm is then a specialized type of tape, one with a head.  Seems it would be better
+called augmented than specialized, but it is true the list-tape code continues to work.
+
+Here is the interesting part list-tm must be cognizant of the implementation of the
+tape, because the head must point at a cell in the list.  The tape is not encapsulated.
+Thus not any tape specialization can be inherited by list-tm, it must inherit from
+a list tape.  Thus we end up with multiple tape machine types each taking a different
+tape type.
+
+Would it be better to encapsulate the tape and to create functions for manipulating
+tape cells?  The head would hold a cell reference gotten from a tape function. We
+need not give the type for this reference.  It might be a cell in a list, or a cell
+in an array.
+
+I suspect that encapsulation would not work out well, as the very purpose of the
+tape machine is to provide a nearest neighbor topology to the tape.  If we encapsulated
+the tape, we would have to embed that nearest neighbor topology in the encapsulation,
+then the tape-machine loses meaning.  Well the tape machine carries a head slot,
+and thus would become the embodiment of the defintition of location.  Lets give
+encapsulation of the tape a shot ..

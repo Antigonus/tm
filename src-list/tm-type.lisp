@@ -74,7 +74,6 @@ See LICENSE.txt
             [➜ok tm]) 
           ))))
 
-
   (defun mk (tm-class &optional init-parms ➜)
     (let(
           (instance (make-instance tm-class))

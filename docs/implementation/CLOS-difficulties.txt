@@ -22,6 +22,27 @@ dispatch will not recognize Y as a specialization of X.
 method is needed. Not possible are simple co-routine relationships,  where say,  x->y
 and y->x   (child to parent).
 
+The advantage of using a slot for an object instead of inheritance, is that hides the
+formatting for that object.  If we had inherited, we would get the objects slots.
+Now we have to use that objects formatting.  If we assign to a slot, now we are
+using the object in an archtiectural manner.  Its formatting is irrelavant, and can
+even change should we assign another object with the same architecture to the same
+slot.  But this issue is more general, it does seem that if I'm going to inherit
+formatting, I should be able to use the routines designed for using it.  There seems
+to be some architecture/implementation confusion in CLOS.
+
+=> As an example.  If we inherit a list tape into a tape machine, then we have to create a
+specialized list tape machine, because we have to deal with the specifics of the list tape
+implementation (the names of types of its slots, that are now inherited).  However, if we
+make a slot for a tape, and put a list tape there, then using that slot invokes the
+architectural implementation for the tape, which is common to all tapes. Then we
+can write one generic tape machine for all tape implementations. .. though as it turns
+out this is an ideal, as not all tape implemenations can implement the whole tape
+architecture.  Hence, we might still have specialized tape machines, but most of the
+specialized tape machine can inherit from the generic one.  Only in cases we run
+into limitations of a tape type do we need to specialize the tape machine.
+
+
 2  flipping that over, here is another interesting observation, I have a compatible
 interface, but different implementations.  These different implemenations are not related
 through inheritance.  However I don't care about the implemantation, it is the interface
@@ -130,3 +151,27 @@ as p is qualified on project.  However, all functions in a function class must
 have the same number of arguments and &option form, etc.  Hence, dispatch for other
 than project might collide with this.  But if I add the '-project'  I am creating
 a namespace for project functions, and don't really need the type qualification.
+
+10.
+
+no union of types for type specifier
+
+a kludge to get around this .. say we want a union called 'tape'.  We make a type called
+tape and to give it slot.  Then we derive different types of tapes, each holding the slot
+value of the correct type.
+
+  (def-type tape ()()) ; a union of tape types
+  (def-type list-tape (tape)
+    (
+      (tape ; holds a list-tape type tape
+        :initarg :tape
+        :accessor tape
+        )
+      ))
+
+Logically this works well, however I feel bad about the extra level of dereferencing
+that occurs at run time. My impression is that there is some non-trivial work
+associated with pulling out this slot value, though, there will only ever be a single
+value.
+
+
