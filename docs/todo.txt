@@ -193,3 +193,9 @@ add a time to wait as part of test-hook (similar to #50 above)
     tape machine.  Then be moving things between tape machine.  Current print
     stuff is there for helping with debug.
 
+65. virtual concat - makes a number of tape machines appear to be one, might
+    have different flavors perhaps virtual union would be our current ensemble
+
+66. change tests to use-package so that we can encompass the package definition
+    in the test.  Where we need to see inside the package use the :: scoping.
+

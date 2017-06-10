@@ -69,7 +69,7 @@ See LICENSE.txt
   (define-condition operation-on-abandoned (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition use-of-empty (error)
+  (define-condition accessed-empty (error)
     ((text :initarg :text :reader text)))
 
   ;; the head is parked, but someone tries to read or write through it

@@ -60,7 +60,7 @@ they belong to.
       #:alloc-fail
       #:not-implemented
       #:operation-on-abandoned
-      #:use-of-empty
+      #:accessed-empty
       #:access-through-parked-head
       #:box
       #:unbox

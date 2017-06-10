@@ -38,6 +38,14 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
+               (:module "src-tape"
+                 :components (
+                               (:file "init")
+                               (:file "tape")
+                               (:file "list")
+                               ))
+
+#|
                (:module "src-list" ; both the list and generic interface
                  :components (
                                (:file "tm-type")
@@ -138,13 +146,20 @@ See LICENSE.txt
                   :components (
                                 (:file "tiled-number")
                                 ))
-
+|#
               (:module "test-0"
                  :components (
                                (:file "list-qL")
                                (:file "functions")
                                ))
 
+               (:module "test-tape"
+                 :components (
+                               (:file "list")
+                               ))
+
+
+#|
                (:module "test-list"
                 :components (
                               ;; generic interface tests
@@ -188,6 +203,7 @@ See LICENSE.txt
                  :components (
                                (:file "tiled-number")
                                ))
+|#
                ))
   
   

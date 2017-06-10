@@ -8,13 +8,14 @@ See LICENSE.txt
 
 (in-package #:tm)
 
-(defun mk<tape> (tape-class init)
+;; (➜ok #'echo) (➜bad (λ()(error 'bad-init-value))) (➜no-alloc #'alloc-fail)
+(def-function-class init (tape-instance init &optional ➜))
+
+(defun mk (tape-class init &optional ➜)
   (let(
         (tape-instance (make-instance tape-class))
         )
-    (init<tape> instance init)
+    (init tape-instance init ➜)
     ))
 
-;; (➜ok #'echo) (➜bad (λ()(error 'bad-init-value))) (➜no-alloc #'alloc-fail)
-(def-function-class init (tape-instance init &optional ➜))
 

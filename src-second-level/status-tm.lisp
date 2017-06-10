@@ -26,7 +26,7 @@ overridden.
        (destructuring-bind
          (
            &key
-           (➜empty #'use-of-empty)
+           (➜empty #'accessed-empty)
            &allow-other-keys
            )
          ➜

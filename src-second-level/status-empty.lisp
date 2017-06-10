@@ -171,7 +171,7 @@ belonging to a machine that has a parked head.
     (destructuring-bind
       (
         &key
-        (➜empty #'use-of-empty)
+        (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
@@ -183,7 +183,7 @@ belonging to a machine that has a parked head.
     (destructuring-bind
       (
         &key
-        (➜empty #'use-of-empty)
+        (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
@@ -195,7 +195,7 @@ belonging to a machine that has a parked head.
     (declare (ignore tm spill))
     (destructuring-bind
       (&key
-        (➜fail (λ()(error 'use-of-empty)))
+        (➜fail (λ()(error 'accessed-empty)))
         &allow-other-keys
         )
       ➜

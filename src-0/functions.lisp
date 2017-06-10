@@ -40,7 +40,7 @@ See LICENSE.txt
 
   ;; status related
   (defun operation-on-abandoned () (error 'operation-on-abandoned))
-  (defun use-of-empty () (error 'use-of-empty))
+  (defun accessed-empty () (error 'accessed-empty))
   (defun access-through-parked-head () (error 'access-through-parked-head))
 
 ;;--------------------------------------------------------------------------------
