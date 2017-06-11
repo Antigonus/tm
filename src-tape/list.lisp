@@ -289,7 +289,7 @@ Need to add in the no-alloc continuations
           [➜rightmost]
           ))))
 
-  ;; References to the rightneghbor of leftmost get messed up,
+  ;; References to the right neghbor of leftmost get messed up,
   ;; but (cons-list tape) will be ok, so no tape sharing issues
   (defun-typed e-s*d.<tape> ((tape list-tape-active) &optional ➜)
     (destructuring-bind
@@ -298,19 +298,16 @@ Need to add in the no-alloc continuations
         &allow-other-keys
         )
       ➜
-      (let(
-            (leftmost (cons-list tape))
-            )
-        (d.<cell> leftmost
-          {
-            :➜ok ➜ok
-            :➜rightmost
-            (λ()
-              (let(
-                    (cell-0 (cons-list tape))
-                    )
-                (setf (cons-list tape) ∅)
-                (to-empty tape)
-                [➜ok cell-0]
-                ))
-            }))))
+      (d.<cell> (leftmost tape)
+        {
+          :➜ok ➜ok
+          :➜rightmost
+          (λ()
+            (let(
+                  (cell-0 (cons-list tape))
+                  )
+              (setf (cons-list tape) ∅)
+              (to-empty tape)
+              [➜ok (make-instance 'list-cell :cons-cell cell-0)]
+              ))
+          })))
