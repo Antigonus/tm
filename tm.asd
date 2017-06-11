@@ -155,6 +155,7 @@ See LICENSE.txt
 
                (:module "test-tape"
                  :components (
+                               (:file "tape")
                                (:file "list")
                                ))
 

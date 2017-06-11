@@ -37,6 +37,28 @@ on operand type, and it won't mind having a few more types to work with.
   (def-function-class to-active (tape))
   (def-function-class to-empty (tape))
 
+  ;; note that in Common Lisp (typep ∅ 'sequence) -> t
+  ;; so this won't work:
+  ;;    (defun-typed init ((tape tape) (init null) &optional ➜)
+  ;; and we need to test for the null type explicitly in each more specific init method
+  ;;
+  ;; as another case, Mathematica will let us do this:
+  ;;  (defun-typed init ((tape tape) (seq?(= 0 (length seq)) sequence) &optional ➜)
+  ;;
+  ;; but CLOS does not, so we must build the (= 0 length) test into every specialization
+  ;;
+
+  (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (to-empty tape-1)
+      [➜ok tape-1]
+      ))
+
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
 ;;
@@ -84,7 +106,7 @@ on operand type, and it won't mind having a few more types to work with.
       (&key
         (➜empty #'accessed-empty)
         &allow-other-keys
-        )
+         )
       ➜
       [➜empty]
       ))
@@ -206,8 +228,8 @@ on operand type, and it won't mind having a few more types to work with.
   (def-function-class es*a<cell> (tape cell))
   (def-function-class es*a<instance> (tape instance))
   ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class es*-sd<cell> (tape &optional ➜))
-  (defun-typed es*-sd<cell> ((tape tape-empty) &optional ➜)
+  (def-function-class es*-sd<tape> (tape &optional ➜))
+  (defun-typed es*-sd<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -221,44 +243,59 @@ on operand type, and it won't mind having a few more types to work with.
   ;; given a cell removes its right neighbor and returns it
   ;; (➜ok #'echo) (➜rightmost (λ()(error 'dealloc-on-rightmost)))
   (def-function-class d<cell> (cell &optional ➜))
-  (defun-typed d<cell> ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
 
   ;; left neighbor version for doubly linked lists
   ;; (➜ok #'echo) (➜leftmost (be ∅))
   (def-function-class -d<cell> (cell &optional ➜))
-  (defun-typed -d<cell> ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜leftmost]
-      ))
 
+  ;; If there is no rightneighbor, failes with ➜rightneighbor.
   ;; Swaps instances with the rightneighbor, then deletes the rightneighbor.
-  ;; If this cell is rightmost, then there is no right neighbor, and the function fails
-  ;; with a ➜rightmost continuation.
-  ;; Creates the appearence of deleting this cell even for a singly linked list.
+  ;; Returns the deleted rightneighbor after the instance swap.
+  ;; Creates the appearence of deleting 'this cell' even for a singly linked list.
   ;; This is not needed for doubly linked lists, which can simply use 's-d'.
   ;;
   ;; (➜ok #'echo) (➜rightmost  (λ()(error 'dealloc-on-rightmost))).
   (def-function-class d.<cell> (cell &optional ➜))
+  (defun-typed d.<cell> ((cell-0 cell) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (cell-0-instance (r<cell> cell-0))
+            )
+        (right-neighbor cell-0
+          {
+            :➜ok
+            (λ(cell-1)
+              (let(
+                    (cell-1-instance (r<cell> cell-1))
+                    )
+                (w<cell> cell-0 cell-1-instance)
+                (w<cell> cell-1 cell-0-instance)
+                (d<cell> cell-0 ➜)
+                ))
+            :➜rightmost ➜rightmost
+            })
+        )))
 
   ;; appears to delete the leftmost cell, but doesn't, hence avoiding sharing issues
   ;; however external references to the right neighbor of leftmost become orphaned
-  ;; (➜ok #'echo) (➜rightmost  (λ()(error 'dealloc-on-rightmost)))
-  (def-function-class e-s*d.<tape> (cell &optional ➜))
+  ;; (➜ok #'echo) (➜empty #'accessed-empty)
+  (def-function-class e-s*d.<tape> (tape &optional ➜))
+  (defun-typed e-s*d.<tape> ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; length-tape

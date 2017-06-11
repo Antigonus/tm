@@ -14,14 +14,13 @@ Need to add in the no-alloc continuations
         )
       ➜
 
-
 |#
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type list-cell ()
+  (def-type list-cell (cell)
     (
       (cons-cell ; will be a cons cell
         :initarg :cons-cell
@@ -29,7 +28,7 @@ Need to add in the no-alloc continuations
         )
       ))
 
-  (def-type list-tape ()
+  (def-type list-tape (tape)
     (
       (cons-list ; will be a lisp list
         :initarg :cons-list
@@ -40,17 +39,6 @@ Need to add in the no-alloc continuations
   (def-type list-tape-empty (list-tape tape-empty)())
   (defun-typed to-active ((tape list-tape)) (change-class tape 'list-tape-active))
   (defun-typed to-empty  ((tape list-tape)) (change-class tape 'list-tape-empty))
-
-  (defun-typed init ((tape list-tape) (init null) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (to-empty tape)
-      [➜ok tape]
-      ))
 
   (defun-typed init ((tape list-tape) (init cons) &optional ➜)
     (destructuring-bind
@@ -64,6 +52,7 @@ Need to add in the no-alloc continuations
       [➜ok tape]
       ))
 
+  ;; called via call-next-method after sequence is checked not to be zero length
   (defun-typed init ((tape list-tape) (seq sequence) &optional ➜)
     (destructuring-bind
       (&key
@@ -82,7 +71,7 @@ Need to add in the no-alloc continuations
                    )))
              )
       (cond
-        ((= 0 (length seq))
+        ((∨ (¬ seq) (= 0 (length seq)))
           (to-empty tape)
           [➜ok tape]
           )
@@ -90,8 +79,7 @@ Need to add in the no-alloc continuations
           (setf (cons-list tape) (init-1 0))
           (to-active tape)
           [➜ok tape]
-          ))
-      )))
+          )))))
 
   (defun-typed init ((tape-1 list-tape) (tape-0 tape-active) &optional ➜)
     (destructuring-bind
@@ -298,36 +286,6 @@ Need to add in the no-alloc continuations
               (rplacd cell-0 cell-2) ; this orphans cell-1
               [➜ok (make-instance 'list-cell :cons-cell cell-1)]
               ))
-          [➜rightmost]
-          ))))
-
-  ;; d. swaps cell-1's instance with cell-0's before the delete, thus creating the
-  ;; appeareance of deleting cell-0.  As cell's are intended to be the targets of
-  ;; references, any cell-0 or cell-1 references would have to be 'fixed' after this
-  ;; operation.
-  (defun-typed d.<cell> ((cell list-cell) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (let*(
-             (cell-0 (cons-cell cell))
-             (cell-0-instance (car cell-0))
-             (cell-1 (cdr cell-0)) ; this is the right neighbor
-             )
-        (if cell-1
-          (let(
-                (cell-1-instance (car cell-1))
-                (cell-2 (cdr cell-1))
-                )
-            (setf (car cell-0) cell-1-instance)
-            (setf (car cell-1) cell-0-instance)
-            (rplacd cell-0 cell-2) ; this orphans cell-1
-            [➜ok (make-instance 'list-cell :cons-cell cell-1)]
-            )
           [➜rightmost]
           ))))
 

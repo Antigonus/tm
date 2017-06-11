@@ -199,3 +199,19 @@ add a time to wait as part of test-hook (similar to #50 above)
 66. change tests to use-package so that we can encompass the package definition
     in the test.  Where we need to see inside the package use the :: scoping.
 
+67. this would be a nice thing to discuss in the book:
+
+  see src-tape/tape.lisp
+
+  ;; note that in Common Lisp (typep ∅ 'sequence) -> t
+  ;; so this won't work:
+  ;;    (defun-typed init ((tape tape) (init null) &optional ➜)
+  ;; and we need to test for the null type explicitly in each more specific init method
+  ;;
+  ;; as another case, Mathematica will let us do this:
+  ;;  (defun-typed init ((tape tape) (seq?(= 0 (length seq)) sequence) &optional ➜)
+  ;;
+  ;; but CLOS does not, so we must build the (= 0 length) test into every specialization
+  ;;
+
+  (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
