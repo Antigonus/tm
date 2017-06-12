@@ -1,5 +1,4 @@
 #|
-
 Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
@@ -43,6 +42,7 @@ See LICENSE.txt
                                (:file "init")
                                (:file "tape")
                                (:file "list")
+                               (:file "tiled-natural")
                                ))
 
 #|
@@ -157,6 +157,7 @@ See LICENSE.txt
                  :components (
                                (:file "tape")
                                (:file "list")
+                               (:file "tiled-natural")
                                ))
 
 

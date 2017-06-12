@@ -215,3 +215,9 @@ add a time to wait as part of test-hook (similar to #50 above)
   ;;
 
   (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
+
+68. wonder might make sense to have a nomenclature section now.
+    we read and write memory -- not set/clear,  not peek/poke,  not get/put, load/store,
+    push/pop, etc.
+    also we use length for one dimensional objects, because tape has length.
+    not width, not size ..etc.  .. length will always be 1 + the maximum address

@@ -11,11 +11,11 @@ See LICENSE.txt
 
 (defun test-tape-0 ()
   (let*(
-         (tp0 (mk 'list-tape ∅))
-         (tp00 (mk 'list-tape tp0))
-         (tp1 (mk 'list-tape #('a)))
-         (tp2 (mk 'list-tape #('a 'b)))
-         (tp3 (mk 'list-tape #('a 'b 'c)))
+         (tp0 (mk 'tape-list ∅))
+         (tp00 (mk 'tape-list tp0))
+         (tp1 (mk 'tape-list #('a)))
+         (tp2 (mk 'tape-list #('a 'b)))
+         (tp3 (mk 'tape-list #('a 'b 'c)))
          )
     (∧
       (typep tp0 'tape-empty)

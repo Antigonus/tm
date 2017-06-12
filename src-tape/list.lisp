@@ -20,7 +20,7 @@ Need to add in the no-alloc continuations
 
 ;;--------------------------------------------------------------------------------
 ;;
-  (def-type list-cell (cell)
+  (def-type cell-list (cell)
     (
       (cons-cell ; will be a cons cell
         :initarg :cons-cell
@@ -28,19 +28,19 @@ Need to add in the no-alloc continuations
         )
       ))
 
-  (def-type list-tape (tape)
+  (def-type tape-list (tape)
     (
       (cons-list ; will be a lisp list
         :initarg :cons-list
         :accessor cons-list
         )
       ))
-  (def-type list-tape-active (list-tape tape-active)())
-  (def-type list-tape-empty (list-tape tape-empty)())
-  (defun-typed to-active ((tape list-tape)) (change-class tape 'list-tape-active))
-  (defun-typed to-empty  ((tape list-tape)) (change-class tape 'list-tape-empty))
+  (def-type tape-list-active (tape-list tape-active)())
+  (def-type tape-list-empty (tape-list tape-empty)())
+  (defun-typed to-active ((tape tape-list)) (change-class tape 'tape-list-active))
+  (defun-typed to-empty  ((tape tape-list)) (change-class tape 'tape-list-empty))
 
-  (defun-typed init ((tape list-tape) (init cons) &optional ➜)
+  (defun-typed init ((tape tape-list) (init cons) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -52,8 +52,7 @@ Need to add in the no-alloc continuations
       [➜ok tape]
       ))
 
-  ;; called via call-next-method after sequence is checked not to be zero length
-  (defun-typed init ((tape list-tape) (seq sequence) &optional ➜)
+  (defun-typed init ((tape tape-list) (seq sequence) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -81,7 +80,7 @@ Need to add in the no-alloc continuations
           [➜ok tape]
           )))))
 
-  (defun-typed init ((tape-1 list-tape) (tape-0 tape-active) &optional ➜)
+  (defun-typed init ((tape-1 tape-list) (tape-0 tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -114,85 +113,28 @@ Need to add in the no-alloc continuations
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
 ;;
-  (defun-typed e-s*r ((tape list-tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (car (cons-list tape))]
-      ))
-
-  (defun-typed e-s*sr ((tape list-tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (leftmost (cons-list tape))
-            )
-        (if
-          (cdr leftmost)
-          [➜ok (cadr leftmost)]
-          [➜rightmost]
-          ))))
-
-  (defun-typed e-s*w ((tape list-tape-active) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (car (cons-list tape)) instance)
-      [➜ok]
-      ))
-
-  (defun-typed e-s*sw ((tape list-tape-active) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (leftmost (cons-list tape))
-            )
-        (if
-          (cdr leftmost)
-          (progn
-            (setf (cadr leftmost) instance)
-            [➜ok]
-            )
-          [➜rightmost]
-          ))))
 
 ;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
-  (defun-typed =<cell> ((cell-0 list-cell) (cell-1 list-cell))
+  (defun-typed =<cell> ((cell-0 cell-list) (cell-1 cell-list))
     (eq (cons-cell cell-0) (cons-cell cell-1))
     )
 
-  (defun-typed r<cell> ((cell list-cell)) (car (cons-cell cell)))
-  (defun-typed w<cell> ((cell list-cell) instance) (setf (car (cons-cell cell)) instance))
+  (defun-typed r<cell> ((cell cell-list)) (car (cons-cell cell)))
+  (defun-typed w<cell> ((cell cell-list) instance) (setf (car (cons-cell cell)) instance))
 
-  (defun-typed leftmost ((tape list-tape-active) &optional ➜)
+  (defun-typed leftmost ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (make-instance 'list-cell :cons-cell (cons-list tape))]
+      [➜ok (make-instance 'cell-list :cons-cell (cons-list tape))]
       ))
 
-  (defun-typed right-neighbor ((cell list-cell) &optional ➜)
+  (defun-typed right-neighbor ((cell cell-list) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -204,23 +146,23 @@ Need to add in the no-alloc continuations
             (rn (cdr (cons-cell cell)))
             )
         (if rn
-          [➜ok (make-instance 'list-cell :cons-cell (cdr (cons-cell cell)))]
+          [➜ok (make-instance 'cell-list :cons-cell (cdr (cons-cell cell)))]
           [➜rightmost]
           ))))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-  ;; accepts a list-tape and a cell, makes the cell the new leftmost
+  ;; accepts a tape-list and a cell, makes the cell the new leftmost
   ;; will be a problem if (cons-list tape) is shared
-  (defun-typed epa<cell> ((tape list-tape-active) (cell list-cell))
+  (defun-typed epa<cell> ((tape tape-list-active) (cell cell-list))
     (let(
           (cons-cell (cons-cell cell))
           )
       (rplacd cons-cell (cons-list tape))
       (setf (cons-list tape) cons-cell)
       ))
-  (defun-typed epa<cell> ((tape list-tape-empty) (cell list-cell))
+  (defun-typed epa<cell> ((tape tape-list-empty) (cell cell-list))
     (let(
           (cons-cell (cons-cell cell))
           )
@@ -228,15 +170,15 @@ Need to add in the no-alloc continuations
       (setf (cons-list tape) cons-cell)
       ))
 
-  ;; accepts a list-tape and an instance, makes a new leftmost initialized with the instance
+  ;; accepts a tape-list and an instance, makes a new leftmost initialized with the instance
   ;; will be a problem if (cons-list tape) is shared
-  (defun-typed epa<instance> ((tape list-tape-active) instance)
+  (defun-typed epa<instance> ((tape tape-list-active) instance)
     (let(
           (new-cons-cell (cons instance (cons-list tape)))
           )
     (setf (cons-list tape) new-cons-cell)
     ))
-  (defun-typed epa<instance> ((tape list-tape-empty) instance)
+  (defun-typed epa<instance> ((tape tape-list-empty) instance)
     (let(
           (new-cons-cell (cons instance ∅))
           )
@@ -245,7 +187,7 @@ Need to add in the no-alloc continuations
 
   ;; removes the leftmost cell and returns it
   ;; will be a problem if (cons-list tape) is shared
-  (defun-typed epd<tape> ((tape list-tape-active) &optional ➜)
+  (defun-typed epd<tape> ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -262,11 +204,11 @@ Need to add in the no-alloc continuations
             (setf (cons-list tape) ∅)
             (to-empty tape)
             ))
-        [➜ok (make-instance 'list-cell :cons-cell leftmost)]
+        [➜ok (make-instance 'cell-list :cons-cell leftmost)]
         )))
 
   ;; deletes the right neighbor cell
-  (defun-typed d<cell> ((cell list-cell) &optional ➜)
+  (defun-typed d<cell> ((cell cell-list) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -284,14 +226,14 @@ Need to add in the no-alloc continuations
                   (cell-2 (cdr cell-1))
                   )
               (rplacd cell-0 cell-2) ; this orphans cell-1
-              [➜ok (make-instance 'list-cell :cons-cell cell-1)]
+              [➜ok (make-instance 'cell-list :cons-cell cell-1)]
               ))
           [➜rightmost]
           ))))
 
   ;; References to the right neghbor of leftmost get messed up,
   ;; but (cons-list tape) will be ok, so no tape sharing issues
-  (defun-typed e-s*d.<tape> ((tape list-tape-active) &optional ➜)
+  (defun-typed e-s*d.<tape> ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -308,6 +250,6 @@ Need to add in the no-alloc continuations
                   )
               (setf (cons-list tape) ∅)
               (to-empty tape)
-              [➜ok (make-instance 'list-cell :cons-cell cell-0)]
+              [➜ok (make-instance 'cell-list :cons-cell cell-0)]
               ))
           })))

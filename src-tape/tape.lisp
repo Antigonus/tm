@@ -73,6 +73,15 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed e-s*r ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (r<cell> (leftmost tape))]
+      ))
 
   ;; (➜ok #'echo) (➜rightmost (be ∅))
   (def-function-class e-s*sr (tape &optional ➜))
@@ -85,6 +94,25 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed e-s*sr ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (right-neighbor leftmost
+          {
+            :➜ok 
+            (λ(the-right-neighbor)
+              [➜ok (r<cell> the-right-neighbor)]
+              )
+            :➜rightmost ➜rightmost
+            }))))
 
   (def-function-class e-s*w (tape instance &optional ➜))
   (defun-typed e-s*w ((tape tape-empty) instance &optional ➜)
@@ -97,6 +125,16 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed e-s*w ((tape tape-active) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (w<cell> (leftmost tape) instance)]
+      ))
+
 
   ;; (➜ok #'echo) (➜rightmost (be ∅))
   (def-function-class e-s*sw (tape instance &optional ➜))
@@ -110,6 +148,26 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed e-s*sw ((tape tape-active) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (right-neighbor leftmost
+          {
+            :➜ok 
+            (λ(the-right-neighbor)
+              [➜ok (w<cell> the-right-neighbor instance)]
+              )
+            :➜rightmost ➜rightmost
+            }))))
+
 
   ;; for doubly linked lists we also have:
 
@@ -124,6 +182,15 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed es*r ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (r<cell> (rightmost tape))]
+      ))
 
   (def-function-class es*-sr (tape &optional ➜))
   (defun-typed es*-sr ((tape tape-empty) &optional ➜)
@@ -136,6 +203,25 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed es*-sr ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (rightmost (rightmost tape))
+            )
+        (left-neighbor rightmost
+          {
+            :➜ok 
+            (λ(the-left-neighbor)
+              [➜ok (r<cell> the-left-neighbor)]
+              )
+            :➜leftmost ➜leftmost
+            }))))
 
   (def-function-class es*w (tape instance &optional ➜))
   (defun-typed es*w ((tape tape-empty) instance &optional ➜)
@@ -147,6 +233,15 @@ on operand type, and it won't mind having a few more types to work with.
         )
       ➜
       [➜empty]
+      ))
+  (defun-typed es*w ((tape tape-active) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (w<cell> (rightmost tape) instance)]
       ))
 
   (def-function-class es*-sw (tape instance &optional ➜))
@@ -160,6 +255,25 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed es*-sw ((tape tape-active) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (rightmost (rightmost tape))
+            )
+        (left-neighbor rightmost
+          {
+            :➜ok 
+            (λ(the-left-neighbor)
+              [➜ok (w<cell> the-left-neighbor instance)]
+              )
+            :➜leftmost ➜leftmost
+            }))))
 
 ;;--------------------------------------------------------------------------------
 ;; topology queries
@@ -259,7 +373,6 @@ on operand type, and it won't mind having a few more types to work with.
   (defun-typed d.<cell> ((cell-0 cell) &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok #'echo)
         (➜rightmost (λ()(error 'dealloc-on-rightmost)))
         &allow-other-keys
         )

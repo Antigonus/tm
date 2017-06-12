@@ -9,24 +9,41 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-tape-list-0 ()
+(defun test-tape-tiled-natural-0 ()
+  (let(
+        (ttn (make-instance 'tape-tiled-natural))
+        )
+    (setf (natural ttn) 0)
+    (setf (length-tile ttn) 4)
+    (write-tiled-natural ttn 0 #xA)
+    (∧
+      (= (natural ttn) #xA)
+      (= (read-tiled-natural ttn 0) #xA)
+      )))
+
+(test-hook test-tape-tiled-natural-0)
+
+
+(defun test-tape-tiled-natural-1 ()
   (let*(
-         (tp0 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
-         (tp2 (mk 'tape-list #(4 5 6)))
-         (tp3 (mk 'tape-list tp1))
+         (tp0 (mk 'tape-tiled-natural ∅))
+         (tp1 (mk 'tape-tiled-natural {1 2 3}))
+         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
+         (tp3 (mk 'tape-tiled-natural tp1))
          )
     (∧
       (typep tp0 'tape-empty)
-      (equal (tm::cons-list tp1) {1 2 3})
-      (equal (tm::cons-list tp2) {4 5 6})
-      (equal (tm::cons-list tp3) {1 2 3})
+      (= (natural tp1) #x030201)
+      (= (natural tp2) #x060504)
+      (= (natural tp3) #x030201)
       )))
-(test-hook test-tape-list-0)
+(test-hook test-tape-tiled-natural-1)
 
-(defun test-tape-list-1 ()
+#|
+
+(defun test-tape-tiled-natural-1 ()
   (let*(
-         (tp1 (mk 'tape-list {1 2 3}))
+         (tp1 (mk 'tape-tiled-natural {1 2 3}))
          )
     (∧
       (= (e-s*r tp1) 1)
@@ -35,11 +52,11 @@ See LICENSE.txt
       (e-s*sw tp1 12)
       (equal (tm::cons-list tp1) {11 12 3})
       )))
-(test-hook test-tape-list-1)
+(test-hook test-tape-tiled-natural-1)
 
-(defun test-tape-list-2 ()
+(defun test-tape-tiled-natural-2 ()
   (let*(
-         (tp2 (mk 'tape-list #(4 5 6)))
+         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
          )
 
     (let*(
@@ -58,13 +75,13 @@ See LICENSE.txt
         (= v 200)
         (equal (tm::cons-list tp2) {41 51 61})
         ))))
-(test-hook test-tape-list-2)
+(test-hook test-tape-tiled-natural-2)
 
-(defun test-tape-list-3 ()
+(defun test-tape-tiled-natural-3 ()
   (let*(
-         (tp10 (mk 'tape-list ∅))
-         (tp20 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
+         (tp10 (mk 'tape-tiled-natural ∅))
+         (tp20 (mk 'tape-tiled-natural ∅))
+         (tp1 (mk 'tape-tiled-natural {1 2 3}))
          )
     (let*(
            (c0 (make-instance 'cell-list :cons-cell (cons 77 79)))
@@ -79,15 +96,15 @@ See LICENSE.txt
         (equal (tm::cons-list tp1) {0 81 1 2 3})
         (equal (tm::cons-list tp20) {9})
         ))))
-(test-hook test-tape-list-3)
+(test-hook test-tape-tiled-natural-3)
 
-(defun test-tape-list-4 ()
+(defun test-tape-tiled-natural-4 ()
   (let*(
-         (tp0 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
-         (tp2 (mk 'tape-list #(4 5 6)))
-         (tp3 (mk 'tape-list tp1))
-         (tp4 (mk 'tape-list {17 18 19}))
+         (tp0 (mk 'tape-tiled-natural ∅))
+         (tp1 (mk 'tape-tiled-natural {1 2 3}))
+         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
+         (tp3 (mk 'tape-tiled-natural tp1))
+         (tp4 (mk 'tape-tiled-natural {17 18 19}))
          )
     (let*(
            (c0 (leftmost tp2))
@@ -107,4 +124,5 @@ See LICENSE.txt
         (e-s*d.<tape> tp4 {:➜ok (λ(c)(= (r<cell> c) 19)) :➜rightmost (be ∅)})
         (typep tp4 'tape-empty)
         ))))
-(test-hook test-tape-list-4)
+(test-hook test-tape-tiled-natural-4)
+|#
