@@ -175,3 +175,29 @@ associated with pulling out this slot value, though, there will only ever be a s
 value.
 
 
+11.
+namespaces
+
+(max-index parms-instance)  .. calls an accessor function when given the instances, the
+instance should have a slot called max-index.  The accessor function was defined
+with the type declaration corresponding to the type of the instance.  However,
+this max-index will not be on the user interface. It is not imported with the
+packages, it just happens to be a slot name.
+
+Now (max-index tape-instance) .. is a user interface function for returning the
+maximum index usable in the address space.
+
+The def-type (aka defclass) slot accessors do not live within a namespace defined
+by the def-type type name, but rather are at package scope, so they alias against
+function names that are part of the interface.  It is a bit of a tall order to
+say that none of our slot names will ever be the same as a function name.
+
+In general the namespacing is rather crude.  Two name spaces,  one for functions
+one for variables.  The namespace to apply is chosen by syntax analysis in a language
+that has almost no syntax..
+
+12.
+   (typep ∅ seq)  limits our ability to do boundary calculus. forces the null
+   test for seq into guard code instead of having dispatch call a different
+   version that handles null
+

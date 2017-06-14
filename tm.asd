@@ -43,6 +43,8 @@ See LICENSE.txt
                                (:file "tape")
                                (:file "list")
                                (:file "tiled-natural")
+                               (:file "array")
+                               (:file "debug")
                                ))
 
 #|
@@ -158,6 +160,7 @@ See LICENSE.txt
                                (:file "tape")
                                (:file "list")
                                (:file "tiled-natural")
+                               (:file "array")
                                ))
 
 

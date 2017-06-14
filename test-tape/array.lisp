@@ -9,57 +9,47 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-tape-tiled-natural-0 ()
-  (let(
-        (ttn (make-instance 'tape-tiled-natural))
-        (parms (make-instance 'tape-tiled-natural-parms
-                   :name 'test-tape-tiled-natural-0 
-                   :length-tile 4
-                   ))
-        )
-    (setf (natural ttn) 0)
-    (setf (parms ttn) parms)
-    (write-tiled-natural ttn 0 #xA)
-    (∧
-      (= (natural ttn) #xA)
-      (= (read-tiled-natural ttn 0) #xA)
-      )))
-(test-hook test-tape-tiled-natural-0)
-
-
-(defun test-tape-tiled-natural-1 ()
+(defun test-tape-array-0 ()
   (let*(
-         (tp0 (mk 'tape-tiled-natural ∅))
-         (tp1 (mk 'tape-tiled-natural {1 2 3}))
-         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
-         (tp3 (mk 'tape-tiled-natural tp1))
+         (tp0 (mk 'tape-array ∅))
+         (tp1 (mk 'tape-array {1 2 3} {:maxdex 3}))
+         (tp2 (mk 'tape-array #(4 5 6)))
+         (tp3 (mk 'tape-array tp1))
          )
-    (∧
-      (typep tp0 'tape-empty)
-      (= (natural tp1) #x030201)
-      (= (natural tp2) #x060504)
-      (= (natural tp3) #x030201)
-      )))
-(test-hook test-tape-tiled-natural-1)
+    (let(
+          (arr1 (the-array tp1))
+          (arr2 (the-array tp2))
+          (arr3 (the-array tp3))
+          )
+      (let(
+            (list1 (coerce arr1 'list))
+            (list2 (coerce arr2 'list))
+            (list3 (coerce arr3 'list))
+            )
+        (∧
+          (typep tp0 'tape-empty)
+          (equal list1 {1 2 3 ∅})
+          (equal list2 {4 5 6})
+          (equal list3 {1 2 3 ∅})
+          )))))
+(test-hook test-tape-array-0)
 
-#|
-
-(defun test-tape-tiled-natural-1 ()
+(defun test-tape-array-1 ()
   (let*(
-         (tp1 (mk 'tape-tiled-natural {1 2 3}))
+         (tp1 (mk 'tape-array {1 2 3}))
          )
     (∧
       (= (e-s*r tp1) 1)
       (= (e-s*sr tp1) 2)
       (e-s*w tp1 11)
       (e-s*sw tp1 12)
-      (equal (tm::cons-list tp1) {11 12 3})
+      (equal (coerce (tm::the-array tp1) 'list) {11 12 3})
       )))
-(test-hook test-tape-tiled-natural-1)
+(test-hook test-tape-array-1)
 
-(defun test-tape-tiled-natural-2 ()
+(defun test-tape-array-2 ()
   (let*(
-         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
+         (tp2 (mk 'tape-array #(4 5 6)))
          )
 
     (let*(
@@ -76,15 +66,16 @@ See LICENSE.txt
         (= (r<cell> c2) 6)
         (w<cell> c2 61)
         (= v 200)
-        (equal (tm::cons-list tp2) {41 51 61})
+        (equal (coerce (tm::the-array tp2) 'list) {41 51 61})
         ))))
-(test-hook test-tape-tiled-natural-2)
+(test-hook test-tape-array-2)
 
-(defun test-tape-tiled-natural-3 ()
+#| no topo ops for array
+(defun test-tape-array-3 ()
   (let*(
-         (tp10 (mk 'tape-tiled-natural ∅))
-         (tp20 (mk 'tape-tiled-natural ∅))
-         (tp1 (mk 'tape-tiled-natural {1 2 3}))
+         (tp10 (mk 'tape-array ∅))
+         (tp20 (mk 'tape-array ∅))
+         (tp1 (mk 'tape-array {1 2 3}))
          )
     (let*(
            (c0 (make-instance 'cell-list :cons-cell (cons 77 79)))
@@ -95,19 +86,19 @@ See LICENSE.txt
       (epa<instance> tp20 9)
       (epa<instance> tp1 0)
       (∧
-        (equal (tm::cons-list tp10) {77})
-        (equal (tm::cons-list tp1) {0 81 1 2 3})
-        (equal (tm::cons-list tp20) {9})
+        (equal (coerce (tm::the-array tp10) 'list) {77})
+        (equal (coerce (tm::the-array tp1) 'list) {0 81 1 2 3})
+        (equal (coerce (tm::the-array tp20) 'list)  {9})
         ))))
-(test-hook test-tape-tiled-natural-3)
+(test-hook test-tape-array-3)
 
-(defun test-tape-tiled-natural-4 ()
+(defun test-tape-array-4 ()
   (let*(
-         (tp0 (mk 'tape-tiled-natural ∅))
-         (tp1 (mk 'tape-tiled-natural {1 2 3}))
-         (tp2 (mk 'tape-tiled-natural #(4 5 6)))
-         (tp3 (mk 'tape-tiled-natural tp1))
-         (tp4 (mk 'tape-tiled-natural {17 18 19}))
+         (tp0 (mk 'tape-array ∅))
+         (tp1 (mk 'tape-array {1 2 3}))
+         (tp2 (mk 'tape-array #(4 5 6)))
+         (tp3 (mk 'tape-array tp1))
+         (tp4 (mk 'tape-array {17 18 19}))
          )
     (let*(
            (c0 (leftmost tp2))
@@ -127,5 +118,5 @@ See LICENSE.txt
         (e-s*d.<tape> tp4 {:➜ok (λ(c)(= (r<cell> c) 19)) :➜rightmost (be ∅)})
         (typep tp4 'tape-empty)
         ))))
-(test-hook test-tape-tiled-natural-4)
+(test-hook test-tape-array-4)
 |#

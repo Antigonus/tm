@@ -37,27 +37,51 @@ on operand type, and it won't mind having a few more types to work with.
   (def-function-class to-active (tape))
   (def-function-class to-empty (tape))
 
-  ;; note that in Common Lisp (typep ∅ 'sequence) -> t
-  ;; so this won't work:
-  ;;    (defun-typed init ((tape tape) (init null) &optional ➜)
-  ;; and we need to test for the null type explicitly in each more specific init method
+
+  ;;----------------------------------------
+  ;; generic init
   ;;
-  ;; as another case, Mathematica will let us do this:
-  ;;  (defun-typed init ((tape tape) (seq?(= 0 (length seq)) sequence) &optional ➜)
-  ;;
-  ;; but CLOS does not, so we must build the (= 0 length) test into every specialization
+  ;; Generic init methods are difficult in general. This is because init's whole purpose
+  ;; is to set up the custom type.
   ;;
 
-  (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (to-empty tape-1)
-      [➜ok tape-1]
-      ))
+  ;;   note that in Common Lisp (typep ∅ 'sequence) -> t
+  ;;   I would argue this is a design flaw, because dispatch is all about choosing
+  ;;   different functions for end cases.  Because (typep ∅ 'sequence) is true, we must
+  ;;   explicitly test for null sequences in guard code.
+  ;;
+  ;;   Note, Mathematica will let us add additional tests into dispatch, so we can
+  ;;   also have a special function for sequence length of zero:
+  ;;   (defun-typed init ((tape tape) (seq?(= 0 (length seq)) sequence) &optional ➜)
+  ;;    ..  but CLOS does not, so we must build the (= 0 length) test into guard code for
+  ;;    every specialization (as opposed to specifying it in the argument list for every
+  ;;    specialization -- LOL, seems sequence length zero should be another type also.)
+  ;;
+  ;; (defun-typed init ((tape tape) (init null) &optional ➜)
+
+  ;; In general for intialization to an empty machine, for machines that can modify
+  ;; topology, the function #'epa can transition them to tape-active.  If such machines
+  ;; can also be customized by parameters then there will have to be a more specific
+  ;; version of empty init so as to catch those paramters.
+  ;;
+    (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
+          )
+        ➜
+        (to-empty tape-1)
+        [➜ok tape-1]
+        ))
+
+   ;; It is possible to write a generic tape copy initializer for tapes that support toplogy
+   ;; modification and do not take customization parameters by making use of #'epa.
+   ;;
+   ;; This would be its call interface:
+   ;;   (defun-typed init ((tape-1 tape) (tape-0 tape-active) &optional ➜)
+
+   
 
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
@@ -468,4 +492,49 @@ on operand type, and it won't mind having a few more types to work with.
           :➜rightmost ➜∅
           })))
 
+ (def-function-class maximum-address (tape &optional ➜))
+ (defun-typed maximum-address ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+ (defun-typed maximum-address ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (let(index cell)
+        (labels(
+                 (init-1 (cell)
+                   (right-neighbor cell
+                     {
+                       :➜ok
+                       (λ(the-right-neighbor)
+                         (incf index)
+                         (init-1 the-right-neighbor)
+                         )
+                       :➜rightmost
+                       #'do-nothing
+                       }))
+                 (init-0 ()
+                   (setf index 0)
+                   (setf cell (leftmost tape))
+                   (init-1 cell)
+                   )
+                 )
+          (init-0)
+          )
+        [➜ok index]
+        )))
+                
+     
 
+     
+     

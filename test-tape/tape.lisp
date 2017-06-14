@@ -21,6 +21,11 @@ See LICENSE.txt
       (typep tp0 'tape-empty)
       (typep tp00 'tape-empty)
 
+      (maximum-address tp0 {:➜ok (be ∅) :➜empty (be t)})
+      (maximum-address tp1 {:➜ok (λ(maximum)(= maximum 0)) :➜empty (be ∅)})
+      (= (maximum-address tp2) 1)
+      (= (maximum-address tp3) 2)
+
       (e-s*r tp0 {:➜ok (be ∅) :➜empty (be t)})
       (e-s*r tp1 {:➜ok (be t) :➜empty (be ∅)})
 

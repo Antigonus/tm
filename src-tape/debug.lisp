@@ -6,6 +6,9 @@ See LICENSE.txt
 
 |# 
 
+(in-package :tm)
+
+#|
 ;; if the instances in two cells are equal
 (def-function-class =<cell><instances> (cell-0 cell-1))
 (defun-typed =<cell><instances> ((cell-0 cell) (cell-1 cell))
@@ -67,26 +70,30 @@ See LICENSE.txt
       )
     (=tape-0())
     ))
+|#
 
 (def-function-class print<cell> (cell))
-(defun-typed print<cell> ((cell cell)) (princ (read cell)))
+(defun-typed print<cell> ((cell cell)) (princ (r<cell> cell)))
 
-(def-function-class print-tape (tape))
-(defun-typed print<tape> ((tape list-tape))
-  (lables(
-           (print-0 ()
-             (print-1 (leftmost tape))
-             )
-           (print-1 (cell)
-             (when cell
-               (print<cell> cell)
-               (print-2 (right-neighbor cell))
-               ))
-           (print-2 (cell)
-             (when cell
+(def-function-class print<tape> (tape))
+(defun-typed print<tape> ((tape tape))
+  (labels(
+           (print-2 (a-cell)
+             (when a-cell
                (princ " ")
-               (print-cell cell)
-               (print-2 (right-neighbor cell))
+               (print<cell> a-cell)
+               (print-2 (right-neighbor a-cell))
+               ))
+           (print-1 (a-cell)
+             (when a-cell
+               (print<cell> a-cell)
+               (print-2 (right-neighbor a-cell))
+               ))
+           (print-0 ()
+             (let(
+                   (a-cell (leftmost tape))
+                   )
+               (print-1 a-cell)
                ))
            )
     (print-0)

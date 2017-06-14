@@ -221,3 +221,5 @@ add a time to wait as part of test-hook (similar to #50 above)
     push/pop, etc.
     also we use length for one dimensional objects, because tape has length.
     not width, not size ..etc.  .. length will always be 1 + the maximum address
+
+69. need context dictionaries for array tiled-number etc.
