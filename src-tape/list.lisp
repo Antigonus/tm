@@ -55,44 +55,25 @@ Need to add in the no-alloc continuations
       [➜ok tape]
       ))
 
-  ;; provides list intialization for other tape types:
-  (defun-typed init ((tape-1 tape) (a-list cons) &optional ➜)
-    (mk 'tape-list a-list
-      {
-        :➜ok (λ(tape-0) (init tape-1 tape-0 ➜))
-        }))
-
-
   ;; shallow copies from another tape
-  (defun-typed init ((tape-1 tape-list) (tape-0 tape-active) &optional ➜)
+  (defun-typed init ((tape-1 tape-list) (tape-0 tape) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      (labels(
-               (init-1 (cell) ; given a cell, returns a cons cell for the right-neighbor
-                 (right-neighbor cell
-                   {
-                     :➜ok 
-                     (λ(the-right-neighbor)
-                       (cons (r<cell> the-right-neighbor) (init-1 the-right-neighbor))
-                       )
-                     :➜rightmost
-                     (be ∅)
-                     }))
-               (init-0 () ; returns a first cons cell
-                 (let(
-                       (cell-0 (leftmost tape-0))
-                       )
-                   (cons (r<cell> cell-0) (init-1 cell-0))
-                   ))
-               )
-        (setf (cons-list tape-1) (init-0))
-        (to-active tape-1)
-        [➜ok tape-1]
-        )))
+      (to-empty tape-1)
+      (shallow-copy-topo tape-1 tape-0)
+      [➜ok tape-1]
+      ))
+
+  ;; provides list intialization for other tape types:
+  (defun-typed init ((tape-1 tape) (a-list cons) &optional ➜)
+    (mk 'tape-list a-list
+      {
+        :➜ok (λ(tape-0) (init tape-1 tape-0 ➜))
+        }))
 
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
@@ -167,6 +148,7 @@ Need to add in the no-alloc continuations
           (new-cons-cell (cons instance ∅))
           )
       (setf (cons-list tape) new-cons-cell)
+      (to-active tape)
       ))
 
   (defun-typed a<cell> ((cell-0 cell) (cell-1 cell))

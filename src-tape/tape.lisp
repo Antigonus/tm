@@ -248,7 +248,7 @@ on operand type, and it won't mind having a few more types to work with.
                         :➜ok
                         (λ(rn-0)(shallow-copy-topo-extend cell-1 rn-0))
                         :➜rightmost ; no more initialization data, so we are done!
-                        [➜ok cell-1]
+                        (λ()[➜ok cell-1])
                         }))
                   :➜empty #'cant-happen ; we just added a cell
                   }))
