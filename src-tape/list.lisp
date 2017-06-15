@@ -3,6 +3,8 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+Init binds to a list, or creates a new list and shallow copies from another tape.
+
 Need to add in the no-alloc continuations
 
     (destructuring-bind
@@ -35,11 +37,12 @@ Need to add in the no-alloc continuations
         :accessor cons-list
         )
       ))
-  (def-type tape-list-active (tape-list tape-active)())
   (def-type tape-list-empty (tape-list tape-empty)())
+  (def-type tape-list-active (tape-list tape-active)())
   (defun-typed to-active ((tape tape-list)) (change-class tape 'tape-list-active))
   (defun-typed to-empty  ((tape tape-list)) (change-class tape 'tape-list-empty))
 
+  ;; binds to a list
   (defun-typed init ((tape tape-list) (init cons) &optional ➜)
     (destructuring-bind
       (&key
@@ -52,34 +55,15 @@ Need to add in the no-alloc continuations
       [➜ok tape]
       ))
 
-  (defun-typed init ((tape tape-list) (seq sequence) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-    (labels(
-             (init-1 (i)
-               (cond
-                 ((≥ i (length seq))
-                   ∅
-                   )
-                 (t
-                   (cons (elt seq i) (init-1 (1+ i)))
-                   )))
-             )
-      (cond
-        ((∨ (¬ seq) (= 0 (length seq)))
-          (to-empty tape)
-          [➜ok tape]
-          )
-        (t
-          (setf (cons-list tape) (init-1 0))
-          (to-active tape)
-          [➜ok tape]
-          )))))
+  ;; provides list intialization for other tape types:
+  (defun-typed init ((tape-1 tape) (a-list cons) &optional ➜)
+    (mk 'tape-list a-list
+      {
+        :➜ok (λ(tape-0) (init tape-1 tape-0 ➜))
+        }))
 
+
+  ;; shallow copies from another tape
   (defun-typed init ((tape-1 tape-list) (tape-0 tape-active) &optional ➜)
     (destructuring-bind
       (&key
@@ -170,8 +154,8 @@ Need to add in the no-alloc continuations
       (setf (cons-list tape) cons-cell)
       ))
 
-  ;; accepts a tape-list and an instance, makes a new leftmost initialized with the instance
-  ;; will be a problem if (cons-list tape) is shared
+  ;; accepts a tape-list and an instance, makes a new leftmost initialized with the
+  ;; instance will be a problem if (cons-list tape) is shared
   (defun-typed epa<instance> ((tape tape-list-active) instance)
     (let(
           (new-cons-cell (cons instance (cons-list tape)))
@@ -183,6 +167,24 @@ Need to add in the no-alloc continuations
           (new-cons-cell (cons instance ∅))
           )
       (setf (cons-list tape) new-cons-cell)
+      ))
+
+  (defun-typed a<cell> ((cell-0 cell) (cell-1 cell))
+    (let*(
+           (cons0 (cons-cell cell-0))
+           (cons1 (cons-cell cell-1))
+           (cons2 (cdr cons0))
+           )
+      (rplacd cons1 cons2)
+      (rplacd cons0 cons1)
+      ))
+
+  (defun-typed a<instance> ((cell-0 cell) instance)
+    (let*(
+           (cons0 (cons-cell cell-0))
+           (cons1 (cons instance (cdr cons0)))
+           )
+      (rplacd cons0 cons1)
       ))
 
   ;; removes the leftmost cell and returns it
@@ -253,3 +255,26 @@ Need to add in the no-alloc continuations
               [➜ok (make-instance 'cell-list :cons-cell cell-0)]
               ))
           })))
+
+  (defun-typed epd*<tape> ((tape tape-list) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (to-empty tape)
+      (setf (cons-list tape) ∅) ; free the data
+      [➜ok]
+      ))
+
+  (defun-typed d*<cell> ((cell cell-list) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (rplacd (cons-cell cell) ∅)
+      [➜ok]
+      ))

@@ -41,6 +41,7 @@ See LICENSE.txt
                  :components (
                                (:file "init")
                                (:file "tape")
+                               (:file "sequence")
                                (:file "list")
                                (:file "tiled-natural")
                                (:file "array")
@@ -158,6 +159,7 @@ See LICENSE.txt
                (:module "test-tape"
                  :components (
                                (:file "tape")
+                               (:file "sequence")
                                (:file "list")
                                (:file "tiled-natural")
                                (:file "array")

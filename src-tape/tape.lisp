@@ -34,9 +34,9 @@ on operand type, and it won't mind having a few more types to work with.
   (def-type tape ()()) ; a union of tape types
   (def-type tape-active (tape)()) ; a union of tape types
   (def-type tape-empty (tape)()) ; a union of tape types
-  (def-function-class to-active (tape))
-  (def-function-class to-empty (tape))
 
+  (def-function-class to-empty (tape))
+  (def-function-class to-active (tape))
 
   ;;----------------------------------------
   ;; generic init
@@ -80,8 +80,186 @@ on operand type, and it won't mind having a few more types to work with.
    ;;
    ;; This would be its call interface:
    ;;   (defun-typed init ((tape-1 tape) (tape-0 tape-active) &optional ➜)
-
    
+
+  ;;----------------------------------------
+  ;; copy - similar to init
+  ;; 
+    (def-function-class shallow-copy-no-topo (tape-1 tape-0 &optional ➜))
+    (defun-typed shallow-copy-no-topo ((tape-1 tape-empty) (tape-0 tape) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        [➜ok]
+        ))
+    (defun-typed shallow-copy-no-topo ((tape-1 tape-active) (tape-0 tape-empty) &optional ➜)
+      (destructuring-bind
+        (&key
+          initial-instance
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        (labels(
+                 (copy-2 (cell-1)
+                   (w<cell> cell-1 initial-instance)
+                   (right-neighbor cell-1
+                     {
+                       :➜rightmost #'do-nothing ; we are finished
+                       :➜ok (λ(rn-1)(copy-2 rn-1))
+                       }))
+                 (copy-0 ()
+                   (let(
+                         (cell-1 (leftmost tape-1)) ; active tapes always have a leftmost
+                         )
+                     (copy-2 cell-1)
+                     ))
+                 )
+          (copy-0)
+          )
+        [➜ok]
+        ))
+    (defun-typed shallow-copy-no-topo ((tape-1 tape-active) (tape-0 tape-active) &optional ➜)
+      (destructuring-bind
+        (&key
+          initial-instance
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        (labels(
+                 (copy-2 (cell-1)
+                   (w<cell> cell-1 initial-instance)
+                   (right-neighbor cell-1
+                     {
+                       :➜rightmost #'do-nothing ; we are finished
+                       :➜ok (λ(rn-1)(copy-2 rn-1))
+                       }))
+                 (copy-1 (cell-1 cell-0)
+                   (w<cell> cell-1 (r<cell> cell-0))
+                   (right-neighbor cell-1
+                     {
+                       :➜rightmost #'do-nothing ; we are finished
+                       :➜ok
+                       (λ(rn-1)
+                         (right-neighbor cell-0
+                           {
+                             :➜rightmost ; uh-oh ran out of copyializer data
+                             (λ()(copy-2 rn-1))
+                             :➜ok
+                             (λ(rn-0)
+                               (copy-1 rn-1 rn-0)
+                               )
+                             }))}))
+                 (copy-0 ()
+                   (let(
+                         (cell-1 (leftmost tape-1)) ; active tapes always have a leftmost
+                         (cell-0 (leftmost tape-0)) ; active tapes always have a leftmost
+                         )
+                     (copy-1 cell-1 cell-0)
+                     ))
+                 )
+          (copy-0)
+          )
+        [➜ok]
+        ))
+
+    ;; appends new cell to cell-1 and initialized to isntance from cell-0
+    ;; recurs on right neighbors of cell-1 and cell-0
+    ;; returns rightmost of tape-1, in case it is needed, perhaps for a tail pointer
+    (defun shallow-copy-topo-extend (cell-1 cell-0 &optional (cont-ok #'echo))
+      (a<instance> cell-1 (r<cell> cell-0))
+      (right-neighbor cell-1
+        {
+          :➜ok
+          (λ(rn-1)
+            (right-neighbor cell-0
+              {
+                :➜ok
+                (λ(rn-0)(shallow-copy-topo-extend rn-1 rn-0))
+                :➜rightmost
+                (λ()[cont-ok rn-1])
+                }))
+          :➜rightmost #'cant-happen ; we just added a cell
+          }))
+
+    (defun shallow-copy-topo-overwrite (cell-1 cell-0 &optional (cont-ok #'echo))
+      (w<cell> cell-1 (r<cell> cell-0))
+      (right-neighbor cell-0
+        {
+          :➜ok
+          (λ(rn-0)
+            (right-neighbor cell-1
+              {
+                :➜ok
+                (λ(rn-1)(shallow-copy-topo-overwrite rn-1 rn-0))
+                :➜rightmost ;ran out of places to write initialization data, so extend..
+                (λ()(shallow-copy-topo-extend cell-1 rn-0 cont-ok))
+                }))
+          :➜rightmost ; no more initialization data, we are done
+          (λ()
+            (d*<cell> cell-1)
+            [cont-ok cell-1]
+            )}))
+
+    ;; ➜ok returns last cell of tape-1 after copy
+    (def-function-class shallow-copy-topo (tape-1 tape-0 &optional ➜))
+    (defun-typed shallow-copy-topo ((tape-1 tape-empty) (tape-0 tape-empty) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜empty (be ∅))
+          &allow-other-keys
+          )
+        ➜
+        [➜empty]
+        ))
+    (defun-typed shallow-copy-topo ((tape-1 tape-active) (tape-0 tape-empty) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜empty (be ∅))
+          &allow-other-keys
+          )
+        ➜
+        (epd*<tape> tape-1)
+        [➜empty]
+        ))
+    (defun-typed shallow-copy-topo ((tape-1 tape-empty) (tape-0 tape-active) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
+          )
+        ➜
+        (leftmost tape-0
+          {
+            :➜empty #'cant-happen ; tape is active
+            :➜ok
+            (λ(cell-0)
+              (epa<instance> tape-1 (r<cell> cell-0))
+              (leftmost tape-1
+                {
+                  :➜ok 
+                  (λ(cell-1)
+                    (right-neighbor cell-0
+                      {
+                        :➜ok
+                        (λ(rn-0)(shallow-copy-topo-extend cell-1 rn-0))
+                        :➜rightmost ; no more initialization data, so we are done!
+                        [➜ok cell-1]
+                        }))
+                  :➜empty #'cant-happen ; we just added a cell
+                  }))
+             })))
+    (defun-typed shallow-copy-topo ((tape-1 tape-active) (tape-0 tape-active) &optional ➜)
+      (let(
+            (cell-1 (leftmost tape-1))
+            (cell-0 (leftmost tape-0))
+            )
+        (shallow-copy-topo-overwrite cell-1 cell-0 ➜)
+        ))
 
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
@@ -348,20 +526,6 @@ on operand type, and it won't mind having a few more types to work with.
   ;; makes and inserts a new leftmost cell initialized to the given instance
   (def-function-class epa<instance> (tape instance))
 
-  ;; removes the leftmost cell and returns it
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
-  (def-function-class epd<tape> (tape &optional ➜))
-  (defun-typed epd<tape> ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
   ;; for a doubly linked list, these are the 'operate on tail' versions of the above
   (def-function-class es*a<cell> (tape cell))
   (def-function-class es*a<instance> (tape instance))
@@ -376,6 +540,26 @@ on operand type, and it won't mind having a few more types to work with.
         )
       ➜
       [➜leftmost]
+      ))
+
+  ;; makes cell-1 a right-neighbor of cell-0
+  (def-function-class a<cell> (cell-0 cell-1))
+
+  ;; makes a new right neighbor for cell, and initializes it with instance.
+  (def-function-class a<instance> (cell instance))
+
+  ;; removes the leftmost cell and returns it
+  ;; (➜ok #'echo) (➜rightmost (be ∅))
+  (def-function-class epd<tape> (tape &optional ➜))
+  (defun-typed epd<tape> ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
       ))
 
   ;; given a cell removes its right neighbor and returns it
@@ -433,6 +617,11 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+
+  ;; (➜ok (be t))
+  (def-function-class epd*<tape> (tape &optional ➜))
+  (def-function-class d*<cell> (cell &optional ➜))
+
 
 ;;--------------------------------------------------------------------------------
 ;; length-tape

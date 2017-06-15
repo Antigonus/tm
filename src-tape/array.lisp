@@ -3,6 +3,8 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
+  Init creates an array, shallow copies from another tape.
+
   A tape space implemented over an array. Each cell holds an array element.
 
   Topology modification is not supported.
@@ -66,167 +68,64 @@ See LICENSE.txt
   (defun-typed to-active ((tape tape-array)) (change-class tape 'tape-array-active))
   (defun-typed to-empty  ((tape tape-array)) (change-class tape 'tape-array-empty))
 
-  (defun init-parms-tape-array (tape seq ➜ cont-ok cont-empty)
-    (destructuring-bind
-      (&key
-        ;; parms ; to pass a parms in we need a parms dictionary to look the name up ..
-        maxdex
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (length-seq (length seq)) ; in Common Lisp (length ∅) -> 0
-            )
-        (cond
-          ((∧ (¬ maxdex) (= 0 length-seq))
-            [cont-empty]
-            )
-          (t
-            (when (¬ maxdex) (setf maxdex (1- length-seq)))
-            (setf
-              (parms tape)
-              (make-instance
-                'tape-array-parms
-                :name 'local
-                :maxdex maxdex
-                ))
-            (let*(
-                   (length-array (1+ maxdex))
-                   (the-array
-                     (make-array length-array
-                       :element-type t
-                       :adjustable ∅
-                       :fill-pointer ∅
-                       :displaced-to ∅
-                       ))
-                   )
-              (setf (the-array tape) the-array)
-              (cond
-                ((≥ length-seq length-array)
-                  (do
-                    ((i 0 (1+ i)))
-                    ((≥ i length-array))
-                    (setf (aref the-array i) (elt seq i))
-                    ))
-                (t
-                  (do
-                    ((i 0 (1+ i)))
-                    ((≥ i length-seq))
-                    (setf (aref the-array i) (elt seq i))
-                    )
-                  (do
-                    ((i length-seq (1+ i)))
-                    ((≥ i length-array))
-                    (setf (aref the-array i) ∅)
-                    )))
-              ); end let*
-            [cont-ok]
-            )))))
+  (defun tape-array-make (tape maximum-address)
+    (setf
+      (parms tape)
+      (make-instance
+        'tape-array-parms
+        :name 'local
+        :maxdex maximum-address
+        ))
+    (setf
+      (the-array tape)
+      (make-array
+        (1+ maximum-address)
+        :element-type t
+        :adjustable ∅
+        :fill-pointer ∅
+        :displaced-to ∅
+        ))
+    )
                 
-  (defun-typed init ((tape tape-array) (seq sequence) &optional ➜)
-    (destructuring-bind
-      (&key
-        ;; parms ; to pass a parms in we need a parms dictionary to look the name up ..
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (init-parms-tape-array tape seq ➜
-          (λ()
-            (to-active tape)
-            [➜ok tape]
-            )
-          (λ()
-            (to-empty tape)
-            [➜ok tape]
-            )
-        )))
-
   (defun-typed init ((tape-1 tape-array) (tape-0 tape-empty) &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (init-parms-tape-array tape-1 ∅ ➜
-          ;; They are teasing us by handing us a null initializer and simultaneously
-          ;; specifying an initial tape length.  We will set the intial tape to all ∅.
-          (λ()
-            (to-active tape-1)
-            [➜ok tape-1]
-            )
-          (λ()
-            (to-empty tape-1)
-            [➜ok tape-1]
-            )
-          )))
-
-  (defun-typed init ((tape-1 tape-array) (tape-0 tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        maxdex
+        initial-element 
+        maximum-address
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
       (cond
-        ((∧ maxdex (≥ 0 maxdex)) ; if you spec maxdex, we do not share parms
-          (setf
-            (parms tape-1)
-            (make-instance
-              'tape-array-parms
-              :name 'local
-              :maxdex maxdex
-              )))
-          (t
-            (setf (parms tape-1) (parms tape-0))
-            (setf maxdex (maxdex (parms tape-0)))
-            ))
-
-      (setf (the-array tape-1)
-        (make-array (1+ maxdex)
-          :element-type t
-          :adjustable ∅
-          :fill-pointer ∅
-          :displaced-to ∅
+        (maximum-address
+          (tape-array-make tape-1 maximum-address)
+          (do
+            ((i 0 (1+ i)))
+            ((> i maximum-address))
+            (setf (aref (the-array tape-1) i) initial-element)
+            )
+          (to-active tape-1)
+          )
+        (t
+          (to-empty tape-1)
           ))
-      (to-active tape-1)
+      [➜ok tape-1]
+      ))
 
-      (labels(
-               (init-2 (cell-1)
-                 (w<cell> cell-1 ∅)
-                 (right-neighbor cell-1
-                   {
-                     :➜rightmost #'do-nothing ; we are finished
-                     :➜ok (λ(rn-1)(init-2 rn-1))
-                     }))
-               (init-1 (cell-1 cell-0)
-                 (w<cell> cell-1 (r<cell> cell-0))
-                 (right-neighbor cell-1
-                   {
-                     :➜rightmost #'do-nothing ; we are finished
-                     :➜ok
-                     (λ(rn-1)
-                       (right-neighbor cell-0
-                         {
-                           :➜rightmost ; uh-oh ran out of initializer data
-                           (λ()(init-2 rn-1))
-                           :➜ok
-                           (λ(rn-0)
-                             (init-1 rn-1 rn-0)
-                             )
-                           }))}))
-               (init-0 ()
-                 (let(
-                       (cell-1 (leftmost tape-1)) ; active tapes always have a leftmost
-                       (cell-0 (leftmost tape-0)) ; active tapes always have a leftmost
-                       )
-                   (init-1 cell-1 cell-0)
-                   ))
-               )
-        (init-0)
+  ;; shallow copy from another tape
+  (defun-typed init ((tape-1 tape-array) (tape-0 tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        initial-element 
+        maximum-address
+        (➜ok #'echo)
+        &allow-other-keys
         )
+      ➜
+      (when (¬ maximum-address) (setf maximum-address (maximum-address tape-0)))
+      (tape-array-make tape-1 maximum-address)
+      (to-active tape-1)
+      (shallow-copy-no-topo tape-1 tape-0 {:initial-element initial-element})
       [➜ok tape-1]
       ))
 

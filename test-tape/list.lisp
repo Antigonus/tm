@@ -108,3 +108,45 @@ See LICENSE.txt
         (typep tp4 'tape-empty)
         ))))
 (test-hook test-tape-list-4)
+
+(defun test-tape-list-5 ()
+  (let*(
+         (tp0 (mk 'tape-list ∅))
+         (tp01 (mk 'tape-list {'a 'b}))
+         (tp11 (mk 'tape-list {1 2 3}))
+         (tp12 (mk 'tape-list {1 2 3}))
+         (tp1 (mk 'tape-list {1 2 3}))
+         (tp2 (mk 'tape-list #(4 5 6 7 8)))
+         (tp4 (mk 'tape-list {17 18 19}))
+         v1
+         cell1 cell2
+         flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 flag10
+         )
+    (shallow-copy-no-topo tp0 tp1)
+    (setf flag1 (typep tp0 'tape-empty))
+
+    (shallow-copy-no-topo tp11 tp0)
+    (setf flag2 (equal (cons-list tp11) {∅ ∅ ∅}))
+
+    (shallow-copy-no-topo tp12 tp01)
+    (setf flag3 (equal (cons-list tp12) {'a 'b ∅}))
+
+    (shallow-copy-no-topo tp1 tp2)
+    (setf flag4 (equal (cons-list tp1) {4 5 6}))
+
+    (setf cell1 (shallow-copy-topo tp1 tp2))
+    (setf flag5 (equal (cons-list tp1) {4 5 6 7 8}))
+    (setf flag6 (= (r<cell> cell1) 8))
+
+    (setf v1 (shallow-copy-topo tp1 tp0 {:➜ok (be 21) :➜empty (be 22)}))
+    (setf flag7 (typep tp1 'tape-empty))
+    (setf flag8 (= v1 22))
+
+    (setf cell2 (shallow-copy-topo tp2 tp4))
+    (setf flag9 (equal (cons-list tp2) {17 18 19}))
+    (setf flag10 (= (r<cell> cell2) 19))
+
+    (∧ flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 flag10)
+    ))
+(test-hook test-tape-list-5)
+      

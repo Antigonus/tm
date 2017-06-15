@@ -9,47 +9,43 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-tape-array-0 ()
+(defun test-tape-sequence-0 ()
   (let*(
-         (tp0 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3} {:maximum-address 3}))
-         (tp2 (mk 'tape-array #(4 5 6)))
-         (tp3 (mk 'tape-array tp1))
+         (tp0 (mk 'tape-sequence ∅))
+         (tp1 (mk 'tape-sequence {1 2 3}))
+         (tp2 (mk 'tape-sequence #(4 5 6)))
          )
     (let(
-          (arr1 (the-array tp1))
-          (arr2 (the-array tp2))
-          (arr3 (the-array tp3))
+          (arr1 (the-sequence tp1))
+          (arr2 (the-sequence tp2))
           )
       (let(
             (list1 (coerce arr1 'list))
             (list2 (coerce arr2 'list))
-            (list3 (coerce arr3 'list))
             )
         (∧
           (typep tp0 'tape-empty)
-          (equal list1 {1 2 3 ∅})
+          (equal list1 {1 2 3})
           (equal list2 {4 5 6})
-          (equal list3 {1 2 3 ∅})
           )))))
-(test-hook test-tape-array-0)
+(test-hook test-tape-sequence-0)
 
-(defun test-tape-array-1 ()
+(defun test-tape-sequence-1 ()
   (let*(
-         (tp1 (mk 'tape-array {1 2 3}))
+         (tp1 (mk 'tape-sequence {1 2 3}))
          )
     (∧
       (= (e-s*r tp1) 1)
       (= (e-s*sr tp1) 2)
       (e-s*w tp1 11)
       (e-s*sw tp1 12)
-      (equal (coerce (tm::the-array tp1) 'list) {11 12 3})
+      (equal (coerce (tm::the-sequence tp1) 'list) {11 12 3})
       )))
-(test-hook test-tape-array-1)
+(test-hook test-tape-sequence-1)
 
-(defun test-tape-array-2 ()
+(defun test-tape-sequence-2 ()
   (let*(
-         (tp2 (mk 'tape-array #(4 5 6)))
+         (tp2 (mk 'tape-sequence #(4 5 6)))
          )
 
     (let*(
@@ -66,16 +62,16 @@ See LICENSE.txt
         (= (r<cell> c2) 6)
         (w<cell> c2 61)
         (= v 200)
-        (equal (coerce (tm::the-array tp2) 'list) {41 51 61})
+        (equal (coerce (tm::the-sequence tp2) 'list) {41 51 61})
         ))))
-(test-hook test-tape-array-2)
+(test-hook test-tape-sequence-2)
 
-#| no topo ops for array
-(defun test-tape-array-3 ()
+#| 
+(defun test-tape-sequence-3 ()
   (let*(
-         (tp10 (mk 'tape-array ∅))
-         (tp20 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3}))
+         (tp10 (mk 'tape-sequence ∅))
+         (tp20 (mk 'tape-sequence ∅))
+         (tp1 (mk 'tape-sequence {1 2 3}))
          )
     (let*(
            (c0 (make-instance 'cell-list :cons-cell (cons 77 79)))
@@ -86,19 +82,19 @@ See LICENSE.txt
       (epa<instance> tp20 9)
       (epa<instance> tp1 0)
       (∧
-        (equal (coerce (tm::the-array tp10) 'list) {77})
-        (equal (coerce (tm::the-array tp1) 'list) {0 81 1 2 3})
-        (equal (coerce (tm::the-array tp20) 'list)  {9})
+        (equal (coerce (tm::the-sequence tp10) 'list) {77})
+        (equal (coerce (tm::the-sequence tp1) 'list) {0 81 1 2 3})
+        (equal (coerce (tm::the-sequence tp20) 'list)  {9})
         ))))
-(test-hook test-tape-array-3)
+(test-hook test-tape-sequence-3)
 
-(defun test-tape-array-4 ()
+(defun test-tape-sequence-4 ()
   (let*(
-         (tp0 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3}))
-         (tp2 (mk 'tape-array #(4 5 6)))
-         (tp3 (mk 'tape-array tp1))
-         (tp4 (mk 'tape-array {17 18 19}))
+         (tp0 (mk 'tape-sequence ∅))
+         (tp1 (mk 'tape-sequence {1 2 3}))
+         (tp2 (mk 'tape-sequence #(4 5 6)))
+         (tp3 (mk 'tape-sequence tp1))
+         (tp4 (mk 'tape-sequence {17 18 19}))
          )
     (let*(
            (c0 (leftmost tp2))
@@ -118,5 +114,5 @@ See LICENSE.txt
         (e-s*d.<tape> tp4 {:➜ok (λ(c)(= (r<cell> c) 19)) :➜rightmost (be ∅)})
         (typep tp4 'tape-empty)
         ))))
-(test-hook test-tape-array-4)
+(test-hook test-tape-sequence-4)
 |#

@@ -3,18 +3,20 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Conceptually this is cleaner, but it doesn't bind to Lisp's linked list, but
-rather creates its own list form.  Perhaps this is what lists would have looked
-like had CLOS been part of the original language.  Thus leaving this for later.
-Perhaps it will bcome list2-tape or some such.
+Conceptually this is cleaner, but it doesn't bind to Lisp's linked list.  Rather it
+creates its own list form.  Perhaps this is what lists would have looked like had CLOS
+been part of the original language.  Thus leaving this for later.  Perhaps it will bcome
+list2-tape or some such.
+
+.. bringing this back as a doubly linked list
 
 
 Inheritance structure.
 
-                link
+               bilink
                 ^  ^
                 |   \ 
-                |    list-with-cargo
+                |    bilist-with-cargo
                 |
              list-tape
                ^  ^
@@ -41,43 +43,34 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type link ()
+  (def-type bilink ()
     (
-      (target :initarg target :accessor target) ; the link target
+      (right-neighbor
+        :initarg right-neighbor 
+        :accessor right-neighbor
+        )
+      (left-neighbor
+        :initarg right-neighbor 
+        :accessor right-neighbor
+        )
       ))
 
-  (def-type link-with-cargo (link)
+  (def-type cell (bilink)
     (
       (cargo :initarg cargo :accessor cargo)
       ))
 
-  (def-type list-tape (link) ())
+  (def-type bilist-tape (link) ())
 
-  (def-type list-tape-empty (list-tape))
-  (def-type list-tape-active (list-tape))
+  (def-type bilist-tape-empty (bilist-tape))
+  (def-type bilist-tape-active (bilist-tape))
 
-  (defun-typed list-tape-to-active ((tape list-tape)) (change-class tape 'list-tape-active))
-  (defun-typed list-tape-to-empty  ((tape list-tape)) (change-class tape 'list-tape-empty))
-
-  (def-type list-cell (cell)
-    (
-      (a-link-with-cargo :initarg :a-link-with-cargo :accessor a-link-with-cargo)
-      ))
+  (defun-typed to-active ((tape bilist-tape)) (change-class tape 'bilist-tape-active))
+  (defun-typed to-empty  ((tape bilist-tape)) (change-class tape 'bilist-tape-empty))
 
 ;;--------------------------------------------------------------------------------
 ;; initializer
 ;;
-  (defun-typed init ((tape list-tape) (init null) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (list-tape-to-empty tape)
-      [➜ok tape]
-      )
-
   (defun-typed init ((tape list-tape) (seq sequence) &optional ➜)
     (destructuring-bind
       (&key
@@ -85,28 +78,35 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-    (labels(
-             (init-1 (i)
-               (cond
-                 ((≥ i (length seq))
-                   ∅
-                   )
-                 (t
+      (let (rightmost i)
+        (labels(
+                 (init-1 (i)
+                   (cond
+                     ((≥ i (length seq))
+                       ∅
+                       )
+                     (t
+                       (let(
+                             (cell (make-instance 'link-with-cargo))
+                             )
+                         (setf (cargo cell) (elt seq i))
+                         (setf (link cell) (init-1 (1+ i)))
+                         ))))
+                 (init-0 () ; returns a first cons cell
                    (let(
-                         (cell (make-instance 'link-with-cargo))
+                         (cell-0 (leftmost tape-0))
                          )
-                     (setf (cargo cell) (elt seq i))
-                     (setf (link cell) (init-1 (1+ i)))
-                     ))))
-             )
-      (cond
-        ((= 0 (length seq))
-          (list-tape-to-empty tape)
-          [➜ok tape]
-          )
-        (t
-          (setf (link tape) (init-1 0))
-          (list-tape-to-active tape]
-          [➜ok tape]
-          ))
-      )))
+                     (cons (r<cell> cell-0) (init-1 cell-0))
+                     ))
+                 )
+          (cond
+            ((∨ (¬ seq) (= 0 (length seq)))
+              (to-empty tape)
+              [➜ok tape]
+              )
+            (t
+              (setf (right-neighbor (bilink tape)) (init-1 0))
+              (list-tape-to-active tape]
+              [➜ok tape]
+              ))
+          )))
