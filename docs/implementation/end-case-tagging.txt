@@ -1,0 +1,240 @@
+
+
+The leftmost and rightmost cells are distinct from other cells.  leftmost has
+no left neighbor, and righmost has no right neighbor.  If topology modifying operations
+are allowed such cells may later pick up such a neighbor. When traversing a space we
+need to be able to distinguish between the middle cells and the end cells.
+
+Here are four techniques for dealing with this:
+
+  1. marking. One cell type, right-neighbor of rightmost is marked.  Say by either pointing
+     to itself or by being set to null.
+
+  2. subtypes. We have four cell subtypes: singleton, left neighbor, middle, and right
+     neighbor.
+
+  3. context. We have an external data that holds end case information for the tape.  E.g.
+     the bitlist tape header might has fields for leftmost and rightmost
+
+1. Marking
+
+We must test every time when entering any routine where there is a potential
+for an end case.  
+
+With self pointing and null pointer marking, the marks do not take up much space.  Though
+suppose that an index is one byte on an embedded system and arrays are 256 byte pages.  If
+we were to reserve an index value to be a flag, we wouldn't be able to address one of the
+elements of the array, but if we allocate a second byte to hold status, then the size of
+the index has doubled.  So when it works, it seems works well though introduces a hiccup,
+and when it doesn't the overhead can be high.
+
+2. Subtypes
+
+A subtype is a recording of a decision.  It helps us to avoid having to repeatedly
+make the same decision by marking the instance with the conclusion of this decision
+as the subtype.
+
+Upon entry into a routine we already know which end case we are handling, because dispatch
+chose the routine to run based on the subtype.
+
+This is essentially free in CLOS because we must perform dispatch anyway.  However what
+does have a cost is that we must explicitly change the type of a cell when it changes
+roles. This occurs at topology modification time, which is already understandably
+slower. An example is shown further below. Although it also occurs when we are emulating
+cells, such as in the array, each time we call right-neighbor we construct the right
+neighbor on the fly.
+
+A subtype allows us to modify the dataflow graph dynamically.  Taking a different branch
+depending on the type of the data.  I.e. it directs control flow changes based on a
+past decision.
+
+3. External Context
+
+We provide each routine with an extra argument known as a 'context'.  Context holds values
+that are needed to complete end case analysis.  As an example the tape-bilist header can
+be context as it holds leftmost and rightmost.
+
+Context has the overhead of adding an extra parameter to functions.  It has the advantage
+of not constraining the programmer to any particular set of tests.
+
+Context can be part of a hierarchy. E.g. the base part shared by the tape, referencing
+context shared by a class of tapes, etc.
+
+External context for the tape is what motivated me to make the tape machine with
+integrated tape in earlier versions.
+
+4. Introspective Context.
+
+In a variation we can use introspective instances, i.e. ones that know their own context.
+So for example, each cell can hold a pointer to its tape, and each tape a pointer to
+context for the class of tapes. 
+
+Advantages:
+
+When bundling context with the cell, the programmer does not have to maintain this
+pairing manually.  Thus he/she is less likely to apply cell data to the wrong context.
+
+We do not need to have context arguments on the interface.  This simplifies the
+interface, and it frees the programmer to use context in different manners in different
+places without having to change the interface.  For example, list does not use context,
+but array does.  Yet the interfaces are identical, and there are no null context pointers
+being passed into list methods.
+
+Introspective context facilitates having a different context for each cell found in an
+array or each one passed into a function that accepts multiple cells.  Say for example two
+cells that belong to two different arrays for a function that accepts two array cells. Or
+n cells belonging to various arrays placed into an array.
+
+It casues the instance hiearchy to parallel the inheritance type hierarchy.  Both
+answer the question 'is-a'.
+
+External Context binds function calls to context. Introspection binds data to context.
+This is an advantage because it is the data that is to be interpreted in context, not
+the function.
+
+Disadvantages:
+
+Functions that look for context must find it, so instances with context become a
+type. Though this can overlap with typing that is already done.  For example the list-cons
+type does not need context, but the array type does, but list-cons and array are already
+using different types of cells.  This typing occurs at the context level, so it is
+less detailed than the boundary case typing.
+
+With introspection all contexted instances must carry a pointer to their context, so they
+are bigger.  This can be highly redundant.  If, say, there is an array of cells of the
+same type, every single cell instance might be holding a pointer to the same context.
+
+It is slower because it adds a level of indirection for finding the context.  At the first
+level we access the argument field, and the second then the context.  If we passed the
+context in it would be immediately available.
+
+External Context binds function calls to context. Introspection binds data to context.
+This is a disadvantage because it is harder to optimize away the context, because at
+compile time we do not know what data is going to be passed to the function.  Where as if
+we saw that the same context was always used we could curry it away, and complie it in.
+
+Though context isn't intended to be bound tightly to data.  That is the whole point. And
+this paradigm mismatch is the cause of the data redundancy.
+
+
+-----
+We don't have to adopt a single approach to end cases, because all of the above can
+be used simultaneously -- though what a mess that would make.
+
+Marking is traditional, simple, and efficient - when it works.  Subtypes fit well with
+CLOS and leads to cleaner code.  External context looks like a nice segue into a compiler
+optimization environment.  Introspective context is flexible and Lisp well due to it being
+all dynamic and connected.
+
+In the C++ implementation I used the subtypes approach because I wanted fast performance
+when iterating in loops.  The subtypes approach moves the overhead to dispatch which just
+made the already existing virtual function tables a bit larger, and to the points of topo
+changes, which are not in critical data spanning iteration loops.
+
+Though with the C++ implementation there is this to consider.  High performance implies
+array implementations, and subtypes does not help with situations such as binding the tape
+model to an array.  We still need context to know when we hit the array bound.  If topo
+changes are not allowed we can put the maxmimum index into the cell.  Though, then if
+there are many cells, the maximum index will occur all over the place.
+
+Only the external context approach removes the redundant encoding of either a maximum
+index or a context pointer.  However we don't put cells into the array, rather the array
+elements are pure data.  The cell is actually a reference to this pure array cell, a
+reference from which it is possible to derive references to the neighbors, or if there is
+an end case. We don't expect that there will be many cells.
+
+Another consideration.  This is intended to be low level code.  Something that would
+eventually be part of the hardware.  Things such as #'right-neighbor may become
+macros.  This consideration favors the external context approach. 
+
+With subtypes, when we increment an array index, we need to check the index to see if it
+is the same as max-index, so as to set its type to 'cell-rightmost.  Thus there will be
+one test per iteration loop.  With external context we can do that test inside the
+#'right-neighbor function, which is also called only one time per loop. With subtypes, the
+test will be done each time to chose whether to set the type for the index to rightmost
+when we increment and arrive at maxindex.  Then upon the next #'right-neighbor call, we
+get the on rightmost version rather than the regular version, and that version exits the
+loop, ➜rightmost.  In contrast with the external context approach we test to see if the
+index is already maxindex inside of #'right-neighbor, then chose the correct exit, ➜ok or
+➜rightmost. In the external context case we are not obligated to use dispatch, though we
+might for other reasons (which in the C++ version was a virtual function table).
+
+... I think I'll go with external context and light use of subtypes ..
+
+-----
+
+Here is a subtypes example for bilist.
+
+
+It is possible, though a bit awkward, to get dispatch to recognize end cases.  Types
+unions can be read as 'accepted by' in the inheritance list.  Hence 'singleton' is
+'accepted by' a function that specifies its argument type as singleton, rightmost, or
+leftmost.  And rightmost is accepted by a function that specifies an argument type
+of rightmost or rightmost middle, etc.
+
+
+  (def-type cell-bilist (bilink cell)
+    (
+      (cargo :initarg cargo :accessor cargo)
+      ))
+  (def-type cell-bilist-leftmost-middle (cell-bilist))
+  (def-type cell-bilist-rightmost-middle (cell-bilist))
+
+  (def-type cell-bilist-empty (cell-bilist)) ;; the library doesn't use this
+
+  (def-type cell-bilist-leftmost
+    (
+      cell-bilist-leftmost-middle 
+      ))
+  (def-type cell-bilist-middle
+    (
+      cell-bilist-rightmost-middle 
+      cell-bilist-leftmost-middle
+      ))
+  (def-type cell-bilist-rightmost
+    (
+      cell-bilist-rightmost-middle
+      ))
+
+  (def-type cell-bilist-singleton
+    (
+      cell-bilist-rightmost
+      cell-bilist-leftmmost
+      ))
+
+  (defun-typed to-empty     ((cell cell-bilist)) (change-class cell 'cell-bilist-empty))
+  (defun-typed to-singleton ((cell cell-bilist)) (change-class cell 'cell-bilist-singleton))
+  (defun-typed to-leftmost  ((cell cell-bilist)) (change-class cell 'cell-bilist-leftmost))
+  (defun-typed to-middle    ((cell cell-bilist)) (change-class cell 'cell-bilist-middle))
+  (defun-typed to-rightmost ((cell cell-bilist)) (change-class cell 'cell-bilist-rightmost))
+
+  (def-type tape-bilist (bilink tape) ())
+  (def-type tape-bilist-empty (tape-bilist))
+  (def-type tape-bilist-active (tape-bilist))
+
+  (defun-typed to-empty  ((tape tape-bilist)) (change-class tape 'tape-bilist-empty))
+  (defun-typed to-active ((tape tape-bilist)) (change-class tape 'tape-bilist-active))
+
+
+---
+
+  (def-function-class splice (c0 c2 new-cell))
+  (defun-typed splice (c0 (c2 cell-bilist-singleton) new-cell)
+    (to-leftmost new-cell)
+    (to-rightmost c2)
+    (splice-links c0 c2 new-cell)
+    )
+  (defun-typed splice (c0 (c2 cell-bilist-leftmost) new-cell)
+    (to-leftmost new-cell)
+    (to-middle c2)
+    (splice-links c0 c2 new-cell)   
+    )
+  (defun-typed splice (c0 (c2 cell-bilist-rightmost-middle) new-cell)
+    (to-middle new-cell)
+    (splice-links c0 c2 new-cell)   
+    )
+  (defun-typed splice ((c0 cell-bilist-rightmost) c2 new-cell)
+    (to-rightmost new-cell)
+    (to-middle c0)
+    (splice-links c0 c2 new-cell)   
+    )

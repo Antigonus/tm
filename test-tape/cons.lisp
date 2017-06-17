@@ -9,12 +9,12 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-tape-list-0 ()
+(defun test-tape-cons-0 ()
   (let*(
-         (tp0 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
-         (tp2 (mk 'tape-list #(4 5 6)))
-         (tp3 (mk 'tape-list tp1))
+         (tp0 (mk 'tape-cons ∅))
+         (tp1 (mk 'tape-cons {1 2 3}))
+         (tp2 (mk 'tape-cons #(4 5 6)))
+         (tp3 (mk 'tape-cons tp1))
          )
     (∧
       (typep tp0 'tape-empty)
@@ -22,11 +22,11 @@ See LICENSE.txt
       (equal (tm::cons-list tp2) {4 5 6})
       (equal (tm::cons-list tp3) {1 2 3})
       )))
-(test-hook test-tape-list-0)
+(test-hook test-tape-cons-0)
 
-(defun test-tape-list-1 ()
+(defun test-tape-cons-1 ()
   (let*(
-         (tp1 (mk 'tape-list {1 2 3}))
+         (tp1 (mk 'tape-cons {1 2 3}))
          )
     (∧
       (= (e-s*r tp1) 1)
@@ -35,11 +35,11 @@ See LICENSE.txt
       (e-s*sw tp1 12)
       (equal (tm::cons-list tp1) {11 12 3})
       )))
-(test-hook test-tape-list-1)
+(test-hook test-tape-cons-1)
 
-(defun test-tape-list-2 ()
+(defun test-tape-cons-2 ()
   (let*(
-         (tp2 (mk 'tape-list #(4 5 6)))
+         (tp2 (mk 'tape-cons #(4 5 6)))
          )
 
     (let*(
@@ -58,17 +58,17 @@ See LICENSE.txt
         (= v 200)
         (equal (tm::cons-list tp2) {41 51 61})
         ))))
-(test-hook test-tape-list-2)
+(test-hook test-tape-cons-2)
 
-(defun test-tape-list-3 ()
+(defun test-tape-cons-3 ()
   (let*(
-         (tp10 (mk 'tape-list ∅))
-         (tp20 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
+         (tp10 (mk 'tape-cons ∅))
+         (tp20 (mk 'tape-cons ∅))
+         (tp1 (mk 'tape-cons {1 2 3}))
          )
     (let*(
-           (c0 (make-instance 'cell-list :cons-cell (cons 77 79)))
-           (c1 (make-instance 'cell-list :cons-cell (cons 81 83)))
+           (c0 (make-instance 'cell-cons :cons-cell (cons 77 79)))
+           (c1 (make-instance 'cell-cons :cons-cell (cons 81 83)))
            )
       (epa<cell> tp10 c0)
       (epa<cell> tp1 c1)
@@ -79,15 +79,15 @@ See LICENSE.txt
         (equal (tm::cons-list tp1) {0 81 1 2 3})
         (equal (tm::cons-list tp20) {9})
         ))))
-(test-hook test-tape-list-3)
+(test-hook test-tape-cons-3)
 
-(defun test-tape-list-4 ()
+(defun test-tape-cons-4 ()
   (let*(
-         (tp0 (mk 'tape-list ∅))
-         (tp1 (mk 'tape-list {1 2 3}))
-         (tp2 (mk 'tape-list #(4 5 6)))
-         (tp3 (mk 'tape-list tp1))
-         (tp4 (mk 'tape-list {17 18 19}))
+         (tp0 (mk 'tape-cons ∅))
+         (tp1 (mk 'tape-cons {1 2 3}))
+         (tp2 (mk 'tape-cons #(4 5 6)))
+         (tp3 (mk 'tape-cons tp1))
+         (tp4 (mk 'tape-cons {17 18 19}))
          )
     (let*(
            (c0 (leftmost tp2))
@@ -107,17 +107,17 @@ See LICENSE.txt
         (e-s*d.<tape> tp4 {:➜ok (λ(c)(= (r<cell> c) 19)) :➜rightmost (be ∅)})
         (typep tp4 'tape-empty)
         ))))
-(test-hook test-tape-list-4)
+(test-hook test-tape-cons-4)
 
-(defun test-tape-list-5 ()
+(defun test-tape-cons-5 ()
   (let*(
-         (tp0 (mk 'tape-list ∅))
-         (tp01 (mk 'tape-list {'a 'b}))
-         (tp11 (mk 'tape-list {1 2 3}))
-         (tp12 (mk 'tape-list {1 2 3}))
-         (tp1 (mk 'tape-list {1 2 3}))
-         (tp2 (mk 'tape-list #(4 5 6 7 8)))
-         (tp4 (mk 'tape-list {17 18 19}))
+         (tp0 (mk 'tape-cons ∅))
+         (tp01 (mk 'tape-cons {'a 'b}))
+         (tp11 (mk 'tape-cons {1 2 3}))
+         (tp12 (mk 'tape-cons {1 2 3}))
+         (tp1 (mk 'tape-cons {1 2 3}))
+         (tp2 (mk 'tape-cons #(4 5 6 7 8)))
+         (tp4 (mk 'tape-cons {17 18 19}))
          v1
          cell1 cell2
          flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 flag10
@@ -148,5 +148,5 @@ See LICENSE.txt
 
     (∧ flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8 flag9 flag10)
     ))
-(test-hook test-tape-list-5)
+(test-hook test-tape-cons-5)
       

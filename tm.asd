@@ -42,7 +42,7 @@ See LICENSE.txt
                                (:file "init")
                                (:file "tape")
                                (:file "sequence")
-                               (:file "list")
+                               (:file "cons")
                                (:file "tiled-natural")
                                (:file "array")
                                (:file "debug")
@@ -160,7 +160,7 @@ See LICENSE.txt
                  :components (
                                (:file "tape")
                                (:file "sequence")
-                               (:file "list")
+                               (:file "cons")
                                (:file "tiled-natural")
                                (:file "array")
                                ))
