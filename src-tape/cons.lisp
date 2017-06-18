@@ -30,6 +30,11 @@ Need to add in the no-alloc continuations
         )
       ))
 
+  ;; these functions are tailored for this type
+  ;; this would be a type class .. instead we make use of dispatch
+  ;;(def-type tape-cons-functions (tape)
+  ;;  )
+
   (def-type tape-cons (tape)
     (
       (cons-list ; will be a lisp list
@@ -37,6 +42,7 @@ Need to add in the no-alloc continuations
         :accessor cons-list
         )
       ))
+
   (def-type tape-cons-empty (tape-cons tape-empty)())
   (def-type tape-cons-active (tape-cons tape-active)())
   (defun-typed to-active ((tape tape-cons)) (change-class tape 'tape-cons-active))

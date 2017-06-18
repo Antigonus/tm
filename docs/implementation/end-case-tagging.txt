@@ -16,6 +16,8 @@ Here are four techniques for dealing with this:
   3. context. We have an external data that holds end case information for the tape.  E.g.
      the bitlist tape header might has fields for leftmost and rightmost
 
+  4. scoped context
+
 1. Marking
 
 We must test every time when entering any routine where there is a potential
@@ -60,61 +62,149 @@ of not constraining the programmer to any particular set of tests.
 Context can be part of a hierarchy. E.g. the base part shared by the tape, referencing
 context shared by a class of tapes, etc.
 
-External context for the tape is what motivated me to make the tape machine with
-integrated tape in earlier versions.
+I initially implemented tape machines directly, and tape was not a first class citzien.
+This made external context immediately available in the code.
+
+I've gone through the tape code implementing external context for tape.lisp, and every
+time a cell is specificed, so is the tape.  'tape, cell' It reminds me of segment
+specifiers, tape:cell.  tape being the segment cell being the address. Seems like a rather
+pointless exercise typing all these pairs, may as well just put the context pointer in
+the cell.
+
 
 4. Introspective Context.
 
-In a variation we can use introspective instances, i.e. ones that know their own context.
-So for example, each cell can hold a pointer to its tape, and each tape a pointer to
-context for the class of tapes. 
+  In a variation we can use introspective instances, i.e. ones that know their own context.
+  So for example, each cell can hold a pointer to its tape, and each tape a pointer to
+  context for the class of tapes. 
 
-Advantages:
+  Advantages:
 
-When bundling context with the cell, the programmer does not have to maintain this
-pairing manually.  Thus he/she is less likely to apply cell data to the wrong context.
+    When bundling context with the cell, the programmer does not have to maintain this
+    pairing manually.  Thus he/she is less likely to apply cell data to the wrong context.
 
-We do not need to have context arguments on the interface.  This simplifies the
-interface, and it frees the programmer to use context in different manners in different
-places without having to change the interface.  For example, list does not use context,
-but array does.  Yet the interfaces are identical, and there are no null context pointers
-being passed into list methods.
+    We do not need to have context arguments on the interface.  This simplifies the
+    interface, and it frees the programmer to use context in different manners in different
+    places without having to change the interface.  For example, list does not use context,
+    but array does.  Yet the interfaces are identical, and there are no null context pointers
+    being passed into list methods.
 
-Introspective context facilitates having a different context for each cell found in an
-array or each one passed into a function that accepts multiple cells.  Say for example two
-cells that belong to two different arrays for a function that accepts two array cells. Or
-n cells belonging to various arrays placed into an array.
+    Introspective context facilitates having a different context for each cell found in an
+    array or each one passed into a function that accepts multiple cells. This occurs
+    on our interface with:
 
-It casues the instance hiearchy to parallel the inheritance type hierarchy.  Both
-answer the question 'is-a'.
+      (def-function-class a<cell> (cell-0 cell-1))
 
-External Context binds function calls to context. Introspection binds data to context.
-This is an advantage because it is the data that is to be interpreted in context, not
-the function.
+    cell-1 might be passed in from a different context than cell-0. However, this function
+    only works with true cells, i.e. those from lists, not with emulated cells.  True
+    cells do not require context.
 
-Disadvantages:
+    It casues the instance hiearchy to parallel the inheritance type hierarchy.  Both
+    answer the question 'is-a'.
 
-Functions that look for context must find it, so instances with context become a
-type. Though this can overlap with typing that is already done.  For example the list-cons
-type does not need context, but the array type does, but list-cons and array are already
-using different types of cells.  This typing occurs at the context level, so it is
-less detailed than the boundary case typing.
+    External Context binds function calls to context. Introspection binds data to context.
+    This is an advantage because it is the data that is to be interpreted in context, not
+    the function.
 
-With introspection all contexted instances must carry a pointer to their context, so they
-are bigger.  This can be highly redundant.  If, say, there is an array of cells of the
-same type, every single cell instance might be holding a pointer to the same context.
+  Disadvantages:
 
-It is slower because it adds a level of indirection for finding the context.  At the first
-level we access the argument field, and the second then the context.  If we passed the
-context in it would be immediately available.
+    Functions that look for context must find it, so instances with context become a
+    type. Though this can overlap with typing that is already done.  For example the list-cons
+    type does not need context, but the array type does, but list-cons and array are already
+    using different types of cells.  This typing occurs at the context level, so it is
+    less detailed than the boundary case typing.
 
-External Context binds function calls to context. Introspection binds data to context.
-This is a disadvantage because it is harder to optimize away the context, because at
-compile time we do not know what data is going to be passed to the function.  Where as if
-we saw that the same context was always used we could curry it away, and complie it in.
+    With introspection all contexted instances must carry a pointer to their context, so they
+    are bigger.  This can be highly redundant.  If, say, there is an array of cells of the
+    same type, every single cell instance might be holding a pointer to the same context.
 
-Though context isn't intended to be bound tightly to data.  That is the whole point. And
-this paradigm mismatch is the cause of the data redundancy.
+    It is slower because it adds a level of indirection for finding the context.  At the first
+    level we access the argument field, and the second then the context.  If we passed the
+    context in it would be immediately available.
+
+    External Context binds function calls to context. Introspection binds data to context.
+    This is a disadvantage because it is harder to optimize away the context, because at
+    compile time we do not know what data is going to be passed to the function.  Where as if
+    we saw that the same context was always used we could curry it away, and complie it in.
+
+    Though context isn't intended to be bound tightly to individual pieces of data, but
+    rather is intended to apply to a gruop. This paradigm mismatch is the cause of the
+    data redundancy.
+
+5. Scoped Context
+
+  Perhaps what we need is (with tape ... (r<cell> array-cell) ..).  A
+  thread safe scoped context. 
+
+  This looks like Racket's parameter type.
+
+  This does appear to get around the disadvantages of both internal and external context.
+  We do not pass the context in repeatedly, and do not burden the cell with redundant
+  pointers.
+
+  However implementing this in Common Lisp does not look pretty nor efficient. One solution
+  would be to pass all relevant functions a context argument. This approach is form
+  of extern context. 
+
+  If we didn't have thread safety, and didn't have nesting, we could just use a global
+  context variable.
+
+5. Curried context
+
+  We can create functions specific to a tape instance. The functions would occupy fields
+  in the tape.
+
+  We would take general functions that accept a context parameter, and the curry that
+  out. We could write these general functions specific to the tape type (general but not
+  too general), so that we won't need dispatch either.
+
+  This creates multiple copies of the simplest code.
+
+  wonderful, this is just a type class with a virtual function table. Only want to put
+  functions optimized on a per instance basis in these fields.  Might want to pull them
+  out locally in a let before entering a loop.
+
+  If we create a separate table for the functions, and give each a first parameter of an
+  instance, then we have a type class. We can place functions optimized for the type in
+  this table. They will then be called through the type.
+
+    ;; these are context sensitive functions that are optimized for each type
+    ;; each type should in inherit this and assign the fields
+    ;; note that with this approach we can have two different functions with the
+    ;; the same name in different types.
+    ;; .. but we use disppatch to accomplish this same thing
+    ;;(def-type tape-functions()
+    ;;  )
+    ;;  [(function-name (type-class an-instance)) ...]
+
+    (def-type tape ()
+      ;; these functions are optimized on a per type basis:
+      ;; type-class  ; use dispatch instead of walking through here
+
+      ;; these functions are custom optimized for each instance:
+      (=<cell>
+        :initarg :cons-list
+        :accessor cons-list
+        )
+
+   Provided scope is limited, and optimizing compiler can move function definitions
+   at the instance level back to the type to reduce code size. Or vice versa to
+   pick up some speed.
+
+
+5. Macros
+
+  If for each tape type we made the same basic functions, such as, as r<cell>  but
+  appended the tape type,  say r<cell>-list,  then the macro expansion would
+  accomplish the same thing as curried context.  Though we would lose the generic
+  tape implementation as each tape type would have to call the r<cell>-type for its
+  type.
+
+  We would be possible to use macros to perform the currying in the curried context.
+  The assigning to the fields we don't lose the generic tape.
+
+  
+
 
 
 -----
@@ -157,14 +247,20 @@ get the on rightmost version rather than the regular version, and that version e
 loop, ➜rightmost.  In contrast with the external context approach we test to see if the
 index is already maxindex inside of #'right-neighbor, then chose the correct exit, ➜ok or
 ➜rightmost. In the external context case we are not obligated to use dispatch, though we
-might for other reasons (which in the C++ version was a virtual function table).
+might for other reasons (which in the C++ version was a virtual function table).  Below
+find an example of using subtypes.
 
-... I think I'll go with external context and light use of subtypes ..
+-----
+
+Marking and subtypes do not get us array access from an index.  (r<cell> array-cell),
+
+
+
+
 
 -----
 
 Here is a subtypes example for bilist.
-
 
 It is possible, though a bit awkward, to get dispatch to recognize end cases.  Types
 unions can be read as 'accepted by' in the inheritance list.  Hence 'singleton' is
