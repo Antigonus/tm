@@ -201,3 +201,6 @@ that has almost no syntax..
    test for seq into guard code instead of having dispatch call a different
    version that handles null
 
+13.
+   CLOS doesn't do instance specific functions. Sort of missing the
+   base case of the inheritance hierarchy.

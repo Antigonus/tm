@@ -131,7 +131,7 @@ the cell.
     rather is intended to apply to a gruop. This paradigm mismatch is the cause of the
     data redundancy.
 
-5. Scoped Context
+5. Scoped Context / Context Channels
 
   Perhaps what we need is (with tape ... (r<cell> array-cell) ..).  A
   thread safe scoped context. 
@@ -148,6 +148,11 @@ the cell.
 
   If we didn't have thread safety, and didn't have nesting, we could just use a global
   context variable.
+
+  related, dbus in Linux
+
+  With can be a macro, that manipulates syntax to add the extra parameter to
+  contained function calls. Good for static scoping.
 
 5. Curried context
 
@@ -190,6 +195,101 @@ the cell.
    Provided scope is limited, and optimizing compiler can move function definitions
    at the instance level back to the type to reduce code size. Or vice versa to
    pick up some speed.
+
+  (def-type tape ()
+    (
+      (r<cell>
+        :initarg :r<cell>
+        :accessor r<cell>
+        )
+      (w<cell>
+        :initarg :w<cell>
+        :accessor w<cell>
+        )
+
+  (def-type tape-cons (tape)
+    (
+      (cons-list ; will be a lisp list
+        :initarg :cons-list
+        :accessor cons-list
+        )
+      ))
+
+    ;; called from init when making a tape
+    (defun-typed mk-type-class-functions ((tape tape-cons))
+      (setf (r<cell> tape) #'r<cell>) ; type specific
+      (setf (w<cell> tape) (λ()( ... uses tape )) ; instance specific
+
+
+   If the type specific or instance specific functions to field assignements
+   are not changed at run time, then they can be removed from the instance.
+   In Lisp I doubt this can happen.  In C++ it is the norm for type classes,
+   unless 'virtual' is specified.
+
+
+   from cons.lisp
+
+    this form facilitates use of an optimizing curry function, where as the
+    dispatch does not:
+
+      ...
+      (setf (d<cell> tape) #'tape-cons-class-d<cell>)
+      (setf (d.<cell> tape) ;(*1)
+        (λ(cell)
+          [(d.<cell> *tape-class*) tape cell]
+          ))
+      (setf (d*<cell> tape) #'tape-cons-class-d*<cell>)
+      )
+    ;; (*1) This is the only context using function in this type class.
+    ;; tape-class-d.<cell> is a generic function, it is 'inherited' from tape.
+    ;; *tape-class* exists when mk-type-function is called, so the lookup of d.<cell> can
+    ;; be curried out.  Tape also exists when mk-type-class-functions is called, so Lisp
+    ;; also has the option of compiling tape into the d.<cell> function.
+
+    If we just called d.<cell> with external context it would look like:
+    
+          (defun-typed d.<cell> (tape-ctx list-cons) (cell cell-cons))
+          (d.<cell> tape-ctx cell)
+
+    It would take a much smarter compiler to optimize from this point. The programmer was
+    never requested to curry anything out, so the compiler would have to determine its own
+    start points for optimization, essentially reconstructing the type class info. It
+    would require having a global view of the code to do so. Chances are we would need a
+    syntax paradigm to target, so the above would be needed anyway.
+
+    note SBCL would have to also optimize the extraction of the function from the tape
+    instance v-table.  type class functions this is possible based on type of the tape,
+    when the function fields do not change. 
+
+        [(r<cell> *tape-cons-class*) c0]
+
+    Where *tape-cons-class* is an instance with fields initialized to the functions for
+    the tape-cons class. However CLOS can accomplish the same via disptach
+
+        (r<cell> ((tape tape-cons) cell) body*)
+
+    But CLOS, in its distribution form, has no instance level dispatch.  Nothing
+    corresponds to:
+
+        [(r<cell> tape) c0]
+
+    In C++ this occurs automatically for instances with virtual tables.  In mathematica we
+    can, in Mathematica can do instance based dispatch, becuase we get to supply the
+    function used for the operand matching.  (We want instance level resolution so as to
+    call optimized functions.)
+
+    Now we can't optimized this form, in general, because we will not know 'tape' until
+    happening upon the call at run time, and thus will not have the vtable until run
+    time.  However, we can optimize it away the calling function is curried agaist
+    'tape'. This will often be the case for specializations of tape machine.  Ideally,
+    we would like a tape machine specialized on cons cells lists to reduce to the
+    same code as manipulating the cons cells directly, as though we hadn't introduced
+    the tape machine general metaphor. 
+
+    ..
+    cells don't have subtypes, but if they did we would be changing the
+    virtual tables assocated with instances when we changed their subtypes.
+    This would reproduce a lot of work one by CLOS already. 
 
 
 5. Macros

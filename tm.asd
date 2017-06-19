@@ -41,11 +41,11 @@ See LICENSE.txt
                  :components (
                                (:file "init")
                                (:file "tape")
-;;                               (:file "sequence")
-;;                               (:file "cons")
-;;                               (:file "tiled-natural")
-;;                               (:file "array")
-;;                               (:file "debug")
+                               (:file "sequence")
+                               (:file "cons")
+                               (:file "tiled-natural")
+                               (:file "array")
+                               (:file "debug")
                                ))
 
 #|
@@ -159,10 +159,10 @@ See LICENSE.txt
                (:module "test-tape"
                  :components (
                                (:file "tape")
-;;                               (:file "sequence")
-;;                               (:file "cons")
-;;                               (:file "tiled-natural")
-;;                               (:file "array")
+                               (:file "sequence")
+                               (:file "cons")
+                               (:file "tiled-natural")
+                               (:file "array")
                                ))
 
 

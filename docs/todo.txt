@@ -223,3 +223,16 @@ add a time to wait as part of test-hook (similar to #50 above)
     not width, not size ..etc.  .. length will always be 1 + the maximum address
 
 69. need context dictionaries for array tiled-number etc.
+
+70.  from cons.lisp
+
+       (setf (d.<cell> tape) (λ(cell)(tape-class-d.<cell> tape cell))) ; (*1)
+      (setf (d*<cell> tape) #'tape-cons-class-d*<cell>)
+      )
+    ;; (*1) This is the only context using function in this type class.
+    ;; tape-class-d.<cell> is a generic function, it is 'inherited' from tape.
+    ;; Tape exists when mk-type-class-functions is called, so Lisp has the option of
+    ;; compiling tape into the d.<cell> function.
+
+   would like to have an optimizing curry function, perhaps SBCL already does
+   this.
