@@ -24,7 +24,7 @@ these list specific versions passed tests, I just don't want the overhead of
 more code to maintain right now
 
 
-  (defun-typed e-s*r ((tape tape-list-active) &optional ➜)
+  (defun-typed ◧r ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -34,7 +34,7 @@ more code to maintain right now
       [➜ok (car (cons-list tape))]
       ))
 
-  (defun-typed e-s*sr ((tape tape-list-active) &optional ➜)
+  (defun-typed ◧sr ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -51,7 +51,7 @@ more code to maintain right now
           [➜rightmost]
           ))))
 
-  (defun-typed e-s*w ((tape tape-list-active) instance &optional ➜)
+  (defun-typed ◧w ((tape tape-list-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -62,7 +62,7 @@ more code to maintain right now
       [➜ok]
       ))
 
-  (defun-typed e-s*sw ((tape tape-list-active) instance &optional ➜)
+  (defun-typed ◧sw ((tape tape-list-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

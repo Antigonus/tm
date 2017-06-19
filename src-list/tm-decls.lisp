@@ -33,11 +33,11 @@ functions.
 ;;
   (def-function-class -s* (tm &optional ➜))
 
-  (def-function-class e-s*r (tape &optional ➜))
-  (def-function-class e-s*sr (tape &optional ➜))
+  (def-function-class ◧r (tape &optional ➜))
+  (def-function-class ◧sr (tape &optional ➜))
 
-  (def-function-class e-s*w (tape instance &optional ➜))
-  (def-function-class e-s*sw (tape instance &optional ➜))
+  (def-function-class ◧w (tape instance &optional ➜))
+  (def-function-class ◧sw (tape instance &optional ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; head stepping

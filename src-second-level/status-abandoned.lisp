@@ -23,8 +23,8 @@ don't provide a continuation for it.
   (def-abandoned-1 w instance)
   (def-abandoned-1 esw instance)
 
-  (def-abandoned-1 e-s*r)
-  (def-abandoned-1 e-s*w instance)
+  (def-abandoned-1 ◧r)
+  (def-abandoned-1 ◧w instance)
 
   (def-abandoned-1 -s*)
   (def-abandoned-1 s)

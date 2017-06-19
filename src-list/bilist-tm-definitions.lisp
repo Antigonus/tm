@@ -63,7 +63,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed e-s*r ((tm bilist-tm) &optional ➜)
+  (defun-typed ◧r ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -72,7 +72,7 @@ See LICENSE.txt
       [➜ok (binode-instance (tape tm))]
       ))
 
-  (defun-typed e-s*sr ((tm bilist-tm) &optional ➜)
+  (defun-typed ◧sr ((tm bilist-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -86,7 +86,7 @@ See LICENSE.txt
         [➜rightmost]
         )))
 
-  (defun-typed e-s*w ((tm bilist-tm) instance &optional ➜)
+  (defun-typed ◧w ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -97,7 +97,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed e-s*sw ((tm bilist-tm) instance &optional ➜)
+  (defun-typed ◧sw ((tm bilist-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

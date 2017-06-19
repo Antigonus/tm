@@ -26,30 +26,30 @@ See LICENSE.txt
       (= (maximum-address tp2) 1)
       (= (maximum-address tp3) 2)
 
-      (e-s*r tp0 {:➜ok (be ∅) :➜empty (be t)})
-      (e-s*r tp1 {:➜ok (be t) :➜empty (be ∅)})
+      (◧r tp0 {:➜ok (be ∅) :➜empty (be t)})
+      (◧r tp1 {:➜ok (be t) :➜empty (be ∅)})
 
-      (e-s*sr tp00 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
-      (e-s*sr tp1  {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
-      (e-s*sr tp2  {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
+      (◧sr tp00 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
+      (◧sr tp1  {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
+      (◧sr tp2  {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
 
-      (e-s*w tp0 12 {:➜ok (be ∅) :➜empty (be t)})
-      (e-s*w tp1 13 {:➜ok (be t) :➜empty (be ∅)})
+      (◧w tp0 12 {:➜ok (be ∅) :➜empty (be t)})
+      (◧w tp1 13 {:➜ok (be t) :➜empty (be ∅)})
 
-      (e-s*sw tp0 14 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
-      (e-s*sw tp1 15 {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
-      (e-s*sw tp2 16 {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
+      (◧sw tp0 14 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
+      (◧sw tp1 15 {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
+      (◧sw tp2 16 {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
 
       (es*r tp0 {:➜ok (be ∅) :➜empty (be t)})
-      (es*-sr tp00 {:➜ok (be ∅) :➜empty (be t)})
+      (◨r tp00 {:➜ok (be ∅) :➜empty (be t)})
       (es*w tp0 16 {:➜ok (be ∅) :➜empty (be t)})
-      (es*-sw tp00 17 {:➜ok (be ∅) :➜empty (be t)})
+      (◨w tp00 17 {:➜ok (be ∅) :➜empty (be t)})
 
       (leftmost tp00 {:➜ok (be ∅) :➜empty (be t)})
       (leftmost tp1 {:➜ok (be t) :➜empty (be ∅)})
 
       (epd<tape> tp0 {:➜ok (be ∅) :➜rightmost (be t)})
-      (es*-sd<tape> tp00 {:➜ok (be ∅) :➜leftmost (be t)})
+      (◨d<tape> tp00 {:➜ok (be ∅) :➜leftmost (be t)})
 
       (tape-length-is-one tp00 {:➜∅ (be t) :➜t (be ∅)})
       (tape-length-is-one tp1 {:➜∅ (be ∅) :➜t (be t)})

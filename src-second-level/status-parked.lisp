@@ -28,11 +28,11 @@ See LICENSE.txt
 ;;
   (def-parked-1 r)
 
-  (defun-typed esr ((tm parked) &optional ➜) (e-s*r tm ➜))
+  (defun-typed esr ((tm parked) &optional ➜) (◧r tm ➜))
 
   (def-parked-1 w instance)
 
-  (defun-typed esw ((tm parked) instance &optional ➜) (e-s*w tm ➜))
+  (defun-typed esw ((tm parked) instance &optional ➜) (◧w tm ➜))
 
   (defun-typed -s* ((tm parked) &optional ➜)
     (destructuring-bind

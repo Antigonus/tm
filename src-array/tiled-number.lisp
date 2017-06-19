@@ -166,7 +166,7 @@ See LICENSE.txt
                 )
           })))
 
-  (defun-typed e-s*r ((tm tiled-number-tm) &optional ➜)
+  (defun-typed ◧r ((tm tiled-number-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -175,7 +175,7 @@ See LICENSE.txt
       [➜ok (ldb (byte *tile-length* 0) (tape tm))]
       ))
 
-  (defun-typed e-s*sr ((tm tiled-number-tm) &optional ➜)
+  (defun-typed ◧sr ((tm tiled-number-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -189,7 +189,7 @@ See LICENSE.txt
         [➜ok (ldb (byte (+ *tile-length* *tile-length*) *tile-length*) (tape tm))]
         )))
 
-  (defun-typed e-s*w ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed ◧w ((tm tiled-number-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -200,7 +200,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed e-s*sw ((tm tiled-number-tm) instance &optional ➜)
+  (defun-typed ◧sw ((tm tiled-number-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

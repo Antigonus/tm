@@ -250,7 +250,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 
   ;; References to the right neghbor of leftmost get messed up,
   ;; but (cons-bilist tape) will be ok, so no tape sharing issues
-  (defun-typed e-s*d.<tape> ((tape tape-bilist-active) &optional ➜)
+  (defun-typed ◧d.<tape> ((tape tape-bilist-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)

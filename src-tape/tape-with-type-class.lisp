@@ -9,7 +9,7 @@ This tape machine interface does not take into account entanglements or threads.
 things must be enforced externally.
 
 Though these are tapes, not tape machines, function names found here appear to refer to
-head operations. For example, 'e-s*' which reads as entanglement copy and step left to
+head operations. For example, '◧' which reads as entanglement copy and step left to
 leftmost.  These names are used only because they are descriptive of what the
 corresponding function does to the tape.
 
@@ -352,8 +352,8 @@ on operand type, and it won't mind having a few more types to work with.
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
 ;;
-  (def-function-class e-s*r (tape &optional ➜))
-  (defun-typed e-s*r ((tape tape-empty) &optional ➜)
+  (def-function-class ◧r (tape &optional ➜))
+  (defun-typed ◧r ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -363,7 +363,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed e-s*r ((tape tape-active) &optional ➜)
+  (defun-typed ◧r ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -374,8 +374,8 @@ on operand type, and it won't mind having a few more types to work with.
       ))
 
   ;; (➜ok #'echo) (➜rightmost (be ∅))
-  (def-function-class e-s*sr (tape &optional ➜))
-  (defun-typed e-s*sr ((tape tape-empty) &optional ➜)
+  (def-function-class ◧sr (tape &optional ➜))
+  (defun-typed ◧sr ((tape tape-empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜empty #'accessed-empty)
@@ -384,7 +384,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed e-s*sr ((tape tape-active) &optional ➜)
+  (defun-typed ◧sr ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -404,8 +404,8 @@ on operand type, and it won't mind having a few more types to work with.
             :➜rightmost ➜rightmost
             }])))
 
-  (def-function-class e-s*w (tape instance &optional ➜))
-  (defun-typed e-s*w ((tape tape-empty) instance &optional ➜)
+  (def-function-class ◧w (tape instance &optional ➜))
+  (defun-typed ◧w ((tape tape-empty) instance &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -415,7 +415,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed e-s*w ((tape tape-active) instance &optional ➜)
+  (defun-typed ◧w ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -427,8 +427,8 @@ on operand type, and it won't mind having a few more types to work with.
 
 
   ;; (➜ok #'echo) (➜rightmost (be ∅))
-  (def-function-class e-s*sw (tape instance &optional ➜))
-  (defun-typed e-s*sw ((tape tape-empty) instance &optional ➜)
+  (def-function-class ◧sw (tape instance &optional ➜))
+  (defun-typed ◧sw ((tape tape-empty) instance &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -438,7 +438,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed e-s*sw ((tape tape-active) instance &optional ➜)
+  (defun-typed ◧sw ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -482,8 +482,8 @@ on operand type, and it won't mind having a few more types to work with.
       [➜ok [(r<cell> tape)(rightmost tape)]]
       ))
 
-  (def-function-class es*-sr (tape &optional ➜))
-  (defun-typed es*-sr ((tape tape-empty) &optional ➜)
+  (def-function-class ◨r (tape &optional ➜))
+  (defun-typed ◨r ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -493,7 +493,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed es*-sr ((tape tape-active) &optional ➜)
+  (defun-typed ◨r ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -534,8 +534,8 @@ on operand type, and it won't mind having a few more types to work with.
       [➜ok [(w<cell> tape) (rightmost tape) instance]]
       ))
 
-  (def-function-class es*-sw (tape instance &optional ➜))
-  (defun-typed es*-sw ((tape tape-empty) instance &optional ➜)
+  (def-function-class ◨w (tape instance &optional ➜))
+  (defun-typed ◨w ((tape tape-empty) instance &optional ➜)
     (declare (ignore tape instance))
     (destructuring-bind
       (&key
@@ -545,7 +545,7 @@ on operand type, and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
-  (defun-typed es*-sw ((tape tape-active) instance &optional ➜)
+  (defun-typed ◨w ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -610,8 +610,8 @@ on operand type, and it won't mind having a few more types to work with.
   (def-function-class es*a<cell> (tape cell))
   (def-function-class es*a<instance> (tape instance))
   ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class es*-sd<tape> (tape &optional ➜))
-  (defun-typed es*-sd<tape> ((tape tape-empty) &optional ➜)
+  (def-function-class ◨d<tape> (tape &optional ➜))
+  (defun-typed ◨d<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -676,8 +676,8 @@ on operand type, and it won't mind having a few more types to work with.
   ;; appears to delete the leftmost cell, but doesn't, hence avoiding sharing issues
   ;; however external references to the right neighbor of leftmost become orphaned
   ;; (➜ok #'echo) (➜empty #'accessed-empty)
-  (def-function-class e-s*d.<tape> (tape &optional ➜))
-  (defun-typed e-s*d.<tape> ((tape tape-empty) &optional ➜)
+  (def-function-class ◧d.<tape> (tape &optional ➜))
+  (defun-typed ◧d.<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key

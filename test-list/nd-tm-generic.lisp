@@ -27,7 +27,7 @@ See LICENSE.txt
           )))))
 (test-hook test-mk-entangled-0)
 
-(defun test-e-s*r-0 ()
+(defun test-◧r-0 ()
   (let(
         (tm0 (mk 'list-nd-tm {:tape {7 2 -3}}))
         (tm1 (mk 'list-nd-tm {:tape {11 22 33}}))
@@ -35,13 +35,13 @@ See LICENSE.txt
     (with-entangled tm0
       (λ(tm2)
         (∧
-          (= (e-s*r tm0) 7)
-          (= (e-s*r tm1) 11)
-          (= (e-s*r tm2) 7)
-          (e-s*w tm2 9)
-          (= (e-s*r tm0) 9)
+          (= (◧r tm0) 7)
+          (= (◧r tm1) 11)
+          (= (◧r tm2) 7)
+          (◧w tm2 9)
+          (= (◧r tm0) 9)
           )))))
-(test-hook test-e-s*r-0)
+(test-hook test-◧r-0)
 
 (defun test-s≠-0 ()
   (let(

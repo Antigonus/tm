@@ -161,7 +161,7 @@ See LICENSE.txt
                 )
           })))
 
-  (defun-typed e-s*r ((tm constant-length-array-tm) &optional ➜)
+  (defun-typed ◧r ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -170,7 +170,7 @@ See LICENSE.txt
       [➜ok (aref (tape tm) 0)]
       ))
 
-  (defun-typed e-s*sr ((tm constant-length-array-tm) &optional ➜)
+  (defun-typed ◧sr ((tm constant-length-array-tm) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -184,7 +184,7 @@ See LICENSE.txt
         [➜ok (aref (tape tm) 1)]
         )))
 
-  (defun-typed e-s*w ((tm constant-length-array-tm) instance &optional ➜)
+  (defun-typed ◧w ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -195,7 +195,7 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed e-s*sw ((tm constant-length-array-tm) instance &optional ➜)
+  (defun-typed ◧sw ((tm constant-length-array-tm) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))

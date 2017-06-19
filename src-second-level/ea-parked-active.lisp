@@ -105,7 +105,7 @@ functions shared by parked and active
           ➜collision
           (λ()
             (let(
-                  (spill-instance (e-s*r (base tm)))
+                  (spill-instance (◧r (base tm)))
                   )
               (labels(
                        (delete-0 ()

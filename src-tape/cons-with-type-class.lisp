@@ -252,7 +252,7 @@ Need to add in the no-alloc continuations
 
   ;; References to the right neghbor of leftmost get messed up,
   ;; but (cons-list tape) will be ok, so no tape sharing issues
-  (defun-typed e-s*d.<tape> ((tape tape-cons-class-active) &optional ➜)
+  (defun-typed ◧d.<tape> ((tape tape-cons-class-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
