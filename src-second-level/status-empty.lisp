@@ -273,7 +273,7 @@ belonging to a machine that has a parked head.
       [➜rightmost]
       ))
 
-  (defun-typed es*a ((tm empty) instance &optional ➜)
+  (defun-typed ◨a ((tm empty) instance &optional ➜)
     (epa tm instance ➜)
     )
         

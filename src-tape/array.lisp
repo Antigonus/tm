@@ -152,6 +152,15 @@ See LICENSE.txt
       (aref the-array index)
       ))
 
+#|
+  (defun-typed ◧snr (index (tape tape-array-active) index)
+    (let(
+          (the-array (the-array (tape cell)))
+          )
+      (aref the-array index)
+      ))
+|#
+
   ;; Writing a zero into the rightmost tile makes the natural shorter.  But this is a cell
   ;; operation not a tape operation, so the outer tape operation will have to take this
   ;; into account.
@@ -162,6 +171,15 @@ See LICENSE.txt
           )
       (setf (aref the-array index) instance)
       ))
+
+#|
+  (defun-typed ◧snw (index (tape tape-array-active) instance)
+    (let(
+          (the-array (the-array (tape cell)))
+          )
+      (setf (aref the-array index) instance)
+      ))
+|#
 
   (defun-typed leftmost ((tape tape-array-active) &optional ➜)
     (destructuring-bind

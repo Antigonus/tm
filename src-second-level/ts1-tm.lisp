@@ -157,14 +157,14 @@ We don't have to worry about synchronizing destructive operations on an empty ma
   ;;--------------------------------------------------------------------------------
   ;; cell allocation
   ;;
-    (defun-typed es*a
+    (defun-typed ◨a
       (
         (tm ts1-tm)
         instance
         &optional ➜
         )
       (bt:with-recursive-lock-held ((deed tm))
-        ;; (prins (print "es*a ts1-tm"))
+        ;; (prins (print "◨a ts1-tm"))
         (call-next-method tm instance ➜)
         ))
       

@@ -73,18 +73,18 @@ See LICENSE.txt
           )))))
 (test-hook test-s≠-1)
 
-(defun test-es*a-0 ()
+(defun test-◨a-0 ()
   (let(
         (tm0 (mk 'list-nd-tm {:tape {3 5 7 9 11}}))
         )
     (with-entangled tm0
       (λ(tm1)
         (∧
-          (es*a tm1 13)
-          (es*a tm0 15)
+          (◨a tm1 13)
+          (◨a tm0 15)
           (equal (tape tm0) {3 5 7 9 11 13 15})
           (on-leftmost tm0)
           (on-leftmost tm1)
           )))))
-(test-hook test-es*a-0)
+(test-hook test-◨a-0)
 

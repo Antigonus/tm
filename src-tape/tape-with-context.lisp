@@ -372,27 +372,6 @@ on operand type, and it won't mind having a few more types to work with.
 
   ;; for doubly linked lists we also have:
 
-  (def-function-class es*r (tape &optional ➜))
-  (defun-typed es*r ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-  (defun-typed es*r ((tape tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (r<cell> tape (rightmost tape))]
-      ))
-
   (def-function-class ◨r (tape &optional ➜))
   (defun-typed ◨r ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
@@ -405,6 +384,27 @@ on operand type, and it won't mind having a few more types to work with.
       [➜empty]
       ))
   (defun-typed ◨r ((tape tape-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (r<cell> tape (rightmost tape))]
+      ))
+
+  (def-function-class ◨-sr (tape &optional ➜))
+  (defun-typed ◨-sr ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed ◨-sr ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -424,27 +424,6 @@ on operand type, and it won't mind having a few more types to work with.
             :➜leftmost ➜leftmost
             }))))
 
-  (def-function-class es*w (tape instance &optional ➜))
-  (defun-typed es*w ((tape tape-empty) instance &optional ➜)
-    (declare (ignore tape instance))
-    (destructuring-bind
-      (&key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-  (defun-typed es*w ((tape tape-active) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (w<cell> tape (rightmost tape) instance)]
-      ))
-
   (def-function-class ◨w (tape instance &optional ➜))
   (defun-typed ◨w ((tape tape-empty) instance &optional ➜)
     (declare (ignore tape instance))
@@ -457,6 +436,27 @@ on operand type, and it won't mind having a few more types to work with.
       [➜empty]
       ))
   (defun-typed ◨w ((tape tape-active) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (w<cell> tape (rightmost tape) instance)]
+      ))
+
+  (def-function-class ◨-sw (tape instance &optional ➜))
+  (defun-typed ◨-sw ((tape tape-empty) instance &optional ➜)
+    (declare (ignore tape instance))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed ◨-sw ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -526,11 +526,11 @@ on operand type, and it won't mind having a few more types to work with.
   (def-function-class epa<instance> (tape instance))
 
   ;; for a doubly linked list, these are the 'operate on tail' versions of the above
-  (def-function-class es*a<cell> (tape cell))
-  (def-function-class es*a<instance> (tape instance))
+  (def-function-class ◨a<cell> (tape cell))
+  (def-function-class ◨a<instance> (tape instance))
   ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class ◨d<tape> (tape &optional ➜))
-  (defun-typed ◨d<tape> ((tape tape-empty) &optional ➜)
+  (def-function-class ◨-sd<tape> (tape &optional ➜))
+  (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key

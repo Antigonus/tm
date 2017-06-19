@@ -48,7 +48,7 @@ non-destructive operation primitives
 ;; cell allocation
 ;;
   
-  (def-function-class es*a (tm instance &optional ➜)
+  (def-function-class ◨a (tm instance &optional ➜)
     (:documentation
       "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
       ))

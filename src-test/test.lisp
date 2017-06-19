@@ -34,14 +34,14 @@ See LICENSE.txt
 ;;  (test-all)  to run the tests
 ;;
 ;;
-  (defvar *test-routines* (list))
+  (defvar *test-routin◨ (list))
 
   (defmacro test-hook (a-test)
     `(progn
        (nl)
        (princ "hooking test: ")
        (princ (symbol-name ',a-test))
-       (push ',a-test tm::*test-routines*)
+       (push ',a-test tm::*test-routin◨)
        t
        ))
 
@@ -51,8 +51,8 @@ See LICENSE.txt
        (princ "removing test: ")
        (princ (symbol-name ',a-test))
        (setq 
-         tm::*test-routines*
-         (delete-if (λ(e)(eq ',a-test e)) tm::*test-routines*)
+         tm::*test-routin◨
+         (delete-if (λ(e)(eq ',a-test e)) tm::*test-routin◨)
          )
        t
        ))
@@ -95,7 +95,7 @@ See LICENSE.txt
   ;; returns true if no test failed, otherwise false
   (defun test-all (&optional (verbose t))
     (let*(
-          (results (map 'list #'test (reverse *test-routines*)))
+          (results (map 'list #'test (reverse *test-routin◨)))
           (test-count (length results))
           (result-flags (map 'list #'cadr results))
           (error-count (count ∅ result-flags))

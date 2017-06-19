@@ -79,7 +79,7 @@ functions.
 ;;--------------------------------------------------------------------------------
 ;; cell allocation
 ;;
-  (defun-typed es*a
+  (defun-typed ◨a
     (
       (tm nd-tape-machine)
       instance

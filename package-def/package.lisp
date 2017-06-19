@@ -150,7 +150,7 @@ they belong to.
       #:with-entangled
       #:s≠
       #:heads-on-same-cell
-      #:es*a
+      #:◨a
 
     ;;nd-tm-generic
     ;;

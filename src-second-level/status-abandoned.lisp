@@ -141,5 +141,5 @@ don't provide a continuation for it.
     (operation-on-abandoned)
     )
 
-  (def-abandoned-1 es*a instance)
+  (def-abandoned-1 ◨a instance)
 

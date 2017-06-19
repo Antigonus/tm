@@ -40,16 +40,16 @@ See LICENSE.txt
       (◧sw tp1 15 {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
       (◧sw tp2 16 {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
 
-      (es*r tp0 {:➜ok (be ∅) :➜empty (be t)})
-      (◨r tp00 {:➜ok (be ∅) :➜empty (be t)})
-      (es*w tp0 16 {:➜ok (be ∅) :➜empty (be t)})
-      (◨w tp00 17 {:➜ok (be ∅) :➜empty (be t)})
+      (◨r tp0 {:➜ok (be ∅) :➜empty (be t)})
+      (◨-sr tp00 {:➜ok (be ∅) :➜empty (be t)})
+      (◨w tp0 16 {:➜ok (be ∅) :➜empty (be t)})
+      (◨-sw tp00 17 {:➜ok (be ∅) :➜empty (be t)})
 
       (leftmost tp00 {:➜ok (be ∅) :➜empty (be t)})
       (leftmost tp1 {:➜ok (be t) :➜empty (be ∅)})
 
       (epd<tape> tp0 {:➜ok (be ∅) :➜rightmost (be t)})
-      (◨d<tape> tp00 {:➜ok (be ∅) :➜leftmost (be t)})
+      (◨-sd<tape> tp00 {:➜ok (be ∅) :➜leftmost (be t)})
 
       (tape-length-is-one tp00 {:➜∅ (be t) :➜t (be ∅)})
       (tape-length-is-one tp1 {:➜∅ (be ∅) :➜t (be t)})
