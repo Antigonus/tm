@@ -14,6 +14,10 @@ step right, and read.  These names are used only because they are descriptive of
 corresponding function does, not because there is a tape head.  In this case, ◧sr, reads
 the second instance on the tape.
 
+Because these are tapes, and not tape machines, I avoided the temptation to implement
+iteration here.  I have come back and added right-nieghbor-n and left-neighbor-n.
+This is because it is easy to add 'n' to an array index for the arrays.
+
 Not all tapes implement all of the interface.  The tapes only implement the interface
 portions that are primitive relative to the implementation.  As an example, the singly
 linked list has no left going operations.
@@ -264,8 +268,126 @@ and it won't mind having a few more types to work with.
         ))
 
 ;;--------------------------------------------------------------------------------
-;; accessing instances
+;; tape queries
 ;;
+  (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
+
+  (def-function-class r<cell> (cell)) ; returns an instance
+  (def-function-class w<cell> (cell instance))
+
+  (def-function-class leftmost (tape &optional ➜)) ; returns a cell
+  (defun-typed leftmost ((tape tape-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+
+  ;; (➜ok #'echo) (➜rightmost (be ∅))
+  (def-function-class right-neighbor (cell &optional ➜))
+
+  ;; then nth neighbor to the right
+  (def-function-class right-neighbor-n (cell n &optional ➜)
+      (if
+        (< 0 i)
+        (left-neighbor-n cell (- n))
+        (destructuring-bind
+          (&key
+            (➜ok #'echo)
+            (➜rightmost (λ(n1 cell)(declare (ignore n1 cell))(error 'step-from-rightmost)))
+            &allow-other-keys
+            )
+          ➜
+          (label(
+                  (work (i c0)
+                    ((= 0 i) [➜ok c0])
+                    (t
+                      (right-neighbor c0
+                        {
+                          :➜ok (λ(c1)(work (1- i) c1))
+                          :➜rightmost (λ()[➜rightmost i c0])
+                          })))
+                  )
+            (work n cell)
+            ))))
+
+  ;; for doubly linked lists we also have:
+
+  (def-function-class rightmost (tape &optional ➜)) ; returns a cell
+  (defun-typed rightmost ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+
+  ;; (➜ok #'echo) (➜leftmost (be ∅))
+  (def-function-class left-neighbor (cell &optional ➜))
+
+  (def-function-class left-neighbor-n (cell n &optional ➜)
+      (if
+        (< 0 i)
+        (right-neighbor-n cell (- n))
+        (destructuring-bind
+          (&key
+            (➜ok #'echo)
+            (➜leftmost (λ(n1 cell)(declare (ignore n1 cell))(error 'step-from-leftmost)))
+            &allow-other-keys
+            )
+          ➜
+          (label(
+                  (work (i c0)
+                    ((= 0 i) [➜ok c0])
+                    (t
+                      (left-neighbor c0
+                        {
+                          :➜ok (λ(c1)(work (1- i) c1))
+                          :➜leftmost (λ()[➜leftmost i c0])
+                          })))
+                  )
+            (work n cell)
+            ))))
+
+;;--------------------------------------------------------------------------------
+;; advanced tape queries
+;;
+
+  ;; returns an instance
+  (defun esr<cell> (cell &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor cell
+        {
+          :➜ok (λ(rn)[➜ok (r<cell> rn)])
+          :➜rightmost ➜rightmost
+          })))
+
+  (defun esnr<cell> (cell n &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ(n)(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor-n cell n
+        {
+          :➜ok (λ(rn)[➜ok (r<cell> rn)])
+          :➜rightmost (λ(n rn)(declare (ignore rn))[➜rightmost n])
+          })))
+
   (def-function-class ◧r (tape &optional ➜))
   (defun-typed ◧r ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
@@ -318,9 +440,9 @@ and it won't mind having a few more types to work with.
             :➜rightmost ➜rightmost
             }))))
 
-  (def-function-class ◧snr (index tape &optional ➜))
-  (defun-typed ◧snr (address (tape tape-empty) &optional ➜)
-    (declare (ignore address))
+  (def-function-class ◧snr (tape n &optional ➜))
+  (defun-typed ◧snr ((tape tape-empty) n &optional ➜)
+    (declare (ignore n))
     (destructuring-bind
       (&key
         (➜empty #'accessed-empty)
@@ -329,6 +451,56 @@ and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed ◧snr ((tape tape-active) n &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (right-neighbor-n leftmost n
+          {
+            :➜ok 
+            (λ(the-right-neighbor)
+              [➜ok (r<cell> the-right-neighbor)]
+              )
+            :➜rightmost ➜rightmost
+            }))))
+
+
+  (defun esw<cell> (cell instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor cell
+        {
+          :➜ok (λ(rn)(r<cell> rn instance)[➜ok])
+          :➜rightmost ➜rightmost
+          })))
+
+  (defun esnw<cell> (cell n instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ(n)(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor-n (head tm) n
+        {
+          :➜ok (λ(rn)(w<cell> rn instance)[➜ok])
+          :➜rightmost (λ(n rn)(declare (ignore rn))[➜rightmost n])
+          })))
+
+
 
   (def-function-class ◧w (tape instance &optional ➜))
   (defun-typed ◧w ((tape tape-empty) instance &optional ➜)
@@ -386,9 +558,9 @@ and it won't mind having a few more types to work with.
             :➜rightmost ➜rightmost
             }))))
 
-  (def-function-class ◧snw (address tape instance &optional ➜))
-  (defun-typed ◧snw (address (tape tape-empty) instance &optional ➜)
-    (declare (ignore address instance))
+  (def-function-class ◧snw (tape n instance &optional ➜))
+  (defun-typed ◧snw ((tape tape-empty) n instance &optional ➜)
+    (declare (ignore n instance))
     (destructuring-bind
       (&key
         (➜empty #'accessed-empty)
@@ -397,6 +569,26 @@ and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed ◧snw ((tape tape-active) n instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜rightmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (right-neighbor-n leftmost n
+          {
+            :➜ok 
+            (λ(the-right-neighbor)
+              (w<cell> the-right-neighbor instance)
+              [➜ok]
+              )
+            :➜rightmost ➜rightmost
+            }))))
 
 
   ;; for doubly linked lists we also have:
@@ -503,46 +695,6 @@ and it won't mind having a few more types to work with.
               )
             :➜leftmost ➜leftmost
             }))))
-
-;;--------------------------------------------------------------------------------
-;; tape queries
-;;
-  (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
-
-  (def-function-class r<cell> (cell)) ; returns an instance
-  (def-function-class w<cell> (cell instance))
-
-  (def-function-class leftmost (tape &optional ➜)) ; returns a cell
-  (defun-typed leftmost ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
-  (def-function-class right-neighbor (cell &optional ➜))
-
-  ;; for doubly linked lists we also have:
-
-  (def-function-class rightmost (tape &optional ➜)) ; returns a cell
-  (defun-typed rightmost ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-
-  ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class left-neighbor (cell &optional ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation

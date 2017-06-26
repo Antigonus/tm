@@ -75,6 +75,9 @@ See LICENSE.txt
   ;; the head is parked, but someone tries to read or write through it
   (define-condition access-through-parked-head (error)
     ((text :initarg :text :reader text)))
+
+  (define-condition negative-address (error)
+    ((text :initarg :text :reader text)))
  
 
 ;;--------------------------------------------------------------------------------

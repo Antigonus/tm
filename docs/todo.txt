@@ -236,3 +236,8 @@ add a time to wait as part of test-hook (similar to #50 above)
 
    would like to have an optimizing curry function, perhaps SBCL already does
    this.
+
+71. go through tape and tape-machine and check that SBCL changes the recursive
+   forms to loops, should add some tests for this.
+
+    seems there should be a cell version of esr etc. in tape.
