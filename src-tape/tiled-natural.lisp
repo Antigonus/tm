@@ -152,7 +152,7 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; topology queries
+;; tape queries
 ;;
   (defun-typed =<cell> ((cell-0 cell-tiled-natural) (cell-1 cell-tiled-natural))
     (= (bit-dex cell-0) (bit-dex cell-1))

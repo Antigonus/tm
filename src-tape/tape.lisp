@@ -5,29 +5,31 @@ See LICENSE.txt
 
 Architectural definition of a tape.
 
-This tape machine interface does not take into account entanglements or threads.  These
+This tape interface does not take into account entanglements or threads.  These
 things must be enforced externally.
 
-Though these are tapes, not tape machines, function names found here appear to refer to
-head operations. For example, '◧' which reads as entanglement copy and step left to
-leftmost.  These names are used only because they are descriptive of what the
-corresponding function does to the tape.
+These are tapes, not tape machines, function names found here appear to refer to head
+operations. For example, '◧sr' which reads as entanglement copy, step left to leftmost,
+step right, and read.  These names are used only because they are descriptive of what the
+corresponding function does, not because there is a tape head.  In this case, ◧sr, reads
+the second instance on the tape.
 
 Not all tapes implement all of the interface.  The tapes only implement the interface
-portions that are primitive relative to the implementation.  As an example, the
-singly linked list has no left going operations.
+portions that are primitive relative to the implementation.  As an example, the singly
+linked list has no left going operations.
 
-When the call interface of a tape function differes from its tape machine analog
-we append <tape> or <cell> to its name.
+When the call interface of a tape function differes from its tape machine analog we append
+<tape> or <cell> to its name.
 
-We pushe end cases into dispatch.  Dispatch already makes decisions based
-on operand type, and it won't mind having a few more types to work with.
+We push end cases into dispatch.  Dispatch already makes decisions based on operand type,
+and it won't mind having a few more types to work with.
 
 |# 
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; type
 ;;
   (def-type cell ()()) ; a union of cell types
 
@@ -316,9 +318,21 @@ on operand type, and it won't mind having a few more types to work with.
             :➜rightmost ➜rightmost
             }))))
 
+  (def-function-class ◧snr (index tape &optional ➜))
+  (defun-typed ◧snr (address (tape tape-empty) &optional ➜)
+    (declare (ignore address))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+         )
+      ➜
+      [➜empty]
+      ))
+
   (def-function-class ◧w (tape instance &optional ➜))
   (defun-typed ◧w ((tape tape-empty) instance &optional ➜)
-    (declare (ignore tape))
+    (declare (ignore instance))
     (destructuring-bind
       (&key
         (➜empty #'accessed-empty)
@@ -330,18 +344,19 @@ on operand type, and it won't mind having a few more types to work with.
   (defun-typed ◧w ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok #'echo)
+        (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      [➜ok (w<cell> (leftmost tape) instance)]
+      (w<cell> (leftmost tape) instance)
+      [➜ok]
       ))
 
 
   ;; (➜ok #'echo) (➜rightmost (be ∅))
   (def-function-class ◧sw (tape instance &optional ➜))
   (defun-typed ◧sw ((tape tape-empty) instance &optional ➜)
-    (declare (ignore tape))
+    (declare (ignore instance))
     (destructuring-bind
       (&key
         (➜empty #'accessed-empty)
@@ -353,7 +368,7 @@ on operand type, and it won't mind having a few more types to work with.
   (defun-typed ◧sw ((tape tape-active) instance &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok #'echo)
+        (➜ok (be t))
         (➜rightmost (λ()(error 'step-from-rightmost)))
         &allow-other-keys
         )
@@ -365,14 +380,26 @@ on operand type, and it won't mind having a few more types to work with.
           {
             :➜ok 
             (λ(the-right-neighbor)
-              [➜ok (w<cell> the-right-neighbor instance)]
+              (w<cell> the-right-neighbor instance)
+              [➜ok]
               )
             :➜rightmost ➜rightmost
             }))))
 
+  (def-function-class ◧snw (address tape instance &optional ➜))
+  (defun-typed ◧snw (address (tape tape-empty) instance &optional ➜)
+    (declare (ignore address instance))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+         )
+      ➜
+      [➜empty]
+      ))
+
 
   ;; for doubly linked lists we also have:
-
   (def-function-class ◨r (tape &optional ➜))
   (defun-typed ◨r ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
@@ -478,9 +505,9 @@ on operand type, and it won't mind having a few more types to work with.
             }))))
 
 ;;--------------------------------------------------------------------------------
-;; topology queries
+;; tape queries
 ;;
-  (def-function-class =<cell> (cell-0 cell-1))
+  (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
 
   (def-function-class r<cell> (cell)) ; returns an instance
   (def-function-class w<cell> (cell instance))
@@ -624,9 +651,8 @@ on operand type, and it won't mind having a few more types to work with.
 
 
 ;;--------------------------------------------------------------------------------
-;; length-tape
+;; length
 ;;
-  (def-function-class tape-length-is-one (tape &optional ➜))
   (defun-typed tape-length-is-one ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind

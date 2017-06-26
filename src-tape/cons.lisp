@@ -21,6 +21,7 @@ Need to add in the no-alloc continuations
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; type
 ;;
   (def-type cell-cons (cell)
     (
@@ -82,11 +83,22 @@ Need to add in the no-alloc continuations
         }))
 
 ;;--------------------------------------------------------------------------------
-;; topology queries
+;; tape queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-cons) (cell-1 cell-cons))
-    (eq (cons-cell cell-0) (cons-cell cell-1))
-    )
+  (defun-typed =<cell> ((cell-0 cell-cons) (cell-1 cell-cons) ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (eq (cons-cell cell-0) (cons-cell cell-1))
+        [➜t]
+        [➜∅]
+        )))
+
 
   (defun-typed r<cell> ((cell cell-cons)) (car (cons-cell cell)))
   (defun-typed w<cell> ((cell cell-cons) instance) (setf (car (cons-cell cell)) instance))

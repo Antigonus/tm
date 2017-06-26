@@ -47,7 +47,6 @@ a collision error.  Hence behavior is inherited from the identity transform.
   inheritance tree, so that the dispatch will check these functions from the parked or
   from active state before generalizing further.
 
-
 |#
 
 (in-package #:tm)

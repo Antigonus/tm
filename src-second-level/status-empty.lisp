@@ -122,7 +122,7 @@ belonging to a machine that has a parked head.
       [➜t]
       ))
 
-  (defun-typed tape-length-is-one ((tm active) &optional ➜)
+  (defun-typed tape-length-is-one ((tm empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -132,7 +132,7 @@ belonging to a machine that has a parked head.
       [➜∅]
       ))
       
-  (defun-typed tape-length-is-two ((tm active) &optional ➜)
+  (defun-typed tape-length-is-two ((tm empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))

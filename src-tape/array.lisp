@@ -133,10 +133,61 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
 ;;
+  (defun-typed ◧snr (address (tape tape-array-active)  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (the-array (the-array tape))
+            (maximum-address (maximum-address tape))
+            )
+        (cond
+          ((< address 0)
+            [➜leftmost]
+            )
+          ((≤ address maximum-address)
+            [➜ok (aref the-array address)]
+            )
+          (t
+            [➜rightmost]
+            )
+          )
+        )))
 
+  (defun-typed ◧snw (address (tape tape-array-active) instance  &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (the-array (the-array tape))
+            (maximum-address (maximum-address tape))
+            )
+        (cond
+          ((< address 0)
+            [➜leftmost]
+            )
+          ((≤ address maximum-address)
+            (setf (aref the-array address) instance)
+            [➜ok]
+            )
+          (t
+            [➜rightmost]
+            )
+          )
+        )))
 
 ;;--------------------------------------------------------------------------------
-;; topology queries
+;; tape queries
 ;;
   (defun-typed =<cell> ((cell-0 cell-array) (cell-1 cell-array))
     (∧
@@ -152,15 +203,6 @@ See LICENSE.txt
       (aref the-array index)
       ))
 
-#|
-  (defun-typed ◧snr (index (tape tape-array-active) index)
-    (let(
-          (the-array (the-array (tape cell)))
-          )
-      (aref the-array index)
-      ))
-|#
-
   ;; Writing a zero into the rightmost tile makes the natural shorter.  But this is a cell
   ;; operation not a tape operation, so the outer tape operation will have to take this
   ;; into account.
@@ -171,15 +213,6 @@ See LICENSE.txt
           )
       (setf (aref the-array index) instance)
       ))
-
-#|
-  (defun-typed ◧snw (index (tape tape-array-active) instance)
-    (let(
-          (the-array (the-array (tape cell)))
-          )
-      (setf (aref the-array index) instance)
-      ))
-|#
 
   (defun-typed leftmost ((tape tape-array-active) &optional ➜)
     (destructuring-bind

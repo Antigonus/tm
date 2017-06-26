@@ -203,4 +203,7 @@ that has almost no syntax..
 
 13.
    CLOS doesn't do instance specific functions. Sort of missing the
-   base case of the inheritance hierarchy.
+   base case of the inheritance hierarchy. An instance specific function
+   would have the instance compiled in.  It is for optimization.  In the
+   most extreme case, there would just be a cached result for the function
+   as prior computed from simple operands.

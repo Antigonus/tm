@@ -1,0 +1,14 @@
+
+1. 
+
+  The files:
+
+  tape-with-context.lisp
+  tape-with-type-class.lisp
+  cons-with-type-class.lisp
+
+  are experiments to see what other approaches to context would have looked like.
+
+  I'm keeping them around so that I can discuss them in the next edition of the
+  book.
+

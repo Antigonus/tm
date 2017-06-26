@@ -66,7 +66,7 @@ from a sequence.
                
 
 ;;--------------------------------------------------------------------------------
-;; topology queries
+;; tape queries
 ;;
   (defun-typed =<cell> ((cell-0 cell-sequence) (cell-1 cell-sequence))
     (∧
