@@ -85,7 +85,7 @@ Need to add in the no-alloc continuations
 ;;--------------------------------------------------------------------------------
 ;; tape queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-cons) (cell-1 cell-cons) ➜)
+  (defun-typed =<cell> ((cell-0 cell-cons) (cell-1 cell-cons) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))

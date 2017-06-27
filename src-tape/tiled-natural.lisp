@@ -154,9 +154,19 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tape queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-tiled-natural) (cell-1 cell-tiled-natural))
-    (= (bit-dex cell-0) (bit-dex cell-1))
-    )
+  (defun-typed =<cell> ((cell-0 cell-tiled-natural) (cell-1 cell-tiled-natural) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (= (bit-dex cell-0) (bit-dex cell-1))
+        [➜t]
+        [➜∅]
+        )))
 
   (defun-typed r<cell> ((cell cell-tiled-natural))
     (read-tiled-natural (tape cell) (bit-dex cell))

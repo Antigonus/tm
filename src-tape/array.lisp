@@ -189,11 +189,22 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tape queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-array) (cell-1 cell-array))
-    (∧
-      (eq  (tape cell-0)  (tape cell-1))
-      (eql (index cell-0) (index cell-1))
-      ))
+  (defun-typed =<cell> ((cell-0 cell-array) (cell-1 cell-array) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (∧
+          (eq  (tape cell-0)  (tape cell-1))
+          (eql (index cell-0) (index cell-1))
+          )
+        [➜t]
+        [➜∅]
+        )))
 
   (defun-typed r<cell> ((cell cell-array))
     (let(

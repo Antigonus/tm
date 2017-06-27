@@ -89,9 +89,19 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-bilist) (cell-1 cell-bilist))
-    (eq cell-0 cell-1)
-    )
+  (defun-typed =<cell> ((cell-0 cell-bilist) (cell-1 cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (eq cell-0 cell-1)
+        [➜t]
+        [➜∅]
+        )))
 
   (defun-typed r<cell> ((cell cell-bilist)) (cargo cell))
   (defun-typed w<cell> ((cell cell-bilist) instance) (setf (cargo cell) instance))

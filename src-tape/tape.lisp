@@ -290,9 +290,9 @@ and it won't mind having a few more types to work with.
   (def-function-class right-neighbor (cell &optional ➜))
 
   ;; then nth neighbor to the right
-  (def-function-class right-neighbor-n (cell n &optional ➜)
+  (defun right-neighbor-n (cell n &optional ➜)
       (if
-        (< 0 i)
+        (< 0 n)
         (left-neighbor-n cell (- n))
         (destructuring-bind
           (&key
@@ -301,15 +301,16 @@ and it won't mind having a few more types to work with.
             &allow-other-keys
             )
           ➜
-          (label(
+          (labels(
                   (work (i c0)
-                    ((= 0 i) [➜ok c0])
-                    (t
-                      (right-neighbor c0
-                        {
-                          :➜ok (λ(c1)(work (1- i) c1))
-                          :➜rightmost (λ()[➜rightmost i c0])
-                          })))
+                    (cond
+                      ((= 0 i) [➜ok c0])
+                      (t
+                        (right-neighbor c0
+                          {
+                            :➜ok (λ(c1)(work (1- i) c1))
+                            :➜rightmost (λ()[➜rightmost i c0])
+                            }))))
                   )
             (work n cell)
             ))))
@@ -330,10 +331,9 @@ and it won't mind having a few more types to work with.
 
   ;; (➜ok #'echo) (➜leftmost (be ∅))
   (def-function-class left-neighbor (cell &optional ➜))
-
-  (def-function-class left-neighbor-n (cell n &optional ➜)
+  (defun left-neighbor-n (cell n &optional ➜)
       (if
-        (< 0 i)
+        (< 0 n)
         (right-neighbor-n cell (- n))
         (destructuring-bind
           (&key
@@ -342,18 +342,20 @@ and it won't mind having a few more types to work with.
             &allow-other-keys
             )
           ➜
-          (label(
+          (labels(
                   (work (i c0)
-                    ((= 0 i) [➜ok c0])
-                    (t
-                      (left-neighbor c0
-                        {
-                          :➜ok (λ(c1)(work (1- i) c1))
-                          :➜leftmost (λ()[➜leftmost i c0])
-                          })))
+                    (cond
+                      ((= 0 i) [➜ok c0])
+                      (t
+                        (left-neighbor c0
+                          {
+                            :➜ok (λ(c1)(work (1- i) c1))
+                            :➜leftmost (λ()[➜leftmost i c0])
+                            }))))
                   )
             (work n cell)
             ))))
+
 
 ;;--------------------------------------------------------------------------------
 ;; advanced tape queries
@@ -378,14 +380,14 @@ and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ(n)(error 'step-from-rightmost)))
+        (➜rightmost (λ(k)(declare (ignore k))(error 'step-from-rightmost)))
         &allow-other-keys
         )
       ➜
       (right-neighbor-n cell n
         {
           :➜ok (λ(rn)[➜ok (r<cell> rn)])
-          :➜rightmost (λ(n rn)(declare (ignore rn))[➜rightmost n])
+          :➜rightmost (λ(k rn)(declare (ignore rn))[➜rightmost k])
           })))
 
   (def-function-class ◧r (tape &optional ➜))
@@ -490,17 +492,15 @@ and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ(n)(error 'step-from-rightmost)))
+        (➜rightmost (λ(k)(declare (ignore k))(error 'step-from-rightmost)))
         &allow-other-keys
         )
       ➜
-      (right-neighbor-n (head tm) n
+      (right-neighbor-n cell n
         {
           :➜ok (λ(rn)(w<cell> rn instance)[➜ok])
-          :➜rightmost (λ(n rn)(declare (ignore rn))[➜rightmost n])
+          :➜rightmost (λ(k rn)(declare (ignore rn))[➜rightmost k])
           })))
-
-
 
   (def-function-class ◧w (tape instance &optional ➜))
   (defun-typed ◧w ((tape tape-empty) instance &optional ➜)
@@ -821,6 +821,7 @@ and it won't mind having a few more types to work with.
 ;;--------------------------------------------------------------------------------
 ;; length
 ;;
+  (def-function-class tape-length-is-one (tape &optional ➜))
   (defun-typed tape-length-is-one ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind

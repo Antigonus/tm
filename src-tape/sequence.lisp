@@ -68,11 +68,22 @@ from a sequence.
 ;;--------------------------------------------------------------------------------
 ;; tape queries
 ;;
-  (defun-typed =<cell> ((cell-0 cell-sequence) (cell-1 cell-sequence))
-    (∧
-      (eq  (tape cell-0)  (tape cell-1))
-      (eql (index cell-0) (index cell-1))
-      ))
+  (defun-typed =<cell> ((cell-0 cell-sequence) (cell-1 cell-sequence) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (∧
+          (eq  (tape cell-0)  (tape cell-1))
+          (eql (index cell-0) (index cell-1))
+          )
+        [➜t]
+        [➜∅]
+        )))
 
   (defun-typed r<cell> ((cell cell-sequence))
     (let(
