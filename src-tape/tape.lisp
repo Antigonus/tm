@@ -699,6 +699,9 @@ and it won't mind having a few more types to work with.
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
+  ;; prepends tape0 to tape1
+  (def-function-class epa<tape> (tape1 tape0))
+
   ;; inserts the given cell as a new leftmost cell
   (def-function-class epa<cell> (tape cell))
 
@@ -708,24 +711,21 @@ and it won't mind having a few more types to work with.
   ;; for a doubly linked list, these are the 'operate on tail' versions of the above
   (def-function-class ◨a<cell> (tape cell))
   (def-function-class ◨a<instance> (tape instance))
-  ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class ◨-sd<tape> (tape &optional ➜))
-  (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜leftmost]
-      ))
+
+  ;; inserts tape0 between cell-0 and its right neighbor
+  (def-function-class a<tape> (cell-0 tape0))
 
   ;; makes cell-1 a right-neighbor of cell-0
   (def-function-class a<cell> (cell-0 cell-1))
 
   ;; makes a new right neighbor for cell, and initializes it with instance.
   (def-function-class a<instance> (cell instance))
+
+  ;; makes cell-1 a left-neighbor of cell-0
+  (def-function-class -a<cell> (cell-0 cell-1))
+
+  ;; makes a new left neighbor for cell, and initializes it with instance.
+  (def-function-class -a<instance> (cell instance))
 
   ;; removes the leftmost cell and returns it
   ;; (➜ok #'echo) (➜rightmost (be ∅))
@@ -739,6 +739,23 @@ and it won't mind having a few more types to work with.
         )
       ➜
       [➜rightmost]
+      ))
+
+  ;; releases tape data
+  ;; afterward tape will be empty
+  (def-function-class epd*<tape> (tape &optional ➜))
+
+  ;; (➜ok #'echo) (➜leftmost (be ∅))
+  (def-function-class ◨-sd<tape> (tape &optional ➜))
+  (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜leftmost]
       ))
 
   ;; given a cell removes its right neighbor and returns it
@@ -798,7 +815,6 @@ and it won't mind having a few more types to work with.
       ))
 
   ;; (➜ok (be t))
-  (def-function-class epd*<tape> (tape &optional ➜))
   (def-function-class d*<cell> (cell &optional ➜))
 
 

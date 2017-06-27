@@ -241,3 +241,8 @@ add a time to wait as part of test-hook (similar to #50 above)
    forms to loops, should add some tests for this.
 
     seems there should be a cell version of esr etc. in tape.
+
+72. need dn functions for tape-machine and tape, more efficient versions
+    of epd* and d* specific to tm 
+
+73. the new version solo, tm-es and tm-ea machines

@@ -1,0 +1,5 @@
+
+This directory holds tape implementation specific versions of the tape
+machine.  These are pefromance optimizations over tm.lisp.  tm.lisp is
+taken to define functionality.
+

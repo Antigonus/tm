@@ -11,9 +11,9 @@ See LICENSE.txt
 ;; (➜ok #'echo) (➜bad (λ()(error 'bad-init-value))) (➜no-alloc #'alloc-fail)
 (def-function-class init (tape-instance init &optional ➜))
 
-(defun mk (tape-class init &optional ➜)
+(defun mk (tape-type init &optional ➜)
   (let(
-        (tape-instance (make-instance tape-class))
+        (tape-instance (make-instance tape-type))
         )
     (init tape-instance init ➜)
     ))

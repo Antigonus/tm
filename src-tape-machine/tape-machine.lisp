@@ -77,13 +77,13 @@ a generic implementation of a tape machine built only over the tape interface.
   ;; 
     (defun-typed init ((tm tm) (init cons) &optional ➜)
       (let(
-            (tape (mk 'tape-cons init))
+            (tape (mk 'tape-cons init ➜))
             )
         (init tm tape ➜)
         ))
     (defun-typed init ((tm tm) (init sequence) &optional ➜)
       (let(
-            (tape (mk 'tape-sequence init))
+            (tape (mk 'tape-sequence init ➜))
             )
         (init tm tape ➜)
         ))
@@ -420,6 +420,8 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜leftmost]
       ))
+  (defun-typed -s ((tm tape-machine-parked) &optional ➜)(s* tm ➜))
+
 
   (def-function-class sn (tm n &optional ➜))
   (defun-typed sn ((tm tape-machine-empty) n &optional ➜)
@@ -445,22 +447,16 @@ a generic implementation of a tape machine built only over the tape interface.
         )
       ➜
       (cond
-        ((< n 0) (-sn tm (- n) ➜))
+        ((< 0 n) (sn tm (- n) ➜))
+        ((= 0 n) [➜ok])
         (t
-          (labels(
-                   (work (i)
-                     (cond
-                       ((= 0 i) [➜ok])
-                       (t
-                         (s tm
-                           {
-                             :➜ok (λ()(work (1- i)))
-                             :➜rightmost ➜rightmost
-                             }))
-                       ))
-                   )
-            (work n)
-            )))))
+          (s tm
+            {
+              :➜ok (λ()(sn tm (1- n) ➜))
+              :➜rightmost ➜rightmost
+              }))
+        )))
+
 
   (def-function-class -sn (tm n &optional ➜))
   (defun-typed -sn ((tm tape-machine-empty) n &optional ➜)
@@ -487,22 +483,15 @@ a generic implementation of a tape machine built only over the tape interface.
         )
       ➜
       (cond
-        ((< n 0) (sn tm (- n) ➜))
+        ((< 0 n) (sn tm (- n) ➜))
+        ((= 0 n) [➜ok])
         (t
-          (labels(
-                   (work (i)
-                     (cond
-                       ((= 0 i) [➜ok])
-                       (t
-                         (-s tm
-                           {
-                             :➜ok (λ()(work (1- i)))
-                             :➜leftmost ➜leftmost
-                             }))
-                       ))
-                   )
-            (work n)
-            )))))
+          (s tm
+            {
+              :➜ok (λ()(sn tm (1- n) ➜))
+              :➜leftmost ➜leftmost
+              }))
+        )))
 
   ;; '*' is zero or more times
   (def-function-class s* (tm &optional ➜)) ; move to rightmost
@@ -517,20 +506,9 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜ok]
       ))
-  (defun-typed s* ((tm tape-machine-parked-or-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (labels(
-               (work() (s tm {:➜ok #'work :➜rightmost ➜ok}))
-               )
-        (work)
-        )))
 
   (def-function-class -s* (tm &optional ➜)) ; move to leftmost
+  ;; step backwards zero or more times
   (defun-typed -s* ((tm tape-machine-empty) &optional ➜)
     (declare (ignore tm))
     (destructuring-bind
@@ -542,18 +520,6 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜ok]
       ))
-  (defun-typed -s* ((tm tape-machine-parked-or-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (labels(
-               (work() (-s tm {:➜ok #'work :➜leftmost ➜ok}))
-               )
-        (work)
-        )))
 
   ;; s= step then compare tm=
   ;;     ➜rightmost if tm0 can not be stepped
@@ -708,6 +674,21 @@ a generic implementation of a tape machine built only over the tape interface.
 ;;--------------------------------------------------------------------------------
 ;; topology modification
 ;;
+  (def-function-class epa (tm instance &optional ➜)
+    (:documentation
+      "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
+      "
+      ))
+  (def-function-class ◨a (tm instance &optional ➜)
+    (:documentation
+      "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
+      ))
+  ;; #'◨a  to rightmost of an empty machine is same as #'epa
+  ;; this works because parked position acts like rightmost
+  (defun-typed ◨a ((tm tape-machine-empty) instance &optional ➜)
+    (epa tm instance ➜)
+    )
+
   (def-function-class a (tm instance &optional ➜)
     (:documentation
       "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
@@ -735,22 +716,6 @@ a generic implementation of a tape machine built only over the tape interface.
     (◨a tm instance ➜)
     )
 
-
-  (def-function-class epa (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
-      "
-      ))
-  (def-function-class ◨a (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
-      ))
-  ;; #'◨a  to rightmost of an empty machine is same as #'epa
-  ;; this works because parked position acts like rightmost
-  (defun-typed ◨a ((tm tape-machine-empty) instance &optional ➜)
-    (epa tm instance ➜)
-    )
-
   (def-function-class as (tm instance &optional ➜)
     (:documentation
       "Like #'a, but tm is stepped to the new cell
@@ -763,11 +728,11 @@ a generic implementation of a tape machine built only over the tape interface.
         &allow-other-keys
         )
       ➜
-    (a tm instance
-      {
-        :➜ok (λ()(s tm ➜))
-        :➜no-alloc ➜no-alloc
-        })
+      (a tm instance
+        {
+          :➜ok (λ()(s tm ➜))
+          :➜no-alloc ➜no-alloc
+          })
       ))
 
   (def-function-class a&h◨ (tm instance &optional ➜)
@@ -807,6 +772,60 @@ a generic implementation of a tape machine built only over the tape interface.
   ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
   ;; reallocation to spill fails
   ;;
+    (def-function-class epd (tm &optional spill ➜)
+      (:documentation
+        "Deallocates leftmost.
+         Returns the instance from the deallocated cell.
+         If spill is not ∅, the deallocated cell is moved to spill, or a new
+         cell is allocated to spill and the instance reference is moved there.
+        "
+        ))
+    (defun-typed epd ((tm tape-machine-empty) &optional spill ➜)
+      (declare (ignore spill))
+      (destructuring-bind
+        (
+          &key
+          (➜empty #'accessed-empty)
+          &allow-other-keys
+          )
+        ➜
+        ;; (prins (print "epd empty"))
+        [➜empty]
+        ))
+
+    ;; delete the whole tape
+    (def-function-class epd*(tm &optional spill ➜))
+    (defun-typed epd* ((tm tape-machine-empty) &optional spill ➜)
+      (declare (ignore spill))
+      (destructuring-bind
+        (
+          &key
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        [➜ok]
+        ))
+    (defun-typed epd* ((tm tape-machine) &optional (spill tape-machine) ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        (labels(
+                 (work ()
+                   (epd tm spill
+                     {
+                       :➜ok #'work
+                       :➜rightmost ➜ok
+                       }
+                     ))
+                 )
+          (work)
+          )))
+
     (def-function-class d (tm &optional spill ➜)
       (:documentation
         "Deallocate the right neighbor of the cell the head is on.
@@ -827,28 +846,9 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         [➜empty]
         ))
-
-    (def-function-class epd (tm &optional spill ➜)
-      (:documentation
-        "Deallocates leftmost.
-         Returns the instance from the deallocated cell.
-         If spill is not ∅, the deallocated cell is moved to spill, or a new
-         cell is allocated to spill and the instance reference is moved there.
-        "
-        ))
-    (defun-typed epd ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore tm spill))
-      (destructuring-bind
-        (
-          &key
-          (➜empty #'accessed-empty)
-          &allow-other-keys
-          )
-        ➜
-        ;; (prins (print "epd empty"))
-        [➜empty]
-        ))
-
+    (defun-typed d ((tm tape-machine-parked) &optional spill ➜)
+      (epd tm spill ➜)
+      )
 
     (def-function-class d. (tm &optional spill ➜))
     (defun-typed d. ((tm tape-machine-empty) &optional spill ➜)
@@ -861,6 +861,40 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         [➜empty]
         ))
+
+    ;; delete the right hand side
+    (def-function-class d*(tm &optional spill ➜))
+    (defun-typed d* ((tm tape-machine-empty) &optional spill ➜)
+      (declare (ignore spill))
+      (destructuring-bind
+        (
+          &key
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        [➜ok]
+        ))
+    (defun-typed d* ((tm tape-machine) &optional (spill tape-machine) ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok (be t))
+          &allow-other-keys
+          )
+        ➜
+        (labels(
+                 (work ()
+                   (d tm spill
+                     {
+                       :➜ok #'work
+                       :➜rightmost ➜ok
+                       }
+                     ))
+                 )
+          (work)
+          )))
+
 
   ;; this function is private. intended to be used with entanglement accounting.
   ;; after another machine in the entanglement group does an epa, we need to

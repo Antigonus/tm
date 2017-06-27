@@ -325,109 +325,243 @@ This tm is not entanglment safe, and not thread safe.
 ;;--------------------------------------------------------------------------------
 ;; head motion
 ;;
-  (defun-typed s (tm &optional ➜)
+  (defun-typed s ((tm tm-active) &optional ➜)
     (destructuring-bind
       (
         &key
+        (➜ok (be t))
         (➜rightmost (be ∅))
         &allow-other-keys
         )
       ➜
+      (right-neighbor (head tm)
+        {
+          :➜ok (λ(rn)(setf (head tm) rn) [➜ok])
+          :➜rightmost ➜rightmost
+          })))
+
+  (defun-typed -s ((tm tm-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        (➜leftmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (left-neighbor (head tm)
+        {
+          :➜ok (λ(ln)(setf (head tm) ln) [➜ok])
+          :➜leftmost ➜leftmost
+          })))
+
+
+  (defun-typed sn ((tm tm-active) n &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        (➜rightmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((< 0 n) (sn tm (- n) ➜))
+        ((= 0 n) [➜ok])
+        (t
+          (right-neighbor-n (head tm)
+            {
+              :➜ok (λ(rn)(setf (head tm) rn))
+              :➜rightmost ➜rightmost
+              }))
+        )))
+
+  (defun-typed -sn ((tm tm-active) n &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        (➜leftmost (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((< 0 n) (sn tm (- n) ➜))
+        ((= 0 n) [➜ok])
+        (t
+          (left-neighbor-n (head tm)
+            {
+              :➜ok (λ(ln)(setf (head tm) ln))
+              :➜leftmost ➜leftmost
+              }))
+        )))
+
+  (defun-typed s* ((tm tm-parked-or-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜rightmost (be t))
+        &allow-other-keys
+        )
+      ➜
+      (setf (head tm) (rightmost (tape tm)))
       [➜rightmost]
       ))
 
-
-  (defun-typed -s (tm &optional ➜))
-
-  (defun-typed s* (tm &optional ➜)) ; move to rightmost
-
   ;; typically there is a more efficient way of doing this because we know
   ;; the leftmost cell of the tape
-  (defun-typed -s* (tm &optional ➜)) ; move to leftmost
-
-  ;; by contract, tm0 and tm1 are entangled
-  ;; because they are entangled they are of the same type (thus far in this implementation)
-  ;; tm0 empty <=> tm1 empty
-  ;; tm0 abandoned <=> tm1 abandoned
-  ;; tm0 parked, tm1 can be active, vice versa
-  (defun-typed s≠ (tm0 tm1 &optional ➜))
-
-  (defun-typed p (tm &optional ➜)) ; cue the head to parked
-
+  (defun-typed -s* ((tm tm-parked-or-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜leftmost (be t))
+        &allow-other-keys
+        )
+      ➜
+      (setf (head tm) (leftmost (tape tm)))
+      [➜leftmost]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; topology modification
 ;;
-  (defun-typed a (tm instance &optional ➜)
-    (:documentation
-    "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
-     it to the right of the cell the head is currently on.  The newly allocated cell will
-     be initialized with the given instance.
-     "))
-  (defun-typed -a (tm instance &optional ➜)
-    (:documentation
-    "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
-     it to the left of the cell the head is currently on.  The newly allocated cell will
-     be initialized with the given instance. This function is not available for
-     singly linkedin lists.
-     "))
-  (defun-typed epa (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
-      "
-      ))
-  (defun-typed ◨a (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
-      ))
-  (defun-typed as (tm instance &optional ➜)
-    (:documentation
-      "Like #'a, but tm is stepped to the new cell
-      "))
 
-  (defun-typed as ((tm tm) instance &optional ➜)
+  (defsynonym epa ◧-a)
+  (defun-typed epa ((tm tm-parked-or-active) instance &optional ➜)
     (destructuring-bind
       (
         &key
-        (➜no-alloc #'alloc-fail)
+        (➜ok (be t))
         &allow-other-keys
         )
       ➜
-    (a tm instance
-      {
-        :➜ok (λ()(s tm ➜))
-        :➜no-alloc ➜no-alloc
-        })
+      (epa<instance> (head tm) instance)
+      [➜ok]
+      ))
+  ;; tape will be empty on an empty tm
+  (defun-typed epa ((tm tm-empty) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (epa<instance> (head tm) instance) ; causes tape to become active
+      (setf (head tm) (leftmost (tape tm)))
+      (to-parked tm)
+      [➜ok]
       ))
 
-  (defun-typed a&h◨ (tm instance &optional ➜)
-    (:documentation
-      "#'a with a contract that the head is on rightmost.
-      "))
-  ;; surely specializations will make better use of the contract
-  (defun-typed a&hs* 
-    (
-      (tm tm)
-      instance
-      &optional ➜
-      )
-      (a tm instance ➜)
-      )
+  (defsynonym ◨a ep-a)
+  (defun-typed ◨a (tm instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (◧a<instance> (head tm) instance)
+      [➜ok]
+      ))
 
-  (defun-typed as&h◨ (tm instance &optional ➜)
-    (:documentation
-      "#'as with a contract that the head is on rightmost.
-      "))
-   ;; surely specializations will make better use of the contract
-  (defun-typed as&hs* 
-    (
-      (tm tm)
-      instance
-      &optional ➜
-      )
-    (as tm instance ➜)
-    )
+  (defun-typed a ((tm tm-active) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (a<instance> (head tm) instance)
+      [➜ok]
+      ))
 
+  (defun-typed -a ((tm tm-active) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (-a<instance> (head tm) instance)
+      [➜ok]
+      ))
+
+  (defun-typed epd ((tm tm-active) &optional (spill tape-machine) ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (when (tape-length-is-one tm) (to-empty tm))
+      (epd<tape> (tape tm)  
+        {
+          :➜ok
+          (λ(cell)
+            (let(
+                  (instance (r<cell> cell))
+                  )
+              (when spill (as spill instance))
+              [➜ok instance]
+              ))
+
+          :➜rightmost ➜rightmost
+          })
+      ))
+  (defun-typed epd ((tm tm-active) &optional (spill tm-parked-or-active) ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (when (tape-length-is-one tm) (to-empty tm))
+      (epd<tape> (tape tm)  
+        {
+          :➜ok
+          (λ(cell)
+            (when spill
+              (a<cell> (tape spill) cell)
+              (s spill {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+              )
+            [➜ok (r<cell> cell)]
+            )
+
+          :➜rightmost ➜rightmost
+          })
+      ))
+
+   #| need to implement a<tape>,  also make a version for when spill is just tape-machine
+      we can still save by deleting the tape on tm in one step using epd*<tape>
+  (defun-typed epd* ((tm tm-parked-or-active) &optional (spill tm-parked-or-active) ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (when spill
+        (let(
+              (s1 (entangle tm))
+              )
+          (s* s1)
+          (a<tape> (tape spill) (tape tm))
+          (setf (head spill) (head s1))
+          ))
+      (epd*<tape> (tape tm))
+      (to-empty tm)
+      [➜ok]
+      ))
+  |#
 
   ;; Spill can be ∅, in which case we just drop the deallocated cell.  When spill is not ∅,
   ;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
@@ -437,35 +571,116 @@ This tm is not entanglment safe, and not thread safe.
   ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
   ;; reallocation to spill fails
   ;;
-    (defun-typed d (tm &optional spill ➜)
-      (:documentation
-        "Deallocate the right neighbor of the cell the head is on.
-         I.e. deallocates a region of length 1 located to the right of the head.
-         Returns the instance from the deallocated cell.
-         If spill is not ∅, the deallocated cell is moved to spill, or a new
-         cell is allocated to spill and the instance reference is moved there.
-        "
+  ;; d can not make the tape empty
+  ;;
+    (defun-typed d ((tm active) &optional (spill tape-machine)  ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok #'echo)
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        (d<cell> (head tm)  
+          {
+            :➜ok
+            (λ(cell)
+              (let(
+                    (instance (r<cell> cell))
+                    )
+                (when spill (as spill instance))
+                [➜ok instance]
+                ))
+
+            :➜rightmost ➜rightmost
+            })
+        ))
+    (defun-typed d ((tm active) &optional (spill tm-parked-or-active)  ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok #'echo)
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        (d<cell> (head tm)  
+          {
+            :➜ok
+            (λ(cell)
+              (when spill
+                (a<cell> (tape spill) cell)
+                (s spill {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+                )
+              [➜ok (r<cell> cell)]
+              )
+
+            :➜rightmost ➜rightmost
+            })
         ))
 
-    (defun-typed epd (tm &optional spill ➜)
-      (:documentation
-        "Deallocates leftmost.
-         Returns the instance from the deallocated cell.
-         If spill is not ∅, the deallocated cell is moved to spill, or a new
-         cell is allocated to spill and the instance reference is moved there.
-        "
+    (defun-typed -d ((tm active) &optional (spill tape-machine)  ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok #'echo)
+          (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          &allow-other-keys
+          )
+        ➜
+        (-d<cell> (head tm)  
+          {
+            :➜ok
+            (λ(cell)
+              (let(
+                    (instance (r<cell> cell))
+                    )
+                (when spill (as spill instance))
+                [➜ok instance]
+                ))
+
+            :➜leftmost ➜leftmost
+            })
         ))
+    (defun-typed -d ((tm active) &optional (spill tm-parked-or-active)  ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜ok #'echo)
+          (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          &allow-other-keys
+          )
+        ➜
+        (-d<cell> (head tm)  
+          {
+            :➜ok
+            (λ(cell)
+              (when spill
+                (a<cell> (tape spill) cell)
+                (s spill {:➜ok #'do-nothing :➜leftmost #'cant-happen})
+                )
+              [➜ok (r<cell> cell)]
+              )
+
+            :➜leftmost ➜leftmost
+            })
+        ))
+
 
   ;; this function is private. intended to be used with entanglement accounting.
   ;; after another machine in the entanglement group does an epa, we need to
   ;; update the tape reference for the other memebers of the group.
-  (defun-typed update-tape-after-epa (tm tm-ref))
+  (defun-typed update-tape-after-epa ((tm tm) (tm-ref tm))
+    (setf (tape tm) (tape tm-ref))
+    )
 
   ;; this function is private. intended to be used with entanglement accounting.
   ;; after another machine in the entanglement group does an epa, we need to
   ;; update the tape reference for the other memebers of the group.
-  (defun-typed update-tape-after-epd (tm tm-ref))
-
-
+  (defun-typed update-tape-after-epd ((tm tm) (tm-ref))
+    (setf (tape tm) (tape tm-ref))
+    )
+    
 
 
