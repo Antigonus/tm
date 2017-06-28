@@ -207,3 +207,28 @@ that has almost no syntax..
    would have the instance compiled in.  It is for optimization.  In the
    most extreme case, there would just be a cached result for the function
    as prior computed from simple operands.
+
+14
+
+  (defun-typed a<cell> ((c0 cell-bilist) (new-cell cell-bilist))
+    (insert<cell> c0 (right-neighbor c0) new-cell)
+    )
+
+  (defun-typed a<instance> ((c0 cell-bilist) instance)
+    (let(
+          (new-cell (make-instance 'cell-bilist :contents instance))
+          )
+      (insert<cell> c0 (right-neighbor c0) new-cell)  ***
+      ))
+
+  *** this should be a call to a<cell>, so as to reduce the maintenance and test burdens,
+  and to not have to remember to keep these two in sync, but we dont' do that because
+  another trip through the dispatcher would be low performance.  Dispatch is also
+  unnecessary as we already typed the inputs.  Seems the compiler should recognize such
+  situations and then make a defun version of a<cell> that a<cell> and a<instance> call.
+  Evern better in this case if the compiler just dropped in copies of the code.
+
+
+
+
+  

@@ -252,25 +252,39 @@ Need to add in the no-alloc continuations
               ))
           })))
 
-  (defun-typed epd*<tape> ((tape tape-cons) &optional ➜)
+  (defun-typed epd*<tape> ((tape tape-cons-active) &optional ➜)
     (destructuring-bind
       (&key
-        (➜ok (be t))
+        (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      (to-empty tape)
-      (setf (cons-list tape) ∅) ; free the data
-      [➜ok]
-      ))
+      (let(
+            (rhs-cell (cons-list tape))
+            )
+        (setf (cons-list tape) ∅) ; free the data
+        (to-empty tape)
+        [➜ok rhs-cell]
+        )))
 
-  (defun-typed d*<cell> ((cell cell-cons) &optional ➜)
+  (defun-typed d*<cell> ((cell cell-cons) tape &optional ➜)
+    (declare (ignore tape))
     (destructuring-bind
       (&key
-        (➜ok (be t))
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
         &allow-other-keys
         )
       ➜
-      (rplacd (cons-cell cell) ∅)
-      [➜ok]
-      ))
+      (let*(
+             (rhs-cell (right-neighbor cell))
+             (rhs-cons-cell (cons-cell rhs-cell))
+             )
+        (cond
+          (rhs-cons-cell
+            (rplacd (cons-cell cell) ∅)
+            [➜ok rhs-cell]
+            )
+          (t
+            [➜rightmost]
+            )))))

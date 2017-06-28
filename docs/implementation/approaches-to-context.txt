@@ -13,10 +13,16 @@ Here are four techniques for dealing with this:
   2. subtypes. We have four cell subtypes: singleton, left neighbor, middle, and right
      neighbor.
 
-  3. context. We have an external data that holds end case information for the tape.  E.g.
-     the bitlist tape header might has fields for leftmost and rightmost
+  3. provided context.  A context variable is passed into subroutines.
 
-  4. scoped context
+  4. external context. A series of contracts is implemented with the programmer
+     a context based conditions are then checked externally and the appropriate
+     function is called.
+
+  5. scoped context
+
+  6. curried context.  we start with provided context, and then create the
+     external context versions that are then used.
 
 1. Marking
 
@@ -50,7 +56,7 @@ A subtype allows us to modify the dataflow graph dynamically.  Taking a differen
 depending on the type of the data.  I.e. it directs control flow changes based on a
 past decision.
 
-3. External Context
+3. Provided Context
 
 We provide each routine with an extra argument known as a 'context'.  Context holds values
 that are needed to complete end case analysis.  As an example the tape-bilist header can
@@ -59,17 +65,55 @@ be context as it holds leftmost and rightmost.
 Context has the overhead of adding an extra parameter to functions.  It has the advantage
 of not constraining the programmer to any particular set of tests.
 
-Context can be part of a hierarchy. E.g. the base part shared by the tape, referencing
-context shared by a class of tapes, etc.
-
-I initially implemented tape machines directly, and tape was not a first class citzien.
-This made external context immediately available in the code.
-
-I've gone through the tape code implementing external context for tape.lisp, and every
+I've gone through the tape code implementing provided context for tape.lisp, and every
 time a cell is specificed, so is the tape.  'tape, cell' It reminds me of segment
 specifiers, tape:cell.  tape being the segment cell being the address. Seems like a rather
 pointless exercise typing all these pairs, may as well just put the context pointer in
 the cell.
+
+
+4. External Context
+
+I initially implemented tape machines directly, and tape was not a first class citzien.
+This made external context immediately available in the code.
+
+We can make tape a first class citizen, with external context through a series of
+contracts with the programmer.
+
+
+
+Here is an example
+
+  (defun-typed right-neighbor ((cell cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (rn (right-neighbor cell))
+            )
+        (if
+          (eq rn tape)   *** where did tape come from?
+          [➜rightmost]
+          [➜ok rn]
+          ))))
+
+For external context, we performan the end case (eq rn tape) externally,
+and then call the correct version of right-neighbor.  Hence right-neighbor
+itself doesn't have the to do the test.
+
+In the examples directory, we show passing context in so that the
+subroutine can perform the test.  This is not external context it is
+rather 'provided context'.  And as can be seen in the example become tedious.
+
+In fact tape machine's job is to provide external context for tape.
+
+Context can be part of a hierarchy. E.g. the base part shared by the tape, referencing
+context shared by a class of tapes, etc.
+
 
 
 4. Introspective Context.
@@ -131,7 +175,7 @@ the cell.
     rather is intended to apply to a gruop. This paradigm mismatch is the cause of the
     data redundancy.
 
-5. Scoped Context / Context Channels
+6. Scoped Context / Context Channels
 
   Perhaps what we need is (with tape ... (r<cell> array-cell) ..).  A
   thread safe scoped context. 
@@ -154,7 +198,7 @@ the cell.
   With can be a macro, that manipulates syntax to add the extra parameter to
   contained function calls. Good for static scoping.
 
-5. Curried context
+7. Curried context
 
   We can create functions specific to a tape instance. The functions would occupy fields
   in the tape.

@@ -38,9 +38,11 @@ and it won't mind having a few more types to work with.
   (def-type cell ()()) ; a union of cell types
 
   (def-type tape ()()) ; a union of tape types
-  (def-type tape-active (tape)()) ; a union of tape types
-  (def-type tape-empty (tape)()) ; a union of tape types
+  (def-type tape-abandoned (tape)()) 
+  (def-type tape-active (tape)()) 
+  (def-type tape-empty (tape)())
 
+  (def-function-class to-abandoned (tape))
   (def-function-class to-empty (tape))
   (def-function-class to-active (tape))
 
@@ -701,6 +703,7 @@ and it won't mind having a few more types to work with.
 ;;
   ;; prepends tape0 to tape1
   (def-function-class epa<tape> (tape1 tape0))
+  (defun-typed epa<tape> ((tape1 tape) (tape0 tape-empty)) (do-nothing))
 
   ;; inserts the given cell as a new leftmost cell
   (def-function-class epa<cell> (tape cell))
@@ -731,7 +734,6 @@ and it won't mind having a few more types to work with.
   ;; (➜ok #'echo) (➜rightmost (be ∅))
   (def-function-class epd<tape> (tape &optional ➜))
   (defun-typed epd<tape> ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
     (destructuring-bind
       (&key
         (➜rightmost (λ()(error 'dealloc-on-rightmost)))
@@ -744,7 +746,17 @@ and it won't mind having a few more types to work with.
   ;; releases tape data
   ;; afterward tape will be empty
   (def-function-class epd*<tape> (tape &optional ➜))
+  (defun-typed epd*<tape> ((tape tape-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
 
+  ;; deletes rightmost
   ;; (➜ok #'echo) (➜leftmost (be ∅))
   (def-function-class ◨-sd<tape> (tape &optional ➜))
   (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
@@ -813,10 +825,22 @@ and it won't mind having a few more types to work with.
       ➜
       [➜empty]
       ))
+  (defun-typed ◧d.<tape> ((tape tape-active) &optional ➜)
+    (d.<cell> (lefmost tape) ➜)
+    )
 
-  ;; (➜ok (be t))
-  (def-function-class d*<cell> (cell &optional ➜))
-
+  ;; returns right neighbor cell
+  ;; (➜ok #'echo) (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+  (def-function-class d*<cell> (cell tape &optional ➜))
+  (defun-typed d*<cell> (cell (tape tape-empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; length

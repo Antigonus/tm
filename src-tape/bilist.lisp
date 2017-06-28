@@ -5,31 +5,29 @@ See LICENSE.txt
 
 Conceptually this is cleaner, but it doesn't bind to Lisp's linked list.  Rather it
 creates its own list form.  Perhaps this is what lists would have looked like had CLOS
-been part of the original language.  Thus leaving this for later.  Perhaps it will bcome
-list2-tape or some such.
-
-.. bringing this back as a doubly linked list
-
+been part of the original language.
 
 Inheritance structure.
 
                bilink
                 ^  ^
                 |   \ 
-                |    bilist-with-cargo
+                |    bilist-with-contents
                 |
              list-tape
                ^  ^
                |   |
  list-tape-empty   list-tape-active
 
+The list header will be a list-tape type. The header will hold links to rightmost and
+leftmost.
 
 Due to list-tape being inherited from link, the list-tape header can be passed to
 functions that manipulate links. This simplifies end case processing.
 
 Because list-tape-empty and list-tape-active are inherited from list-tape without the
-addiition of slots, we can change-type between them without penalty.  Status information
-about the list is carried in their type.
+addiition of slots, we can change-type between them without penalty.  The status of
+the list is carried in its type.
 
 Would rather have used static structs, but didn't want to fight Lisp over being able to
 change the type of a list-tape-empty to a list-tape-active when list tape is a structure.
@@ -58,13 +56,15 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 
   (def-type cell-bilist (bilink cell)
     (
-      (cargo :initarg cargo :accessor cargo)
+      (contents :initarg contents :accessor contents)
       ))
 
   (def-type tape-bilist (bilink tape) ())
-  (def-type tape-bilist-empty (tape-bilist))
-  (def-type tape-bilist-active (tape-bilist))
+  (def-type tape-bilist-abandoned (tape-bilist tape-abandoned))
+  (def-type tape-bilist-empty (tape-bilist tape-empty))
+  (def-type tape-bilist-active (tape-bilist tape-active))
 
+  (defun-typed to-abandoned ((tape tape-bilist)) (change-class tape 'tape-bilist-abandoned))
   (defun-typed to-empty  ((tape tape-bilist)) (change-class tape 'tape-bilist-empty))
   (defun-typed to-active ((tape tape-bilist)) (change-class tape 'tape-bilist-active))
 
@@ -103,8 +103,8 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         [➜∅]
         )))
 
-  (defun-typed r<cell> ((cell cell-bilist)) (cargo cell))
-  (defun-typed w<cell> ((cell cell-bilist) instance) (setf (cargo cell) instance))
+  (defun-typed r<cell> ((cell cell-bilist)) (contents cell))
+  (defun-typed w<cell> ((cell cell-bilist) instance) (setf (contents cell) instance))
 
   (defun-typed leftmost ((tape tape-bilist-active) &optional ➜)
     (destructuring-bind
@@ -127,93 +127,113 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       (let(
             (rn (right-neighbor cell))
             )
-        (if (eq rn tape ....
+        (if
+          (eq rn tape)   *** where did tape come from? .. by contract don't call right neighbor on rightmost -- i.e. external context
+          [➜rightmost]
+          [➜ok rn]
+          ))))
 
-
-      [➜ok (right-neighbor cell)]
-      [➜rightmost]
-      ))
-
-  (defun-typed right-neighbor ((cell cell-bilist-rightmost) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ()(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  (defun-typed left-neighbor ((cell cell-bilist-rightmost-middle) &optional ➜)
+  (defun-typed rightmost ((tape tape-bilist-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (left-neighbor cell)]
+      [➜ok (left-neighbor tape)]
       ))
 
-  (defun-typed left-neighbor ((cell cell-bilist-leftmost) &optional ➜)
+  (defun-typed left-neighbor ((cell cell-bilist-rightmost-middle) &optional ➜)
     (destructuring-bind
       (&key
+        (➜ok #'echo)
         (➜leftmost (λ()(error 'step-from-leftmost)))
         &allow-other-keys
         )
       ➜
-      [➜leftmost]
-      ))
+      (let(
+            (rn (left-neighbor cell))
+            )
+        (if
+          (eq rn tape)
+          [➜leftmost]
+          [➜ok rn]
+          ))))
     
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
 
-  ;; for internal use  
+  (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
+    (setf (right-neighbor (rightmost tape0)) (leftmost tape1))
+    (setf (right-neighbor tape1) (leftmost tape0))
+    (to-abandoned tape0)
+    )
 
-  (defun splice (c0 c2 new-cell)
+  ;; for internal use  
+  (defun insert<cell> (c0 c1 new-cell)
     (setf (left-neighbor new-cell) c0)
-    (setf (right-neighbor new-cell) c2)
-    (setf (left-neighbor c2) new-cell)
+    (setf (right-neighbor new-cell) c1)
+    (setf (left-neighbor c1) new-cell)
     (setf (right-neighbor c0) new-cell)
     )
 
   ;; accepts a tape-bilist and a cell, makes the cell the new leftmost
   ;; will be a problem if (cons-bilist tape) is shared
   (defun-typed epa<cell> ((tape tape-bilist-active) (cell cell-bilist))
-    (splice tape (right-neighbor tape) cell)
+    (insert<cell> tape (right-neighbor tape) cell)
     )
 
   ;; accepts a tape-bilist and an instance, makes a new leftmost initialized with the
   ;; instance will be a problem if (cons-bilist tape) is shared
   (defun-typed epa<instance> ((tape tape-bilist-empty) instance)
     (let(
-          (new-cell (make-instance 'cell-bilist :cargo instance))
+          (new-cell (make-instance 'cell-bilist :contents instance))
           )
       (to-active tape)
-      (splice tape (right-neighbor tape) new-cell)
+      (insert<cell> tape (right-neighbor tape) new-cell)
       ))
   (defun-typed epa<instance> ((tape tape-bilist-active) instance)
     (let(
-          (new-cell (make-instance 'cell-bilist :cargo instance))
+          (new-cell (make-instance 'cell-bilist :contents instance))
           )
-      (splice tape (right-neighbor tape) new-cell)
+      (insert<cell> tape (right-neighbor tape) new-cell)
       ))
 
   (defun-typed a<cell> ((c0 cell-bilist) (new-cell cell-bilist))
-    (splice c0 (right-neighbor c0) new-cell)
+    (insert<cell> c0 (right-neighbor c0) new-cell)
     )
 
   (defun-typed a<instance> ((c0 cell-bilist) instance)
     (let(
-          (new-cell (make-instance 'cell-bilist :cargo instance))
+          (new-cell (make-instance 'cell-bilist :contents instance))
           )
-      (splice c0 (right-neighbor c0) new-cell)
+      (insert<cell> c0 (right-neighbor c0) new-cell)
       ))
 
---
+  (defun-typed -a<cell> ((c0 cell-bilist) (new-cell cell-bilist))
+    (insert<cell> (left-neighbor c0) c0 new-cell)
+    )
+
+  (defun-typed -a<instance> ((c0 cell-bilist) instance)
+    (let(
+          (new-cell (make-instance 'cell-bilist :contents instance))
+          )
+      (insert<cell> (left-neighbor c0) c0 new-cell)
+      ))
+
+  ;; for internal use
+  ;; removes c1
+  (defun remove<cell> (c0 c1 c2)
+    (setf (left-neighbor c2) c0)
+    (setf (right-neighbor c0) c2)
+    (setf (left-neighbor c1) ∅) ; so that c1 can not prevent neighbors from being gc'ed
+    (setf (right-neighbor c1) ∅)
+    )
 
   ;; removes the leftmost cell and returns it
-  ;; will be a problem if (cons-bilist tape) is shared
+  ;; an active tape always has a leftmost to be deleted
+  ;; will be a problem if the tape is intangled, as partners will not have correct leftmost afterward
   (defun-typed epd<tape> ((tape tape-bilist-active) &optional ➜)
     (destructuring-bind
       (&key
@@ -222,19 +242,52 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )
       ➜
       (let*(
-             (leftmost (cons-bilist tape))
-             (right-neighbor (cdr leftmost))
+             (c0 tape)
+             (c1 (right-neighbor c0))
+             (c2 (right-neighbor c1))
              )
-        (if right-neighbor
-          (setf (cons-bilist tape) right-neighbor)
-          (progn
-            (setf (cons-bilist tape) ∅)
-            (to-empty tape)
-            ))
-        [➜ok (make-instance 'cell-bilist :cons-cell leftmost)]
+        (remove<cell> c0 c1 c2)
+        (when (eq tape c2) (to-empty tape))
+        [➜ok c1]
+        )))
+
+  (defun-typed epd*<tape> ((tape tape-bilist-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (lm (leftmost tape))
+            )
+        (setf (right-neighbor tape) tape)
+        (setf (left-neighbor tape) tape)
+        (to-empty tape)
+        [➜ok lm]
+        )))
+
+  ;; deletes rightmost
+  (defun-typed ◨-sd<tape> ((tape tape-active) &optional ➜)
+    (declare (ignore tape))
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (c2 tape)
+            (c1 (left-neighbor c2))
+            (c0 (left-neighbor c1))
+            )
+        (remove<cell> c0 c1 c2)
+        (when (eq tape c0) (to-empty tape))
+        [➜ok c1]
         )))
 
   ;; deletes the right neighbor cell
+  ;; this can not make the tape empty
   (defun-typed d<cell> ((cell cell-bilist) &optional ➜)
     (destructuring-bind
       (&key
@@ -244,19 +297,36 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )
       ➜
       (let*(
-             (cell-0 (cons-cell cell))
-             (cell-1 (cdr cell-0)) ; this is the right neighbor
+             (c0 cell)
+             (c1 (right-neighbor c0))
+             (c2 (right-neighbor c1))
              )
-        (if cell-1
-          (progn
-            (let(
-                  (cell-2 (cdr cell-1))
-                  )
-              (rplacd cell-0 cell-2) ; this orphans cell-1
-              [➜ok (make-instance 'cell-bilist :cons-cell cell-1)]
-              ))
-          [➜rightmost]
-          ))))
+        (cond
+          ((eq tape c1) [➜rightmost])
+          (t
+            (remove<cell> c0 c1 c2)
+            [➜ok c1]
+            )))))
+
+  (defun-typed -d<cell> ((cell cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let*(
+             (c2 cell)
+             (c1 (left-neighbor c2))
+             (c0 (left-neighbor c1))
+             )
+        (cond
+          ((eq tape c1) [➜leftmost])
+          (t
+            (remove<cell> c0 c1 c2)
+            [➜ok c1]
+            )))))
 
   ;; References to the right neghbor of leftmost get messed up,
   ;; but (cons-bilist tape) will be ok, so no tape sharing issues
@@ -281,25 +351,26 @@ of a research project and I prefer to keep the language syntax paradigm consiste
               ))
           })))
 
-  (defun-typed epd*<tape> ((tape tape-bilist) &optional ➜)
+  (defun-typed d*<cell> (cell (tape tape-bilist-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
+        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
         &allow-other-keys
         )
       ➜
-      (to-empty tape)
-      (setf (cons-bilist tape) ∅) ; free the data
-      [➜ok]
-      ))
-
-  (defun-typed d*<cell> ((cell cell-bilist) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (rplacd (cons-cell cell) ∅)
-      [➜ok]
-      ))
+      (let(
+            (rn (right-neighbor cell))
+            )
+        (cond
+          ((eq tape rn)  [➜rightmost])
+          (t
+            (let(
+                  (rm (left-neighbor tape))
+                  )
+              (setf (right-neighbor rm) ∅) ; cleaved part of tape ends
+              (setf (left-neighbor rn) ∅)  ; cleaved part of tape ends
+              (setf (right-neighbor cell) tape) 
+              (setf (left-neighbor tape) cell)
+              [➜ok rn]
+              )))))
