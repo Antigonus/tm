@@ -58,6 +58,15 @@ of a research project and I prefer to keep the language syntax paradigm consiste
     (
       (contents :initarg contents :accessor contents)
       ))
+  (def-type cell-bilist-leftmost (cell-bilist cell-leftmost)())
+  (def-type cell-bilist-rightmost (cell-bilist cell-rightmost)())
+  (def-type cell-bilist-end (cell-bilist-rightmost cell-bilist-leftmost cell-end)())
+
+  (defun-typed to-cell ((cell cell-bilist))(change-class cell 'cell-bilist))
+  (defun-typed to-end ((cell cell-bilist))(change-class cell 'cell-bilist-end))
+  (defun-typed to-leftmost ((cell cell-bilist))(change-class cell 'cell-bilist-leftmost))
+  (defun-typed to-rightmost ((cell cell-bilist))(change-class cell 'cell-bilist-rightmost))
+
 
   (def-type tape-bilist (bilink tape) ())
   (def-type tape-bilist-abandoned (tape-bilist tape-abandoned))
@@ -116,22 +125,16 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       [➜ok (right-neighbor tape)]
       ))
 
+  ;;tape.list handles the cell-rightmost case
   (defun-typed right-neighbor ((cell cell-bilist) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
         &allow-other-keys
         )
       ➜
-      (let(
-            (rn (right-neighbor cell))
-            )
-        (if
-          (eq rn tape)   *** where did tape come from? .. by contract don't call right neighbor on rightmost -- i.e. external context
-          [➜rightmost]
-          [➜ok rn]
-          ))))
+      [➜ok right-neighbor cell]
+      ))
 
   (defun-typed rightmost ((tape tape-bilist-active) &optional ➜)
     (destructuring-bind
@@ -143,32 +146,38 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       [➜ok (left-neighbor tape)]
       ))
 
-  (defun-typed left-neighbor ((cell cell-bilist-rightmost-middle) &optional ➜)
+  ;; tape.lisp handles the cell-leftmost case
+  (defun-typed left-neighbor ((cell cell-bilist) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜leftmost (λ()(error 'step-from-leftmost)))
         &allow-other-keys
         )
       ➜
-      (let(
-            (rn (left-neighbor cell))
-            )
-        (if
-          (eq rn tape)
-          [➜leftmost]
-          [➜ok rn]
-          ))))
+      (left-neighbor cell)
+      ))
     
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-
+;; The cell types can be changed when performing topology manipulation.
+;; #'mk returns a basic cell type, 'cell.  All routines that return cells will
+;; also return a cell of 'cell type.
+;;
   (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
-    (setf (right-neighbor (rightmost tape0)) (leftmost tape1))
-    (setf (right-neighbor tape1) (leftmost tape0))
-    (to-abandoned tape0)
-    )
+    (let(
+          (leftmost-tape0  (right-neighbor tape0))
+          (rightmost-tape0 (left-neighbor tape0))
+          (leftmost-tape1  (right-neighbor tape1))
+          (rightmost-tape1 (left-neighbor tape1))
+          )
+
+      (setf (right-neighbor rightmost-tape0) (leftmost-tape1))
+      (setf (left-neighbor leftmost-tape1) (rightmost-tape0))
+      (to-cell rightmost-tape0)
+      (to-cell leftmost-tape1)
+      (to-abandoned tape0)
+      ))
 
   ;; for internal use  
   (defun insert<cell> (c0 c1 new-cell)
@@ -181,25 +190,44 @@ of a research project and I prefer to keep the language syntax paradigm consiste
   ;; accepts a tape-bilist and a cell, makes the cell the new leftmost
   ;; will be a problem if (cons-bilist tape) is shared
   (defun-typed epa<cell> ((tape tape-bilist-active) (cell cell-bilist))
-    (insert<cell> tape (right-neighbor tape) cell)
-    )
+    (let(
+          (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
+          (c1 (right-neighbor tape))
+          (new-cell cell)
+          )
+      (to-cell c1) ; old leftmost is no longer leftmost
+      (to-leftmost new-cell) ; the new cell becomes leftmost
+      (insert<cell> c0 c1 new-cell)
+      ))
 
   ;; accepts a tape-bilist and an instance, makes a new leftmost initialized with the
   ;; instance will be a problem if (cons-bilist tape) is shared
   (defun-typed epa<instance> ((tape tape-bilist-empty) instance)
     (let(
+          (c0 tape)
+          (c1 tape)
           (new-cell (make-instance 'cell-bilist :contents instance))
           )
       (to-active tape)
-      (insert<cell> tape (right-neighbor tape) new-cell)
+      (to-end new-cell)
+      (insert<cell> tape tape new-cell)
       ))
   (defun-typed epa<instance> ((tape tape-bilist-active) instance)
     (let(
+          (c0 tape)
+          (c1 (right-neighbor tape))
           (new-cell (make-instance 'cell-bilist :contents instance))
           )
-      (insert<cell> tape (right-neighbor tape) new-cell)
+      (if 
+        (typep c1 'cell-end)
+        (to-rightmost c1)
+        (to-cell c1)
+        )
+      (to-leftmost new-cell)
+      (insert<cell> c0 c1 new-cell)
       ))
 
+  ;; the new-cell is type 'cell,and not 'cell-rightmost or 'cell-leftmost etc.
   (defun-typed a<cell> ((c0 cell-bilist) (new-cell cell-bilist))
     (insert<cell> c0 (right-neighbor c0) new-cell)
     )
@@ -227,8 +255,9 @@ of a research project and I prefer to keep the language syntax paradigm consiste
   (defun remove<cell> (c0 c1 c2)
     (setf (left-neighbor c2) c0)
     (setf (right-neighbor c0) c2)
-    (setf (left-neighbor c1) ∅) ; so that c1 can not prevent neighbors from being gc'ed
-    (setf (right-neighbor c1) ∅)
+    (setf (left-neighbor c1) c1) ; so that c1 can not prevent neighbors from being gc'ed
+    (setf (right-neighbor c1) c1)
+    (to-cell c1)
     )
 
   ;; removes the leftmost cell and returns it
@@ -243,11 +272,11 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       ➜
       (let*(
              (c0 tape)
-             (c1 (right-neighbor c0))
-             (c2 (right-neighbor c1))
+             (c1 (right-neighbor c0)) ; this is leftmost
+             (c2 (right-neighbor c1)) ; this is the right neighbor of leftmost, possibly tape
              )
+        (when (typep c1 'cell-end) (to-empty tape))
         (remove<cell> c0 c1 c2)
-        (when (eq tape c2) (to-empty tape))
         [➜ok c1]
         )))
 
@@ -267,8 +296,8 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         [➜ok lm]
         )))
 
-  ;; deletes rightmost
-  (defun-typed ◨-sd<tape> ((tape tape-active) &optional ➜)
+  ;; deletes rightmost, i.e. ◨-sd
+  (defun-typed p-d<tape> ((tape tape-active) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -276,13 +305,13 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-      (let(
-            (c2 tape)
-            (c1 (left-neighbor c2))
-            (c0 (left-neighbor c1))
-            )
+      (let*(
+             (c2 tape)
+             (c1 (left-neighbor c2)) ; this is rightmost
+             (c0 (left-neighbor c1)) ; this is left neighbor of rightmost, possible tape
+             )
+        (when (typep c1 'cell-end) (to-empty tape))
         (remove<cell> c0 c1 c2)
-        (when (eq tape c0) (to-empty tape))
         [➜ok c1]
         )))
 

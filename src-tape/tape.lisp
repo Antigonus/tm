@@ -36,6 +36,15 @@ and it won't mind having a few more types to work with.
 ;; type
 ;;
   (def-type cell ()()) ; a union of cell types
+  (def-type cell-leftmost (cell)())
+  (def-type cell-rightmost (cell)())
+  (def-type cell-end (cell-leftmost cell-rightmost)())
+
+  (def-function-class to-cell (cell))
+  (def-function-class to-leftmst (cell))
+  (def-funciton-class to-rightmost (cell))
+  (def-function-class to-end (cell))
+
 
   (def-type tape ()()) ; a union of tape types
   (def-type tape-abandoned (tape)()) 
@@ -274,8 +283,8 @@ and it won't mind having a few more types to work with.
 ;;
   (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
 
-  (def-function-class r<cell> (cell)) ; returns an instance
-  (def-function-class w<cell> (cell instance))
+  (def-function-class r<cell> (cell)) ; returns contents of cell
+  (def-function-class w<cell> (cell instance)) ; writes contents of cell
 
   (def-function-class leftmost (tape &optional ➜)) ; returns a cell
   (defun-typed leftmost ((tape tape-empty) &optional ➜)
@@ -288,11 +297,19 @@ and it won't mind having a few more types to work with.
       [➜empty]
       ))
 
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
   (def-function-class right-neighbor (cell &optional ➜))
-
+  (defun-typed right-neighbor ((cell cell-rightmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ()(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
+                                
   ;; then nth neighbor to the right
-  (defun right-neighbor-n (cell n &optional ➜)
+  (defun right-neighbor-n ((cell cell) n &optional ➜)
       (if
         (< 0 n)
         (left-neighbor-n cell (- n))
@@ -333,7 +350,18 @@ and it won't mind having a few more types to work with.
 
   ;; (➜ok #'echo) (➜leftmost (be ∅))
   (def-function-class left-neighbor (cell &optional ➜))
-  (defun left-neighbor-n (cell n &optional ➜)
+  (defun-typed left-neighbor ((cell cell-leftmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜leftmost]
+      ))
+
+  (def-function-class left-neighbor-n (cell n &optional ➜)
+  (defun left-neighbor-n ((cell cell) n &optional ➜)
       (if
         (< 0 n)
         (right-neighbor-n cell (- n))
@@ -357,7 +385,6 @@ and it won't mind having a few more types to work with.
                   )
             (work n cell)
             ))))
-
 
 ;;--------------------------------------------------------------------------------
 ;; advanced tape queries
@@ -758,8 +785,9 @@ and it won't mind having a few more types to work with.
 
   ;; deletes rightmost
   ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (def-function-class ◨-sd<tape> (tape &optional ➜))
-  (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
+  (defsynonym p-d<tape> ◨-sd<tape>)
+  (def-function-class p-d<tape> (tape &optional ➜))
+  (defun-typed p-d<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -773,6 +801,15 @@ and it won't mind having a few more types to work with.
   ;; given a cell removes its right neighbor and returns it
   ;; (➜ok #'echo) (➜rightmost (λ()(error 'dealloc-on-rightmost)))
   (def-function-class d<cell> (cell &optional ➜))
+  (defun-typed d<cell> ((cell cell-rightmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
 
   ;; left neighbor version for doubly linked lists
   ;; (➜ok #'echo) (➜leftmost (be ∅))

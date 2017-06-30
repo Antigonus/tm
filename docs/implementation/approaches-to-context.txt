@@ -13,7 +13,7 @@ Here are four techniques for dealing with this:
   2. subtypes. We have four cell subtypes: singleton, left neighbor, middle, and right
      neighbor.
 
-  3. provided context.  A context variable is passed into subroutines.
+  3. argument provided context.  A context variable is passed into subroutines.
 
   4. external context. A series of contracts is implemented with the programmer
      a context based conditions are then checked externally and the appropriate
@@ -23,6 +23,33 @@ Here are four techniques for dealing with this:
 
   6. curried context.  we start with provided context, and then create the
      external context versions that are then used.
+
+  7. curried contract. we have a general function then provide a contract
+     promise to it, and get the contract version of the function.
+  
+  8. special cells -- e.g. a rightmost cell, we eq to see if we are rightmost.
+     what I am doing with 'tape' in bilist.
+
+----
+
+a. question who does the end case test:  caller, disptach, or subroutine.
+
+         sub-types: disptach
+  provided context: subroutine
+  external context: caller
+
+scoped context, curried context, and special cells are ways of getting
+the context into a subroutine, so the subroutine can do the test.
+
+marking is a way of communicating a test result to the subroutine
+
+
+
+b. question is when the test is made, and when the results are used.  If this is
+not simultaneous, then a message must be sent from the test, to the using code.
+
+
+----
 
 1. Marking
 
@@ -56,6 +83,19 @@ A subtype allows us to modify the dataflow graph dynamically.  Taking a differen
 depending on the type of the data.  I.e. it directs control flow changes based on a
 past decision.
 
+type: cell
+subtypes:  rightmost-type middle-type leftmost-type
+
+(right-neighbor a-cell) --> rn-cell
+
+When a-cell is a middle-type cell, it might be turned into a leftmost-type cell
+by #'right-neighbor.  However, for #'right-neighbor to do this, it must have
+the header context to perform the #'is-rightmost test, or that test must be
+applied externally, perhaps as (set-cell-type cell tape).
+
+
+
+
 3. Provided Context
 
 We provide each routine with an extra argument known as a 'context'.  Context holds values
@@ -75,10 +115,19 @@ the cell.
 4. External Context
 
 I initially implemented tape machines directly, and tape was not a first class citzien.
-This made external context immediately available in the code.
+This made external context immediately available in the code.  However, I then could
+not have a generic tape machine.
 
 We can make tape a first class citizen, with external context through a series of
-contracts with the programmer.
+contracts with the programmer.  This moves tests out of subroutines and into
+the caller, which removes one argument/parameter from the subroutine.
+
+
+  ;; tape provides context so cell can be tested to for being rightmost
+  (def-function-class right-neighbor (cell tape &optional ➜))
+
+  ;; only called when when cell is not rightmost
+  (def-function-class right-neighbor (cell &optional ➜))
 
 
 
@@ -175,7 +224,7 @@ context shared by a class of tapes, etc.
     rather is intended to apply to a gruop. This paradigm mismatch is the cause of the
     data redundancy.
 
-6. Scoped Context / Context Channels
+5. Scoped Context / Context Channels
 
   Perhaps what we need is (with tape ... (r<cell> array-cell) ..).  A
   thread safe scoped context. 
@@ -198,7 +247,7 @@ context shared by a class of tapes, etc.
   With can be a macro, that manipulates syntax to add the extra parameter to
   contained function calls. Good for static scoping.
 
-7. Curried context
+6. Curried context
 
   We can create functions specific to a tape instance. The functions would occupy fields
   in the tape.

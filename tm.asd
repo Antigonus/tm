@@ -37,15 +37,21 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
-               (:module "src-tape"
+               (:module "src-cell"
                  :components (
                                (:file "init")
-                               (:file "tape")
-                               (:file "sequence")
-                               (:file "cons")
-                               (:file "tiled-natural")
-                               (:file "array")
-                               (:file "debug")
+                               (:file "cell")
+                               (:file "bilist")
+                               ))
+
+               (:module "src-tape"
+                 :components (
+;;                               (:file "tape")
+;;                               (:file "sequence")
+;;                               (:file "cons")
+;;                               (:file "tiled-natural")
+;;                               (:file "array")
+;;                               (:file "debug")
                                ))
 
 #|
@@ -156,13 +162,22 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
+               (:module "test-cell"
+                 :components (
+                               (:file "cell")
+                               (:file "bilist")
+                               ))
+
                (:module "test-tape"
                  :components (
+;;                               (:file "cell")
+#|
                                (:file "tape")
                                (:file "sequence")
                                (:file "cons")
                                (:file "tiled-natural")
                                (:file "array")
+|#
                                ))
 
 
