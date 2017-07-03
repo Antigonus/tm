@@ -14,7 +14,7 @@ See LICENSE.txt
   (define-condition not-implemented (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition impossible-to-get-here (error)
+  (define-condition cant-happen (error)
     ((text :initarg :text :reader text)))
 
 
@@ -35,6 +35,8 @@ See LICENSE.txt
 ;; tm first level
 ;;
   (define-condition step-from-rightmost (error)
+    ((text :initarg :text :reader text)))
+  (define-condition step-from-leftmost (error)
     ((text :initarg :text :reader text)))
 
   ;; used for #'a and #'d on spill when allocation fails

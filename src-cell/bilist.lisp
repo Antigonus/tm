@@ -28,15 +28,20 @@ Implementation of cell intended for use with a bidirectional list.
     (
       (contents :initarg contents :accessor contents)
       ))
-  (def-type cell-bilist-leftmost (cell-bilist cell-leftmost)())
-  (def-type cell-bilist-rightmost (cell-bilist cell-rightmost)())
-  (def-type cell-bilist-singleton (cell-bilist-rightmost cell-bilist-leftmost cell-singleton)())
+
+  (def-type bilist-leftmost-interior (cell-bilist leftmost-interior)())
+  (def-type bilist-rightmost-interior (cell-bilist rightmost-interior)())
+
+  (def-type bilist-interior (bilist-leftmost-interior bilist-rightmost-interior interior)())
+  (def-type bilist-leftmost (bilist-leftmost-interior leftmost)())
+  (def-type bilist-rightmost (bilist-rightmost-interior rightmost)())
+  (def-type bilist-solitary (bilist-leftmost bilist-rightmost solitary)())
 
   (defun-typed to-cell ((cell cell-bilist))(change-class cell 'cell-bilist))
-  (defun-typed to-leftmost ((cell cell-bilist))(change-class cell 'cell-bilist-leftmost))
-  (defun-typed to-rightmost ((cell cell-bilist))(change-class cell 'cell-bilist-rightmost))
-  (defun-typed to-singleton ((cell cell-bilist))(change-class cell 'cell-bilist-singleton))
-
+  (defun-typed to-interior ((cell cell-bilist))(change-class cell 'bilist-interior))
+  (defun-typed to-leftmost ((cell cell-bilist))(change-class cell 'bilist-leftmost))
+  (defun-typed to-rightmost ((cell cell-bilist))(change-class cell'bilist-rightmost))
+  (defun-typed to-solitary ((cell cell-bilist))(change-class cell 'bilist-solitary))
 
 ;;--------------------------------------------------------------------------------
 ;; queries
@@ -47,92 +52,94 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-
-  ;; When we use self-pointers instead of nil to terminate ends, insert
-  ;; will work even against a single cell.
-  (defun insert<cell> (c0 c1 new-cell)
-    (setf (left-neighbor new-cell) c0)
-    (setf (right-neighbor new-cell) c1)
-    (setf (left-neighbor c1) new-cell)
-    (setf (right-neighbor c0) new-cell)
-    )
-
-  (defun-typed a<cell> ((c0 cell-bilist-singleton) (new-cell cell-bilist))
+  (defun-typed a<cell> ((c0 bilist-solitary) (new-cell cell-bilist))
     (let(
-          (c1 (right-neighbor c0)) ; this will be tape, the list header
+          (c1 (right-neighbor c0)) ; this will be the list header, a bilink type
           )
-      (insert<cell> c0 c1 new-cell)
+      (place-inbetween c0 c1 new-cell)
       (to-leftmost c0)
       (to-rightmost new-cell)
       (values)
       ))
-  (defun-typed a<cell> ((c0 cell-bilist-rightmost) (new-cell cell-bilist))
+  (defun-typed a<cell> ((c0 bilist-rightmost) (new-cell cell-bilist))
     (let(
-          (c1 (right-neighbor c0)) ; this will be tape, the list header
+          (c1 (right-neighbor c0)) ; this will be the list header, a bilink type
           )
-      (insert<cell> c0 c1 new-cell)
-      (to-cell c0)
+      (place-inbetween c0 c1 new-cell)
+      (to-interior c0)
       (to-rightmost new-cell)
       (values)
       ))
-  (defun-typed a<cell> ((c0 cell-bilist) (new-cell cell-bilist))
-    (let(
-          (c1 (right-neighbor c0)) ; this will be tape, the list header
-          )
-      (insert<cell> c0 c1 new-cell)
-      (values)
-      ))
 
-  (defun-typed -a<cell> ((c1 cell-bilist-singleton) (new-cell cell-bilist))
+
+  (defun-typed -a<cell> ((c1 bilist-solitary) (new-cell cell-bilist))
     (let(
           (c0 (left-neighbor c1)) ; this will be tape, the list header
           )
-      (insert<cell> c0 c1 new-cell)
-      (to-rightmost c0)
+      (place-inbetween c0 c1 new-cell)
+      (to-rightmost c1)
+      (to-leftmost new-cell)
+      (values)
+      ))
+  (defun-typed -a<cell> ((c1 bilist-leftmost) (new-cell cell-bilist))
+    (let(
+          (c0 (left-neighbor c1)) ; this will be tape, the list header
+          )
+      (place-inbetween c0 c1 new-cell)
+      (to-interior c1)
       (to-leftmost new-cell)
       (values)
       ))
 
-  (defun-typed -a<instance> ((c0 cell-bilist) instance)
-    (let(
-          (new-cell (make-instance 'cell-bilist :contents instance))
+  ;; Deletes the right neighbor cell.
+  ;; This function is unable to make the tape empty.
+  ;; This is here instead of in cell.lisp because c2 might be the tape header,
+  ;; and other types might not have a link type tape header.
+  ;;
+    (defun-typed d<cell> ((cell bilist-leftmost) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
           )
-      (insert<cell> (left-neighbor c0) c0 new-cell)
-      ))
-
-  ;; for internal use
-  ;; removes c1
-  (defun remove<cell> (c0 c1 c2)
-    (setf (left-neighbor c2) c0)
-    (setf (right-neighbor c0) c2)
-    (setf (left-neighbor c1) c1) ; so that c1 can not prevent neighbors from being gc'ed
-    (setf (right-neighbor c1) c1)
-    (to-cell c1)
-    )
-
-  ;; deletes the right neighbor cell
-  ;; this function is unable to make the tape empty
-  ;; the case where cell is rightmost is handled generically in cell.lisp
-  (defun-typed d<cell> ((cell cell-bilist) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let*(
-             (c0 cell)
-             (c1 (right-neighbor c0)) ; this might be rightmost
-             (c2 (right-neighbor c1)) ; this might be the tape header
-             )
-        (remove<cell> c0 c1 c2)
-        [➜ok c1]
-        )))
+        ➜
+        (let*(
+               (c0 cell)
+               (c1 (right-neighbor c0)) ; this might be rightmost
+               (c2 (right-neighbor c1)) ; this might be the tape header
+               )
+          (extract c0 c1 c2)
+          (when 
+            (typep c1 'rightmost)
+            (to-solitary c0)
+            )
+          (to-cell c1)
+          [➜ok c1]
+          )))
+    (defun-typed d<cell> ((cell bilist-interior) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
+          )
+        ➜
+        (let*(
+               (c0 cell)
+               (c1 (right-neighbor c0)) ; this might be rightmost
+               (c2 (right-neighbor c1)) ; this might be the tape header
+               )
+          (extract c0 c1 c2)
+          (when 
+            (typep c1 'rightmost)
+            (to-rightmost c0)
+            )
+          (to-cell c1)
+          [➜ok c1]
+          )))
 
   ;; deletes the left neighbor cell
   ;; this function is unable to make the tape empty
-  ;; the case where cell is leftmost is handled generically in cell.lisp
-  (defun-typed -d<cell> ((cell cell-bilist) &optional ➜)
+  (defun-typed -d<cell> ((cell bilist-rightmost) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -144,21 +151,32 @@ Implementation of cell intended for use with a bidirectional list.
              (c1 (left-neighbor c2)) ; this might be leftmost
              (c0 (left-neighbor c1)) ; this might be the tape header
              )
-        (remove<cell> c0 c1 c2)
+        (extract c0 c1 c2)
+        (when 
+          (typep c1 'leftmost)
+          (to-solitary c2)
+          )
+        (to-cell c1)
         [➜ok c1]
         )))
-
-  (defun-typed d*<cell> ((cell cell-bilist) &optional ➜)
+  (defun-typed -d<cell> ((cell bilist-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      (let(
-            (rn (right-neighbor cell))
-            )
-        (setf (left-neighbor rn) rn)
-        (setf (right-neighbor cell) cell)
-        [➜ok rn]
+      (let*(
+             (c2 cell)
+             (c1 (left-neighbor c2)) ; this might be leftmost
+             (c0 (left-neighbor c1)) ; this might be the tape header
+             )
+        (extract c0 c1 c2)
+        (when 
+          (typep c1 'leftmost)
+          (to-leftmost c2)
+          )
+        (to-cell c1)
+        [➜ok c1]
         )))
+
