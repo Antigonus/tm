@@ -47,83 +47,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
   (def-function-class to-rightmost (cell))
   (def-function-class to-solitary (cell))
 
-  (defmacro place-right (c0 new-right-neighbor)
-    `(progn
-       (setf (right-neighbor ,c0) ,new-right-neighbor)
-       (setf (left-neighbor ,new-right-neighbor) ,c0)
-       ))
-  ;; c0 c1 are either neighbors, or the same cell
-  ;; Because we use self-pointers instead of nil to terminate ends, insert
-  ;; will work even against a single cell.
-  (defmacro place-inbetween (c0 c1 new-cell)
-    `(progn
-       (place-right ,c0 ,new-cell)
-       (place-right ,new-cell ,c1)
-       ))
-
-  (defmacro cap-left (c0)
-    `(setf (left-neighbor ,c0) ,c0)
-    )
-
-  (defmacro cap-right (c0)
-    `(setf (right-neighbor ,c0) ,c0)
-    )
-
-  (defmacro cap-off (c0)
-    `(progn
-       (cap-left ,c0)
-       (cap-right ,c0)
-       ))
-
-  ;; c0 c1 c2 are neighbors in sequence
-  ;; connects c0 to c2, caps off c1
-  (defmacro extract (c0 c1 c2)
-    `(progn
-       (place-right ,c0 ,c2)
-       (cap-off ,c1)
-       ))
-
-  ;; disconnects c0 from c1
-  (defmacro disconnect (c0 c1)
-    `(progn
-       (cap-right ,c0)
-       (cap-left ,c1)
-       ))
-
-  ;; cell is unitialized, having been freshly created using #'make-instance.
-  (defun-typed init ((cell cell) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜fail (λ()(error 'bad-init-value)))
-        type left-neighbor right-neighbor
-        )
-      ➜
-      (w<cell> cell instance)
-      ;; When these two conds are put together, SBCL erroneously deletes the (➜ left-neighbor) clause
-      ;;
-        (cond
-          (right-neighbor     (place-right cell right-neighbor))
-          ((¬ right-neighbor) (cap-right cell))
-          )
-        (cond
-          (left-neighbor      (place-right left-neighbor cell))
-          ((¬ left-neighbor)  (cap-left cell))
-          )
-      (if type
-        (case type
-          (interior  (to-interior  cell))
-          (leftmost  (to-leftmost  cell))
-          (rightmost (to-rightmost cell))
-          (solitary  (to-solitary  cell))
-          (otherwise (return-from init [➜fail]))
-          )
-        (to-interior cell)
-        )
-      [➜ok cell]
-      ))
-
-
 ;;--------------------------------------------------------------------------------
 ;; queries
 ;;
@@ -146,8 +69,29 @@ machine constructs, such a tape head, are involved in the implementation of the 
   (def-function-class w<cell> (cell instance)) ; writes contents of cell
 
   ;; for bilist these are slots
-  (def-function-class right-neighbor (cell))
-  (def-function-class left-neighbor (cell))
+  (def-function-class right-neighbor (cell &optional ➜))
+  (defun-typed right-neighbor ((cell rightmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
+
+  (def-function-class left-neighbor (cell &optional ➜))
+  (defun-typed left-neighbor ((cell leftmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜leftmost]
+      ))
+
+
 
   ;; then nth neighbor to the right
   ;; For arrays, this just increments the array index, which is why this is here
@@ -275,19 +219,9 @@ machine constructs, such a tape head, are involved in the implementation of the 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
+
   ;; makes cell-1 a right-neighbor of cell-0
   (def-function-class a<cell> (cell-0 cell-1))
-  ;;The solitary and rightmost cases must be handled by specialized implementation
-  ;;functions.  We can't do it here because we don't know the relationship between
-  ;;rightmost and the tape header for the implementation.
-  (defun-typed a<cell> ((c0 leftmost-interior) (new-cell cell))
-    (let(
-          (c1 (right-neighbor c0)) ; c0 is not rightmost, but c1 might be
-          )
-      (place-inbetween c0 c1 new-cell)
-      (to-interior new-cell)
-      (values)
-      ))
 
   ;; makes a new right neighbor for cell, and initializes it with instance.
   (def-function-class a<instance> (cell instance))
@@ -300,17 +234,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
 
   ;; makes cell-1 a left-neighbor of cell-0
   (def-function-class -a<cell> (cell-0 cell-1))
-  ;;The solitary and leftmost cases must be handled by specialized implementation
-  ;;functions.  We can't do it here because we don't know the relationship between
-  ;;rightmost and the tape header for the implementation.
-  (defun-typed -a<cell> ((c1 rightmost-interior) (new-cell cell))
-    (let(
-          (c0 (left-neighbor c1)) ; c1 is not leftmost, but c0 might be
-          )
-      (place-inbetween c0 c1 new-cell)
-      (to-interior new-cell)
-      (values)
-      ))
 
   ;; makes a new left neighbor for cell, and initializes it with instance.
   (def-function-class -a<instance> (cell instance))
@@ -398,8 +321,8 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; tape implementation (not a cell implementation) might need its own version of this to
   ;; fix the righmost cell's relationships with the tape header. Kleene '*' can mean zero
   ;; applications, but in the ➜ok case we must return something, so this becomes d+ rather
-  ;; than d*. '+' means one or more applications. If there can be no applications, we have
-  ;; an error return, ➜rightmost
+  ;; than d*. '+' means one or more applications. If applications is not possible, we
+  ;; take the error path ➜rightmost
   ;;
     (def-function-class d+<cell> (cell &optional ➜))
     (defun-typed d+<cell> ((cell rightmost) &optional ➜)
@@ -411,17 +334,4 @@ machine constructs, such a tape head, are involved in the implementation of the 
         ➜
         [➜rightmost]
         ))
-    (defun-typed d+<cell> ((cell leftmost-interior) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (let(
-              (rn (right-neighbor cell))
-              )
-          (disconnect cell rn)
-          [➜ok rn]
-          )))
 

@@ -19,33 +19,33 @@ See LICENSE.txt
          flag1 flag2
          )
 
-    (setf (right-neighbor tp0) tp0)
-    (setf (left-neighbor tp0) tp0)
+    (setf (right-neighbor-slot tp0) tp0)
+    (setf (left-neighbor-slot tp0) tp0)
 
-    (setf (right-neighbor tp1) tp3)
-    (setf (right-neighbor tp3) tp3)
+    (setf (right-neighbor-slot tp1) tp3)
+    (setf (right-neighbor-slot tp3) tp3)
  
-    (setf (left-neighbor tp1) tp1)
-    (setf (left-neighbor tp3) tp1)
+    (setf (left-neighbor-slot tp1) tp1)
+    (setf (left-neighbor-slot tp3) tp1)
 
-    (place-inbetween tp0 tp0 tp4)
+    (insert-between tp0 tp0 tp4)
     (setf flag1
       (∧
-        (eq (right-neighbor tp0) tp4)
-        (eq (left-neighbor  tp0) tp4)
-        (eq (right-neighbor tp4) tp0)
-        (eq (left-neighbor  tp4) tp0)
+        (eq (right-neighbor-slot tp0) tp4)
+        (eq (left-neighbor-slot  tp0) tp4)
+        (eq (right-neighbor-slot tp4) tp0)
+        (eq (left-neighbor-slot  tp4) tp0)
         ))
 
-    (place-inbetween tp1 tp3 tp2)
+    (insert-between tp1 tp3 tp2)
     (setf flag2
       (∧
-        (eq (right-neighbor tp1) tp2)
-        (eq (right-neighbor tp2) tp3)
-        (eq (right-neighbor tp3) tp3)
-        (eq (left-neighbor tp1) tp1)
-        (eq (left-neighbor tp2) tp1)
-        (eq (left-neighbor tp3) tp2)
+        (eq (right-neighbor-slot tp1) tp2)
+        (eq (right-neighbor-slot tp2) tp3)
+        (eq (right-neighbor-slot tp3) tp3)
+        (eq (left-neighbor-slot tp1) tp1)
+        (eq (left-neighbor-slot tp2) tp1)
+        (eq (left-neighbor-slot tp3) tp2)
         ))
 
     (∧
@@ -57,9 +57,9 @@ See LICENSE.txt
 
 (defun test-cell-1 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:type 'leftmost}))
+        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
         (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :type 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
         )
     (w<cell> c1 10)
     (∧
@@ -101,9 +101,9 @@ See LICENSE.txt
 
 (defun test-cell-2 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:type 'leftmost}))
+        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
         (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :type 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
         )
     (∧
       (esr<cell> c1 {:➜ok (λ(v) (= v 20)) :➜rightmost #'cant-happen})
@@ -116,9 +116,9 @@ See LICENSE.txt
 
 (defun test-cell-3 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:type 'leftmost}))
+        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
         (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :type 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
         )
     (∧
       (= (r<cell> c2) 20)
@@ -152,7 +152,7 @@ See LICENSE.txt
 
 (defun test-cell-4 ()
   (let(
-        (c0 (mk 'cell-bilist 0 {:type 'solitary}))
+        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
         (c1 (mk 'cell-bilist 1))
         (c2 (mk 'cell-bilist 2))
         (c3 (mk 'cell-bilist 3))
@@ -186,7 +186,7 @@ See LICENSE.txt
 
 (defun test-cell-5 ()
   (let(
-        (c0 (mk 'cell-bilist 0 {:type 'solitary}))
+        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
         (c1 (mk 'cell-bilist 1))
         (c2 (mk 'cell-bilist 20))
         (c3 (mk 'cell-bilist 30))
@@ -219,7 +219,7 @@ See LICENSE.txt
 
 (defun test-cell-6 ()
   (let(
-        (c0 (mk 'cell-bilist 0 {:type 'solitary}))
+        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
         (c1 (mk 'cell-bilist 1))
         (c2 (mk 'cell-bilist 2))
         (c3 (mk 'cell-bilist 3))
