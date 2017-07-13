@@ -3,7 +3,7 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-A generic implementation of a tape machine built only using only the tape interface (see
+A generic implementation of a tape machine built using only the tape interface (see
 src-tape/tape.lisp). This implementation defines the behavior for tape machines.  All
 optimized machines, e.g. tape-machine-cons, must provide the same functionality.
 
@@ -29,8 +29,9 @@ This tm is not entanglment safe, and not thread safe.
       ))
 
   (def-type tm-abandoned (tm tape-machine-abandoned)())
-  (defun-typed tm-empty-or-parked (tm)())
-  (defun-typed tm-parked-or-active (tm)())
+  (def-type tm-empty-or-parked (tm)())
+  (def-typ  tm-parked-or-active (tm)())
+
   (def-type tm-empty
     (
       tm-empty-or-parked
@@ -84,6 +85,25 @@ This tm is not entanglment safe, and not thread safe.
         (to-active tm)
         [➜ok tm]
         ))
+
+  ;; binds to a sequence
+  ;; 
+    (defun-typed init ((tm tm) (init sequence)  &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          (type 'bilist)
+          (status 'empty)
+          &allow-other-keys
+          )
+        ➜
+        (mk type ∅ ; due to the ∅ this will call src-tape-0 #'init returning an empty tape
+          {
+            :➜ok (λ(tape) 
+                   (setf (tape tm) tape)
+                   (to-empty tm)
+                   
+
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement

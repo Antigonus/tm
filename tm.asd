@@ -29,6 +29,7 @@ See LICENSE.txt
                                (:file "list-qL")
                                (:file "reader-macros")
                                (:file "functions")
+                               (:file "do")
                                ))
 
                (:module "src-test"
@@ -40,19 +41,25 @@ See LICENSE.txt
                (:module "src-cell"
                  :components (
                                (:file "init")
-                               (:file "cell")
+                               (:file "interface")
                                (:file "bilist")
                                ))
 
-               (:module "src-tape"
+               (:module "src-tape-0"
                  :components (
-;;                               (:file "tape")
+                               (:file "interface")
 ;;                               (:file "sequence")
 ;;                               (:file "cons")
 ;;                               (:file "tiled-natural")
 ;;                               (:file "array")
 ;;                               (:file "debug")
                                ))
+
+               (:module "src-tape-machine"
+                 :components (
+                               (:file "interface")
+                               ))
+
 
 #|
                (:module "src-list" ; both the list and generic interface

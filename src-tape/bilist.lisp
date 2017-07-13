@@ -42,25 +42,17 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; init
 ;;
-  (defun-typed init ((tape tape-bilist) init &optional ➜)
-    (declare (ignore init))
+  (defun-typed init ((tape tape-bilist) (init null) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜fail (λ()(error 'bad-init-value)))
-        type
         &allow-other-keys
         )
       ➜
-      (cond
-        ((∧ status (eq type 'empty))
-          (cap-off tape)
-          (to-empty tape) 
-          [➜ok tape]
-          )
-        (t
-          [➜fail]
-          ))))
+      (cap-off tape)
+      (to-empty tape) 
+      [➜ok tape]
+      ))
 
 ;;--------------------------------------------------------------------------------
 ;; type definition

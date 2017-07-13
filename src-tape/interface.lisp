@@ -5,19 +5,24 @@ See LICENSE.txt
 
 Architectural definition of a tape.
 
+The basic tape type code does not employ iterators (or recursive equivalents), rather this
+task is reserved for the tape machine.  Consequently the base type does not have such
+things as a shallow copy or initialization from a sequence.
+
+I have gone back and added right-nieghbor-n and left-neighbor-n to cell (cell.lisp).  This
+is because it is easy to add 'n' to an array index for the arrays so I didn't want to
+leave it off the interface.  Turns out, this might be unnecessary, as we might just
+implement the array tape machine at the tape machine level, because the array cells do not
+have introspective knowledge about their neighbors. 
+
 This tape interface does not take into account entanglements or threads.  These
 things must be enforced externally.
 
-These are tapes, not tape machines, function names found here appear to refer to head
-operations. For example, '◧sr' which reads as entanglement copy, step left to leftmost,
-step right, and read.  These names are used only because they are descriptive of what the
-corresponding function does, not because there is a tape head.  In this case, ◧sr, reads
-the second instance on the tape.
-
-Because these are tapes, and not tape machines, I avoided the temptation to implement
-iteration here.  I have come back and added right-nieghbor-n and left-neighbor-n.  This is
-because it is easy to add 'n' to an array index for the arrays. (it is in cell.lisp) and I
-have a shallow copy because I need it for init.
+Although these are tapes, not tape machines, function names found here appear to refer to
+head operations. For example, '◧sr' which reads as entanglement copy, step left to
+leftmost, step right, and read.  These names are used only because they are descriptive of
+what the corresponding function does, not because there is a tape head.  In this case,
+◧sr, reads the second instance on the tape.
 
 Not all tapes implement all of the interface.  The tapes only implement the interface
 portions that are primitive relative to the implementation.  As an example, the singly
@@ -27,7 +32,7 @@ When the call interface of a tape function differes from its tape machine analog
 <tape> or <cell> to its name.
 
 We push end cases into dispatch.  Dispatch already makes decisions based on operand type,
-and it won't mind having a few more types to work with.
+so it won't mind having a few more types.
 
 |# 
 
@@ -44,43 +49,6 @@ and it won't mind having a few more types to work with.
   (def-function-class to-abandoned (tape))
   (def-function-class to-empty     (tape))
   (def-function-class to-active    (tape))
-
-  ;;----------------------------------------
-  ;; generic init
-  ;;
-  ;; Generic init methods are difficult in general. This is because init's whole purpose
-  ;; is to set up the custom type.
-  ;;
-
-  ;;   note that in Common Lisp (typep ∅ 'sequence) -> t
-  ;;   I would argue this is a design flaw, because dispatch is all about choosing
-  ;;   different functions for end cases.  Because (typep ∅ 'sequence) is true, we must
-  ;;   explicitly test for null sequences in guard code.
-  ;;
-  ;;   Note, Mathematica will let us add additional tests into dispatch, so we can
-  ;;   also have a special function for sequence length of zero:
-  ;;   (defun-typed init ((tape tape) (seq?(= 0 (length seq)) sequence) &optional ➜)
-  ;;    ..  but CLOS does not, so we must build the (= 0 length) test into guard code for
-  ;;    every specialization (as opposed to specifying it in the argument list for every
-  ;;    specialization -- LOL, seems sequence length zero should be another type also.)
-  ;;
-  ;; (defun-typed init ((tape tape) (init null) &optional ➜)
-
-  ;; In general for intialization to an empty machine, for machines that can modify
-  ;; topology, the function #'epa can transition them to tape-active.  If such machines
-  ;; can also be customized by parameters then there will have to be a more specialized
-  ;; version of empty init so as to catch those paramters.
-  ;;
-    (defun-typed init ((tape-1 tape) (tape-0 tape-empty) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (to-empty tape-1) ;; this might not be sufficient to make a machine empty
-        [➜ok tape-1]
-        ))
 
 ;;--------------------------------------------------------------------------------
 ;; tape queries
@@ -462,7 +430,7 @@ and it won't mind having a few more types to work with.
       [➜empty]
       ))
   (defun-typed ◧d.<tape> ((tape tape-active) &optional ➜)
-    (d.<cell> (lefmost tape) ➜)
+    (d.<cell> (leftmost tape) ➜)
     )
 
   ;; returns right neighbor cell
@@ -482,8 +450,8 @@ and it won't mind having a few more types to work with.
 ;;--------------------------------------------------------------------------------
 ;; length
 ;;
-  (def-function-class tape-length-is-one (tape &optional ➜))
-  (defun-typed tape-length-is-one ((tape tape-empty) &optional ➜)
+  (def-function-class length-is-one (tape &optional ➜))
+  (defun-typed length-is-one ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -493,7 +461,7 @@ and it won't mind having a few more types to work with.
       ➜
       [➜∅]
       ))
-  (defun-typed tape-length-is-one ((tape tape-active) &optional ➜)
+  (defun-typed length-is-one ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -507,8 +475,8 @@ and it won't mind having a few more types to work with.
           :➜rightmost ➜t
           })))
 
-  (def-function-class tape-length-is-two (tape &optional ➜))
-  (defun-typed tape-length-is-two ((tape tape-empty) &optional ➜)
+  (def-function-class length-is-two (tape &optional ➜))
+  (defun-typed length-is-two ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -518,7 +486,7 @@ and it won't mind having a few more types to work with.
       ➜
       [➜∅]
       ))
-  (defun-typed tape-length-is-two ((tape tape-active) &optional ➜)
+  (defun-typed length-is-two ((tape tape-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))

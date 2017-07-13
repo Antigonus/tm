@@ -6,14 +6,14 @@ See LICENSE.txt
 Architectural definition of Tape Machine.
 I.e. the tape machine interface.
 
-Abandoned is the state an object is in from the time it is marked as no longer being used
-by the program, until the garbage collector picks it up.  No operations are defined for
-abandoned machines.
+Tape machines can have abstract implementations, i.e. be implemented through functions,
+and they can also have unconventional implementations. Hence we don't include the head and
+tape slots as part of the most general statement of the tape machine type.
 
-The architectural tape machine does not presume what the implementation wil be, hence it
-has no slots.  Of course this means we can not assume that tape-machine has a head or a
-tape. We provide a generic tape machine implementation in 'tm.lisp', that provides
-a generic implementation of a tape machine built only over the tape interface.
+'abandoned' is a status that a programmer can give to an tape machine instance to mark
+that it as no longer being used by the program.  No operations are defined for abandoned
+machines, so machines marked as such will keep this status until the garbage collector
+picks them up.
 
 |#
 
@@ -57,37 +57,40 @@ a generic implementation of a tape machine built only over the tape interface.
 
   (def-type tape-machine-abandoned (tape-machine)())
 
-  (defun-typed tape-machine-empty-or-parked (tape-machine)())
-  (defun-typed tape-machine-parked-or-active (tape-machine)())
+  (def-type tape-machine-empty-or-parked (tape-machine)())
+  (def-type tape-machine-parked-or-active (tape-machine)())
+  (def-type tape-machine-valid (tape-machine)())
 
-  (def-type tape-machine-empty (tape-machine-empty-or-parked)())
-  (def-type tape-machine-parked
-    (tape-machine-empty-or-parked tape-machine-parked-or-active)
+  (def-type tape-machine-empty
+    (
+      tape-machine-empty-or-parked
+      tape-machine-valid
+      )
     ()
     )
-  (def-type tape-machine-active (tape-machine-parked-or-active)())
-
+  (def-type tape-machine-parked
+    (
+      tape-machine-empty-or-parked
+      tape-machine-parked-or-active
+      tape-machine-valid
+      )
+    ()
+    )
+  (def-type tape-machine-active
+    (
+      tape-machine-parked-or-active
+      tape-machine-valid
+      )
+    ()
+    )
+  
+  ;; to-abandoned, to-active, and to-empty function classess are defined in src-tape/interface.lisp
+  (def-function-class to-parked (tm))
 
   (defun-typed to-abandoned ((tm tape-machine)) (change-class tm 'tape-machine-abandoned))
   (defun-typed to-active    ((tm tape-machine)) (change-class tm 'tape-machine-active))
   (defun-typed to-empty     ((tm tape-machine)) (change-class tm 'tape-machine-empty))
   (defun-typed to-parked    ((tm tape-machine)) (change-class tm 'tape-machine-parked))
-
-  ;; binding directly to sequences
-  ;; 
-    (defun-typed init ((tm tm) (init cons) &optional ➜)
-      (let(
-            (tape (mk 'tape-cons init ➜))
-            )
-        (init tm tape ➜)
-        ))
-    (defun-typed init ((tm tm) (init sequence) &optional ➜)
-      (let(
-            (tape (mk 'tape-sequence init ➜))
-            )
-        (init tm tape ➜)
-        ))
-
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement
@@ -95,11 +98,14 @@ a generic implementation of a tape machine built only over the tape interface.
   ;; returns an entangled machine
   (def-function-class entangle (tm0 &optional ➜))
 
-  (defun with-entangled (tm continuation &optional ➜)
+  ;; I suppose this could get an allocation error
+  ;; I need to fix the continuations on this one
+  (defun with-entangled (tm work &optional ➜)
+    (declare (ignore ➜))
     (let(
           (etm (entangle tm))
           )
-      [continuation etm]
+      [work etm]
       (to-abandoned etm) ; when we have entanglement accounting this will free etm0 from the listener list
       ))
 
@@ -115,7 +121,6 @@ a generic implementation of a tape machine built only over the tape interface.
       "tm head is on leftmost ➜t, else ➜∅
       "))
   (defun-typed on-leftmost ((tm tape-machine-empty-or-parked) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -130,7 +135,6 @@ a generic implementation of a tape machine built only over the tape interface.
       "tm head is on the rightmost cell ➜t, else ➜∅
       "))
   (defun-typed on-rightmost ((tm tape-machine-empty-or-parked) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -160,7 +164,7 @@ a generic implementation of a tape machine built only over the tape interface.
     (defun-typed heads-on-same-cell
       (
         (tm0 tape-machine-empty-or-parked) 
-        (tm1 tape-machine)
+        (tm1 tape-machine-valid)
         &optional ➜
         )
       (destructuring-bind
@@ -173,7 +177,7 @@ a generic implementation of a tape machine built only over the tape interface.
       ))
     (defun-typed heads-on-same-cell
       (
-        (tm0 tape-machine) 
+        (tm0 tape-machine-valid) 
         (tm1 tape-machine-empty-or-parked)
         &optional ➜
         )
@@ -187,12 +191,13 @@ a generic implementation of a tape machine built only over the tape interface.
       ))
 
     (def-function-class tm= (tm0 tm1 &optional ➜))
-    (deffun-typed tm= ((tm0 tape-machine) (tm1 tape-machine) &optional ➜)
+    (defun-typed tm= ((tm0 tape-machine-valid) (tm1 tape-machine-valid) &optional ➜)
       (destructuring-bind
         (&key
           (➜∅ (be ∅))
           &allow-other-keys
           )
+        ➜
         (entangled tm0 tm1
           {
             :➜∅ ➜∅
@@ -269,7 +274,7 @@ a generic implementation of a tape machine built only over the tape interface.
   (def-empty-1 ◧sr)
 
   ;; see tape: (def-function-class ◧snr (tm n &optional ➜))
-  (def-empty-1 ◧snr)
+  (def-empty-1 ◧snr n)
 
   (defun-typed ◨r ((tm tape-machine-empty) &optional ➜)
     (destructuring-bind
@@ -293,12 +298,15 @@ a generic implementation of a tape machine built only over the tape interface.
       [➜rightmost]
       ))
 
+  (def-function-class w (tm instance &optional ➜))
+
   ;; see tape: (def-function-class w (tm instance &optional ➜))
   (def-empty-1 w instance)
   (def-parked-1 w instance)
 
   ;; see tape: (def-function-class esw (tm instance &optional ➜))
   ;; and empty machine has a parked head
+  (def-function-class esw (tm instance &optional ➜))
   (defun-typed esw ((tm tape-machine-empty) instance &optional ➜)
     (destructuring-bind
       (
@@ -309,14 +317,18 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜rightmost]
       ))
-  (defun-typed esw ((tm tape-machine-parked) instance &optional ➜) (◧w tm instance ➜))
+  (defun-typed esw ((tm tape-machine-parked) instance &optional ➜)
+    (◧w tm instance ➜)
+    )
 
   ;; see tape: (def-function-class esnw (tm n instance &optional ➜))
+  (def-function-class esnw (tm n instance &optional ➜))
   (defun-typed esnw ((tm tape-machine-empty) n instance &optional ➜)
-    (declare (ignore tm n instance))
+    (declare (ignore instance))
     (destructuring-bind
       (
         &key
+        (➜empty (be ∅))
         (➜rightmost (be ∅))
         &allow-other-keys
         )
@@ -340,7 +352,7 @@ a generic implementation of a tape machine built only over the tape interface.
 
   ;; see tape: (def-function-class ◧sw (tm instance &optional ➜))
   (defun-typed ◧sw ((tm tape-machine-empty) instance &optional ➜)
-    (declare (ignore tm instance))
+    (declare (ignore instance))
     (destructuring-bind
       (
         &key
@@ -352,8 +364,8 @@ a generic implementation of a tape machine built only over the tape interface.
       ))
 
   ;; see tape: (def-function-class ◧snw (tm n instance &optional ➜))
-  (defun-typed ◧snw ((tm tape-machine-empty) instance &optional ➜)
-    (declare (ignore tm instance))
+  (defun-typed ◧snw ((tm tape-machine-empty) n instance &optional ➜)
+    (declare (ignore n instance))
     (destructuring-bind
       (
         &key
@@ -376,7 +388,7 @@ a generic implementation of a tape machine built only over the tape interface.
       ))
 
   (defun-typed ◨-sw ((tm tape-machine-empty) instance &optional ➜)
-    (declare (ignore tm instance))
+    (declare (ignore instance))
     (destructuring-bind
       (
         &key
@@ -396,7 +408,6 @@ a generic implementation of a tape machine built only over the tape interface.
        right neighbor and ➜ok.  If there is no right neighbor, then ➜rightmost.
        "))
   (defun-typed s ((tm tape-machine-empty) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -410,7 +421,6 @@ a generic implementation of a tape machine built only over the tape interface.
 
   (def-function-class -s (tm &optional ➜))
   (defun-typed -s ((tm tape-machine-empty) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -460,18 +470,17 @@ a generic implementation of a tape machine built only over the tape interface.
 
   (def-function-class -sn (tm n &optional ➜))
   (defun-typed -sn ((tm tape-machine-empty) n &optional ➜)
-    (declare (ignore tm n))
     (destructuring-bind
       (
         &key
         (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜leftmost (be ∅))
         &allow-other-keys
         )
       ➜
       (if (= 0 n)
         [➜ok]
-        [➜rightmost]
+        [➜leftmost]
         )))
   (defun-typed -sn ((tm tape-machine-parked) n &optional ➜)
     (destructuring-bind
@@ -496,7 +505,6 @@ a generic implementation of a tape machine built only over the tape interface.
   ;; '*' is zero or more times
   (def-function-class s* (tm &optional ➜)) ; move to rightmost
   (defun-typed s* ((tm tape-machine-empty) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -506,11 +514,26 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜ok]
       ))
+  (defun-typed s* ((tm tape-machine-parked-or-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (⟳ (λ(➜again)
+           (s tm
+             {
+               :➜ok [➜again]
+               :➜rightmost [➜ok]
+               })))
+      ))
 
-  (def-function-class -s* (tm &optional ➜)) ; move to leftmost
-  ;; step backwards zero or more times
+  ;; step backwards zero or more times, and as many times as possible
+  ;; i.e. move to leftmost
+  (def-function-class -s* (tm &optional ➜)) 
   (defun-typed -s* ((tm tape-machine-empty) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -520,45 +543,38 @@ a generic implementation of a tape machine built only over the tape interface.
       ➜
       [➜ok]
       ))
+  (defun-typed -s* ((tm tape-machine-parked-or-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (⟳ (λ(➜again)
+           (-s tm
+             {
+               :➜ok [➜again]
+               :➜leftmost [➜ok]
+               })))
+      ))
 
-  ;; s= step then compare tm=
-  ;;     ➜rightmost if tm0 can not be stepped
-  ;;     ➜∅ if not tm= after step
-  ;;     ➜t if tm= after step
+  ;; step tm0 unless its head is on a boundary cell.
   ;;
-  ;; by contract, tm0 and tm1 are entangled
-  ;; because they are entangled they are of the same type (thus far in this implementation)
-  ;; tm0 empty implies that tm1 is empty, because they are entangled
-  ;; tm0 parked, tm1 can be active, vice versa
+  ;; The boundary is the cell that tm1's head is on.
+  ;;   
+  ;;     ➜rightmost if head is on the boundary cell
+  ;;     ➜ok if tm0 is not on a boundary cell.
   ;;
-    (defun-typed s= (tm0 tm1 &optional ➜))
+  ;; By contract, tm0 and tm1 are entangled. Because they are entangled they are of the
+  ;; same type (thus far in this implementation anyway). Provided that tm0 and tm1 are
+  ;; valid, tm0 empty implies that tm1 is empty, because they are entangled.
+  ;;
+    (def-function-class s= (tm0 tm1 &optional ➜))
     (defun-typed s= 
       (
         (tm0 tape-machine-empty)
-        (tm1 tape-machine)
-        &optional ➜
-        )
-      (destructuring-bind
-        (
-          &key
-          (➜rightmost0 (be ∅))
-          &allow-other-keys
-          )
-        ➜
-        [➜rightmost0]
-        ))
-    (defun-typed s= 
-      (
-        (tm0 tape-machine-parked-or-active)
-        (tm1 tape-machine-empty-or-parked)
-        &optional ➜
-        )
-      (s tm0 ➜)
-      )
-    (defun-typed s= 
-      (
-        (tm0 tape-machine-active)
-        (tm1 tape-machine-active)
+        (tm1 tape-machine-valid)
         &optional ➜
         )
       (destructuring-bind
@@ -568,53 +584,26 @@ a generic implementation of a tape machine built only over the tape interface.
           &allow-other-keys
           )
         ➜
-        (s tm0
-          {
-            :➜ok (λ()(tm= tm0 tm1 ➜))
-            :➜rightmost ➜rightmost
-            })
+        [➜rightmost]
         ))
 
-  ;; ses= step, make entangled copy, step again, tm=
-  ;;
-  ;;     ➜rightmost0 if tm0 can not be stepped
-  ;;     ➜rightmost1 if the entangled version of tm0 can not be stepped
-  ;;     ➜∅ if not tm= after steps
-  ;;     ➜t if tm= after steps
-  ;;
-  ;; by contract, tm0 and tm1 are entangled
-  ;; because they are entangled they are of the same type (thus far in this implementation)
-  ;; tm0 empty implies that tm1 is empty, because they are entangled
-  ;; tm0 parked, tm1 can be active, vice 
-  ;;
-  ;; need to finish this ...
-  ;;
-    (def-function-class ses= (tm0 tm1 &optional ➜))
-    (defun-typed ses=
+    (defun-typed s= 
       (
-        (tm0 tape-machine-empty)
-        (tm1 tape-machine)
+        (tm0 tape-machine-parked)
+        (tm1 tape-machine-parked)
         &optional ➜
         )
-      (declare (ignore tm0 tm1))
       (destructuring-bind
         (
           &key
-          (➜rightmost0 (be ∅))
+          (➜rightmost (be ∅))
           &allow-other-keys
           )
         ➜
-        [➜rightmost0]
+        [➜rightmost]
         ))
-    (defun-typed ses= 
-      (
-        (tm0 tape-machine-parked-or-active)
-        (tm1 tape-machine-empty-or-parked)
-        &optional ➜
-        )
-      (s tm0 ➜)
-      )
-    (defun-typed ses= 
+
+    (defun-typed s= 
       (
         (tm0 tape-machine-parked-or-active)
         (tm1 tape-machine-active)
@@ -623,23 +612,15 @@ a generic implementation of a tape machine built only over the tape interface.
       (destructuring-bind
         (
           &key
-          (➜rightmost0 (be ∅))
-          (➜rightmost1 (be ∅))
+          (➜rightmost (be ∅))
+          (➜ok (be t))
           &allow-other-keys
           )
         ➜
-        (s tm0
+        (heads-on-same-cell tm0 tm1
           {
-            :➜ok (λ()
-                   (with-entangled tm0
-                     (λ(etm0)
-                       (s etm0
-                         {
-                           :➜ok (λ()(tm= etm0 tm1 ➜))
-                           :➜rightmost ➜rightmost1
-                           }))))
-
-            :➜rightmost ➜rightmost0
+            :➜t ➜rightmost
+            :➜∅ (λ() (s tm0 {:➜ok ➜ok :➜rightmost ➜rightmost}))
             })
         ))
 
@@ -647,7 +628,6 @@ a generic implementation of a tape machine built only over the tape interface.
   (def-function-class p (tm &optional ➜)) 
   ;; an empty machine is already parked
   (defun-typed p ((tm tape-machine-empty-or-parked) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -658,7 +638,6 @@ a generic implementation of a tape machine built only over the tape interface.
       [➜ok]
       ))
   (defun-typed p ((tm tape-machine-active) &optional ➜)
-    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -670,6 +649,93 @@ a generic implementation of a tape machine built only over the tape interface.
       [➜ok]
       ))
 
+;;--------------------------------------------------------------------------------
+;; existence quantification
+;;
+;;    pred takes three arguments, a tape machine, a false continuation, and a true
+;;    continuation.  false is normally 0, and true 1,  so the false clause come first.
+;;
+  (def-function-class ∃ (tm pred &optional ➜))
+
+  (defun-typed ∃ ((tm tape-machine-empty) (pred function) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+  (defun-typed ∃ ((tm tape-machine-parked) (pred function) &optional ➜)
+    (s tm
+      {
+        :➜ok (λ()(∃ tm pred ➜))
+        :➜rightmost #'cant-happen ; tm is parked
+        }))
+  (defun-typed ∃ ((tm tape-machine) (pred function) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+      (if (∧ (functionp ➜t) (functionp ➜∅))
+        (⟳(λ(again)
+            [pred tm (λ()(s tm {:➜ok again :➜rightmost ➜∅})) ➜t]
+            ))
+        (error 'non-function-continuation)
+        )
+      ))
+
+
+  ;; existence from leftmost, atomic
+  (def-function-class -s*∃ (tm pred &optional ➜))
+  (defun-typed -s*∃ ((tm tape-machine-empty) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜∅]
+      ))
+  (defun-typed -s*∃ ((tm tape-machine-parked) (pred function) &optional ➜)
+    (∃ tm pred ➜)
+    )
+  (defun-typed -s*∃ ((tm tape-machine-active) (pred function) &optional ➜)
+    (-s* tm)
+    (∃ tm pred ➜)
+    )
+
+;;--------------------------------------------------------------------------------
+;; universal quantification
+;;    All that does not exist is a universe. ;-)
+;;
+  (def-function-class ∀ (tm pred &optional ➜))
+  ;; there does not exist an instance for which pred is false
+  ;; pred is true for all instances
+  (defun-typed ∀ ((tm tape-machine-valid) pred &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜∅ (be ∅))
+        (➜t (be t))
+        &allow-other-keys
+        )
+      ➜
+    (∃ 
+      tm
+      (λ(tm c∅ ct)[pred tm ct c∅])
+      {:➜∅ ➜t :➜t ➜∅}
+      )))
+
+  ;; These cue leftmost first, note they do not entangle, the tape machines head is moved.
+  ;; These are atomic operations, and the end case choices reflect this.
+  (def-function-class -s*∀ (tm pred &optional ➜))
+  (defun-typed -s*∀ ((tm tape-machine-valid) (pred function) &optional ➜)
+    (-s* tm)
+    (∀ tm pred ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; topology modification
@@ -683,16 +749,15 @@ a generic implementation of a tape machine built only over the tape interface.
     (:documentation
       "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
       ))
-  ;; #'◨a  to rightmost of an empty machine is same as #'epa
-  ;; this works because parked position acts like rightmost
+  ;; #'◨a on an empty machine is same as #'epa
   (defun-typed ◨a ((tm tape-machine-empty) instance &optional ➜)
     (epa tm instance ➜)
     )
 
   (def-function-class a (tm instance &optional ➜)
     (:documentation
-      "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place
-         it to the right of the cell the head is currently on.  The newly allocated cell will
+        "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place it
+         to the right of the cell the head is currently on.  The newly allocated cell will
          be initialized with the given instance.
          "))
   ;; #'a to an empty machine is the same as #'epa. Specialized types may depend on this
@@ -709,10 +774,10 @@ a generic implementation of a tape machine built only over the tape interface.
        singly linkedin lists.
        "))
   ;; interesting asymetry with #'a
-  (defun-typed -a ((tm tape-empty) instance &optional ➜)
+  (defun-typed -a ((tm tape-machine-empty) instance &optional ➜)
     (epa tm instance ➜)
     )
-  (defun-typed -a ((tm tape-parked) instance &optional ➜)
+  (defun-typed -a ((tm tape-machine-parked) instance &optional ➜)
     (◨a tm instance ➜)
     )
 
@@ -720,7 +785,7 @@ a generic implementation of a tape machine built only over the tape interface.
     (:documentation
       "Like #'a, but tm is stepped to the new cell
       "))
-  (defun-typed as ((tm tape-machine) instance &optional ➜)
+  (defun-typed as ((tm tape-machine-valid) instance &optional ➜)
     (destructuring-bind
       (
         &key
@@ -740,9 +805,9 @@ a generic implementation of a tape machine built only over the tape interface.
       "#'a with a contract that the head is on rightmost.
       "))
   ;; surely specializations will make better use of the contract
-  (defun-typed a&hs* 
+  (defun-typed a&h◨ 
     (
-      (tm tape-machine)
+      (tm tape-machine-valid)
       instance
       &optional ➜
       )
@@ -754,9 +819,9 @@ a generic implementation of a tape machine built only over the tape interface.
       "#'as with a contract that the head is on rightmost.
       "))
    ;; surely specializations will make better use of the contract
-  (defun-typed as&hs* 
+  (defun-typed as&h◨
     (
-      (tm tape-machine)
+      (tm tape-machine-valid)
       instance
       &optional ➜
       )
@@ -772,7 +837,7 @@ a generic implementation of a tape machine built only over the tape interface.
   ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
   ;; reallocation to spill fails
   ;;
-    (def-function-class epd (tm &optional spill ➜)
+    (def-function-class epd (tm &optional ➜)
       (:documentation
         "Deallocates leftmost.
          Returns the instance from the deallocated cell.
@@ -780,8 +845,7 @@ a generic implementation of a tape machine built only over the tape interface.
          cell is allocated to spill and the instance reference is moved there.
         "
         ))
-    (defun-typed epd ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore spill))
+    (defun-typed epd ((tm tape-machine-empty) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -794,9 +858,8 @@ a generic implementation of a tape machine built only over the tape interface.
         ))
 
     ;; delete the whole tape
-    (def-function-class epd*(tm &optional spill ➜))
-    (defun-typed epd* ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore spill))
+    (def-function-class epd*(tm &optional ➜))
+    (defun-typed epd* ((tm tape-machine-empty) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -806,7 +869,7 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         [➜ok]
         ))
-    (defun-typed epd* ((tm tape-machine) &optional (spill tape-machine) ➜)
+    (defun-typed epd* ((tm tape-machine-valid) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -816,17 +879,18 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         (labels(
                  (work ()
-                   (epd tm spill
+                   (epd tm
                      {
                        :➜ok #'work
                        :➜rightmost ➜ok
+                       (o ➜) ; for the spill option
                        }
                      ))
                  )
           (work)
           )))
 
-    (def-function-class d (tm &optional spill ➜)
+    (def-function-class d (tm &optional ➜)
       (:documentation
         "Deallocate the right neighbor of the cell the head is on.
          I.e. deallocates a region of length 1 located to the right of the head.
@@ -835,8 +899,7 @@ a generic implementation of a tape machine built only over the tape interface.
          cell is allocated to spill and the instance reference is moved there.
         "
         ))
-    (defun-typed d ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore tm spill))
+    (defun-typed d ((tm tape-machine-empty) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -846,13 +909,12 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         [➜empty]
         ))
-    (defun-typed d ((tm tape-machine-parked) &optional spill ➜)
-      (epd tm spill ➜)
+    (defun-typed d ((tm tape-machine-parked) &optional ➜)
+      (epd tm ➜)
       )
 
-    (def-function-class d. (tm &optional spill ➜))
-    (defun-typed d. ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore tm spill))
+    (def-function-class d. (tm &optional ➜))
+    (defun-typed d. ((tm tape-machine-empty) &optional ➜)
       (destructuring-bind
         (&key
           (➜empty (λ()(error 'accessed-empty)))
@@ -863,9 +925,8 @@ a generic implementation of a tape machine built only over the tape interface.
         ))
 
     ;; delete the right hand side
-    (def-function-class d*(tm &optional spill ➜))
-    (defun-typed d* ((tm tape-machine-empty) &optional spill ➜)
-      (declare (ignore spill))
+    (def-function-class d*(tm &optional ➜))
+    (defun-typed d* ((tm tape-machine-empty) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -875,7 +936,7 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         [➜ok]
         ))
-    (defun-typed d* ((tm tape-machine) &optional (spill tape-machine) ➜)
+    (defun-typed d* ((tm tape-machine-valid) &optional ➜)
       (destructuring-bind
         (
           &key
@@ -885,10 +946,11 @@ a generic implementation of a tape machine built only over the tape interface.
         ➜
         (labels(
                  (work ()
-                   (d tm spill
+                   (d tm 
                      {
                        :➜ok #'work
                        :➜rightmost ➜ok
+                       (o ➜) ; for the spill option
                        }
                      ))
                  )

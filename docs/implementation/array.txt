@@ -1,3 +1,17 @@
+For an array we maintain a state variable, which when feed to a fetch function will locate
+a cell or a neighor.  This state variable we call the 'address'. An address can be used to
+fetch a cell from a container, and then to read from that cell, though often these two
+steps are fused, perhaps even in hardware.  When we want to read a neighbor cell, we first
+calculate its address, then use that address in to fetch and read.  Consequently cells in an
+array are not required to contain introspective information that locates their
+neighbors. This is good as it makes the array more compact.
+
+If we create a structure that contains both the address and a reference to the container,
+then call it a cell,  or perhaps an abstract cell,  we can implement the cell interface
+over it.
+
+
+-----
 
 The array tape is implemented in blocks.  Say 64 element blocks.
 
