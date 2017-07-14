@@ -58,6 +58,7 @@ See LICENSE.txt
                (:module "src-tape-machine"
                  :components (
                                (:file "interface")
+                               (:file "tm")
                                ))
 
 

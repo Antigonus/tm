@@ -402,9 +402,8 @@ so it won't mind having a few more types.
 
   ;; deletes rightmost
   ;; (➜ok #'echo) (➜leftmost (be ∅))
-  (defsynonym p-d<tape> ◨-sd<tape>)
-  (def-function-class p-d<tape> (tape &optional ➜))
-  (defun-typed p-d<tape> ((tape tape-empty) &optional ➜)
+  (def-function-class ep-d<tape> (tape &optional ➜))
+  (defun-typed ep-d<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key

@@ -172,6 +172,40 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       (insert<cell> c0 c1 new-cell)
       ))
 
+
+  ;; accepts a tape-bilist and a cell, makes the cell the new rightmost
+  ;; will be a problem if (cons-bilist tape) is shared
+  (defun-typed ◨a<cell> ((tape tape-bilist-active) (cell cell-bilist))
+    (let(
+          (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
+          (c1 (left-neighbor tape))
+          (new-cell cell)
+          )
+      (to-interior c1) ; old rightmost is no longer rightmost
+      (to-rightmost new-cell) ; the new cell becomes rightmost
+      (insert-between c1 c0 new-cell)
+      ))
+
+  ;; accepts a tape-bilist and an instance, makes a new rightmost initialized with the
+  ;; instance will be a problem if (cons-bilist tape) is shared
+  (defun-typed ◨a<instance> ((tape tape-bilist-empty) instance)
+    (let(
+          (c0 tape)
+          (c1 tape)
+          (new-cell (make-instance 'cell-bilist :contents instance))
+          )
+      (to-active tape)
+      (to-solitary new-cell)
+      (insert-between tape tape new-cell)
+      ))
+  (defun-typed ◨a<instance> ((tape tape-bilist-active) instance)
+    (let(
+          (new-cell (make-instance 'cell-bilist :contents instance))
+          )
+      (◨a tape new-cell)
+      ))
+
+
   ;; removes the leftmost cell and returns it
   ;; an active tape always has a leftmost to be deleted
   ;; will be a problem if the tape is intangled, as partners will not have correct leftmost afterward
@@ -208,7 +242,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )))
 
   ;; deletes rightmost, i.e. ◨-sd
-  (defun-typed p-d<tape> ((tape tape-active) &optional ➜)
+  (defun-typed ep-d<tape> ((tape tape-active) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key

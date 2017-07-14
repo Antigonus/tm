@@ -45,6 +45,9 @@ be done so that only the most recent version plays.
    we haven't pulled in the heap model from the C++ version yet, if ever for
    this version.
 
+   src-tape-machine/interface
+   with-entangled needs a no-alloc continuation (currently has no continuation)
+
 23. add something to the manual about functional programming (state machines),  state
 variables,  and transactional behavior for tm functions (so that state doesn't change
 when state transitions are not taken) .. about region and cell addresses, note

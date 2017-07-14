@@ -92,7 +92,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
       ))
 
 
-
   ;; then nth neighbor to the right
   ;; For arrays, this just increments the array index, which is why this is here
   ;; instead of being part of the tape machine.
@@ -164,6 +163,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
       ➜
       [➜ok (r<cell> (right-neighbor cell))]
       ))
+
   (def-function-class esnr<cell> (cell n &optional ➜))
   (defun-typed esnr<cell> ((cell cell) n &optional ➜)
     (destructuring-bind
@@ -177,6 +177,21 @@ machine constructs, such a tape head, are involved in the implementation of the 
         {
           :➜ok (λ(rn)[➜ok (r<cell> rn)])
           :➜rightmost ➜rightmost
+          })))
+
+  (def-function-class e-snr<cell> (cell n &optional ➜))
+  (defun-typed e-snr<cell> ((cell cell) n &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (left-neighbor-n cell n
+        {
+          :➜ok (λ(rn)[➜ok (r<cell> rn)])
+          :➜leftmost ➜leftmost
           })))
 
 
@@ -200,6 +215,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
       ➜
       [➜ok (w<cell> (right-neighbor cell) instance)]
       ))
+
   (def-function-class esnw<cell> (cell n instance &optional ➜))
   (defun-typed esnw<cell> ((cell cell) n instance &optional ➜)
     (destructuring-bind
@@ -215,6 +231,20 @@ machine constructs, such a tape head, are involved in the implementation of the 
           :➜rightmost ➜rightmost
           })))
 
+  (def-function-class e-snw<cell> (cell n instance &optional ➜))
+  (defun-typed e-snw<cell> ((cell cell) n instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (left-neighbor-n cell n
+        {
+          :➜ok (λ(rn)[➜ok (w<cell> rn instance)])
+          :➜leftmost ➜leftmost
+          })))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation

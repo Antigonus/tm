@@ -30,7 +30,7 @@ This tm is not entanglment safe, and not thread safe.
 
   (def-type tm-abandoned (tm tape-machine-abandoned)())
   (def-type tm-empty-or-parked (tm)())
-  (def-typ  tm-parked-or-active (tm)())
+  (def-type tm-parked-or-active (tm)())
 
   (def-type tm-empty
     (
@@ -88,21 +88,58 @@ This tm is not entanglment safe, and not thread safe.
 
   ;; binds to a sequence
   ;; 
-    (defun-typed init ((tm tm) (init sequence)  &optional ➜)
+    (defun-typed init ((tm tm) (init null)  &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
+          (➜fail (λ()(error 'bad-init-value)))
           (type 'bilist)
-          (status 'empty)
           &allow-other-keys
           )
         ➜
         (mk type ∅ ; due to the ∅ this will call src-tape-0 #'init returning an empty tape
           {
+            :➜fail ➜fail
             :➜ok (λ(tape) 
                    (setf (tape tm) tape)
                    (to-empty tm)
-                   
+                   [➜ok tm]
+                   )
+            })))
+
+    ;; sequence will not be null
+    (defun-typed init ((tm tm) (init sequence)  &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          (➜fail (λ()(error 'bad-init-value)))
+          (type 'bilist)
+          &allow-other-keys
+          )
+        ➜
+        (mk type ∅ ; due to the ∅ this will call src-tape-0 #'init returning an empty tape
+          {
+            :➜fail ➜fail
+            :➜ok (λ(tape) 
+                   (setf (tape tm) tape)
+                   (to-empty tm)
+                   (let(
+                         (i 0)
+                         (i-max (1- (length init)))
+                         )
+                       (⟳ (λ(➜again)
+                            (as tm (elt init i)
+                              {
+                                :➜ok (λ()
+                                       (if (= i i-max)
+                                         [➜ok tm]
+                                         (progn
+                                           (1+ i)
+                                           [➜again]
+                                           )))
+                                :➜no-alloc ➜fail
+                                })))))
+            })))
 
 
 ;;--------------------------------------------------------------------------------
@@ -162,84 +199,48 @@ This tm is not entanglment safe, and not thread safe.
         &allow-other-keys
         )
       ➜
-      (if
-        (eq (tape tm0) (tape tm1))
-        [➜t]
-        [➜∅]
-        )))
+      (if (eq (tape tm0) (tape tm1)) [➜t] [➜∅])
+      ))
 
 
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;
-  (defun-typed on-leftmost ((tm tm-empty) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜∅]
-      ))
-  (defun-typed on-leftmost ((tm tm-parked) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜∅]
-      ))
   (defun-typed on-leftmost ((tm tm-active) &optional ➜)
-    (=cell
-      (head tm)
-      (leftmost (tape tm))
-      ➜
-      ))
-
-  (defun-typed on-rightmost ((tm tm-empty) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
+        (➜t (be t))
         &allow-other-keys
         )
       ➜
-      [➜∅]
+      (if (typep (head tm) 'leftmost) [➜t] [➜∅])
       ))
-  (defun-typed on-rightmost ((tm tm-parked) &optional ➜)
+
+  (defun-typed on-rightmost ((tm tm-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
+        (➜t (be t))
         &allow-other-keys
         )
       ➜
-      [➜∅]
-      ))
-  (def-typed on-rightmost ((tm tm-active) &optional ➜)
-    (=cell
-      (head tm)
-      (rightmost (tape tm))
+      (if (typep (head tm) 'rightmost) [➜t] [➜∅])
       ))
 
-  (def-function-class heads-on-same-cell 
-    (
-      (tm0 tm-active)
-      (tm1 tm-active)
-      &optional
-      ➜
-      )
-      (=<cell> (head tm0) (head tm1) ➜)
-      )
+  (defun-typed heads-on-same-cell ((tm0 tm-active)(tm1 tm-active) &optional ➜)
+    (=<cell> (head tm0) (head tm1) ➜)
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; length
 ;;
   (defun-typed tape-length-is-one ((tm tm-parked-or-active) &optional ➜)
-    (tape-length-is-one (tape tm) ➜)
+    (length-is-one (tape tm) ➜)
     )
 
   (defun-typed tape-length-is-two ((tm tm-parked-or-active) &optional ➜)
-    (tape-length-is-two (tape tm) ➜)
+    (length-is-two (tape tm) ➜)
     )
 
 ;;--------------------------------------------------------------------------------
@@ -259,36 +260,50 @@ This tm is not entanglment safe, and not thread safe.
 
   (defun-typed esnr ((tm tm-parked) n &optional ➜)
     (cond
-      ((< 0 n) (e-snr tm (- n) ➜))
       ((= 0 n) (r tm ➜))
+      ((< 0 n) (e-snr tm (- n) ➜))
       (t
         (esnr<cell> (head tm) (1- n) ➜)
         )))
   (defun-typed esnr ((tm tm-active) n &optional ➜)
     (cond
-      ((< 0 n) (e-snr tm (- n) ➜))
       ((= 0 n) (r tm ➜))
+      ((< 0 n) (e-snr tm (- n) ➜))
       (t
         (esnr<cell> (head tm) n ➜)
+        )))
+
+  (defun-typed e-snr ((tm tm-parked) n &optional ➜)
+    (cond
+      ((= 0 n) (r tm ➜))
+      ((< 0 n) (esnr tm (- n) ➜))
+      (t
+        (e-snr<cell> (head tm) (1- n) ➜)
+        )))
+  (defun-typed e-snr ((tm tm-active) n &optional ➜)
+    (cond
+      ((= 0 n) (r tm ➜))
+      ((< 0 n) (esnr tm (- n) ➜))
+      (t
+        (e-snr<cell> (head tm) n ➜)
         )))
 
   (defun-typed ◧r ((tm tm-parked-or-active) &optional ➜) (◧r (tape tm) ➜))
   (defun-typed ◧sr ((tm tm-parked-or-active) &optional ➜)(◧sr (tape tm) ➜))
 
-  (defun-typed ◧snr ((tm tm-parked) n &optional ➜)
-    (cond
-      ((< 0 n) (◧-snr tm (- n) ➜))
-      ((= 0 n) (◧r tm ➜))
-      (t
-        (◧snr (tape tm) (1- n) ➜)
-        )))
-  (defun-typed ◧snr ((tm tm-active) n &optional ➜)
-    (cond
-      ((< 0 n) (◧-snr tm (- n) ➜))
-      ((= 0 n) (◧r tm ➜))
-      (t
-        (◧snr (tape tm) n ➜)
-        )))
+  (defun-typed ◧snr ((tm tm-parked-or-active) n &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= 0 n) (◧r tm ➜))
+        ((< 0 n) [➜leftmost])
+        (t
+          (◧snr (tape tm) n ➜)
+          ))))
 
   (defun-typed ◨r ((tm tm-parked-or-active) &optional ➜)  (◨r (tape tm) ➜))
   (defun-typed ◨-sr ((tm tm-parked-or-active) &optional ➜)(◨-sr (tape tm) ➜))
@@ -308,36 +323,52 @@ This tm is not entanglment safe, and not thread safe.
 
   (defun-typed esnw ((tm tm-parked) n instance &optional ➜)
     (cond
-      ((< 0 n) (e-snw tm (- n) instance ➜))
       ((= 0 n) (w tm instance ➜))
+      ((< 0 n) (e-snw tm (- n) instance ➜))
       (t
         (esnw<cell> (head tm) (1- n) instance ➜)
         )))
   (defun-typed esnw ((tm tm-active) n instance &optional ➜)
     (cond
-      ((< 0 n) (e-snw tm (- n) instance ➜))
       ((= 0 n) (w tm instance ➜))
+      ((< 0 n) (e-snw tm (- n) instance ➜))
       (t
         (esnw<cell> (head tm) n instance ➜)
         )))
 
+  (defun-typed e-snw ((tm tm-parked) n instance &optional ➜)
+    (cond
+      ((= 0 n) (w tm instance ➜))
+      ((< 0 n) (esnw tm (- n) instance ➜))
+      (t
+        (e-snw<cell> (head tm) (1- n) instance ➜)
+        )))
+  (defun-typed e-snw ((tm tm-active) n instance &optional ➜)
+    (cond
+      ((= 0 n) (w tm instance ➜))
+      ((< 0 n) (esnw tm (- n) instance ➜))
+      (t
+        (e-snw<cell> (head tm) n instance ➜)
+        )))
+
+
   (defun-typed ◧w ((tm tm-parked-or-active) instance &optional ➜) (◧w (tape tm) instance ➜))
   (defun-typed ◧sw ((tm tm-parked-or-active) instance &optional ➜)(◧sw (tape tm) instance ➜))
 
-  (defun-typed ◧snw ((tm tm-parked) n instance &optional ➜)
-    (cond
-      ((< 0 n) (◧-snw tm (- n) ➜))
-      ((= 0 n) (◧r tm ➜))
-      (t
-        (◧snw (tape tm) (1- n) instance ➜)
-        )))
-  (defun-typed ◧snw ((tm tm-active) n instance &optional ➜)
-    (cond
-      ((< 0 n) (◧-snw tm (- n) ➜))
-      ((= 0 n) (◧r tm ➜))
-      (t
-        (◧snw (tape tm) n instance ➜)
-        )))
+  (defun-typed ◧snw ((tm tm-parked-or-active) n instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= 0 n) (◧r tm ➜))
+        ((< 0 n) [➜leftmost])
+        (t
+          (◧snw (tape tm) n instance ➜)
+          ))))
+
 
   (defun-typed ◨w ((tm tm-parked-or-active) instance &optional ➜)  (◨w (tape tm) instance ➜))
   (defun-typed ◨-sw ((tm tm-parked-or-active) instance &optional ➜)(◨-sw (tape tm) instance ➜))
@@ -482,7 +513,7 @@ This tm is not entanglment safe, and not thread safe.
         &allow-other-keys
         )
       ➜
-      (◧a<instance> (head tm) instance)
+      (◨a<instance> (head tm) instance)
       [➜ok]
       ))
 
@@ -510,36 +541,13 @@ This tm is not entanglment safe, and not thread safe.
       [➜ok]
       ))
 
-  (defun-typed epd ((tm tm-active) &optional (spill tape-machine) ➜)
+  (defun-typed epd ((tm tm-active) &optional ➜)
     (destructuring-bind
       (
         &key
         (➜ok #'echo)
         (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (when (tape-length-is-one tm) (to-empty tm))
-      (epd<tape> (tape tm)  
-        {
-          :➜ok
-          (λ(cell)
-            (let(
-                  (instance (r<cell> cell))
-                  )
-              (when spill (as spill instance))
-              [➜ok instance]
-              ))
-
-          :➜rightmost ➜rightmost
-          })
-      ))
-  (defun-typed epd ((tm tm-active) &optional (spill tm-parked-or-active) ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        (spill ∅)
         &allow-other-keys
         )
       ➜
@@ -558,6 +566,33 @@ This tm is not entanglment safe, and not thread safe.
           :➜rightmost ➜rightmost
           })
       ))
+
+  (defun-typed ep-d ((tm tm-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+        (spill ∅)
+        &allow-other-keys
+        )
+      ➜
+      (when (tape-length-is-one tm) (to-empty tm))
+      (epd<tape> (tape tm)  
+        {
+          :➜ok
+          (λ(cell)
+            (when spill
+              (a<cell> (tape spill) cell)
+              (s spill {:➜ok #'do-nothing :➜leftmost #'cant-happen})
+              )
+            [➜ok (r<cell> cell)]
+            )
+
+          :➜leftmost ➜leftmost
+          })
+      ))
+
 
    #| need to implement a<tape>,  also make a version for when spill is just tape-machine
       we can still save by deleting the tape on tm in one step using epd*<tape>
@@ -593,12 +628,13 @@ This tm is not entanglment safe, and not thread safe.
   ;;
   ;; d can not make the tape empty
   ;;
-    (defun-typed d ((tm active) &optional (spill tape-machine)  ➜)
+    (defun-typed d ((tm tm-active) &optional ➜)
       (destructuring-bind
         (
           &key
           (➜ok #'echo)
           (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (spill ∅)
           &allow-other-keys
           )
         ➜
@@ -616,12 +652,13 @@ This tm is not entanglment safe, and not thread safe.
             :➜rightmost ➜rightmost
             })
         ))
-    (defun-typed d ((tm active) &optional (spill tm-parked-or-active)  ➜)
+    (defun-typed d ((tm tm-active) &optional ➜)
       (destructuring-bind
         (
           &key
           (➜ok #'echo)
           (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (spill ∅)
           &allow-other-keys
           )
         ➜
@@ -640,12 +677,13 @@ This tm is not entanglment safe, and not thread safe.
             })
         ))
 
-    (defun-typed -d ((tm active) &optional (spill tape-machine)  ➜)
+    (defun-typed -d ((tm tm-active) &optional ➜)
       (destructuring-bind
         (
           &key
           (➜ok #'echo)
           (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          (spill ∅)
           &allow-other-keys
           )
         ➜
@@ -663,12 +701,13 @@ This tm is not entanglment safe, and not thread safe.
             :➜leftmost ➜leftmost
             })
         ))
-    (defun-typed -d ((tm active) &optional (spill tm-parked-or-active)  ➜)
+    (defun-typed -d ((tm tm-active) &optional ➜)
       (destructuring-bind
         (
           &key
           (➜ok #'echo)
           (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          (spill ∅)
           &allow-other-keys
           )
         ➜
@@ -698,7 +737,7 @@ This tm is not entanglment safe, and not thread safe.
   ;; this function is private. intended to be used with entanglement accounting.
   ;; after another machine in the entanglement group does an epa, we need to
   ;; update the tape reference for the other memebers of the group.
-  (defun-typed update-tape-after-epd ((tm tm) (tm-ref))
+  (defun-typed update-tape-after-epd ((tm tm) (tm-ref tm))
     (setf (tape tm) (tape tm-ref))
     )
     

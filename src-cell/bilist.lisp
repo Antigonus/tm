@@ -12,15 +12,17 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
+  ;; I would prefer this to be a simple array of links, and to abstract a direction
+  ;; concept as an index rather than to have 'left' and 'right'.  (neighbor 0) (neighbor 1)
   (def-type bilink ()
     (
-      (right-neighbor-slot
-        :initarg right-neighbor-slot
-        :accessor right-neighbor-slot
-        )
       (left-neighbor-slot
         :initarg left-neighbor-slot
         :accessor left-neighbor-slot
+        )
+      (right-neighbor-slot
+        :initarg right-neighbor-slot
+        :accessor right-neighbor-slot
         )
       ))
 

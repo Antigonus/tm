@@ -201,6 +201,9 @@ that has almost no syntax..
    test for seq into guard code instead of having dispatch call a different
    version that handles null
 
+   .. well no not actually as (x null) as a type specifier is more specific than
+   (x sequence) as a type specifier, so we can do the boundary calculus.
+
 13.
    CLOS doesn't do instance specific functions. Sort of missing the
    base case of the inheritance hierarchy. An instance specific function

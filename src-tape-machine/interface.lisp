@@ -267,6 +267,22 @@ picks them up.
         [➜rightmost]
         )))
 
+  (def-function-class e-snr (tm n &optional ➜))
+  (defun-typed e-snr ((tm tape-machine-empty) n &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜leftmost (be ∅))
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (if (= 0 n)
+        [➜empty]
+        [➜leftmost]
+        )))
+
+
   ;; see tape:  (def-function-class ◧r (tm &optional ➜))
   (def-empty-1 ◧r)
 
@@ -857,6 +873,27 @@ picks them up.
         [➜empty]
         ))
 
+    (def-function-class ep-d (tm &optional ➜)
+      (:documentation
+        "Deallocates rightmost.
+         Returns the instance from the deallocated cell.
+         If spill is not ∅, the deallocated cell is moved to spill, or a new
+         cell is allocated to spill and the instance reference is moved there.
+        "
+        ))
+    (defun-typed ep-d ((tm tape-machine-empty) &optional ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜empty #'accessed-empty)
+          &allow-other-keys
+          )
+        ➜
+        ;; (prins (print "epd empty"))
+        [➜empty]
+        ))
+
+
     ;; delete the whole tape
     (def-function-class epd*(tm &optional ➜))
     (defun-typed epd* ((tm tape-machine-empty) &optional ➜)
@@ -911,6 +948,29 @@ picks them up.
         ))
     (defun-typed d ((tm tape-machine-parked) &optional ➜)
       (epd tm ➜)
+      )
+
+    (def-function-class -d (tm &optional ➜)
+      (:documentation
+        "Deallocate the left neighbor of the cell the head is on.
+         I.e. deallocates a region of length 1 located to the left of the head.
+         Returns the instance from the deallocated cell.
+         If spill is not ∅, the deallocated cell is moved to spill, or a new
+         cell is allocated to spill and the instance reference is moved there.
+        "
+        ))
+    (defun-typed -d ((tm tape-machine-empty) &optional ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜empty #'accessed-empty)
+          &allow-other-keys
+          )
+        ➜
+        [➜empty]
+        ))
+    (defun-typed -d ((tm tape-machine-parked) &optional ➜)
+      (ep-d tm ➜)
       )
 
     (def-function-class d. (tm &optional ➜))
