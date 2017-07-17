@@ -113,7 +113,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
               ((= n 0) (return [➜ok cell]))
               ((typep cell 'rightmost)(return [➜rightmost cell n]))
               (t
-                (setf n (1- n))
+                (decf n)
                 (setf cell (right-neighbor cell))
                 )))))))
 
@@ -134,7 +134,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
               ((= n 0) (return [➜ok cell]))
               ((typep cell 'leftmost)(return [➜leftmost cell n]))
               (t
-                (setf n (1- n))
+                (decf n)
                 (setf cell (left-neighbor cell))
                 )))))))
 

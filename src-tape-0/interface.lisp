@@ -42,9 +42,12 @@ so it won't mind having a few more types.
 ;; type
 ;;
   (def-type tape ()()) ; a union of tape types
+
   (def-type tape-abandoned (tape)()) 
-  (def-type tape-active (tape)()) 
-  (def-type tape-empty (tape)())
+  (def-type tape-valid (tape)())
+
+  (def-type tape-active (tape-valid)()) 
+  (def-type tape-empty (tape-valid)())
 
   (def-function-class to-abandoned (tape))
   (def-function-class to-empty     (tape))
@@ -304,6 +307,37 @@ so it won't mind having a few more types.
               )
             :➜leftmost ➜leftmost
             }))))
+  (def-function-class ◨snr (tape n &optional ➜))
+  (defun-typed ◨snr ((tape tape-empty) n &optional ➜)
+    (declare (ignore n))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+         )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed ◨snr ((tape tape-active) n &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (left-neighbor-n leftmost (- n)
+          {
+            :➜ok 
+            (λ(the-left-neighbor)
+              [➜ok (r<cell> the-left-neighbor)]
+              )
+            :➜leftmost ➜leftmost
+            }))))
+
 
   (def-function-class ◨w (tape instance &optional ➜))
   (defun-typed ◨w ((tape tape-empty) instance &optional ➜)
@@ -349,6 +383,36 @@ so it won't mind having a few more types.
             (rightmost (rightmost tape))
             )
         (left-neighbor rightmost
+          {
+            :➜ok 
+            (λ(the-left-neighbor)
+              [➜ok (w<cell> the-left-neighbor instance)]
+              )
+            :➜leftmost ➜leftmost
+            }))))
+  (def-function-class ◨snw (tape n instance &optional ➜))
+  (defun-typed ◨snw ((tape tape-empty) n instance &optional ➜)
+    (declare (ignore n))
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+         )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed ◨snw ((tape tape-active) n instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜leftmost (λ()(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (leftmost (leftmost tape))
+            )
+        (left-neighbor-n leftmost (- n)
           {
             :➜ok 
             (λ(the-left-neighbor)

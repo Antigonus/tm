@@ -23,7 +23,7 @@ have the base forms called).]
   (def-type identity-tr (identity-transform)
     (
       (base ; the machine we transform
-        :initarg base
+        :initarg :base
         :accessor base
         )))
 

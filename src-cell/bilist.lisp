@@ -12,23 +12,30 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
+  ;; Our tape header looks like a cell in that when the tape is not empty it has a right
+  ;; neigibhor and leftneighbor.  The right neigbor is the leftmost cell of the tape, and
+  ;; the leftneighbor is the rightmost cell of the tape. But it differs from a cell in that
+  ;; it can not be read or written.
+  ;;
   ;; I would prefer this to be a simple array of links, and to abstract a direction
-  ;; concept as an index rather than to have 'left' and 'right'.  (neighbor 0) (neighbor 1)
-  (def-type bilink ()
-    (
-      (left-neighbor-slot
-        :initarg left-neighbor-slot
-        :accessor left-neighbor-slot
-        )
-      (right-neighbor-slot
-        :initarg right-neighbor-slot
-        :accessor right-neighbor-slot
-        )
-      ))
+  ;; concept as an index rather than to have 'left' and 'right'.
+  ;; i.e.  (neighbor cell 0) (neighbor cell 1) etc.
+  ;;
+    (def-type bilink ()
+      (
+        (left-neighbor-slot
+          :initarg :left-neighbor-slot
+          :accessor left-neighbor-slot
+          )
+        (right-neighbor-slot
+          :initarg :right-neighbor-slot
+          :accessor right-neighbor-slot
+          )
+        ))
 
   (def-type cell-bilist (bilink cell)
     (
-      (contents :initarg contents :accessor contents)
+      (contents :initarg :contents :accessor contents)
       ))
 
   (def-type bilist-leftmost-interior (cell-bilist leftmost-interior)())

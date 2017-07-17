@@ -19,7 +19,7 @@ stepping the ensemble steps all the member machines.
   (def-type ensemble-tr (tape-machine)
     (
       (members ; members is a machine, where each instance on the tape is a machine
-        :initarg members
+        :initarg :members
         :accessor members
         )
       ))

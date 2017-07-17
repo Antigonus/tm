@@ -31,7 +31,7 @@ tape machines:
   (def-type tree-tr (identity-tr)
     (
       (history ; a status tm for holding the history
-        :initarg history
+        :initarg :history
         :accessor history
       )))
 

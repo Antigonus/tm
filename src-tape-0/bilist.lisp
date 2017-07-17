@@ -40,6 +40,33 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
+;; type definition
+;;
+  ;; see src-cell/bilist.lisp for bilink type
+  (def-type tape-bilist (bilink tape)())
+  (def-type tape-bilist-abandoned (tape-bilist)())
+  (def-type tape-bilist-valid (tape-bilist tape-valid)())
+
+  (def-type tape-bilist-empty    
+    (
+      tape-bilist-valid
+      tape-empty
+      )
+    ()
+    )
+  (def-type tape-bilist-active   
+    (
+      tape-bilist-valid
+      tape-active
+      )
+    ()
+    )
+
+  (defun-typed to-abandoned ((tape tape-bilist)) (change-class tape 'tape-bilist-abandoned))
+  (defun-typed to-empty     ((tape tape-bilist)) (change-class tape 'tape-bilist-empty))
+  (defun-typed to-active    ((tape tape-bilist)) (change-class tape 'tape-bilist-active))
+
+;;--------------------------------------------------------------------------------
 ;; init
 ;;
   (defun-typed init ((tape tape-bilist) (init null) &optional ➜)
@@ -55,34 +82,6 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       ))
 
 ;;--------------------------------------------------------------------------------
-;; type definition
-;;
-  (def-type bilink ()
-    (
-      (right-neighbor
-        :initarg right-neighbor 
-        :accessor right-neighbor
-        )
-      (left-neighbor
-        :initarg left-neighbor 
-        :accessor left-neighbor
-        )
-      ))
-
-  (def-type tape-bilist           (bilink tape) ())
-  (def-type tape-bilist-abandoned (tape-bilist tape-abandoned))
-  (def-type tape-bilist-empty     (tape-bilist tape-empty))
-  (def-type tape-bilist-active    (tape-bilist tape-active))
-
-  (defun-typed to-abandoned ((tape tape-bilist)) (change-class tape 'tape-bilist-abandoned))
-  (defun-typed to-empty     ((tape tape-bilist)) (change-class tape 'tape-bilist-empty))
-  (defun-typed to-active    ((tape tape-bilist)) (change-class tape 'tape-bilist-active))
-
-;;--------------------------------------------------------------------------------
-;; initializer
-;;
-
-;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
   (defun-typed leftmost ((tape tape-bilist-active) &optional ➜)
@@ -92,7 +91,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-      [➜ok (right-neighbor tape)]
+      [➜ok (right-neighbor-slot tape)] ; blist tape is also a bilink
       ))
 
   (defun-typed rightmost ((tape tape-bilist-active) &optional ➜)
@@ -102,7 +101,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-      [➜ok (left-neighbor tape)]
+      [➜ok (left-neighbor-slot tape)]
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -110,11 +109,10 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;
 ;;
   (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
-  (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
     (let(
-          (leftmost-tape0  (right-neighbor tape0))
-          (rightmost-tape0 (left-neighbor tape0))
-          (leftmost-tape1  (right-neighbor tape1))
+          (leftmost-tape0  (right-neighbor-slot tape0))
+          (rightmost-tape0 (left-neighbor-slot tape0))
+          (leftmost-tape1  (right-neighbor-slot tape1))
           )
       ;; prepend tape0
       ;;
@@ -134,11 +132,15 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 
   ;; accepts a tape-bilist and a cell, makes the cell the new leftmost
   ;; will be a problem if (cons-bilist tape) is shared
-  (defun-typed epa<cell> ((tape tape-bilist-active) (cell cell-bilist))
+  (defun-typed epa<cell> ((tape tape-bilist-empty) (new-cell cell-bilist))
+    (to-active tape)
+    (to-solitary new-cell) ; the new cell becomes rightmost
+    (insert-between tape tape new-cell)
+    )
+  (defun-typed epa<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
     (let(
           (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
-          (c1 (right-neighbor tape))
-          (new-cell cell)
+          (c1 (right-neighbor-slot tape))
           )
       (to-interior c1) ; old leftmost is no longer leftmost
       (to-leftmost new-cell) ; the new cell becomes leftmost
@@ -147,62 +149,35 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 
   ;; accepts a tape-bilist and an instance, makes a new leftmost initialized with the
   ;; instance will be a problem if (cons-bilist tape) is shared
-  (defun-typed epa<instance> ((tape tape-bilist-empty) instance)
+  (defun-typed epa<instance> ((tape tape-bilist-valid) instance)
     (let(
-          (c0 tape)
-          (c1 tape)
           (new-cell (make-instance 'cell-bilist :contents instance))
           )
-      (to-active tape)
-      (to-solitary new-cell)
-      (insert-between tape tape new-cell)
+      (epa<cell> tape new-cell)
       ))
-  (defun-typed epa<instance> ((tape tape-bilist-active) instance)
-    (let(
-          (c0 tape)
-          (c1 (right-neighbor tape))
-          (new-cell (make-instance 'cell-bilist :contents instance))
-          )
-      (if 
-        (typep c1 'cell-end)
-        (to-rightmost c1)
-        (to-cell c1)
-        )
-      (to-leftmost new-cell)
-      (insert<cell> c0 c1 new-cell)
-      ))
-
 
   ;; accepts a tape-bilist and a cell, makes the cell the new rightmost
   ;; will be a problem if (cons-bilist tape) is shared
-  (defun-typed ◨a<cell> ((tape tape-bilist-active) (cell cell-bilist))
+  (defun-typed ◨a<cell> ((tape tape-bilist-empty) (new-cell cell-bilist))
+    (epa<cell> tape new-cell)
+    )
+  (defun-typed ◨a<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
     (let(
-          (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
-          (c1 (left-neighbor tape))
-          (new-cell cell)
+          (c0 (left-neighbor-slot tape))
+          (c1 tape) ; note the tape header is inherited from bilink, it looks like a tape node
           )
-      (to-interior c1) ; old rightmost is no longer rightmost
+      (to-interior c0) ; old rightmost is no longer rightmost
       (to-rightmost new-cell) ; the new cell becomes rightmost
-      (insert-between c1 c0 new-cell)
+      (insert-between c0 c1 new-cell)
       ))
 
   ;; accepts a tape-bilist and an instance, makes a new rightmost initialized with the
   ;; instance will be a problem if (cons-bilist tape) is shared
-  (defun-typed ◨a<instance> ((tape tape-bilist-empty) instance)
-    (let(
-          (c0 tape)
-          (c1 tape)
-          (new-cell (make-instance 'cell-bilist :contents instance))
-          )
-      (to-active tape)
-      (to-solitary new-cell)
-      (insert-between tape tape new-cell)
-      ))
-  (defun-typed ◨a<instance> ((tape tape-bilist-active) instance)
+  (defun-typed ◨a<instance> ((tape tape-bilist-valid) instance)
     (let(
           (new-cell (make-instance 'cell-bilist :contents instance))
           )
-      (◨a tape new-cell)
+      (◨a<cell> tape new-cell)
       ))
 
 
@@ -221,7 +196,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
              (c1 (right-neighbor c0)) ; this is leftmost
              (c2 (right-neighbor c1)) ; this is the right neighbor of leftmost, possibly tape
              )
-        (when (typep c1 'cell-end) (to-empty tape))
+        (when (typep c1 'solitary) (to-empty tape))
         (extract c0 c1 c2)
         [➜ok c1]
         )))
@@ -243,7 +218,6 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 
   ;; deletes rightmost, i.e. ◨-sd
   (defun-typed ep-d<tape> ((tape tape-active) &optional ➜)
-    (declare (ignore tape))
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -255,7 +229,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
              (c1 (left-neighbor c2)) ; this is rightmost
              (c0 (left-neighbor c1)) ; this is left neighbor of rightmost, possible tape
              )
-        (when (typep c1 'cell-end) (to-empty tape))
+        (when (typep c1 'solitary) (to-empty tape))
         (extract c0 c1 c2)
         [➜ok c1]
         )))

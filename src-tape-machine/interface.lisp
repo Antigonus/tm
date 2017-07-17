@@ -252,67 +252,36 @@ picks them up.
       ))
   (defun-typed esr ((tm tape-machine-parked) &optional ➜) (◧r tm ➜))
     
+  ;; n can be negative
   (def-function-class esnr (tm n &optional ➜))
   (defun-typed esnr ((tm tape-machine-empty) n &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      (if (= 0 n)
-        [➜empty]
-        [➜rightmost]
-        )))
+    (◧snr tm n ➜)
+    )
 
-  (def-function-class e-snr (tm n &optional ➜))
-  (defun-typed e-snr ((tm tape-machine-empty) n &optional ➜)
+  ;; see src-tape-0/interface:  (def-function-class ◧r (tm &optional ➜)) etc.
+  (def-empty-1 ◧r)
+  (def-empty-1 ◧sr)
+  (defun-typed ◧snr ((tm tape-machine-empty) n &optional ➜)
     (destructuring-bind
       (
         &key
         (➜leftmost (be ∅))
+        (➜rightmost (be ∅))
         (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
-      (if (= 0 n)
-        [➜empty]
-        [➜leftmost]
+      (cond
+        ((> n 0) [➜rightmost])
+        ((= n 0) [➜empty])
+        ((< n 0) [➜leftmost])
         )))
 
-
-  ;; see tape:  (def-function-class ◧r (tm &optional ➜))
-  (def-empty-1 ◧r)
-
-  ;; see tape: (def-function-class ◧sr (tm &optional ➜))
-  (def-empty-1 ◧sr)
-
-  ;; see tape: (def-function-class ◧snr (tm n &optional ➜))
-  (def-empty-1 ◧snr n)
-
-  (defun-typed ◨r ((tm tape-machine-empty) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  (defun-typed ◨-sr ((tm tape-machine-empty) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
+  (def-empty-1 ◨r)
+  (def-empty-1 ◨-sr)
+  (defun-typed ◨snr ((tm tape-machine-empty) n &optional ➜)
+    (◧snr tm n ➜)
+    )
 
   (def-function-class w (tm instance &optional ➜))
 
@@ -341,79 +310,24 @@ picks them up.
   (def-function-class esnw (tm n instance &optional ➜))
   (defun-typed esnw ((tm tape-machine-empty) n instance &optional ➜)
     (declare (ignore instance))
-    (destructuring-bind
-      (
-        &key
-        (➜empty (be ∅))
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (if (= 0 n)
-        [➜empty]
-        [➜rightmost]
-        )))
+    (◧snr tm n ➜)
+    )
 
-  ;; see tape: (def-function-class ◧w (tm instance &optional ➜))
-  (defun-typed ◧w ((tm tape-machine-empty) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  ;; see tape: (def-function-class ◧sw (tm instance &optional ➜))
-  (defun-typed ◧sw ((tm tape-machine-empty) instance &optional ➜)
-    (declare (ignore instance))
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  ;; see tape: (def-function-class ◧snw (tm n instance &optional ➜))
+  ;; see src-tape-0/interface: (def-function-class ◧w (tm instance &optional ➜))
+  (def-empty-1 ◧w instance)
+  (def-empty-1 ◧sw instance)
   (defun-typed ◧snw ((tm tape-machine-empty) n instance &optional ➜)
-    (declare (ignore n instance))
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  (defun-typed ◨w ((tm tape-machine-empty) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  (defun-typed ◨-sw ((tm tape-machine-empty) instance &optional ➜)
     (declare (ignore instance))
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
+    (◧snr tm n ➜)
+    )
+
+  (def-empty-1 ◨w instance)
+  (def-empty-1 ◨-sw instance)
+  (defun-typed ◨snw ((tm tape-machine-empty) n instance &optional ➜)
+    (declare (ignore instance))
+    (◧snr tm n ➜)
+    )
+
 
 ;;--------------------------------------------------------------------------------
 ;; head motion
@@ -433,7 +347,6 @@ picks them up.
       ➜
       [➜rightmost]
       ))
-  (defun-typed s ((tm tape-machine-parked) &optional ➜)(-s* tm ➜))
 
   (def-function-class -s (tm &optional ➜))
   (defun-typed -s ((tm tape-machine-empty) &optional ➜)
@@ -446,8 +359,6 @@ picks them up.
       ➜
       [➜leftmost]
       ))
-  (defun-typed -s ((tm tape-machine-parked) &optional ➜)(s* tm ➜))
-
 
   (def-function-class sn (tm n &optional ➜))
   (defun-typed sn ((tm tape-machine-empty) n &optional ➜)
@@ -480,41 +391,6 @@ picks them up.
             {
               :➜ok (λ()(sn tm (1- n) ➜))
               :➜rightmost ➜rightmost
-              }))
-        )))
-
-
-  (def-function-class -sn (tm n &optional ➜))
-  (defun-typed -sn ((tm tape-machine-empty) n &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        (➜leftmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (if (= 0 n)
-        [➜ok]
-        [➜leftmost]
-        )))
-  (defun-typed -sn ((tm tape-machine-parked) n &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        (➜leftmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((< 0 n) (sn tm (- n) ➜))
-        ((= 0 n) [➜ok])
-        (t
-          (s tm
-            {
-              :➜ok (λ()(sn tm (1- n) ➜))
-              :➜leftmost ➜leftmost
               }))
         )))
 
@@ -803,8 +679,8 @@ picks them up.
       "))
   (defun-typed as ((tm tape-machine-valid) instance &optional ➜)
     (destructuring-bind
-      (
-        &key
+      (&key
+        ;; ➜ok and ➜rightmost snagged by #'s as part of #'a ➜ok
         (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )

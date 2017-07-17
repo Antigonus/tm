@@ -254,3 +254,9 @@ add a time to wait as part of test-hook (similar to #50 above)
     in the rest of the code, e.g. src-cell and src-tape with it.
 
 76. add the expandable tape machine, probably best as a transform
+
+77. remove the left going interface functions from the public interface, instead rely upon
+   the right going n versions with a negative n argument to accomplish left going
+   functions.  This will make the transition to a 'direction' parameter instead of
+   'left' and 'right' be possible without changing the interface much.  Perhaps leave
+   the word 'right' out of the right going operations.

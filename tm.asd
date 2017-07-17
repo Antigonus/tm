@@ -48,11 +48,7 @@ See LICENSE.txt
                (:module "src-tape-0"
                  :components (
                                (:file "interface")
-;;                               (:file "sequence")
-;;                               (:file "cons")
-;;                               (:file "tiled-natural")
-;;                               (:file "array")
-;;                               (:file "debug")
+                               (:file "bilist")
                                ))
 
                (:module "src-tape-machine"
@@ -177,14 +173,7 @@ See LICENSE.txt
 
                (:module "test-tape"
                  :components (
-;;                               (:file "cell")
-#|
-                               (:file "tape")
-                               (:file "sequence")
-                               (:file "cons")
-                               (:file "tiled-natural")
-                               (:file "array")
-|#
+                               (:file "bilist")
                                ))
 
 

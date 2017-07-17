@@ -47,17 +47,17 @@ implement the comparison of two machines as per #'head-on-same-cell.
   (def-type recursive (tape-machine)
     (
       (initial
-        :initarg initial
+        :initarg :initial
         :accessor initial
         )
 
       (f
-        :initarg f
+        :initarg :f
         :accessor f
         )
 
       (head
-        :initarg head
+        :initarg :head
         :accessor head
         )
 
