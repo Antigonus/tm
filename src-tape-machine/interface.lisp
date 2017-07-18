@@ -6,6 +6,9 @@ See LICENSE.txt
 Architectural definition of Tape Machine.
 I.e. the tape machine interface.
 
+A tape machine is a specialization of a tape, one that includes a head for keeping
+a reference to one of the cells on the tape.
+
 Tape machines can have abstract implementations, i.e. be implemented through functions,
 and they can also have unconventional implementations. Hence we don't include the head and
 tape slots as part of the most general statement of the tape machine type.
@@ -20,40 +23,9 @@ picks them up.
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
-;; helpers
-;;
-  (defmacro def-empty-1 (f &rest args)
-    `(defun-typed ,f ((tm tape-machine-empty) ,@args &optional ➜)
-       (declare (ignore ,@args))
-       (destructuring-bind
-         (
-           &key
-           (➜empty #'accessed-empty)
-           &allow-other-keys
-           )
-         ➜
-         [➜empty]
-         ))
-    )
-
-  (defmacro def-parked-1 (f &rest args)
-    `(defun-typed ,f ((tm tape-machine-parked) ,@args &optional ➜)
-       (declare (ignore ,@args))
-       (destructuring-bind
-         (
-           &key
-           (➜parked #'access-through-parked-head)
-           &allow-other-keys
-           )
-         ➜
-         [➜parked]
-         ))
-    )
-
-;;--------------------------------------------------------------------------------
 ;; type
 ;;
-  (def-type tape-machine ()())
+  (def-type tape-machine (cell tape)())
 
   (def-type tape-machine-abandoned (tape-machine)())
 
@@ -91,6 +63,37 @@ picks them up.
   (defun-typed to-active    ((tm tape-machine)) (change-class tm 'tape-machine-active))
   (defun-typed to-empty     ((tm tape-machine)) (change-class tm 'tape-machine-empty))
   (defun-typed to-parked    ((tm tape-machine)) (change-class tm 'tape-machine-parked))
+
+;;--------------------------------------------------------------------------------
+;; helpers
+;;
+  (defmacro def-empty-1 (f &rest args)
+    `(defun-typed ,f ((tm tape-machine-empty) ,@args &optional ➜)
+       (declare (ignore ,@args))
+       (destructuring-bind
+         (
+           &key
+           (➜empty #'accessed-empty)
+           &allow-other-keys
+           )
+         ➜
+         [➜empty]
+         ))
+    )
+
+  (defmacro def-parked-1 (f &rest args)
+    `(defun-typed ,f ((tm tape-machine-parked) ,@args &optional ➜)
+       (declare (ignore ,@args))
+       (destructuring-bind
+         (
+           &key
+           (➜parked #'access-through-parked-head)
+           &allow-other-keys
+           )
+         ➜
+         [➜parked]
+         ))
+    )
 
 ;;--------------------------------------------------------------------------------
 ;; entanglement
@@ -231,103 +234,45 @@ picks them up.
       ))
 
 ;;--------------------------------------------------------------------------------
-;; accessing data
+;; accessing data relative to the cell the head is on
 ;;
-  (def-function-class r (tm &optional ➜))
-  (def-empty-1 r)
-  (def-parked-1 r)
 
-   ;; read esr like a program.  First we execute #'e.  then we execute #'s, and
-   ;; it takes a ➜rightmost error.  Hence, we never get to the read.
-  (def-function-class esr (tm &optional ➜))
-  (defun-typed esr ((tm tape-machine-empty) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-  (defun-typed esr ((tm tape-machine-parked) &optional ➜) (◧r tm ➜))
+    (def-empty-1 r)
+    (def-parked-1 r)
+
+    ;; esr is defined on the tape interface
+    (defun-typed esr ((tm tape-machine-parked) &optional ➜) (◧r tm ➜))
+    (defun-typed esr ((tape tape-empty) &optional ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜rightmost (be ∅))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
+    (defun-typed esnr ((tm tape-machine-empty) &optional ➜) (◧snr tm ➜))
+
+    ;; cell op
+    (def-empty-1 w instance)
+    (def-parked-1 w instance)
+
+    (defun-typed esw ((tm tape-machine-parked) instance &optional ➜)
+      (◧w tm instance ➜)
+      )
+    (defun-typed esw ((tape tape-empty) instance &optional ➜)
+      (destructuring-bind
+        (
+          &key
+          (➜rightmost (be ∅))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
+    (defun-typed esnw ((tm tape-machine-empty) instance &optional ➜) (◧snw tm instance ➜))
     
-  ;; n can be negative
-  (def-function-class esnr (tm n &optional ➜))
-  (defun-typed esnr ((tm tape-machine-empty) n &optional ➜)
-    (◧snr tm n ➜)
-    )
-
-  ;; see src-tape-0/interface:  (def-function-class ◧r (tm &optional ➜)) etc.
-  (def-empty-1 ◧r)
-  (def-empty-1 ◧sr)
-  (defun-typed ◧snr ((tm tape-machine-empty) n &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜leftmost (be ∅))
-        (➜rightmost (be ∅))
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((> n 0) [➜rightmost])
-        ((= n 0) [➜empty])
-        ((< n 0) [➜leftmost])
-        )))
-
-  (def-empty-1 ◨r)
-  (def-empty-1 ◨-sr)
-  (defun-typed ◨snr ((tm tape-machine-empty) n &optional ➜)
-    (◧snr tm n ➜)
-    )
-
-  (def-function-class w (tm instance &optional ➜))
-
-  ;; see tape: (def-function-class w (tm instance &optional ➜))
-  (def-empty-1 w instance)
-  (def-parked-1 w instance)
-
-  ;; see tape: (def-function-class esw (tm instance &optional ➜))
-  ;; and empty machine has a parked head
-  (def-function-class esw (tm instance &optional ➜))
-  (defun-typed esw ((tm tape-machine-empty) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜rightmost (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-  (defun-typed esw ((tm tape-machine-parked) instance &optional ➜)
-    (◧w tm instance ➜)
-    )
-
-  ;; see tape: (def-function-class esnw (tm n instance &optional ➜))
-  (def-function-class esnw (tm n instance &optional ➜))
-  (defun-typed esnw ((tm tape-machine-empty) n instance &optional ➜)
-    (declare (ignore instance))
-    (◧snr tm n ➜)
-    )
-
-  ;; see src-tape-0/interface: (def-function-class ◧w (tm instance &optional ➜))
-  (def-empty-1 ◧w instance)
-  (def-empty-1 ◧sw instance)
-  (defun-typed ◧snw ((tm tape-machine-empty) n instance &optional ➜)
-    (declare (ignore instance))
-    (◧snr tm n ➜)
-    )
-
-  (def-empty-1 ◨w instance)
-  (def-empty-1 ◨-sw instance)
-  (defun-typed ◨snw ((tm tape-machine-empty) n instance &optional ➜)
-    (declare (ignore instance))
-    (◧snr tm n ➜)
-    )
-
 
 ;;--------------------------------------------------------------------------------
 ;; head motion
@@ -632,20 +577,6 @@ picks them up.
 ;;--------------------------------------------------------------------------------
 ;; topology modification
 ;;
-  (def-function-class epa (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the left of leftmost (thus becoming the new leftmost).
-      "
-      ))
-  (def-function-class ◨a (tm instance &optional ➜)
-    (:documentation
-      "Allocates a cell to the right of rightmost (thus becoming the new rightmost)."
-      ))
-  ;; #'◨a on an empty machine is same as #'epa
-  (defun-typed ◨a ((tm tape-machine-empty) instance &optional ➜)
-    (epa tm instance ➜)
-    )
-
   (def-function-class a (tm instance &optional ➜)
     (:documentation
         "If no cells are available, ➜no-alloc.  Otherwise, allocate a new cell and place it
@@ -721,13 +652,14 @@ picks them up.
     )
 
 
-  ;; Spill can be ∅, in which case we just drop the deallocated cell.  When spill is not ∅,
-  ;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
-  ;; the instance from the deallocated cell is moved to it, preferably the former. 
+  ;; accepts :spill option.  When the spill is provided ∅, then the deallocated cell is
+  ;; appended to spill if practical, otherwise a the instance from the
+  ;; deallocated cell placed in a new cell and appended to it. Spill is stepped 
+  ;; after the append, hence its head will be on the new cell.
   ;;
   ;; d must have transactional behavior, i.e. the cell is only dealloced if all goes well,
   ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
-  ;; reallocation to spill fails
+  ;; reallocation to spill fails.
   ;;
     (def-function-class epd (tm &optional ➜)
       (:documentation

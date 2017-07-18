@@ -348,7 +348,7 @@ This tm is not entanglment safe, and not thread safe.
 
   (defun-typed ◨w ((tm tm-parked-or-active) instance &optional ➜)  (◨w (tape tm) instance ➜))
   (defun-typed ◨-sw ((tm tm-parked-or-active) instance &optional ➜)(◨-sw (tape tm) instance ➜))
-  (defun-typed ◨-snw ((tm tm-parked-or-active) n instance &optional ➜)
+  (defun-typed ◨snw ((tm tm-parked-or-active) n instance &optional ➜)
     (destructuring-bind
       (&key
         (➜rightmost (λ()(error 'step-from-rightmost)))
@@ -359,7 +359,7 @@ This tm is not entanglment safe, and not thread safe.
         ((< n 0) [➜rightmost])
         ((= n 0) (◨w tm instance ➜))
         (t
-          (◨-snw (tape tm) n instance ➜)
+          (◨snw (tape tm) n instance ➜)
           ))))
 
 ;;--------------------------------------------------------------------------------

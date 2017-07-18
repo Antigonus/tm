@@ -67,6 +67,11 @@ they belong to.
       #:remove-key-pair
       #:remove-key-pairs
 
+    ;; do
+    ;;
+      #:⟳  ; repeats a block of code
+
+
 ;;;--------------------------------------------------------------------------------
 ;;; src-test
 ;;;     
@@ -80,23 +85,53 @@ they belong to.
       #:print-to-log
 
 ;;;--------------------------------------------------------------------------------
-;;; src-1ist
+;;; src-cell
 ;;;     
-    ;;tm-type
+    ;; init
     ;;
-      #:tape-machine ; type
       #:init
       #:mk
 
-    ;;tm-decls
+    ;; type
     ;;
+      #:cell
+      #:leftmost-interior
+      #:rightmost-interior
+      #:interior
+      #:leftmost
+      #:rightmost
+      #:solitary
+
+    ;; queries
+    ;;
+      #:=<cell>
       #:r
-      #:esr
       #:w
+
+    ;; data access on neighbors
+    ;;
+      #:neighbor ; returns neighbor cell considering :direction and :distance
+      #:esr
       #:esw
-      #:e◧r
-      #:e◧sr
-      #:e◧w
+
+    ;; topology manipulation
+    ;;
+      #:a<cell>
+      #:-a<cell>
+      #:a<instance>
+      #:-a<instance>
+
+      #:d<cell>
+      #:-d<cell>
+
+      #:d.<cell>
+      #:d+<cell>
+
+;;;--------------------------------------------------------------------------------
+;;; src-tape
+;;;     
+
+
       #:e◧sw
       #:◧
       #:s

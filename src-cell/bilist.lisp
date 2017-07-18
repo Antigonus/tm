@@ -12,26 +12,20 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  ;; Our tape header looks like a cell in that when the tape is not empty it has a right
-  ;; neigibhor and leftneighbor.  The right neigbor is the leftmost cell of the tape, and
-  ;; the leftneighbor is the rightmost cell of the tape. But it differs from a cell in that
-  ;; it can not be read or written.
-  ;;
-  ;; I would prefer this to be a simple array of links, and to abstract a direction
-  ;; concept as an index rather than to have 'left' and 'right'.
-  ;; i.e.  (neighbor cell 0) (neighbor cell 1) etc.
-  ;;
-    (def-type bilink ()
-      (
-        (left-neighbor-slot
-          :initarg :left-neighbor-slot
-          :accessor left-neighbor-slot
-          )
-        (right-neighbor-slot
-          :initarg :right-neighbor-slot
-          :accessor right-neighbor-slot
-          )
-        ))
+  (def-type bilink ()
+    (
+      (right-neighbor-link
+        :initarg :right-neighbor-link
+        :accessor right-neighbor-link
+        )
+      (left-neighbor-link
+        :initarg :left-neighbor-link
+        :accessor left-neighbor-link
+        )
+      ))
+
+  (defparameter direction-right 0)
+  (defparameter direction-left 1)
 
   (def-type cell-bilist (bilink cell)
     (
@@ -45,7 +39,7 @@ Implementation of cell intended for use with a bidirectional list.
   (def-type bilist-leftmost  (bilist-leftmost-interior leftmost)())
   (def-type bilist-rightmost (bilist-rightmost-interior rightmost)())
   (def-type bilist-solitary  (bilist-leftmost bilist-rightmost solitary)())
-
+    
   (defun-typed to-cell      ((cell cell-bilist))(change-class cell 'cell-bilist))
   (defun-typed to-interior  ((cell cell-bilist))(change-class cell 'bilist-interior))
   (defun-typed to-leftmost  ((cell cell-bilist))(change-class cell 'bilist-leftmost))
@@ -54,8 +48,8 @@ Implementation of cell intended for use with a bidirectional list.
 
   (defmacro connect (c0 c1)
     `(progn
-       (setf (right-neighbor-slot ,c0) ,c1)
-       (setf (left-neighbor-slot ,c1) ,c0)
+       (setf (right-neighbor-link ,c0) ,c1)
+       (setf (left-neighbor-link ,c1) ,c0)
        ))
   ;; c0 c1 are either neighbors, or the same cell
   ;; Because we use self-pointers instead of nil to terminate ends, insert
@@ -67,11 +61,11 @@ Implementation of cell intended for use with a bidirectional list.
        ))
 
   (defmacro cap-left (c0)
-    `(setf (left-neighbor-slot ,c0) ,c0)
+    `(setf (left-neighbor-link ,c0) ,c0)
     )
 
   (defmacro cap-right (c0)
-    `(setf (right-neighbor-slot ,c0) ,c0)
+    `(setf (right-neighbor-link ,c0) ,c0)
     )
 
   (defmacro cap-off (c0)
@@ -135,6 +129,36 @@ Implementation of cell intended for use with a bidirectional list.
   (defun-typed r<cell> ((cell cell-bilist)) (contents cell))
   (defun-typed w<cell> ((cell cell-bilist) instance) (setf (contents cell) instance))
 
+  ;; the more specific righmost case is handled on the interface
+  (defun-typed esr<cell> ((cell cell) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (r<cell> (right-neighbor cell))]
+      ))
+  (defun-typed esw<cell> ((cell cell) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (w<cell> (right-neighbor cell) instance)]
+      ))
+
+  (def-function-class right-neighbor (cell &optional ➜))
+  (defun-typed right-neighbor ((cell rightmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜rightmost]
+      ))
   (defun-typed right-neighbor ((cell bilist-leftmost-interior) &optional ➜)
     (destructuring-bind
       (&key
@@ -142,9 +166,19 @@ Implementation of cell intended for use with a bidirectional list.
         &allow-other-keys
         )
       ➜
-      [➜ok (right-neighbor-slot cell)]
+      [➜ok (right-neighbor-link cell)]
       ))
 
+  (def-function-class left-neighbor (cell &optional ➜))
+  (defun-typed left-neighbor ((cell leftmost) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+        &allow-other-keys
+        )
+      ➜
+      [➜leftmost]
+      ))
   (defun-typed left-neighbor ((cell bilist-rightmost-interior) &optional ➜)
     (destructuring-bind
       (&key
@@ -152,9 +186,67 @@ Implementation of cell intended for use with a bidirectional list.
         &allow-other-keys
         )
       ➜
-      [➜ok (left-neighbor-slot cell)]
+      [➜ok (left-neighbor-link cell)]
       ))
 
+  ;; then nth neighbor to the right
+  ;; For arrays, this just increments the array index, which is why this is here
+  ;; instead of being part of the tape machine.
+  ;;
+    (defun right-neighbor-n (cell n &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+      (cond
+        ((< n 0) (left-neighbor-n cell (- n) ➜))
+        (t
+          (loop 
+            (cond
+              ((= n 0) (return [➜ok cell]))
+              ((typep cell 'rightmost)(return [➜rightmost cell n]))
+              (t
+                (decf n)
+                (setf cell (right-neighbor cell))
+                )))))))
+
+    (defun left-neighbor-n (cell n &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+          &allow-other-keys
+          )
+        ➜
+      (cond
+        ((< n 0) (right-neighbor-n cell (- n) ➜))
+        (t
+          (loop 
+            (cond
+              ((= n 0) (return [➜ok cell]))
+              ((typep cell 'leftmost)(return [➜leftmost cell n]))
+              (t
+                (decf n)
+                (setf cell (left-neighbor cell))
+                )))))))
+
+  (defun-typed neighbor((cell cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (direction direction-right)
+        (distance 0)
+        (➜unknown-direction (λ()(error 'unknown-direction)))
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= direction direction-right) (right-neighbor-n cell distance ➜))
+        ((= direction direction-left) (left-neighbor-n cell distance ➜))
+        (t [➜unknown-direction])
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
@@ -162,7 +254,7 @@ Implementation of cell intended for use with a bidirectional list.
 
   (defun-typed a<cell> ((c0 bilist-solitary) (new-cell cell-bilist))
     (let(
-          (c1 (right-neighbor-slot c0)) ; this will be the list header, a bilink type
+          (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
       (insert-between c0 c1 new-cell)
       (to-leftmost c0)
@@ -171,7 +263,7 @@ Implementation of cell intended for use with a bidirectional list.
       ))
   (defun-typed a<cell> ((c0 bilist-rightmost) (new-cell cell-bilist))
     (let(
-          (c1 (right-neighbor-slot c0)) ; this will be the list header, a bilink type
+          (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
       (insert-between c0 c1 new-cell)
       (to-interior c0)
@@ -190,7 +282,7 @@ Implementation of cell intended for use with a bidirectional list.
 
   (defun-typed -a<cell> ((c1 bilist-solitary) (new-cell cell-bilist))
     (let(
-          (c0 (left-neighbor-slot c1)) ; this will be tape, the list header
+          (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
       (insert-between c0 c1 new-cell)
       (to-rightmost c1)
@@ -199,7 +291,7 @@ Implementation of cell intended for use with a bidirectional list.
       ))
   (defun-typed -a<cell> ((c1 bilist-leftmost) (new-cell cell-bilist))
     (let(
-          (c0 (left-neighbor-slot c1)) ; this will be tape, the list header
+          (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
       (insert-between c0 c1 new-cell)
       (to-interior c1)
@@ -233,8 +325,8 @@ Implementation of cell intended for use with a bidirectional list.
         ➜
         (let*(
                (c0 cell)
-               (c1 (right-neighbor-slot c0)) ; this might be rightmost
-               (c2 (right-neighbor-slot c1)) ; this might be the tape header
+               (c1 (right-neighbor-link c0)) ; this might be rightmost
+               (c2 (right-neighbor-link c1)) ; this might be the tape header
                )
           (extract c0 c1 c2)
           (when 
@@ -253,8 +345,8 @@ Implementation of cell intended for use with a bidirectional list.
         ➜
         (let*(
                (c0 cell)
-               (c1 (right-neighbor-slot c0)) ; this might be rightmost
-               (c2 (right-neighbor-slot c1)) ; this might be the tape header
+               (c1 (right-neighbor-link c0)) ; this might be rightmost
+               (c2 (right-neighbor-link c1)) ; this might be the tape header
                )
           (extract c0 c1 c2)
           (when 
@@ -276,8 +368,8 @@ Implementation of cell intended for use with a bidirectional list.
       ➜
       (let*(
              (c2 cell)
-             (c1 (left-neighbor-slot c2)) ; this might be leftmost
-             (c0 (left-neighbor-slot c1)) ; this might be the tape header
+             (c1 (left-neighbor-link c2)) ; this might be leftmost
+             (c0 (left-neighbor-link c1)) ; this might be the tape header
              )
         (extract c0 c1 c2)
         (when 
@@ -296,8 +388,8 @@ Implementation of cell intended for use with a bidirectional list.
       ➜
       (let*(
              (c2 cell)
-             (c1 (left-neighbor-slot c2)) ; this might be leftmost
-             (c0 (left-neighbor-slot c1)) ; this might be the tape header
+             (c1 (left-neighbor-link c2)) ; this might be leftmost
+             (c0 (left-neighbor-link c1)) ; this might be the tape header
              )
         (extract c0 c1 c2)
         (when 

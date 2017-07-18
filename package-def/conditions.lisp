@@ -32,15 +32,21 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
+;; cell
+;;
+  ;; used for #'a and #'d on spill when allocation fails
+  (define-condition alloc-fail (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition unknown-direction (error)
+    ((text :initarg :text :reader text)))
+
+;;--------------------------------------------------------------------------------
 ;; tm first level
 ;;
   (define-condition step-from-rightmost (error)
     ((text :initarg :text :reader text)))
   (define-condition step-from-leftmost (error)
-    ((text :initarg :text :reader text)))
-
-  ;; used for #'a and #'d on spill when allocation fails
-  (define-condition alloc-fail (error)
     ((text :initarg :text :reader text)))
 
   (define-condition dealloc-on-rightmost (error)

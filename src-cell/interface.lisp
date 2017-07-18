@@ -28,6 +28,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
 
 (in-package #:tm)
 
+
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
@@ -48,9 +49,23 @@ machine constructs, such a tape head, are involved in the implementation of the 
   (def-function-class to-solitary (cell))
 
 ;;--------------------------------------------------------------------------------
-;; queries
+;; init
+;; (➜ok #'echo) (➜bad (λ()(error 'bad-init-value))) (➜no-alloc #'alloc-fail)
+;; 
+  (def-function-class init (tape-instance init &optional ➜))
+
+  (defun mk (tape-type init &optional ➜)
+    (let(
+          (tape-instance (make-instance tape-type))
+          )
+      (init tape-instance init ➜)
+      ))
+
+;;--------------------------------------------------------------------------------
+;; queries about a cell
 ;;
   (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
+  ;; psuedo-cell implementations will replace this
   (defun-typed =<cell> ((cell-0 cell) (cell-1 cell) &optional ➜)
     (destructuring-bind
       (&key
@@ -65,186 +80,45 @@ machine constructs, such a tape head, are involved in the implementation of the 
         [➜∅]
         )))
 
-  (def-function-class r<cell> (cell)) ; returns contents of cell
-  (def-function-class w<cell> (cell instance)) ; writes contents of cell
-
-  ;; for bilist these are slots
-  (def-function-class right-neighbor (cell &optional ➜))
-  (defun-typed right-neighbor ((cell rightmost) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-
-  (def-function-class left-neighbor (cell &optional ➜))
-  (defun-typed left-neighbor ((cell leftmost) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜leftmost]
-      ))
-
-
-  ;; then nth neighbor to the right
-  ;; For arrays, this just increments the array index, which is why this is here
-  ;; instead of being part of the tape machine.
-  ;;
-    (def-function-class right-neighbor-n (cell n &optional ➜))
-    (defun-typed right-neighbor-n ((cell cell) n &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
-          &allow-other-keys
-          )
-        ➜
-      (cond
-        ((< n 0) (left-neighbor-n cell (- n) ➜))
-        (t
-          (loop 
-            (cond
-              ((= n 0) (return [➜ok cell]))
-              ((typep cell 'rightmost)(return [➜rightmost cell n]))
-              (t
-                (decf n)
-                (setf cell (right-neighbor cell))
-                )))))))
-
-    (def-function-class left-neighbor-n (cell n &optional ➜))
-    (defun-typed left-neighbor-n (cell n &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
-          &allow-other-keys
-          )
-        ➜
-      (cond
-        ((< n 0) (right-neighbor-n cell (- n) ➜))
-        (t
-          (loop 
-            (cond
-              ((= n 0) (return [➜ok cell]))
-              ((typep cell 'leftmost)(return [➜leftmost cell n]))
-              (t
-                (decf n)
-                (setf cell (left-neighbor cell))
-                )))))))
+  (def-function-class r (cell &optional ➜)) ; returns contents of cell
+  (def-function-class w (cell instance &optional ➜)) ; writes contents of cell
 
 
 ;;--------------------------------------------------------------------------------
-;; advanced queries
+;; queries about a topoogy
 ;;
 
-  ;; returns an instance
-  (def-function-class esr<cell> (cell &optional ➜))
-  (defun-typed esr<cell> ((cell rightmost) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ()(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-  (defun-typed esr<cell> ((cell cell) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (r<cell> (right-neighbor cell))]
-      ))
+  ;; accepts :direction and :distance options, and the continutations, ➜ok ➜leftmost ➜rightmost
+  ;; ➜ok has one parameter, the neighbor cell that was looked up
+  ;;
+    (def-function-class neighbor (cell &optional ➜))
 
-  (def-function-class esnr<cell> (cell n &optional ➜))
-  (defun-typed esnr<cell> ((cell cell) n &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (right-neighbor-n cell n
-        {
-          :➜ok (λ(rn)[➜ok (r<cell> rn)])
-          :➜rightmost ➜rightmost
-          })))
-
-  (def-function-class e-snr<cell> (cell n &optional ➜))
-  (defun-typed e-snr<cell> ((cell cell) n &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
-        &allow-other-keys
-        )
-      ➜
-      (left-neighbor-n cell n
-        {
-          :➜ok (λ(rn)[➜ok (r<cell> rn)])
-          :➜leftmost ➜leftmost
-          })))
+  (defun apply-to-neighbor (cell f &optional ➜)
+    (neighbor cell
+      {
+        :➜ok  (λ(neigbhor-cell) [f neighbor-cell])
+        (o ➜)
+        }))
 
 
-  (def-function-class esw<cell> (cell instance &optional ➜))
-  (defun-typed esw<cell> ((cell rightmost) instance &optional ➜)
-    (declare (ignore instance))
-    (destructuring-bind
-      (&key
-        (➜rightmost (λ()(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      [➜rightmost]
-      ))
-  (defun-typed esw<cell> ((cell cell) instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (w<cell> (right-neighbor cell) instance)]
-      ))
+;;--------------------------------------------------------------------------------
+;; data access on neighbors of a cell
+;;
+  ;; It is conventional to have an indexed read and write for arrays.
+  ;; accepts options :direction and :distance 
+  ;; :direction defaults to zero, which is normally to the right
+  ;; :distance defaults to 1
+  ;;
+    (def-function-class esr (cell &optional ➜))
+    (defun-typed esnr ((cell cell) &optional ➜)
+      (apply-to-neighbor cell (λ(nc)(r nc ➜)) ➜)
+      )
 
-  (def-function-class esnw<cell> (cell n instance &optional ➜))
-  (defun-typed esnw<cell> ((cell cell) n instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
-        &allow-other-keys
-        )
-      ➜
-      (right-neighbor-n cell n
-        {
-          :➜ok (λ(rn)[➜ok (w<cell> rn instance)])
-          :➜rightmost ➜rightmost
-          })))
+    (def-function-class esw (cell n instance &optional ➜))
+    (defun-typed esnw ((cell cell) n instance &optional ➜)
+      (apply-to-neighbor cell (λ(nc)(w nc instance ➜)) ➜)
+      )
 
-  (def-function-class e-snw<cell> (cell n instance &optional ➜))
-  (defun-typed e-snw<cell> ((cell cell) n instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
-        &allow-other-keys
-        )
-      ➜
-      (left-neighbor-n cell n
-        {
-          :➜ok (λ(rn)[➜ok (w<cell> rn instance)])
-          :➜leftmost ➜leftmost
-          })))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
@@ -252,6 +126,8 @@ machine constructs, such a tape head, are involved in the implementation of the 
 
   ;; makes cell-1 a right-neighbor of cell-0
   (def-function-class a<cell> (cell-0 cell-1))
+  ;; makes cell-1 a left-neighbor of cell-0
+  (def-function-class -a<cell> (cell-0 cell-1))
 
   ;; makes a new right neighbor for cell, and initializes it with instance.
   (def-function-class a<instance> (cell instance))
@@ -261,10 +137,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
           )
       (a<cell> c0 new-cell)
       ))
-
-  ;; makes cell-1 a left-neighbor of cell-0
-  (def-function-class -a<cell> (cell-0 cell-1))
-
   ;; makes a new left neighbor for cell, and initializes it with instance.
   (def-function-class -a<instance> (cell instance))
   (defun-typed -a<instance> ((c0 cell) instance)

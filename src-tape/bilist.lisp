@@ -42,8 +42,15 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
+  ;; Our tape header looks like a cell in that when the tape is not empty it has a right
+  ;; neigibhor and left neighbor.  The right neigbor is the leftmost cell of the tape, and
+  ;; the leftneighbor is the rightmost cell of the tape. But it differs from a cell in that
+  ;; it can not be read or written.
+  ;;
   ;; see src-cell/bilist.lisp for bilink type
-  (def-type tape-bilist (bilink tape)())
+  ;;
+    (def-type tape-bilist (bilink tape)())
+
   (def-type tape-bilist-abandoned (tape-bilist)())
   (def-type tape-bilist-valid (tape-bilist tape-valid)())
 
@@ -91,7 +98,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-      [➜ok (right-neighbor-slot tape)] ; blist tape is also a bilink
+      [➜ok (right-neighbor-link tape)] ; blist tape is also a bilink
       ))
 
   (defun-typed rightmost ((tape tape-bilist-active) &optional ➜)
@@ -101,7 +108,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         &allow-other-keys
         )
       ➜
-      [➜ok (left-neighbor-slot tape)]
+      [➜ok (left-neighbor-link tape)]
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -110,9 +117,9 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;
   (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
     (let(
-          (leftmost-tape0  (right-neighbor-slot tape0))
-          (rightmost-tape0 (left-neighbor-slot tape0))
-          (leftmost-tape1  (right-neighbor-slot tape1))
+          (leftmost-tape0  (right-neighbor-link tape0))
+          (rightmost-tape0 (left-neighbor-link tape0))
+          (leftmost-tape1  (right-neighbor-link tape1))
           )
       ;; prepend tape0
       ;;
@@ -140,7 +147,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
   (defun-typed epa<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
     (let(
           (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
-          (c1 (right-neighbor-slot tape))
+          (c1 (right-neighbor-link tape))
           )
       (to-interior c1) ; old leftmost is no longer leftmost
       (to-leftmost new-cell) ; the new cell becomes leftmost
@@ -163,7 +170,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
     )
   (defun-typed ◨a<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
     (let(
-          (c0 (left-neighbor-slot tape))
+          (c0 (left-neighbor-link tape))
           (c1 tape) ; note the tape header is inherited from bilink, it looks like a tape node
           )
       (to-interior c0) ; old rightmost is no longer rightmost
