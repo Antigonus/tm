@@ -140,8 +140,8 @@ CLOS version of the cons cell.
       ➜
       (⟳(λ(➜again)
           (cond
-            ((typep cell 'rightmost) [➜rightmost cell n])
             ((= n 0) [➜ok cell])
+            ((typep cell 'rightmost) [➜rightmost cell n])
             (t
               (setf cell [differential cell])
               (decf n)
