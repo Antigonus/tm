@@ -41,13 +41,20 @@ See LICENSE.txt
   (define-condition unknown-direction (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition bad-direction (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition step-from-rightmost (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition step-from-leftmost (error)
+    ((text :initarg :text :reader text)))
+
+
 ;;--------------------------------------------------------------------------------
 ;; tm first level
 ;;
-  (define-condition step-from-rightmost (error)
-    ((text :initarg :text :reader text)))
-  (define-condition step-from-leftmost (error)
-    ((text :initarg :text :reader text)))
+
 
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))

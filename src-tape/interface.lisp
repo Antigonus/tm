@@ -66,8 +66,8 @@ so it won't mind having a few more types.
       ))
 
   ;; accepts a :direction parameter, defaults to right going
-  (def-function-class boundary-cell (tape &optional ➜)) ; returns a cell
-  (defun-typed boundary-cell ((tape tape-empty) &optional ➜)
+  (def-function-class boundary (tape &optional ➜)) ; returns a cell
+  (defun-typed boundary ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -154,7 +154,7 @@ so it won't mind having a few more types.
 ;;
   ;; prepends tape0 to tape1
   (def-function-class epa<tape> (tape1 tape0))
-  (defun-typed epa<tape> ((tape1 tape) (tape0 tape-empty)) (do-nothing))
+  (defun-typed epa<tape> ((tape1 tape) (tape0 tape-empty)) t)
 
   ;; inserts the given cell as a new leftmost cell
   (def-function-class epa<cell> (tape cell))
@@ -164,13 +164,13 @@ so it won't mind having a few more types.
       "Entangle copy, Park head, Append. Allocates a new cell, initializes is to the given
       instance, and prepends it to the tape."  ))
 
-  ;; for a doubly linked list, these are the 'operate on tail' versions of the above
+  ;; for a doubly linked list, these are the 'operate on rightmost' versions of the above
   (def-function-class ◨a<cell> (tape cell))
   (def-function-class ◨a<instance> (tape instance))
 
   (def-function-class ◨a (tape instance &optional ➜)
     (:documentation
-      "◨ (rightmost), append.  Allocates a new cell, initializes it to the given instance,
+      "◨ (rightmost), Append.  Allocates a new cell, initializes it to the given instance,
       and appends it to the tape."  ))
   ;; #'◨a on an empty machine is same as #'epa
   (defun-typed ◨a ((tm tape-machine-empty) instance &optional ➜)
@@ -263,19 +263,6 @@ so it won't mind having a few more types.
       ➜
       [➜∅]
       ))
-  (defun-typed length-is-one ((tape tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (right-neighbor (leftmost tape)
-        {
-          :➜ok (λ(cell)(declare (ignore cell))[➜∅])
-          :➜rightmost ➜t
-          })))
 
   (def-function-class length-is-two (tape &optional ➜))
   (defun-typed length-is-two ((tape tape-empty) &optional ➜)
@@ -288,66 +275,7 @@ so it won't mind having a few more types.
       ➜
       [➜∅]
       ))
-  (defun-typed length-is-two ((tape tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜t (be t))
-        (➜∅ (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (right-neighbor (leftmost tape)
-        {
-          :➜ok (λ(cell)
-                 (right-neighbor cell
-                   {
-                     :➜ok (λ(cell)(declare (ignore cell))[➜∅])
-                     :➜rightmost ➜t
-                     }))
-          :➜rightmost ➜∅
-          })))
 
- (def-function-class maximum-address (tape &optional ➜))
- (defun-typed maximum-address ((tape tape-empty) &optional ➜)
-    (declare (ignore tape))
-    (destructuring-bind
-      (&key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
- (defun-typed maximum-address ((tape tape-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(index cell)
-        (labels(
-                 (init-1 (cell)
-                   (right-neighbor cell
-                     {
-                       :➜ok
-                       (λ(the-right-neighbor)
-                         (incf index)
-                         (init-1 the-right-neighbor)
-                         )
-                       :➜rightmost
-                       #'do-nothing
-                       }))
-                 (init-0 ()
-                   (setf index 0)
-                   (setf cell (leftmost tape))
-                   (init-1 cell)
-                   )
-                 )
-          (init-0)
-          )
-        [➜ok index]
-        )))
                 
      
 

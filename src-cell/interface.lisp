@@ -32,15 +32,24 @@ machine constructs, such a tape head, are involved in the implementation of the 
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
+  ;; one of these two attributes should be given to cell implementations
+  ;;
+    (def-type virtual ()())
+    (def-type real ()())
+
   (def-type cell ()()) 
 
-  (def-type leftmost-interior (cell)())
-  (def-type rightmost-interior (cell)())
+  ;; these are only used as typed function argument specifiers
+  ;;
+    (def-type leftmost-interior (cell)())
+    (def-type rightmost-interior (cell)())
 
-  (def-type interior (leftmost-interior rightmost-interior)())
-  (def-type leftmost (leftmost-interior)())
-  (def-type rightmost (rightmost-interior)())
-  (def-type solitary (leftmost rightmost)())
+  ;; all cells appearing on a tape have exactly one of these subtypes
+  ;;
+    (def-type interior (leftmost-interior rightmost-interior)())
+    (def-type leftmost (leftmost-interior)())
+    (def-type rightmost (rightmost-interior)())
+    (def-type solitary (leftmost rightmost)())
 
   (def-function-class to-cell (cell))
   (def-function-class to-interior (cell))
@@ -62,32 +71,18 @@ machine constructs, such a tape head, are involved in the implementation of the 
       ))
 
 ;;--------------------------------------------------------------------------------
-;; queries about a cell
+;; cell functions
 ;;
+  ;; same links and cargo
   (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
-  ;; psuedo-cell implementations will replace this
-  (defun-typed =<cell> ((cell-0 cell) (cell-1 cell) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-      (if
-        (eq cell-0 cell-1)
-        [➜t]
-        [➜∅]
-        )))
 
   (def-function-class r (cell &optional ➜)) ; returns contents of cell
   (def-function-class w (cell instance &optional ➜)) ; writes contents of cell
 
 
 ;;--------------------------------------------------------------------------------
-;; queries about a topoogy
+;; cell neighbor functions
 ;;
-
   ;; accepts :direction and :distance options, and the continutations, ➜ok ➜leftmost ➜rightmost
   ;; ➜ok has one parameter, the neighbor cell that was looked up
   ;;
@@ -100,10 +95,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
         (o ➜)
         }))
 
-
-;;--------------------------------------------------------------------------------
-;; data access on neighbors of a cell
-;;
   ;; It is conventional to have an indexed read and write for arrays.
   ;; accepts options :direction and :distance 
   ;; :direction defaults to zero, which is normally to the right

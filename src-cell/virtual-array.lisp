@@ -3,7 +3,35 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Implementation of cell intended for use with a bidirectional list.
+The cells in an array structure have an abstracted topology rather than one embedded into
+the cells.  The cells in the array do not have neighbor pointers.  Rather we infer a
+neighbor relationship through a function that operates on addresses.
+
+We can fit an array into the tape machine model by emulateing cells, and then use using
+the state of the cell emulations in place of a real cell.  When a state for an emulated X
+is used in place of an actual X, we say that the emulated X is a 'virtual' X.  Hence
+what we will have 'virtual cells'.
+
+Of course we must embed the emulator somewhere in our code, and this is straight forward
+with CLOS due to the function dispatch.  We only need to give our virtual cells a
+specialized type, then dispatch will send call through our emulatore. With this gasket in
+place, a virtual cell can be used as a cell on the cell interface.
+
+A virtual cell does not live on a tape or in another container, as do real cells.  The
+real tape, still holds an array of real cells, but those real cells do not have neighbor
+ponters. Rather when we call a function such as #'leftmost on a array tape, we get back a
+virtual cell.  We can then call #'r #'w, #'neighbor, etc. on the virtual cell, and the
+functionality will be correct.
+
+In this context a virtual cell is the same thing as an iterator in other languages.
+In Lisp a trivial example of a virtual cell is a reference to a cell.
+
+Emulations can be incomplete.  For example, our basic array virtual cell does not support
+topological changes.  The library user can not, for example, delete a virtual array cell.
+This reflects the physical fact that array cells can not be deleted.  However, it is
+conceivable that features can be added to the emulator to support this.  Perhaps by
+keeping a parallel mark array or some such.  For now we do not do this.  The user's
+of an array must be cognizant of this.
 
 |#
 
@@ -12,89 +40,45 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type cell-bilist (bilink cell real)
+  (def-type cell-array (cell virtual)
     (
-      (contents :initarg :contents :accessor contents)
-      ))
+      (base
+        :initarg :base
+        :accessor base
+        )
+      (index
+        :initarg :index
+        :accessor index
+        )
+      (maxdex
+        :initarg :maxdex
+        :accessor maxdex
+        )))
 
-  (def-type bilist-leftmost-interior (cell-bilist leftmost-interior)())
-  (def-type bilist-rightmost-interior (cell-bilist rightmost-interior)())
+  (def-type array-leftmost-interior (cell-array leftmost-interior)())
+  (def-type array-rightmost-interior (cell-array rightmost-interior)())
 
-  (def-type bilist-interior  (bilist-leftmost-interior bilist-rightmost-interior interior)())
-  (def-type bilist-leftmost  (bilist-leftmost-interior leftmost)())
-  (def-type bilist-rightmost (bilist-rightmost-interior rightmost)())
-  (def-type bilist-solitary  (bilist-leftmost bilist-rightmost solitary)())
+  (def-type array-interior  (array-leftmost-interior array-rightmost-interior interior)())
+  (def-type array-leftmost  (array-leftmost-interior leftmost)())
+  (def-type array-rightmost (array-rightmost-interior rightmost)())
+  (def-type array-solitary  (array-leftmost array-rightmost solitary)())
     
-  (defun-typed to-cell      ((cell cell-bilist))(change-class cell 'cell-bilist))
-  (defun-typed to-interior  ((cell cell-bilist))(change-class cell 'bilist-interior))
-  (defun-typed to-leftmost  ((cell cell-bilist))(change-class cell 'bilist-leftmost))
-  (defun-typed to-rightmost ((cell cell-bilist))(change-class cell 'bilist-rightmost))
-  (defun-typed to-solitary  ((cell cell-bilist))(change-class cell 'bilist-solitary))
+  (defun-typed to-cell      ((cell cell-array))(change-class cell 'cell-array))
+  (defun-typed to-interior  ((cell cell-array))(change-class cell 'array-interior))
+  (defun-typed to-leftmost  ((cell cell-array))(change-class cell 'array-leftmost))
+  (defun-typed to-rightmost ((cell cell-array))(change-class cell 'array-rightmost))
+  (defun-typed to-solitary  ((cell cell-array))(change-class cell 'array-solitary))
 
-  (defmacro connect (c0 c1)
-    `(progn
-       (setf (right-neighbor-link ,c0) ,c1)
-       (setf (left-neighbor-link ,c1) ,c0)
-       ))
-  ;; c0 c1 are either neighbors, or the same cell
-  ;; Because we use self-pointers instead of nil to terminate ends, insert
-  ;; will work even against a single cell.
-  (defmacro insert-between (c0 c1 new-cell)
-    `(progn
-       (connect ,c0 ,new-cell)
-       (connect ,new-cell ,c1)
-       ))
 
-  (defmacro cap-left (c0)
-    `(setf (left-neighbor-link ,c0) ,c0)
-    )
-
-  (defmacro cap-right (c0)
-    `(setf (right-neighbor-link ,c0) ,c0)
-    )
-
-  (defmacro cap-off (c0)
-    `(progn
-       (cap-left ,c0)
-       (cap-right ,c0)
-       ))
-
-  ;; c0 c1 c2 are neighbors in sequence
-  ;; connects c0 to c2, caps off c1
-  (defmacro extract (c0 c1 c2)
-    `(progn
-       (connect ,c0 ,c2)
-       (cap-off ,c1)
-       ))
-
-  ;; disconnects c0 from c1
-  (defmacro disconnect (c0 c1)
-    `(progn
-       (cap-right ,c0)
-       (cap-left ,c1)
-       ))
-
-  (defun-typed init ((cell cell-bilist) instance &optional ➜)
+  (defun-typed init ((cell cell-array) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         (➜fail (λ()(error 'bad-init-value)))
-        status left-neighbor right-neighbor
+        status
         )
       ➜
-      (w<cell> cell instance)
-
-      ;; When these two conds are put together, SBCL currently, seemingly erroneously,
-      ;; deletes the (¬ left-neighbor) clause
-      ;;
-        (cond
-          (right-neighbor     (connect cell right-neighbor))
-          ((¬ right-neighbor) (cap-right cell))
-          )
-        (cond
-          (left-neighbor      (connect left-neighbor cell))
-          ((¬ left-neighbor)  (cap-left cell))
-          )
+      (w cell instance)
       (when status
         (case status
           (interior  (to-interior  cell))
@@ -107,25 +91,10 @@ Implementation of cell intended for use with a bidirectional list.
       ))
 
 ;;--------------------------------------------------------------------------------
-;; cell functions
+;; queries
 ;;
-  ;; we don't provide a cell copy, so one can usually just use eq
-  (defun-typed =<cell> ((cell-0 cell-bilist) (cell-1 cell-bilist) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-      (if
-        (∧
-          (eq (right-neighbor cell-0) (right-neighbor cell-1))
-          (eq (left-neighbor cell-0) (left-neighbor cell-1))
-          )
-
-  (defun-typed r ((cell cell-bilist)) (contents cell))
-  (defun-typed w ((cell cell-bilist) instance) (setf (contents cell) instance))
+  (defun-typed r<cell> ((cell cell-array)) (contents cell))
+  (defun-typed w<cell> ((cell cell-array) instance) (setf (contents cell) instance))
 
   ;; the more specific righmost case is handled on the interface
   (defun-typed esr<cell> ((cell cell) &optional ➜)
@@ -157,7 +126,7 @@ Implementation of cell intended for use with a bidirectional list.
       ➜
       [➜rightmost]
       ))
-  (defun-typed right-neighbor ((cell bilist-leftmost-interior) &optional ➜)
+  (defun-typed right-neighbor ((cell array-leftmost-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -177,7 +146,7 @@ Implementation of cell intended for use with a bidirectional list.
       ➜
       [➜leftmost]
       ))
-  (defun-typed left-neighbor ((cell bilist-rightmost-interior) &optional ➜)
+  (defun-typed left-neighbor ((cell array-rightmost-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -231,18 +200,18 @@ Implementation of cell intended for use with a bidirectional list.
                 (setf cell (left-neighbor cell))
                 )))))))
 
-  (defun-typed neighbor((cell cell-bilist) &optional ➜)
+  (defun-typed neighbor((cell cell-array) &optional ➜)
     (destructuring-bind
       (&key
-        (direction *direction-right*)
+        (direction direction-right)
         (distance 0)
         (➜unknown-direction (λ()(error 'unknown-direction)))
         &allow-other-keys
         )
       ➜
       (cond
-        ((= direction *direction-right*) (right-neighbor-n cell distance ➜))
-        ((= direction *direction-left*) (left-neighbor-n cell distance ➜))
+        ((= direction direction-right) (right-neighbor-n cell distance ➜))
+        ((= direction direction-left) (left-neighbor-n cell distance ➜))
         (t [➜unknown-direction])
         )))
 
@@ -250,7 +219,7 @@ Implementation of cell intended for use with a bidirectional list.
 ;; topology manipulation
 ;;
 
-  (defun-typed a<cell> ((c0 bilist-solitary) (new-cell cell-bilist))
+  (defun-typed a<cell> ((c0 array-solitary) (new-cell cell-array))
     (let(
           (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
@@ -259,7 +228,7 @@ Implementation of cell intended for use with a bidirectional list.
       (to-rightmost new-cell)
       (values)
       ))
-  (defun-typed a<cell> ((c0 bilist-rightmost) (new-cell cell-bilist))
+  (defun-typed a<cell> ((c0 array-rightmost) (new-cell cell-array))
     (let(
           (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
@@ -278,7 +247,7 @@ Implementation of cell intended for use with a bidirectional list.
       ))
 
 
-  (defun-typed -a<cell> ((c1 bilist-solitary) (new-cell cell-bilist))
+  (defun-typed -a<cell> ((c1 array-solitary) (new-cell cell-array))
     (let(
           (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
@@ -287,7 +256,7 @@ Implementation of cell intended for use with a bidirectional list.
       (to-leftmost new-cell)
       (values)
       ))
-  (defun-typed -a<cell> ((c1 bilist-leftmost) (new-cell cell-bilist))
+  (defun-typed -a<cell> ((c1 array-leftmost) (new-cell cell-array))
     (let(
           (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
@@ -299,7 +268,7 @@ Implementation of cell intended for use with a bidirectional list.
   ;;The solitary and leftmost cases must be handled by specialized implementation
   ;;functions.  We can't do it here because we don't know the relationship between
   ;;rightmost and the tape header for the implementation.
-  (defun-typed -a<cell> ((c1 bilist-rightmost-interior) (new-cell cell))
+  (defun-typed -a<cell> ((c1 array-rightmost-interior) (new-cell cell))
     (let(
           (c0 (left-neighbor c1)) ; c1 is not leftmost, but c0 might be
           )
@@ -314,7 +283,7 @@ Implementation of cell intended for use with a bidirectional list.
   ;; This is here instead of in cell.lisp because c2 might be the tape header,
   ;; and other types might not have a link type tape header.
   ;;
-    (defun-typed d<cell> ((cell bilist-leftmost) &optional ➜)
+    (defun-typed d<cell> ((cell array-leftmost) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -334,7 +303,7 @@ Implementation of cell intended for use with a bidirectional list.
           (to-cell c1)
           [➜ok c1]
           )))
-    (defun-typed d<cell> ((cell bilist-interior) &optional ➜)
+    (defun-typed d<cell> ((cell array-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -357,7 +326,7 @@ Implementation of cell intended for use with a bidirectional list.
 
   ;; deletes the left neighbor cell
   ;; this function is unable to make the tape empty
-  (defun-typed -d<cell> ((cell bilist-rightmost) &optional ➜)
+  (defun-typed -d<cell> ((cell array-rightmost) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -377,7 +346,7 @@ Implementation of cell intended for use with a bidirectional list.
         (to-cell c1)
         [➜ok c1]
         )))
-  (defun-typed -d<cell> ((cell bilist-interior) &optional ➜)
+  (defun-typed -d<cell> ((cell array-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -398,7 +367,7 @@ Implementation of cell intended for use with a bidirectional list.
         [➜ok c1]
         )))
 
-    (defun-typed d+<cell> ((cell bilist-leftmost-interior) &optional ➜)
+    (defun-typed d+<cell> ((cell array-leftmost-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)

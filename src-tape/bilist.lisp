@@ -258,3 +258,39 @@ of a research project and I prefer to keep the language syntax paradigm consiste
           :➜rightmost ➜rightmost
           })
       ))
+
+;;--------------------------------------------------------------------------------
+;; length
+;;
+  (defun-typed length-is-one ((tape tape-bilist-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor (leftmost tape)
+        {
+          :➜ok (λ(cell)(declare (ignore cell))[➜∅])
+          :➜rightmost ➜t
+          })))
+
+  (defun-typed length-is-two ((tape tape-bilist-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜t (be t))
+        (➜∅ (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      (right-neighbor (leftmost tape)
+        {
+          :➜ok (λ(cell)
+                 (right-neighbor cell
+                   {
+                     :➜ok (λ(cell)(declare (ignore cell))[➜∅])
+                     :➜rightmost ➜t
+                     }))
+          :➜rightmost ➜∅
+          })))
