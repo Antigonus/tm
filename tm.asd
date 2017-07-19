@@ -40,21 +40,22 @@ See LICENSE.txt
 
                (:module "src-cell"
                  :components (
-                               (:file "init")
                                (:file "interface")
-                               (:file "bilist")
+                               (:file "list")
+;;                               (:file "bilist")
                                ))
 
-               (:module "src-tape-0"
+               (:module "src-tape"
                  :components (
-                               (:file "interface")
-                               (:file "bilist")
+;;                               (:file "interface")
+;;                               (:file "list")
+;;                               (:file "bilist")
                                ))
 
                (:module "src-tape-machine"
                  :components (
-                               (:file "interface")
-                               (:file "tm")
+;;                               (:file "interface")
+;;                               (:file "tm")
                                ))
 
 
@@ -168,12 +169,12 @@ See LICENSE.txt
 
                (:module "test-cell"
                  :components (
-                               (:file "bilist")
+;;                               (:file "bilist")
                                ))
 
                (:module "test-tape"
                  :components (
-                               (:file "bilist")
+;;                               (:file "bilist")
                                ))
 
 

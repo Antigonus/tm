@@ -35,7 +35,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; one of these two attributes should be given to cell implementations
   ;;
     (def-type virtual ()())
-    (def-type real ()())
+    (def-type substrate ()())
 
   (def-type cell ()()) 
 
@@ -49,7 +49,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
     (def-type interior (leftmost-interior rightmost-interior)())
     (def-type leftmost (leftmost-interior)())
     (def-type rightmost (rightmost-interior)())
-    (def-type solitary (leftmost rightmost)())
+    (def-type solitary (rightmost leftmost)())
 
   (def-function-class to-cell (cell))
   (def-function-class to-interior (cell))
@@ -91,7 +91,7 @@ machine constructs, such a tape head, are involved in the implementation of the 
   (defun apply-to-neighbor (cell f &optional ➜)
     (neighbor cell
       {
-        :➜ok  (λ(neigbhor-cell) [f neighbor-cell])
+        :➜ok  (λ(neighbor-cell) [f neighbor-cell])
         (o ➜)
         }))
 
@@ -101,12 +101,12 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; :distance defaults to 1
   ;;
     (def-function-class esr (cell &optional ➜))
-    (defun-typed esnr ((cell cell) &optional ➜)
+    (defun-typed esr ((cell cell) &optional ➜)
       (apply-to-neighbor cell (λ(nc)(r nc ➜)) ➜)
       )
 
     (def-function-class esw (cell n instance &optional ➜))
-    (defun-typed esnw ((cell cell) n instance &optional ➜)
+    (defun-typed esw ((cell cell) n instance &optional ➜)
       (apply-to-neighbor cell (λ(nc)(w nc instance ➜)) ➜)
       )
 
@@ -147,6 +147,15 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; 'solitary' also goes here, because it is a specialization of rightmost
   ;;
     (def-function-class d<cell> (cell &optional ➜))
+    (defun-typed d<cell> ((cell solitary) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
     (defun-typed d<cell> ((cell rightmost) &optional ➜)
       (destructuring-bind
         (&key
@@ -218,6 +227,15 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; take the error path ➜rightmost
   ;;
     (def-function-class d+<cell> (cell &optional ➜))
+    (defun-typed d+<cell> ((cell solitary) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
     (defun-typed d+<cell> ((cell rightmost) &optional ➜)
       (destructuring-bind
         (&key

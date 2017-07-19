@@ -34,7 +34,7 @@ CLOS version of the cons cell.
   (defparameter *direction-right* 0)
   (defparameter *direction-left*  1)
 
-  (def-type cell-list (link cell real)
+  (def-type cell-list (link cell substrate)
     (
       (contents :initarg :contents :accessor contents)
       ))
@@ -66,11 +66,10 @@ CLOS version of the cons cell.
         status right-neighbor
         )
       ➜
-      (w<cell> cell instance)
-
+      (w cell instance)
       (cond
-        (right-neighbor     (connect cell right-neighbor))
-        ((¬ right-neighbor) (cap-right cell))
+        (right-neighbor (setf (right-neighbor cell) right-neighbor))
+        (t              (setf (right-neighbor cell) cell))
         )
       (when status
         (case status
@@ -98,14 +97,33 @@ CLOS version of the cons cell.
       (if
         (∧
           (eq (right-neighbor cell-0) (right-neighbor cell-1))
-          (eq (cargo cell-0) (cargo cell-1))
+          (eq (contents cell-0) (contents cell-1))
           )
         [➜t]
         [➜∅]
         )))
 
-  (defun-typed r ((cell cell-list)) (contents cell))
-  (defun-typed w ((cell cell-list) instance) (setf (contents cell) instance))
+  (defun-typed r ((cell cell-list) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (contents cell)]
+      ))
+ 
+  (defun-typed w ((cell cell-list) instance &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (setf (contents cell) instance)
+      [➜ok]
+      ))
+
 
 ;;--------------------------------------------------------------------------------
 ;; cell neighbor functions
@@ -116,7 +134,7 @@ CLOS version of the cons cell.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ(cell n)(declare (ignore cell n)(error 'step-from-rightmost))))
+        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
         &allow-other-keys
         )
       ➜
@@ -139,7 +157,7 @@ CLOS version of the cons cell.
         )
       ➜
       (cond
-        ((< n 0) [➜bad-direction])
+        ((< distance 0) [➜bad-direction])
         (t 
           (neighbor-1 cell #'right-neighbor distance ➜)
           ))))
@@ -147,122 +165,55 @@ CLOS version of the cons cell.
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-  (def-funciton-class connect (c0 c1))
+  (def-function-class connect (c0 c1))
   (defun-typed connect ((c0 cell-list) (c1 cell-list))
-    (setf (right-neighbor-link c0) c1)
+    (setf (right-neighbor c0) c1)
     )
 
-  (defun-typed a<cell> ((c0 cell-list-solitary) (new-cell cell-list))
+  (defun-typed a<cell> ((c0 list-solitary) (new-cell cell-list))
     (connect c0 new-cell)
     (to-leftmost c0)
     (to-rightmost new-cell)
     t
-    ))
-  (defun-typed a<cell> ((c0 cell-list-rightmost) (new-cell cell-list))
+    )
+  (defun-typed a<cell> ((c0 list-rightmost) (new-cell cell-list))
     (connect c0 new-cell)
     (to-interior c0)
     (to-rightmost new-cell)
     t
-    ))
+    )
   (defun-typed a<cell> ((c0 leftmost-interior) (new-cell cell))
     (connect c0 new-cell)
     (to-interior new-cell)
     t
-    ))
+    )
 
   ;; Deletes the right neighbor cell.
-  ;; This function is unable to make the tape empty.
-  ;; This is here instead of in cell.lisp because c2 might be the tape header,
-  ;; and other types might not have a link type tape header.
   ;;
-
---->
-
-    (defun-typed d<cell> ((cell list-leftmost) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (let*(
-               (c0 cell)
-               (c1 (right-neighbor c0)) ; this might be rightmost
-               (c2 (right-neighbor c1)) ; this might be the tape header
-               )
-          (extract c0 c1 c2)
-          (when 
-            (typep c1 'rightmost)
-            (to-solitary c0)
+    (def-function-class extract (c0 c1))
+    (defun-typed extract ((c0 list-leftmost) (c1 list-rightmost))
+      (setf (right-neighbor c0) c0)
+      (setf (right-neighbor c1) c1)
+      (to-solitary c0)
+      (to-cell c1)
+      )
+    (defun-typed extract ((c0 list-interior) (c1 list-rightmost))
+      (setf (right-neighbor c0) c0)
+      (setf (right-neighbor c1) c1)
+      (to-rightmost c0)
+      (to-cell c1)
+      )
+    (defun-typed extract ((c0 list-interior) (c1 list-interior))
+      (let(
+            (c2 (right-neighbor c1))
             )
-          (to-cell c1)
-          [➜ok c1]
-          )))
-    (defun-typed d<cell> ((cell list-interior) &optional ➜)
-      (destructuring-bind
-        (&keyp
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (let*(
-               (c0 cell)
-               (c1 (right-neighbor c0)) ; this might be rightmost
-               (c2 (right-neighbor c1)) ; this might be the tape header
-               )
-          (extract c0 c1 c2)
-          (when 
-            (typep c1 'rightmost)
-            (to-rightmost c0)
-            )
-          (to-cell c1)
-          [➜ok c1]
-          )))
-
-  ;; deletes the left neighbor cell
-  ;; this function is unable to make the tape empty
-  (defun-typed -d<cell> ((cell list-rightmost) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let*(
-             (c2 cell)
-             (c1 (left-neighbor c2)) ; this might be leftmost
-             (c0 (left-neighbor c1)) ; this might be the tape header
-             )
-        (extract c0 c1 c2)
-        (when 
-          (typep c1 'leftmost)
-          (to-solitary c2)
-          )
+        (setf (right-neighbor c0) c2)
+        (setf (right-neighbor c1) c1)
         (to-cell c1)
-        [➜ok c1]
-        )))
-  (defun-typed -d<cell> ((cell list-interior) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let*(
-             (c2 cell)
-             (c1 (left-neighbor c2)) ; this might be leftmost
-             (c0 (left-neighbor c1)) ; this might be the tape header
-             )
-        (extract c0 c1 c2)
-        (when 
-          (typep c1 'leftmost)
-          (to-leftmost c2)
-          )
-        (to-cell c1)
-        [➜ok c1]
-        )))
+        ))
 
-    (defun-typed d+<cell> ((cell list-leftmost-interior) &optional ➜)
+    ;; rightmost and solitary handled on the interface
+    (defun-typed d<cell> ((c0 list-leftmost-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -270,8 +221,33 @@ CLOS version of the cons cell.
           )
         ➜
         (let(
-              (rn (right-neighbor cell))
+              (c1 (right-neighbor c0))
               )
-          (disconnect cell rn)
-          [➜ok rn]
+          (extract c0 c1)
+          [➜ok c1]
+          )))
+
+    (def-function-class disconnect (c0 c1))
+    (defun-typed disconnect ((c0 list-leftmost) (c1 list-rightmost-interior))
+      (setf (right-neighbor c0) c0)
+      (to-solitary c0)
+      )
+    (defun-typed disconnect ((c0 list-interior) (c1 list-rightmost-interior))
+      (setf (right-neighbor c0) c0)
+      (to-rightmost c0)
+      )
+
+    ;; c0 solitary and rightmost cases handled on the interface
+    (defun-typed d+<cell> ((c0 list-leftmost-interior) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
+          )
+        ➜
+        (let(
+              (c1 (right-neighbor c0))
+              )
+          (disconnect c0 c1)
+          [➜ok c1]
           )))
