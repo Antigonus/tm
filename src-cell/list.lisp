@@ -172,7 +172,9 @@ CLOS version of the cons cell.
       (setf (right-neighbor c) ∅)
       (to-rightmost c)
       )
-    (defun cap-left (c)
+
+    (def-function-class cap-left (c))
+    (defun-typed cap-left ((c cell-list))
       (to-leftmost c)
       )
 

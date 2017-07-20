@@ -63,7 +63,7 @@ Implementation of cell intended for use with a bidirectional list.
         left-neighbor
         )
       ➜
-      (call-next-method cell insstance 
+      (call-next-method cell instance 
         {
           :➜ok (λ(cell)
                  (cond
@@ -79,7 +79,7 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; cell functions
 ;;
-  (defun-typed =<cell> ((cell-0 cell-list) (cell-1 cell-list) &optional ➜)
+  (defun-typed =<cell> ((cell-0 cell-bilist) (cell-1 cell-bilist) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -111,7 +111,7 @@ Implementation of cell intended for use with a bidirectional list.
       (cond
         ((= direction *right*) t)
         ((= direction *left*) (setf distance (- distance)))
-        (t (Return [➜bad-direction]))
+        (t (return-from neighbor [➜bad-direction]))
         )
       (cond
         ((≥ distance 0)
@@ -128,7 +128,7 @@ Implementation of cell intended for use with a bidirectional list.
 
   ;; terminate the connections of a cell so that it can not affect gc
   ;;
-    (defun cap-left (c)
+    (defun-typed cap-left ((c cell-bilist))
       (setf (left-neighbor c) ∅)
       (to-leftmost c)
       )

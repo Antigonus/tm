@@ -42,7 +42,7 @@ See LICENSE.txt
                  :components (
                                (:file "interface")
                                (:file "list")
-;;                               (:file "bilist")
+                               (:file "bilist")
                                ))
 
                (:module "src-tape"
