@@ -19,29 +19,33 @@ See LICENSE.txt
          flag1 flag2
          )
 
-    (to-leftmost tp0)
-    (connect tp0 tp1)
-    (to-rightmost tp1)
+    (to-solitary tp0)
+    (a<cell> tp0 tp1)
     
-    (to-leftmost tp2)
-    (connect tp2 tp3)
-    (to-rightmost tp3)
+    (to-solitary tp2)
+    (a<cell> tp2 tp3)
 
-    (setf (right-neighbor tp4) tp4)
- 
     (setf flag1
       (∧
         (eq (right-neighbor tp0) tp1)
+        (typep tp0 'leftmost)
+        (typep tp1 'rightmost)
         (eq (right-neighbor tp2) tp3)
+        (typep tp2 'leftmost)
+        (typep tp3 'rightmost)
         ))
 
+    (a<cell> tp0 tp4)
     (a<cell> tp1 tp2)
-    (a<cell> tp3 tp4)
     (setf flag2
       (∧
+        (eq (right-neighbor tp0) tp4)
+        (eq (right-neighbor tp4) tp1)
         (eq (right-neighbor tp1) tp2)
-        (eq (right-neighbor tp2) tp3)
-        (eq (right-neighbor tp3) tp4)
+        (typep tp0 'leftmost)
+        (typep tp4 'interior)
+        (typep tp1 'interior)
+        (typep tp2 'rightmost)
         ))
 
     (∧
@@ -144,10 +148,10 @@ See LICENSE.txt
         (c4 (mk 'cell-list 14))
         flag1 flag2 flag3 flag4 flag5
         )
-    (a<cell> c0 c1)
-    (a<cell> c1 c2)  
+    (a<cell> c0 c2)
+    (a<cell> c0 c1)  
+    (a<cell> c2 c4)
     (a<cell> c2 c3)
-    (a<cell> c3 c4)
 
     (setf flag1 
       (∧

@@ -231,7 +231,26 @@ that has almost no syntax..
   situations and then make a defun version of a<cell> that a<cell> and a<instance> call.
   Evern better in this case if the compiler just dropped in copies of the code.
 
+15.
+  Note src-cell/bilist.lisp
+
+  I would like to have abstracted a<cell> but I couldn't because CLOS dispactch
+  tag matching can not be abstracted.  I.e.:
+
+    (defun-typed a<cell>-1 ((c0 list-rightmost) (c1 cell-list) diff-0 diff-1)
+      (setf [diff-1 c1] c0)
+      (setf [diff-0 c1] ∅)
+      (to-rightmost c1)
+
+      (setf [diff-0 c0] c1)
+      (to-interior c0)
+      )
 
 
+   The tag on c0 should be either list-leftmost or list-rightmost, depending on
+   whether we are doing a<cell>  or -a<cell>.
 
-  
+   If I make an a<cell>-2 with the counter-corresponding tags, then there is
+   not point to abstracting, as we can just have the a and -a versions directly.
+
+   ... looks like a neuron.  tag matching tiggers, then the function fires.

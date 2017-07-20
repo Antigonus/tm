@@ -14,16 +14,16 @@ CLOS version of the cons cell.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type link ()
+  (def-type right-differential ()
     (
       (right-neighbor
         :initarg :right-neighbor
         :accessor right-neighbor
         )
       ))
-  ;; though a list cell only has one link, the header for a list tape keeps track of both
+  ;; though a list cell only has one differential, the header for a list tape keeps track of both
   ;; tape boundaries
-  (def-type bilink (link)
+  (def-type left-differential ()
     (
       (left-neighbor
         :initarg :left-neighbor
@@ -31,10 +31,10 @@ CLOS version of the cons cell.
         )
       ))
 
-  (defparameter *direction-right* 0)
-  (defparameter *direction-left*  1)
+  (defparameter *right* 0)
+  (defparameter *left*  1)
 
-  (def-type cell-list (link cell substrate)
+  (def-type cell-list (right-differential cell substrate)
     (
       (contents :initarg :contents :accessor contents)
       ))
@@ -57,19 +57,19 @@ CLOS version of the cons cell.
   (defun-typed to-rightmost ((cell cell-list))(change-class cell 'list-rightmost))
   (defun-typed to-solitary  ((cell cell-list))(change-class cell 'list-solitary))
 
-
   (defun-typed init ((cell cell-list) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         (➜fail (λ()(error 'bad-init-value)))
-        status right-neighbor
+        status 
+        right-neighbor
         )
       ➜
       (w cell instance)
       (cond
         (right-neighbor (setf (right-neighbor cell) right-neighbor))
-        (t              (setf (right-neighbor cell) cell))
+        (t              (setf (right-neighbor cell) ∅))
         )
       (when status
         (case status
@@ -157,64 +157,102 @@ CLOS version of the cons cell.
         )
       ➜
       (cond
-        ((< distance 0) [➜bad-direction])
-        (t 
+        ((≥ distance 0)
           (neighbor-1 cell #'right-neighbor distance ➜)
-          ))))
+          )
+        (t [➜bad-direction])
+        )))
 
 ;;--------------------------------------------------------------------------------
-;; topology manipulation
+;; primitive topology manipulation
 ;;
-  (def-function-class connect (c0 c1))
-  (defun-typed connect ((c0 cell-list) (c1 cell-list))
-    (setf (right-neighbor c0) c1)
-    )
+  ;; terminate the connections of a cell so that it can not affect gc
+  ;;
+    (defun cap-right (c)
+      (setf (right-neighbor c) ∅)
+      (to-rightmost c)
+      )
+    (defun cap-left (c)
+      (to-leftmost c)
+      )
 
-  (defun-typed a<cell> ((c0 list-solitary) (new-cell cell-list))
-    (connect c0 new-cell)
-    (to-leftmost c0)
-    (to-rightmost new-cell)
-    t
-    )
-  (defun-typed a<cell> ((c0 list-rightmost) (new-cell cell-list))
-    (connect c0 new-cell)
-    (to-interior c0)
-    (to-rightmost new-cell)
-    t
-    )
-  (defun-typed a<cell> ((c0 leftmost-interior) (new-cell cell))
-    (connect c0 new-cell)
-    (to-interior new-cell)
-    t
-    )
+    (def-function-class cap (c))
+    (defun-typed cap ((c cell-list)) 
+      (setf (right-neighbor c) ∅)
+      (to-cell c)
+      )
 
-  ;; Deletes the right neighbor cell.
+  ;; c0 and c1 are two cells to be connected
+  ;;
+    (def-function-class connect (c0 c1))
+    (defun-typed connect ((c0 cell-list)(c1 cell-list))
+      (setf (right-neighbor c0) c1)
+      )
+
+  ;; c0 and c1 are neighbors.  re-routes connections around cell c1
   ;;
     (def-function-class extract (c0 c1))
     (defun-typed extract ((c0 list-leftmost) (c1 list-rightmost))
-      (setf (right-neighbor c0) c0)
-      (setf (right-neighbor c1) c1)
+      (cap-right c0)
       (to-solitary c0)
-      (to-cell c1)
+      (cap c1)
       )
     (defun-typed extract ((c0 list-interior) (c1 list-rightmost))
-      (setf (right-neighbor c0) c0)
-      (setf (right-neighbor c1) c1)
-      (to-rightmost c0)
-      (to-cell c1)
+      (cap-right c0)
+      (cap c1)
       )
     (defun-typed extract ((c0 list-leftmost-interior) (c1 list-interior))
       (let(
             (c2 (right-neighbor c1))
             )
-        (setf (right-neighbor c0) c2)
-        (setf (right-neighbor c1) c1)
-        (to-cell c1)
+        (connect c0 c2)
+        ;; c0 and c2 each maintains its status
+        (cap c1)
         ))
 
-    ;; rightmost handled on the interface.
-    ;; solitary, though this has the same behavior for all cells, had to be put 
-    ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+    ;; c0 and c1 are neighbors. disconnects them.
+    ;;
+      (def-function-class disconnect (c0 c1))
+      (defun-typed disconnect ((c0 list-leftmost) (c1 list-rightmost-interior))
+        (cap-right c0)
+        (to-solitary c0)
+        (cap-left c1)
+        )
+      (defun-typed disconnect ((c0 list-interior) (c1 list-rightmost-interior))
+        (cap-right c0)
+        (cap-left c1)
+        )
+
+;;--------------------------------------------------------------------------------
+;; topology manipulation, interface implementations
+;;
+  ;; c0 and c2 are neighbors, inserts c1 between them
+  ;;
+    (defun-typed a<cell> ((c0 list-solitary) (c1 cell-list))
+      (cap-right c1)
+      (connect c0 c1)
+      (to-leftmost c0)
+      )
+    (defun-typed a<cell> ((c0 list-rightmost) (c1 cell-list))
+      (cap-right c1)
+      (connect c0 c1)
+      (to-interior c0)
+      )
+    (defun-typed a<cell> ((c0 list-leftmost-interior) (c1 cell-list))
+      (let(
+            (c2 (right-neighbor c0))
+            )
+        (connect c0 c1)
+        (connect c1 c2)
+        (to-interior c1)
+        ;; c0 keeps its status
+      ))
+
+  ;; Deletes the right neighbor cell.
+  ;; rightmost handled on the interface.
+  ;; solitary, though this has the same behavior for all cells, had to be put 
+  ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+  ;;
     (defun-typed d<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
@@ -238,19 +276,10 @@ CLOS version of the cons cell.
           [➜ok c1]
           )))
 
-    (def-function-class disconnect (c0 c1))
-    (defun-typed disconnect ((c0 list-leftmost) (c1 list-rightmost-interior))
-      (setf (right-neighbor c0) c0)
-      (to-solitary c0)
-      )
-    (defun-typed disconnect ((c0 list-interior) (c1 list-rightmost-interior))
-      (setf (right-neighbor c0) c0)
-      (to-rightmost c0)
-      )
-
-    ;; c0 rightmost case handled on the interface.
-    ;; solitary, though this has the same behavior for all cells, had to be put 
-    ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+  ;; c0 rightmost case handled on the interface.
+  ;; solitary, though this has the same behavior for all cells, had to be put 
+  ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+  ;;
     (defun-typed d+<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
