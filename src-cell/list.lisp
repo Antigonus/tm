@@ -14,7 +14,7 @@ CLOS version of the cons cell.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type right-differential ()
+  (def-type right-neighbor ()
     (
       (right-neighbor
         :initarg :right-neighbor
@@ -23,7 +23,7 @@ CLOS version of the cons cell.
       ))
   ;; though a list cell only has one differential, the header for a list tape keeps track of both
   ;; tape boundaries
-  (def-type left-differential ()
+  (def-type left-neighbor ()
     (
       (left-neighbor
         :initarg :left-neighbor
@@ -34,7 +34,7 @@ CLOS version of the cons cell.
   (defparameter *right* 0)
   (defparameter *left*  1)
 
-  (def-type cell-list (right-differential cell substrate)
+  (def-type cell-list (right-neighbor cell substrate)
     (
       (contents :initarg :contents :accessor contents)
       ))
@@ -64,6 +64,7 @@ CLOS version of the cons cell.
         (➜fail (λ()(error 'bad-init-value)))
         status 
         right-neighbor
+        &allow-other-keys
         )
       ➜
       (w cell instance)

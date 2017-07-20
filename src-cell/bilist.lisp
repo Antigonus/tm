@@ -3,7 +3,7 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-Implementation of cell intended for use with a bidirectional list.
+  Implementation of cell intended for use with a bidirectional list.
 
 |#
 
@@ -12,10 +12,7 @@ Implementation of cell intended for use with a bidirectional list.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type cell-bilist (cell-list left-link cell)
-    (
-      (contents :initarg :contents :accessor contents)
-      ))
+  (def-type cell-bilist (cell-list left-neighbor cell)())
 
   (def-type bilist-leftmost-interior
     (
@@ -61,6 +58,7 @@ Implementation of cell intended for use with a bidirectional list.
       (&key
         (➜ok #'echo)
         left-neighbor
+        &allow-other-keys
         )
       ➜
       (call-next-method cell instance 

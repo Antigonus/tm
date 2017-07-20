@@ -9,7 +9,7 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-cell-0 ()
+(defun test-cell-bilist-0 ()
   (let*(
          (tp0 (mk 'cell-bilist 1))
          (tp1 (mk 'cell-bilist 3))
@@ -19,33 +19,33 @@ See LICENSE.txt
          flag1 flag2
          )
 
-    (setf (right-neighbor-slot tp0) tp0)
-    (setf (left-neighbor-slot tp0) tp0)
+    (to-solitary tp0)
+    (a<cell> tp0 tp1)
+    
+    (to-solitary tp2)
+    (a<cell> tp2 tp3)
 
-    (setf (right-neighbor-slot tp1) tp3)
-    (setf (right-neighbor-slot tp3) tp3)
- 
-    (setf (left-neighbor-slot tp1) tp1)
-    (setf (left-neighbor-slot tp3) tp1)
-
-    (insert-between tp0 tp0 tp4)
     (setf flag1
       (∧
-        (eq (right-neighbor-slot tp0) tp4)
-        (eq (left-neighbor-slot  tp0) tp4)
-        (eq (right-neighbor-slot tp4) tp0)
-        (eq (left-neighbor-slot  tp4) tp0)
+        (eq (right-neighbor tp0) tp1)
+        (typep tp0 'leftmost)
+        (typep tp1 'rightmost)
+        (eq (right-neighbor tp2) tp3)
+        (typep tp2 'leftmost)
+        (typep tp3 'rightmost)
         ))
 
-    (insert-between tp1 tp3 tp2)
+    (a<cell> tp0 tp4)
+    (a<cell> tp1 tp2)
     (setf flag2
       (∧
-        (eq (right-neighbor-slot tp1) tp2)
-        (eq (right-neighbor-slot tp2) tp3)
-        (eq (right-neighbor-slot tp3) tp3)
-        (eq (left-neighbor-slot tp1) tp1)
-        (eq (left-neighbor-slot tp2) tp1)
-        (eq (left-neighbor-slot tp3) tp2)
+        (eq (right-neighbor tp0) tp4)
+        (eq (right-neighbor tp4) tp1)
+        (eq (right-neighbor tp1) tp2)
+        (typep tp0 'leftmost)
+        (typep tp4 'interior)
+        (typep tp1 'interior)
+        (typep tp2 'rightmost)
         ))
 
     (∧
@@ -53,94 +53,83 @@ See LICENSE.txt
       )
 
     ))
-(test-hook test-cell-0)
+(test-hook test-cell-bilist-0)
 
-(defun test-cell-1 ()
+
+(defun test-cell-bilist-1 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
-        (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
+        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
         )
-    (w<cell> c1 10)
+    (w c1 10)
     (∧
-      (= (r<cell> c1) 10)
+      (= (r c1) 10)
       (=
-        (right-neighbor-n c0 2
+        (neighbor c0
           {
-            :➜ok (λ(rn)(r<cell> rn))
+            :distance 2
+            :➜ok (λ(rn)(r rn))
             :➜rightmost #'cant-happen
             })
         20
         )
       (=
-        (right-neighbor-n c0 3
+        (neighbor c0 
           {
+            :distance 3
             :➜ok #'cant-happen
             :➜rightmost (be 27)
             })
         27
         )
-      (=
-        (left-neighbor-n c2 2
-          {
-            :➜ok (λ(rn)(r<cell> rn))
-            :➜leftmost #'cant-happen
-            })
-        0
-        )
-      (=
-        (left-neighbor-n c2 3
-          {
-            :➜ok #'cant-happen
-            :➜leftmost (be 29)
-            })
-        29
-        )
       )))
-(test-hook test-cell-1)
+(test-hook test-cell-bilist-1)
 
-(defun test-cell-2 ()
+(defun test-cell-bilist-2 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
-        (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
+        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
         )
     (∧
-      (esr<cell> c1 {:➜ok (λ(v) (= v 20)) :➜rightmost #'cant-happen})
-      (= (esr<cell> c1) 20)
-      (= (esr<cell> c2 {:➜ok (be 5) :➜rightmost (be 21)}) 21)
-      (= (esnr<cell> c0 2 {:➜ok (λ(v)v) :➜rightmost (be 17)}) 20)
-      (= (esnr<cell> c0 3 {:➜ok (λ(v)v) :➜rightmost (be 17)}) 17)
+      (esr c1 {:➜ok (λ(v) (= v 20)) :➜rightmost #'cant-happen})
+      (= (esr c1) 20)
+      (= (esr c2 {:➜ok (be 5) :➜rightmost (be 21)}) 21)
+      (= (esr c0 {:distance 2 :➜ok (λ(v)v) :➜rightmost (be 17)}) 20)
+      (= (esr c0 {:distance 3 :➜ok (λ(v)v) :➜rightmost (be 17)}) 17)
       )))
-(test-hook test-cell-2)
+(test-hook test-cell-bilist-2)
 
-(defun test-cell-3 ()
+(defun test-cell-bilist-3 ()
   (let*(
-        (c0 (mk 'cell-bilist 0 {:status 'leftmost}))
-        (c1 (mk 'cell-bilist 1 {:left-neighbor c0}))
-        (c2 (mk 'cell-bilist 20 {:left-neighbor c1 :status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
+        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
         )
     (∧
-      (= (r<cell> c2) 20)
-      (= (esr<cell> c0) 1)
-      (= (esw<cell> c0 5) 5)
-      (= (esr<cell> c0) 5)
-      (= (esnr<cell> c0 2) 20)
-      (= (esnw<cell> c0 2 22
+      (= (r c2) 20)
+      (= (esr c0) 1)
+      (esw c0 5)
+      (= (esr c0) 5)
+      (= (esr c0 {:distance 2}) 20)
+      (= (esw c0 22
            {
-             :➜ok (λ(v)(+ v 1))
+             :distance 2
+             :➜ok (be 23)
              :➜rightmost (λ(cell n)(declare (ignore cell n))24)
              })
         23)
-      (= (esnr<cell> c0 2) 22)
-      (= (esnw<cell> c0 3 33
+      (= (esr c0 {:distance 2}) 22)
+      (= (esw c0 33
            {
-             :➜ok (λ(v)(+ v 1))
+             :distance 3
+             :➜ok (be 34)
              :➜rightmost
              (λ(cell n)
                (if
                  (∧
-                   (= (r<cell> cell) 22)
+                   (= (r cell) 22)
                    (= n 1)
                    )
                  35
@@ -148,147 +137,64 @@ See LICENSE.txt
                  ))})
         35)
       )))
-(test-hook test-cell-3)
+(test-hook test-cell-bilist-3)
 
-(defun test-cell-4 ()
+(defun test-cell-bilist-4 ()
   (let(
-        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
-        (c1 (mk 'cell-bilist 1))
-        (c2 (mk 'cell-bilist 2))
-        (c3 (mk 'cell-bilist 3))
-        flag1 flag2
+        (c0 (mk 'cell-bilist 10 {:status 'solitary}))
+        (c1 (mk 'cell-bilist 11))
+        (c2 (mk 'cell-bilist 12))
+        (c3 (mk 'cell-bilist 13))
+        (c4 (mk 'cell-bilist 14))
+        flag1 flag2 flag3 flag4 flag5
         )
-    (a<cell> c0 c1)
-    (setf flag1
-      (∧
-        (typep c0 'leftmost)
-        (typep c1 'rightmost)
-        ))
-
-    (a<cell> c1 c2)  
-    (setf flag2
-      (∧
-        (typep c0 'leftmost)
-        (typep c1 'interior) 
-        (typep c2 'rightmost)
-        ))
-
-    (a<cell> c1 c3)
-    (∧
-      flag1
-      flag2
-      (= (esnr<cell> c0 0) 0)
-      (= (esnr<cell> c0 1) 1)
-      (= (esnr<cell> c0 2) 3)
-      (= (esnr<cell> c0 3) 2)
-      )))
-(test-hook test-cell-4)
-
-(defun test-cell-5 ()
-  (let(
-        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
-        (c1 (mk 'cell-bilist 1))
-        (c2 (mk 'cell-bilist 20))
-        (c3 (mk 'cell-bilist 30))
-        flag1 flag2
-        )
-    (a<cell> c0 c1)
-    (setf flag1 (∧ (typep c0 'leftmost) (typep c1 'rightmost)))
-
-    (a<cell> c1 c2)  
-    (setf flag2
-      (∧
-        (typep c0 'leftmost)
-        (typep c1 'interior) 
-        (typep c2 'rightmost)
-        ))
-
-    (-a<cell> c2 c3)
-    (∧
-      flag1
-      flag2
-      (= (esnr<cell> c0 0) 0)
-      (= (esnr<cell> c0 1) 1)
-      (= (esnr<cell> c0 2) 30)
-      (= (esnr<cell> c0 3) 20)
-      (= (r<cell> (left-neighbor-n c2 3)) 0)
-      (= (left-neighbor-n c2 4 {:➜ok (be -1) :➜leftmost (be -2)}) -2)
-      )))
-(test-hook test-cell-5)
-
-
-(defun test-cell-6 ()
-  (let(
-        (c0 (mk 'cell-bilist 0 {:status 'solitary}))
-        (c1 (mk 'cell-bilist 1))
-        (c2 (mk 'cell-bilist 2))
-        (c3 (mk 'cell-bilist 3))
-        flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8
-        )
-    (-a<cell> c0 c1)
-    (setf flag1 (∧ (typep c0 'rightmost) (typep c1 'leftmost)))
-
-    (-a<cell> c1 c2)  
-    (setf flag2
-      (∧
-        (typep c0 'rightmost)
-        (typep c1 'interior)
-        (typep c2 'leftmost)
-        ))
-
+    (a<cell> c0 c2)
+    (a<cell> c0 c1)  
+    (a<cell> c2 c4)
     (a<cell> c2 c3)
-    (setf flag2
+
+    (setf flag1 
       (∧
-        (typep c0 'rightmost)
-        (typep c1 'interior)
-        (typep c3 'interior)
-        (typep c2 'leftmost)
+        (= (r (d.<cell> c0)) 10) ; after d. c0 is still the leftmost, but contents is now 11
+        (= (r c0) 11)
+        (typep c0 'leftmost)
         ))
 
+    (setf flag2
+      (∧
+        (= (esr c0 {:distance 0}) 11)
+        (= (esr c0 {:distance 1}) 12)
+        (= (esr c0 {:distance 2}) 13)
+        (= (esr c0 {:distance 3}) 14)
+        (= (esr c0 {:distance 4 :➜rightmost (be 199)}) 199)
+        ))
+      
     (setf flag3
       (∧
-        (= (esnr<cell> c2 0) 2)
-        (= (esnr<cell> c2 1) 3)
-        (= (esnr<cell> c2 2) 1)
-        (= (esnr<cell> c2 3) 0)
-        (= (r<cell> (left-neighbor-n c0 3)) 2)
-        (= (left-neighbor-n c0 4 {:➜ok (be -1) :➜leftmost (be -2)}) -2)
+        (= (r (d<cell> c2)) 13) ; deletes c3
+        (typep c2 'interior)
+        (= (r (d<cell> c2)) 14) ; deletes c4
+        (typep c2 'rightmost)
         ))
 
     (setf flag4
       (∧
-        (= (-d<cell> c2 {:➜ok #'cant-happen :➜leftmost (be 33)}) 33)
-        (= (r<cell> (-d<cell> c0)) 1)
+        (= (esr c0 {:distance 0}) 11)
+        (= (esr c0 {:distance 1}) 12)
+        (= (esr c0 {:distance 2 :➜rightmost (be 122)}) 122)
         ))
-    
+
     (setf flag5
       (∧
-        (= (esnr<cell> c2 0) 2)
-        (= (esnr<cell> c2 1) 3)
-        (= (esnr<cell> c2 2) 0)
-        (= (esnr<cell> c2 3 {:➜ok #'cant-happen :➜rightmost (be 71)}) 71)
+        (= (d.<cell> c2 {:➜rightmost (be 127)}) 127)
+        (= (r (d<cell> c0)) 12)
+        (typep c0 'solitary)
+        (= (d<cell> c0 {:➜rightmost (be 129)}) 129)
         ))
 
-    (setf flag6
-      (∧
-        (= (d<cell> c0 {:➜ok #'cant-happen :➜rightmost (be 44)}) 44)
-        (= (r<cell> (d<cell> c2)) 3)
-        ))
-
-    (setf flag7
-      (∧
-        (= (esnr<cell> c2 0) 2)
-        (= (esnr<cell> c2 1) 0)
-        (= (esnr<cell> c2 3 {:➜ok #'cant-happen :➜rightmost (be 71)}) 71)
-        ))
-
-    (setf flag8
-      (∧
-        (= (r<cell> (d.<cell> c2)) 2)
-        (typep c2 'solitary)
-        ))
-
-    (∧ flag1 flag2 flag3 flag4 flag5 flag6 flag7 flag8)
+    (∧
+      flag1 flag2 flag3 flag4 flag5
+      )
     ))
-(test-hook test-cell-6)
+(test-hook test-cell-bilist-4)
 

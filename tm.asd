@@ -170,7 +170,7 @@ See LICENSE.txt
                (:module "test-cell"
                  :components (
                                (:file "list")
-;;                               (:file "bilist")
+                               (:file "bilist")
                                ))
 
                (:module "test-tape"
