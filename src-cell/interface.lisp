@@ -105,8 +105,8 @@ machine constructs, such a tape head, are involved in the implementation of the 
       (apply-to-neighbor cell (λ(nc)(r nc ➜)) ➜)
       )
 
-    (def-function-class esw (cell n instance &optional ➜))
-    (defun-typed esw ((cell cell) n instance &optional ➜)
+    (def-function-class esw (cell instance &optional ➜))
+    (defun-typed esw ((cell cell) instance &optional ➜)
       (apply-to-neighbor cell (λ(nc)(w nc instance ➜)) ➜)
       )
 
@@ -147,15 +147,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; 'solitary' also goes here, because it is a specialization of rightmost
   ;;
     (def-function-class d<cell> (cell &optional ➜))
-    (defun-typed d<cell> ((cell solitary) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-          &allow-other-keys
-          )
-        ➜
-        [➜rightmost]
-        ))
     (defun-typed d<cell> ((cell rightmost) &optional ➜)
       (destructuring-bind
         (&key
@@ -210,12 +201,12 @@ machine constructs, such a tape head, are involved in the implementation of the 
         ))
     (defun-typed d.<cell> ((cell-0 leftmost-interior) &optional ➜)
       (let*(
-             (cell-0-instance (r<cell> cell-0))
+             (cell-0-instance (r cell-0))
              (cell-1 (right-neighbor cell-0))
-             (cell-1-instance (r<cell> cell-1))
+             (cell-1-instance (r cell-1))
             )
-        (w<cell> cell-0 cell-1-instance)
-        (w<cell> cell-1 cell-0-instance)
+        (w cell-0 cell-1-instance)
+        (w cell-1 cell-0-instance)
         (d<cell> cell-0 ➜)
         ))
 
@@ -227,15 +218,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; take the error path ➜rightmost
   ;;
     (def-function-class d+<cell> (cell &optional ➜))
-    (defun-typed d+<cell> ((cell solitary) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
-          &allow-other-keys
-          )
-        ➜
-        [➜rightmost]
-        ))
     (defun-typed d+<cell> ((cell rightmost) &optional ➜)
       (destructuring-bind
         (&key

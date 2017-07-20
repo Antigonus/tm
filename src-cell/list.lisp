@@ -49,7 +49,7 @@ CLOS version of the cons cell.
     (def-type list-interior  (list-leftmost-interior list-rightmost-interior interior)())
     (def-type list-leftmost  (list-leftmost-interior leftmost)())
     (def-type list-rightmost (list-rightmost-interior rightmost)())
-    (def-type list-solitary  (list-leftmost list-rightmost solitary)())
+    (def-type list-solitary  (list-rightmost list-leftmost solitary)())
     
   (defun-typed to-cell      ((cell cell-list))(change-class cell 'cell-list))
   (defun-typed to-interior  ((cell cell-list))(change-class cell 'list-interior))
@@ -203,7 +203,7 @@ CLOS version of the cons cell.
       (to-rightmost c0)
       (to-cell c1)
       )
-    (defun-typed extract ((c0 list-interior) (c1 list-interior))
+    (defun-typed extract ((c0 list-leftmost-interior) (c1 list-interior))
       (let(
             (c2 (right-neighbor c1))
             )
@@ -212,7 +212,18 @@ CLOS version of the cons cell.
         (to-cell c1)
         ))
 
-    ;; rightmost and solitary handled on the interface
+    ;; rightmost handled on the interface.
+    ;; solitary, though this has the same behavior for all cells, had to be put 
+    ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+    (defun-typed d<cell> ((cell list-solitary) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
     (defun-typed d<cell> ((c0 list-leftmost-interior) &optional ➜)
       (destructuring-bind
         (&key
@@ -237,7 +248,18 @@ CLOS version of the cons cell.
       (to-rightmost c0)
       )
 
-    ;; c0 solitary and rightmost cases handled on the interface
+    ;; c0 rightmost case handled on the interface.
+    ;; solitary, though this has the same behavior for all cells, had to be put 
+    ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+    (defun-typed d+<cell> ((cell list-solitary) &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          &allow-other-keys
+          )
+        ➜
+        [➜rightmost]
+        ))
     (defun-typed d+<cell> ((c0 list-leftmost-interior) &optional ➜)
       (destructuring-bind
         (&key
