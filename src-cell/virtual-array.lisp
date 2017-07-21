@@ -19,7 +19,7 @@ place, a virtual cell can be used as a cell on the cell interface.
 
 A virtual cell does not live on a tape or in another container, as do real cells.  The
 real tape, still holds an array of real cells, but those real cells do not have neighbor
-ponters. Rather when we call a function such as #'leftmost on a array tape, we get back a
+ponters. Rather when we call a function such as #'left-bound on a array tape, we get back a
 virtual cell.  We can then call #'r #'w, #'neighbor, etc. on the virtual cell, and the
 functionality will be correct.
 
@@ -55,18 +55,18 @@ of an array must be cognizant of this.
         :accessor maxdex
         )))
 
-  (def-type array-leftmost-interior (cell-array leftmost-interior)())
-  (def-type array-rightmost-interior (cell-array rightmost-interior)())
+  (def-type array-left-bound-interior (cell-array left-bound-interior)())
+  (def-type array-right-bound-interior (cell-array right-bound-interior)())
 
-  (def-type array-interior  (array-leftmost-interior array-rightmost-interior interior)())
-  (def-type array-leftmost  (array-leftmost-interior leftmost)())
-  (def-type array-rightmost (array-rightmost-interior rightmost)())
-  (def-type array-solitary  (array-leftmost array-rightmost solitary)())
+  (def-type array-interior  (array-left-bound-interior array-right-bound-interior interior)())
+  (def-type array-left-bound  (array-left-bound-interior left-bound)())
+  (def-type array-right-bound (array-right-bound-interior right-bound)())
+  (def-type array-solitary  (array-left-bound array-right-bound solitary)())
     
   (defun-typed to-cell      ((cell cell-array))(change-class cell 'cell-array))
   (defun-typed to-interior  ((cell cell-array))(change-class cell 'array-interior))
-  (defun-typed to-leftmost  ((cell cell-array))(change-class cell 'array-leftmost))
-  (defun-typed to-rightmost ((cell cell-array))(change-class cell 'array-rightmost))
+  (defun-typed to-left-bound  ((cell cell-array))(change-class cell 'array-left-bound))
+  (defun-typed to-right-bound ((cell cell-array))(change-class cell 'array-right-bound))
   (defun-typed to-solitary  ((cell cell-array))(change-class cell 'array-solitary))
 
 
@@ -82,8 +82,8 @@ of an array must be cognizant of this.
       (when status
         (case status
           (interior  (to-interior  cell))
-          (leftmost  (to-leftmost  cell))
-          (rightmost (to-rightmost cell))
+          (left-bound  (to-left-bound  cell))
+          (right-bound (to-right-bound cell))
           (solitary  (to-solitary  cell))
           (otherwise (return-from init [➜fail]))
           ))
@@ -117,16 +117,16 @@ of an array must be cognizant of this.
       ))
 
   (def-function-class right-neighbor (cell &optional ➜))
-  (defun-typed right-neighbor ((cell rightmost) &optional ➜)
+  (defun-typed right-neighbor ((cell right-bound) &optional ➜)
     (destructuring-bind
       (&key
-        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+        (➜right-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
-      [➜rightmost]
+      [➜right-bound]
       ))
-  (defun-typed right-neighbor ((cell array-leftmost-interior) &optional ➜)
+  (defun-typed right-neighbor ((cell array-left-bound-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -137,16 +137,16 @@ of an array must be cognizant of this.
       ))
 
   (def-function-class left-neighbor (cell &optional ➜))
-  (defun-typed left-neighbor ((cell leftmost) &optional ➜)
+  (defun-typed left-neighbor ((cell left-bound) &optional ➜)
     (destructuring-bind
       (&key
-        (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+        (➜left-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-left-bound)))
         &allow-other-keys
         )
       ➜
-      [➜leftmost]
+      [➜left-bound]
       ))
-  (defun-typed left-neighbor ((cell array-rightmost-interior) &optional ➜)
+  (defun-typed left-neighbor ((cell array-right-bound-interior) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -164,7 +164,7 @@ of an array must be cognizant of this.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+          (➜right-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-right-bound)))
           &allow-other-keys
           )
         ➜
@@ -174,7 +174,7 @@ of an array must be cognizant of this.
           (loop 
             (cond
               ((= n 0) (return [➜ok cell]))
-              ((typep cell 'rightmost)(return [➜rightmost cell n]))
+              ((typep cell 'right-bound)(return [➜right-bound cell n]))
               (t
                 (decf n)
                 (setf cell (right-neighbor cell))
@@ -184,7 +184,7 @@ of an array must be cognizant of this.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜leftmost (λ(cell n)(declare (ignore cell n))(error 'step-from-leftmost)))
+          (➜left-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-left-bound)))
           &allow-other-keys
           )
         ➜
@@ -194,7 +194,7 @@ of an array must be cognizant of this.
           (loop 
             (cond
               ((= n 0) (return [➜ok cell]))
-              ((typep cell 'leftmost)(return [➜leftmost cell n]))
+              ((typep cell 'left-bound)(return [➜left-bound cell n]))
               (t
                 (decf n)
                 (setf cell (left-neighbor cell))
@@ -224,22 +224,22 @@ of an array must be cognizant of this.
           (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
       (insert-between c0 c1 new-cell)
-      (to-leftmost c0)
-      (to-rightmost new-cell)
+      (to-left-bound c0)
+      (to-right-bound new-cell)
       (values)
       ))
-  (defun-typed a<cell> ((c0 array-rightmost) (new-cell cell-array))
+  (defun-typed a<cell> ((c0 array-right-bound) (new-cell cell-array))
     (let(
           (c1 (right-neighbor-link c0)) ; this will be the list header, a bilink type
           )
       (insert-between c0 c1 new-cell)
       (to-interior c0)
-      (to-rightmost new-cell)
+      (to-right-bound new-cell)
       (values)
       ))
-  (defun-typed a<cell> ((c0 leftmost-interior) (new-cell cell))
+  (defun-typed a<cell> ((c0 left-bound-interior) (new-cell cell))
     (let(
-          (c1 (right-neighbor c0)) ; c0 is not rightmost, but c1 might be
+          (c1 (right-neighbor c0)) ; c0 is not right-bound, but c1 might be
           )
       (insert-between c0 c1 new-cell)
       (to-interior new-cell)
@@ -252,25 +252,25 @@ of an array must be cognizant of this.
           (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
       (insert-between c0 c1 new-cell)
-      (to-rightmost c1)
-      (to-leftmost new-cell)
+      (to-right-bound c1)
+      (to-left-bound new-cell)
       (values)
       ))
-  (defun-typed -a<cell> ((c1 array-leftmost) (new-cell cell-array))
+  (defun-typed -a<cell> ((c1 array-left-bound) (new-cell cell-array))
     (let(
           (c0 (left-neighbor-link c1)) ; this will be tape, the list header
           )
       (insert-between c0 c1 new-cell)
       (to-interior c1)
-      (to-leftmost new-cell)
+      (to-left-bound new-cell)
       (values)
       ))
-  ;;The solitary and leftmost cases must be handled by specialized implementation
+  ;;The solitary and left-bound cases must be handled by specialized implementation
   ;;functions.  We can't do it here because we don't know the relationship between
-  ;;rightmost and the tape header for the implementation.
-  (defun-typed -a<cell> ((c1 array-rightmost-interior) (new-cell cell))
+  ;;right-bound and the tape header for the implementation.
+  (defun-typed -a<cell> ((c1 array-right-bound-interior) (new-cell cell))
     (let(
-          (c0 (left-neighbor c1)) ; c1 is not leftmost, but c0 might be
+          (c0 (left-neighbor c1)) ; c1 is not left-bound, but c0 might be
           )
       (insert-between c0 c1 new-cell)
       (to-interior new-cell)
@@ -283,7 +283,7 @@ of an array must be cognizant of this.
   ;; This is here instead of in cell.lisp because c2 might be the tape header,
   ;; and other types might not have a link type tape header.
   ;;
-    (defun-typed d<cell> ((cell array-leftmost) &optional ➜)
+    (defun-typed d<cell> ((cell array-left-bound) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -292,12 +292,12 @@ of an array must be cognizant of this.
         ➜
         (let*(
                (c0 cell)
-               (c1 (right-neighbor-link c0)) ; this might be rightmost
+               (c1 (right-neighbor-link c0)) ; this might be right-bound
                (c2 (right-neighbor-link c1)) ; this might be the tape header
                )
           (extract c0 c1 c2)
           (when 
-            (typep c1 'rightmost)
+            (typep c1 'right-bound)
             (to-solitary c0)
             )
           (to-cell c1)
@@ -312,13 +312,13 @@ of an array must be cognizant of this.
         ➜
         (let*(
                (c0 cell)
-               (c1 (right-neighbor-link c0)) ; this might be rightmost
+               (c1 (right-neighbor-link c0)) ; this might be right-bound
                (c2 (right-neighbor-link c1)) ; this might be the tape header
                )
           (extract c0 c1 c2)
           (when 
-            (typep c1 'rightmost)
-            (to-rightmost c0)
+            (typep c1 'right-bound)
+            (to-right-bound c0)
             )
           (to-cell c1)
           [➜ok c1]
@@ -326,7 +326,7 @@ of an array must be cognizant of this.
 
   ;; deletes the left neighbor cell
   ;; this function is unable to make the tape empty
-  (defun-typed -d<cell> ((cell array-rightmost) &optional ➜)
+  (defun-typed -d<cell> ((cell array-right-bound) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -335,12 +335,12 @@ of an array must be cognizant of this.
       ➜
       (let*(
              (c2 cell)
-             (c1 (left-neighbor-link c2)) ; this might be leftmost
+             (c1 (left-neighbor-link c2)) ; this might be left-bound
              (c0 (left-neighbor-link c1)) ; this might be the tape header
              )
         (extract c0 c1 c2)
         (when 
-          (typep c1 'leftmost)
+          (typep c1 'left-bound)
           (to-solitary c2)
           )
         (to-cell c1)
@@ -355,19 +355,19 @@ of an array must be cognizant of this.
       ➜
       (let*(
              (c2 cell)
-             (c1 (left-neighbor-link c2)) ; this might be leftmost
+             (c1 (left-neighbor-link c2)) ; this might be left-bound
              (c0 (left-neighbor-link c1)) ; this might be the tape header
              )
         (extract c0 c1 c2)
         (when 
-          (typep c1 'leftmost)
-          (to-leftmost c2)
+          (typep c1 'left-bound)
+          (to-left-bound c2)
           )
         (to-cell c1)
         [➜ok c1]
         )))
 
-    (defun-typed d+<cell> ((cell array-leftmost-interior) &optional ➜)
+    (defun-typed d+<cell> ((cell array-left-bound-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)

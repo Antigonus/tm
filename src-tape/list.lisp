@@ -9,15 +9,19 @@ been part of the original language.
 
 Inheritance structure.
 
-               bilink
-                ^  ^
-                |   \ 
-                |    bilist-with-contents
+
+                    right-neighbor (holds a link to the right-neighbor)
+                     /       ^
+             left-neighbor    \
+                ^           right-link-with-contents (these are the tape cells)
+                |    
                 |
-             list-tape
-               ^  ^
+                |
+          list-tape (this is the tape header)
+                ^  ^
                |   |
  list-tape-empty   list-tape-active
+
 
 The list header will be a list-tape type. The header will hold links to right-bound and
 left-bound.
@@ -31,7 +35,7 @@ the list is carried in its type.
 
 Would rather have used static structs, but didn't want to fight Lisp over being able to
 change the type of a list-tape-empty to a list-tape-active when list tape is a structure.
-Though they are of identical format #'coerce refused to do it. Also, this is a bit 
+Though they are of identical format #'coerce refused to do it. Also, this is a bit
 of a research project and I prefer to keep the language syntax paradigm consistent.
 
 
@@ -43,83 +47,97 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;; type definition
 ;;
   ;; Our tape header looks like a cell in that when the tape is not empty it has a right
-  ;; neigibhor and left neighbor.  The right neigbor is the left-bound cell of the tape, and
-  ;; the leftneighbor is the right-bound cell of the tape. But it differs from a cell in that
+  ;; neigibhor.  The right neigbor of the tape header is the left-bound cell of the tape, and
+  ;; the left neighbor is the right-bound cell of the tape. But it differs from a cell in that
   ;; it can not be read or written.
   ;;
-  ;; see src-cell/bilist.lisp for bilink type
+  ;; see src-cell/list.lisp for link types
   ;;
-    (def-type tape-bilist (bilink tape)())
+    (def-type tape-list (right-neighbor left-neighbor tape)())
 
-  (def-type tape-bilist-abandoned (tape-bilist)())
-  (def-type tape-bilist-valid (tape-bilist tape-valid)())
+  (def-type tape-list-abandoned (tape-list)())
+  (def-type tape-list-valid (tape-list tape-valid)())
 
-  (def-type tape-bilist-empty    
+  (def-type tape-list-empty
     (
-      tape-bilist-valid
+      tape-list-valid
       tape-empty
       )
     ()
     )
-  (def-type tape-bilist-active   
+  (def-type tape-list-active
     (
-      tape-bilist-valid
+      tape-list-valid
       tape-active
       )
     ()
     )
 
-  (defun-typed to-abandoned ((tape tape-bilist)) (change-class tape 'tape-bilist-abandoned))
-  (defun-typed to-empty     ((tape tape-bilist)) (change-class tape 'tape-bilist-empty))
-  (defun-typed to-active    ((tape tape-bilist)) (change-class tape 'tape-bilist-active))
+  (defun-typed to-abandoned ((tape tape-list)) (change-class tape 'tape-list-abandoned))
+  (defun-typed to-empty     ((tape tape-list)) (change-class tape 'tape-list-empty))
+  (defun-typed to-active    ((tape tape-list)) (change-class tape 'tape-list-active))
 
 ;;--------------------------------------------------------------------------------
 ;; init
 ;;
-  (defun-typed init ((tape tape-bilist) (init null) &optional ➜)
+  (defun-typed init ((tape tape-list) (init null) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      (cap-off tape)
-      (to-empty tape) 
+      (cap tape)
+      (to-empty tape)
       [➜ok tape]
       ))
 
 ;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
-  (defun-typed left-bound ((tape tape-bilist-active) &optional ➜)
+  (defun-typed left-bound ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (right-neighbor-link tape)] ; blist tape is also a bilink
+      [➜ok (right-neighbor tape)] ; blist tape is also a bilink
       ))
 
-  (defun-typed right-bound ((tape tape-bilist-active) &optional ➜)
+  (defun-typed right-bound ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (left-neighbor-link tape)]
+      [➜ok (left-neighbor tape)]
       ))
+
+  (defun-typed bound ((tape tape-list-active) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜bad-direction (λ()(error 'bad-direction)))
+        (d *right*)
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= d *right*) (right-bound tape ➜))
+        ((= d *left*) (left-bound tape ➜))
+        (t [➜bad-direction])
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
 ;;
-  (defun-typed epa<tape> ((tape1 tape-bilist-active) (tape0 tape-bilist-active))
+  (defun-typed epa<tape> ((tape1 tape-list-active) (tape0 tape-list-active))
     (let(
-          (left-bound-tape0  (right-neighbor-link tape0))
-          (right-bound-tape0 (left-neighbor-link tape0))
-          (left-bound-tape1  (right-neighbor-link tape1))
+          (left-bound-tape0  (right-neighbor tape0))
+          (right-bound-tape0 (left-neighbor tape0))
+          (left-bound-tape1  (right-neighbor tape1))
           )
       ;; prepend tape0
       ;;
@@ -137,40 +155,40 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         (to-abandoned tape0)
       ))
 
-  ;; accepts a tape-bilist and a cell, makes the cell the new left-bound
-  ;; will be a problem if (cons-bilist tape) is shared
-  (defun-typed epa<cell> ((tape tape-bilist-empty) (new-cell cell-bilist))
+  ;; accepts a tape-list and a cell, makes the cell the new left-bound
+  ;; will be a problem if (cons-list tape) is shared
+  (defun-typed epa<cell> ((tape tape-list-empty) (new-cell cell-list))
     (to-active tape)
     (to-solitary new-cell) ; the new cell becomes right-bound
     (insert-between tape tape new-cell)
     )
-  (defun-typed epa<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
+  (defun-typed epa<cell> ((tape tape-list-active) (new-cell cell-list))
     (let(
           (c0 tape) ; note the tape header is inherited from bilink, it looks like a tape node
-          (c1 (right-neighbor-link tape))
+          (c1 (right-neighbor tape))
           )
       (to-interior c1) ; old left-bound is no longer left-bound
       (to-left-bound new-cell) ; the new cell becomes left-bound
       (insert-between c0 c1 new-cell)
       ))
 
-  ;; accepts a tape-bilist and an instance, makes a new left-bound initialized with the
-  ;; instance will be a problem if (cons-bilist tape) is shared
-  (defun-typed epa<instance> ((tape tape-bilist-valid) instance)
+  ;; accepts a tape-list and an instance, makes a new left-bound initialized with the
+  ;; instance will be a problem if (cons-list tape) is shared
+  (defun-typed epa<instance> ((tape tape-list-valid) instance)
     (let(
-          (new-cell (make-instance 'cell-bilist :contents instance))
+          (new-cell (make-instance 'cell-list :contents instance))
           )
       (epa<cell> tape new-cell)
       ))
 
-  ;; accepts a tape-bilist and a cell, makes the cell the new right-bound
-  ;; will be a problem if (cons-bilist tape) is shared
-  (defun-typed ◨a<cell> ((tape tape-bilist-empty) (new-cell cell-bilist))
+  ;; accepts a tape-list and a cell, makes the cell the new right-bound
+  ;; will be a problem if (cons-list tape) is shared
+  (defun-typed ◨a<cell> ((tape tape-list-empty) (new-cell cell-list))
     (epa<cell> tape new-cell)
     )
-  (defun-typed ◨a<cell> ((tape tape-bilist-active) (new-cell cell-bilist))
+  (defun-typed ◨a<cell> ((tape tape-list-active) (new-cell cell-list))
     (let(
-          (c0 (left-neighbor-link tape))
+          (c0 (left-neighbor tape))
           (c1 tape) ; note the tape header is inherited from bilink, it looks like a tape node
           )
       (to-interior c0) ; old right-bound is no longer right-bound
@@ -178,11 +196,11 @@ of a research project and I prefer to keep the language syntax paradigm consiste
       (insert-between c0 c1 new-cell)
       ))
 
-  ;; accepts a tape-bilist and an instance, makes a new right-bound initialized with the
-  ;; instance will be a problem if (cons-bilist tape) is shared
-  (defun-typed ◨a<instance> ((tape tape-bilist-valid) instance)
+  ;; accepts a tape-list and an instance, makes a new right-bound initialized with the
+  ;; instance will be a problem if (cons-list tape) is shared
+  (defun-typed ◨a<instance> ((tape tape-list-valid) instance)
     (let(
-          (new-cell (make-instance 'cell-bilist :contents instance))
+          (new-cell (make-instance 'cell-list :contents instance))
           )
       (◨a<cell> tape new-cell)
       ))
@@ -191,7 +209,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
   ;; removes the left-bound cell and returns it
   ;; an active tape always has a left-bound to be deleted
   ;; will be a problem if the tape is intangled, as partners will not have correct left-bound afterward
-  (defun-typed epd<tape> ((tape tape-bilist-active) &optional ➜)
+  (defun-typed epd<tape> ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -208,7 +226,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         [➜ok c1]
         )))
 
-  (defun-typed epd+<tape> ((tape tape-bilist-active) &optional ➜)
+  (defun-typed epd+<tape> ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -241,7 +259,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         [➜ok c1]
         )))
 
-  (defun-typed d+<tape> ((tape tape-bilist-active) cell &optional ➜)
+  (defun-typed d+<tape> ((tape tape-list-active) cell &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -262,7 +280,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; length
 ;;
-  (defun-typed length-is-one ((tape tape-bilist-active) &optional ➜)
+  (defun-typed length-is-one ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))
@@ -276,7 +294,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
           :➜right-bound ➜t
           })))
 
-  (defun-typed length-is-two ((tape tape-bilist-active) &optional ➜)
+  (defun-typed length-is-two ((tape tape-list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜t (be t))

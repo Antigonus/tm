@@ -28,11 +28,11 @@ See LICENSE.txt
     (setf flag1
       (∧
         (eq (right-neighbor tp0) tp1)
-        (typep tp0 'leftmost)
-        (typep tp1 'rightmost)
+        (typep tp0 'left-bound)
+        (typep tp1 'right-bound)
         (eq (right-neighbor tp2) tp3)
-        (typep tp2 'leftmost)
-        (typep tp3 'rightmost)
+        (typep tp2 'left-bound)
+        (typep tp3 'right-bound)
         ))
 
     (a<cell> tp0 tp4)
@@ -42,10 +42,10 @@ See LICENSE.txt
         (eq (right-neighbor tp0) tp4)
         (eq (right-neighbor tp4) tp1)
         (eq (right-neighbor tp1) tp2)
-        (typep tp0 'leftmost)
+        (typep tp0 'left-bound)
         (typep tp4 'interior)
         (typep tp1 'interior)
-        (typep tp2 'rightmost)
+        (typep tp2 'right-bound)
         ))
 
     (∧
@@ -58,28 +58,28 @@ See LICENSE.txt
 
 (defun test-cell-bilist-1 ()
   (let*(
-        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'right-bound}))
         (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
+        (c0 (mk 'cell-bilist 0  {:status 'left-bound :right-neighbor c1 }))
         )
     (w c1 10)
     (∧
-      (= (r c1) 10)
+      (= (r<cell> c1) 10)
       (=
         (neighbor c0
           {
-            :distance 2
-            :➜ok (λ(rn)(r rn))
-            :➜rightmost #'cant-happen
+            :n 2
+            :➜ok (λ(rn)(r<cell> rn))
+            :➜right-bound #'cant-happen
             })
         20
         )
       (=
         (neighbor c0 
           {
-            :distance 3
+            :n 3
             :➜ok #'cant-happen
-            :➜rightmost (be 27)
+            :➜right-bound (be 27)
             })
         27
         )
@@ -88,48 +88,48 @@ See LICENSE.txt
 
 (defun test-cell-bilist-2 ()
   (let*(
-        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'right-bound}))
         (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
+        (c0 (mk 'cell-bilist 0  {:status 'left-bound :right-neighbor c1 }))
         )
     (∧
-      (esr c1 {:➜ok (λ(v) (= v 20)) :➜rightmost #'cant-happen})
-      (= (esr c1) 20)
-      (= (esr c2 {:➜ok (be 5) :➜rightmost (be 21)}) 21)
-      (= (esr c0 {:distance 2 :➜ok (λ(v)v) :➜rightmost (be 17)}) 20)
-      (= (esr c0 {:distance 3 :➜ok (λ(v)v) :➜rightmost (be 17)}) 17)
+      (r c1 {:n 1 :➜ok (λ(v) (= v 20)) :➜right-bound #'cant-happen})
+      (= (r c1 {:n 1}) 20)
+      (= (r c2 {:n 1 :➜ok (be 5) :➜right-bound (be 21)}) 21)
+      (= (r c0 {:n 2 :➜ok (λ(v)v) :➜right-bound (be 17)}) 20)
+      (= (r c0 {:n 3 :➜ok (λ(v)v) :➜right-bound (be 17)}) 17)
       )))
 (test-hook test-cell-bilist-2)
 
 (defun test-cell-bilist-3 ()
   (let*(
-        (c2 (mk 'cell-bilist 20 {:status 'rightmost}))
+        (c2 (mk 'cell-bilist 20 {:status 'right-bound}))
         (c1 (mk 'cell-bilist 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-bilist 0  {:status 'leftmost :right-neighbor c1 }))
+        (c0 (mk 'cell-bilist 0  {:status 'left-bound :right-neighbor c1 }))
         )
     (∧
-      (= (r c2) 20)
-      (= (esr c0) 1)
-      (esw c0 5)
-      (= (esr c0) 5)
-      (= (esr c0 {:distance 2}) 20)
-      (= (esw c0 22
+      (= (r<cell> c2) 20)
+      (= (r c0 {:n 1}) 1)
+      (w c0 5 {:n 1})
+      (= (r c0 {:n 1}) 5)
+      (= (r c0 {:n 2}) 20)
+      (= (w c0 22
            {
-             :distance 2
+             :n 2
              :➜ok (be 23)
-             :➜rightmost (λ(cell n)(declare (ignore cell n))24)
+             :➜right-bound (λ(cell n)(declare (ignore cell n))24)
              })
         23)
-      (= (esr c0 {:distance 2}) 22)
-      (= (esw c0 33
+      (= (r c0 {:n 2}) 22)
+      (= (w c0 33
            {
-             :distance 3
+             :n 3
              :➜ok (be 34)
-             :➜rightmost
+             :➜right-bound
              (λ(cell n)
                (if
                  (∧
-                   (= (r cell) 22)
+                   (= (r<cell> cell) 22)
                    (= n 1)
                    )
                  35
@@ -155,18 +155,18 @@ See LICENSE.txt
 
     (setf flag1 
       (∧
-        (= (r (d.<cell> c0)) 10) ; after d. c0 is still the leftmost, but contents is now 11
+        (= (r (d.<cell> c0)) 10) ; after d. c0 is still the left-bound, but contents is now 11
         (= (r c0) 11)
-        (typep c0 'leftmost)
+        (typep c0 'left-bound)
         ))
 
     (setf flag2
       (∧
-        (= (esr c0 {:distance 0}) 11)
-        (= (esr c0 {:distance 1}) 12)
-        (= (esr c0 {:distance 2}) 13)
-        (= (esr c0 {:distance 3}) 14)
-        (= (esr c0 {:distance 4 :➜rightmost (be 199)}) 199)
+        (= (r c0 {:n 0}) 11)
+        (= (r c0 {:n 1}) 12)
+        (= (r c0 {:n 2}) 13)
+        (= (r c0 {:n 3}) 14)
+        (= (r c0 {:n 4 :➜right-bound (be 199)}) 199)
         ))
       
     (setf flag3
@@ -174,22 +174,22 @@ See LICENSE.txt
         (= (r (d<cell> c2)) 13) ; deletes c3
         (typep c2 'interior)
         (= (r (d<cell> c2)) 14) ; deletes c4
-        (typep c2 'rightmost)
+        (typep c2 'right-bound)
         ))
 
     (setf flag4
       (∧
-        (= (esr c0 {:distance 0}) 11)
-        (= (esr c0 {:distance 1}) 12)
-        (= (esr c0 {:distance 2 :➜rightmost (be 122)}) 122)
+        (= (r c0 {:n 0}) 11)
+        (= (r c0 {:n 1}) 12)
+        (= (r c0 {:n 2 :➜right-bound (be 122)}) 122)
         ))
 
     (setf flag5
       (∧
-        (= (d.<cell> c2 {:➜rightmost (be 127)}) 127)
+        (= (d.<cell> c2 {:➜right-bound (be 127)}) 127)
         (= (r (d<cell> c0)) 12)
         (typep c0 'solitary)
-        (= (d<cell> c0 {:➜rightmost (be 129)}) 129)
+        (= (d<cell> c0 {:➜right-bound (be 129)}) 129)
         ))
 
     (∧

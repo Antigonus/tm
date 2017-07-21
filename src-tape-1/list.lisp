@@ -38,17 +38,17 @@ more code to maintain right now
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
       (let(
-            (leftmost (cons-list tape))
+            (left-bound (cons-list tape))
             )
         (if
-          (cdr leftmost)
-          [➜ok (cadr leftmost)]
-          [➜rightmost]
+          (cdr left-bound)
+          [➜ok (cadr left-bound)]
+          [➜right-bound]
           ))))
 
   (defun-typed ◧w ((tape tape-list-active) instance &optional ➜)
@@ -66,18 +66,18 @@ more code to maintain right now
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜right-bound (be ∅))
         &allow-other-keys
         )
       ➜
       (let(
-            (leftmost (cons-list tape))
+            (left-bound (cons-list tape))
             )
         (if
-          (cdr leftmost)
+          (cdr left-bound)
           (progn
-            (setf (cadr leftmost) instance)
+            (setf (cadr left-bound) instance)
             [➜ok]
             )
-          [➜rightmost]
+          [➜right-bound]
           ))))

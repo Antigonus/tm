@@ -23,13 +23,16 @@ CLOS version of the cons cell.
       ))
   ;; though a list cell only has one differential, the header for a list tape keeps track of both
   ;; tape boundaries
-  (def-type left-neighbor ()
-    (
-      (left-neighbor
-        :initarg :left-neighbor
-        :accessor left-neighbor
-        )
-      ))
+  ;;
+    (def-type left-neighbor ()
+      (
+        (left-neighbor
+          :initarg :left-neighbor
+          :accessor left-neighbor
+          )
+        ))
+    (def-type bilink (right-neighbor left-neighbor)())
+
 
   (defparameter *right* 0)
   (defparameter *left*  1)
@@ -41,20 +44,20 @@ CLOS version of the cons cell.
 
   ;; these are only used as typed function argument specifiers
   ;;
-    (def-type list-leftmost-interior (cell-list leftmost-interior)())
-    (def-type list-rightmost-interior (cell-list rightmost-interior)())
+    (def-type list-left-bound-interior (cell-list left-bound-interior)())
+    (def-type list-right-bound-interior (cell-list right-bound-interior)())
 
   ;; all cells appearing on a tape have exactly one of these subtypes
   ;;
-    (def-type list-interior  (list-leftmost-interior list-rightmost-interior interior)())
-    (def-type list-leftmost  (list-leftmost-interior leftmost)())
-    (def-type list-rightmost (list-rightmost-interior rightmost)())
-    (def-type list-solitary  (list-rightmost list-leftmost solitary)())
+    (def-type list-interior  (list-left-bound-interior list-right-bound-interior interior)())
+    (def-type list-left-bound  (list-left-bound-interior left-bound)())
+    (def-type list-right-bound (list-right-bound-interior right-bound)())
+    (def-type list-solitary  (list-right-bound list-left-bound solitary)())
     
   (defun-typed to-cell      ((cell cell-list))(change-class cell 'cell-list))
   (defun-typed to-interior  ((cell cell-list))(change-class cell 'list-interior))
-  (defun-typed to-leftmost  ((cell cell-list))(change-class cell 'list-leftmost))
-  (defun-typed to-rightmost ((cell cell-list))(change-class cell 'list-rightmost))
+  (defun-typed to-left-bound  ((cell cell-list))(change-class cell 'list-left-bound))
+  (defun-typed to-right-bound ((cell cell-list))(change-class cell 'list-right-bound))
   (defun-typed to-solitary  ((cell cell-list))(change-class cell 'list-solitary))
 
   (defun-typed init ((cell cell-list) instance &optional ➜)
@@ -75,8 +78,8 @@ CLOS version of the cons cell.
       (when status
         (case status
           (interior  (to-interior  cell))
-          (leftmost  (to-leftmost  cell))
-          (rightmost (to-rightmost cell))
+          (left-bound  (to-left-bound  cell))
+          (right-bound (to-right-bound cell))
           (solitary  (to-solitary  cell))
           (otherwise (return-from init [➜fail]))
           ))
@@ -104,7 +107,7 @@ CLOS version of the cons cell.
         [➜∅]
         )))
 
-  (defun-typed r ((cell cell-list) &optional ➜)
+  (defun-typed r<cell> ((cell cell-list) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -114,7 +117,7 @@ CLOS version of the cons cell.
       [➜ok (contents cell)]
       ))
  
-  (defun-typed w ((cell cell-list) instance &optional ➜)
+  (defun-typed w<cell> ((cell cell-list) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -135,14 +138,14 @@ CLOS version of the cons cell.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ(cell n)(declare (ignore cell n))(error 'step-from-rightmost)))
+        (➜right-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
       (⟳(λ(➜again)
           (cond
             ((= n 0) [➜ok cell])
-            ((typep cell 'rightmost) [➜rightmost cell n])
+            ((typep cell 'right-bound) [➜right-bound cell n])
             (t
               (setf cell [differential cell])
               (decf n)
@@ -153,13 +156,13 @@ CLOS version of the cons cell.
     (destructuring-bind
       (&key
         (➜bad-direction (λ()(error 'bad-direction)))
-        (distance 1)
+        (n 0)
         &allow-other-keys
         )
       ➜
       (cond
-        ((≥ distance 0)
-          (neighbor-1 cell #'right-neighbor distance ➜)
+        ((≥ 0)
+          (neighbor-1 cell #'right-neighbor n ➜)
           )
         (t [➜bad-direction])
         )))
@@ -171,12 +174,12 @@ CLOS version of the cons cell.
   ;;
     (defun cap-right (c)
       (setf (right-neighbor c) ∅)
-      (to-rightmost c)
+      (to-right-bound c)
       )
 
     (def-function-class cap-left (c))
     (defun-typed cap-left ((c cell-list))
-      (to-leftmost c)
+      (to-left-bound c)
       )
 
     (def-function-class cap (c))
@@ -195,16 +198,16 @@ CLOS version of the cons cell.
   ;; c0 and c1 are neighbors.  re-routes connections around cell c1
   ;;
     (def-function-class extract (c0 c1))
-    (defun-typed extract ((c0 list-leftmost) (c1 list-rightmost))
+    (defun-typed extract ((c0 list-left-bound) (c1 list-right-bound))
       (cap-right c0)
       (to-solitary c0)
       (cap c1)
       )
-    (defun-typed extract ((c0 list-interior) (c1 list-rightmost))
+    (defun-typed extract ((c0 list-interior) (c1 list-right-bound))
       (cap-right c0)
       (cap c1)
       )
-    (defun-typed extract ((c0 list-leftmost-interior) (c1 list-interior))
+    (defun-typed extract ((c0 list-left-bound-interior) (c1 list-interior))
       (let(
             (c2 (right-neighbor c1))
             )
@@ -216,12 +219,12 @@ CLOS version of the cons cell.
     ;; c0 and c1 are neighbors. disconnects them.
     ;;
       (def-function-class disconnect (c0 c1))
-      (defun-typed disconnect ((c0 list-leftmost) (c1 list-rightmost-interior))
+      (defun-typed disconnect ((c0 list-left-bound) (c1 list-right-bound-interior))
         (cap-right c0)
         (to-solitary c0)
         (cap-left c1)
         )
-      (defun-typed disconnect ((c0 list-interior) (c1 list-rightmost-interior))
+      (defun-typed disconnect ((c0 list-interior) (c1 list-right-bound-interior))
         (cap-right c0)
         (cap-left c1)
         )
@@ -234,14 +237,14 @@ CLOS version of the cons cell.
     (defun-typed a<cell> ((c0 list-solitary) (c1 cell-list))
       (cap-right c1)
       (connect c0 c1)
-      (to-leftmost c0)
+      (to-left-bound c0)
       )
-    (defun-typed a<cell> ((c0 list-rightmost) (c1 cell-list))
+    (defun-typed a<cell> ((c0 list-right-bound) (c1 cell-list))
       (cap-right c1)
       (connect c0 c1)
       (to-interior c0)
       )
-    (defun-typed a<cell> ((c0 list-leftmost-interior) (c1 cell-list))
+    (defun-typed a<cell> ((c0 list-left-bound-interior) (c1 cell-list))
       (let(
             (c2 (right-neighbor c0))
             )
@@ -252,20 +255,20 @@ CLOS version of the cons cell.
       ))
 
   ;; Deletes the right neighbor cell.
-  ;; rightmost handled on the interface.
+  ;; right-bound handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
-  ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+  ;; here as otherwise CLOS wold choose list-left-bound-interior as being more specific
   ;;
     (defun-typed d<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
           &allow-other-keys
           )
         ➜
-        [➜rightmost]
+        [➜right-bound]
         ))
-    (defun-typed d<cell> ((c0 list-leftmost-interior) &optional ➜)
+    (defun-typed d<cell> ((c0 list-left-bound-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -279,20 +282,20 @@ CLOS version of the cons cell.
           [➜ok c1]
           )))
 
-  ;; c0 rightmost case handled on the interface.
+  ;; c0 right-bound case handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
-  ;; here as otherwise CLOS wold choose list-leftmost-interior as being more specific
+  ;; here as otherwise CLOS wold choose list-left-bound-interior as being more specific
   ;;
     (defun-typed d+<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
           &allow-other-keys
           )
         ➜
-        [➜rightmost]
+        [➜right-bound]
         ))
-    (defun-typed d+<cell> ((c0 list-leftmost-interior) &optional ➜)
+    (defun-typed d+<cell> ((c0 list-left-bound-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)

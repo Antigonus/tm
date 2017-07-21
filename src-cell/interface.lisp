@@ -9,15 +9,15 @@ A cell is not a first class citizen.  Rather we consider that a cell is orphaned
 not part of a tape.  Orphaned cells are locally placed on new tapes or are quickly
 abandoned.  Hence, we name a cell after the type of tape it is used on.
 
-A cell's subtype speaks to its position on a tape. A leftmost cell is the left end of a
-tape.  The rightmost cell is the right end of a tape. If a tape is a solitary set of
-cells, then the type of that one cell is solitary.  A solitary cell is both leftmost and
-rightmost.
+A cell's subtype speaks to its position on a tape. A left-bound cell is the left end of a
+tape.  The right-bound cell is the right end of a tape. If a tape is a solitary set of
+cells, then the type of that one cell is solitary.  A solitary cell is both left-bound and
+right-bound.
 
 When the topology of a tape is modified, a cell's sub-type might change. For example, if
-the rightmost cell of a tape is deleted, then the left neighbor of that former rightmost
-cell becomes the new rightmost cell. Inversely, if a new cell is appended to the rightmost
-cell of the tape, the new cell becomes rightmost, and the former rightmost cell reverts to
+the right-bound cell of a tape is deleted, then the left neighbor of that former right-bound
+cell becomes the new right-bound cell. Inversely, if a new cell is appended to the right-bound
+cell of the tape, the new cell becomes right-bound, and the former right-bound cell reverts to
 having no subtype, i.e. for cell c, (to-cell c).
 
 We use the language of tape machines to name some of the cell functions. This reflects the
@@ -41,20 +41,20 @@ machine constructs, such a tape head, are involved in the implementation of the 
 
   ;; these are only used as typed function argument specifiers
   ;;
-    (def-type leftmost-interior (cell)())
-    (def-type rightmost-interior (cell)())
+    (def-type left-bound-interior (cell)())
+    (def-type right-bound-interior (cell)())
 
   ;; all cells appearing on a tape have exactly one of these subtypes
   ;;
-    (def-type interior (leftmost-interior rightmost-interior)())
-    (def-type leftmost (leftmost-interior)())
-    (def-type rightmost (rightmost-interior)())
-    (def-type solitary (rightmost leftmost)())
+    (def-type interior (left-bound-interior right-bound-interior)())
+    (def-type left-bound (left-bound-interior)())
+    (def-type right-bound (right-bound-interior)())
+    (def-type solitary (right-bound left-bound)())
 
   (def-function-class to-cell (cell))
   (def-function-class to-interior (cell))
-  (def-function-class to-leftmost (cell))
-  (def-function-class to-rightmost (cell))
+  (def-function-class to-left-bound (cell))
+  (def-function-class to-right-bound (cell))
   (def-function-class to-solitary (cell))
 
 ;;--------------------------------------------------------------------------------
@@ -76,14 +76,14 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; same links and cargo
   (def-function-class =<cell> (cell-0 cell-1 &optional ➜))
 
-  (def-function-class r (cell &optional ➜)) ; returns contents of cell
-  (def-function-class w (cell instance &optional ➜)) ; writes contents of cell
+  (def-function-class r<cell> (cell &optional ➜)) ; returns contents of cell
+  (def-function-class w<cell> (cell instance &optional ➜)) ; writes contents of cell
 
 
 ;;--------------------------------------------------------------------------------
 ;; cell neighbor functions
 ;;
-  ;; accepts :direction and :distance options, and the continutations, ➜ok ➜leftmost ➜rightmost
+  ;; accepts :d and :n options, and the continutations, ➜ok ➜left-bound ➜right-bound
   ;; ➜ok has one parameter, the neighbor cell that was looked up
   ;;
     (def-function-class neighbor (cell &optional ➜))
@@ -96,18 +96,19 @@ machine constructs, such a tape head, are involved in the implementation of the 
         }))
 
   ;; It is conventional to have an indexed read and write for arrays.
-  ;; accepts options :direction and :distance 
-  ;; :direction defaults to zero, which is normally to the right
-  ;; :distance defaults to 1
+  ;; accepts options :d and :n
+  ;; :d defaults to zero, which is normally to the right
+  ;; :dn defaults to 0
+  ;; I reley upon the optimizer to cut down the n=0 case
   ;;
-    (def-function-class esr (cell &optional ➜))
-    (defun-typed esr ((cell cell) &optional ➜)
-      (apply-to-neighbor cell (λ(nc)(r nc ➜)) ➜)
+    (def-function-class r (cell &optional ➜))
+    (defun-typed r ((cell cell) &optional ➜)
+      (apply-to-neighbor cell (λ(nc)(r<cell> nc ➜)) ➜)
       )
 
-    (def-function-class esw (cell instance &optional ➜))
-    (defun-typed esw ((cell cell) instance &optional ➜)
-      (apply-to-neighbor cell (λ(nc)(w nc instance ➜)) ➜)
+    (def-function-class w (cell instance &optional ➜))
+    (defun-typed w ((cell cell) instance &optional ➜)
+      (apply-to-neighbor cell (λ(nc)(w<cell> nc instance ➜)) ➜)
       )
 
 
@@ -138,43 +139,43 @@ machine constructs, such a tape head, are involved in the implementation of the 
       ))
 
   ;; given a cell removes its right neighbor and returns it
-  ;; (➜ok #'echo) (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+  ;; (➜ok #'echo) (➜right-bound (λ()(error 'dealloc-on-right-bound)))
   ;;
-  ;; d<cell> for non-rightmost cells must be handled by implementations becasue
-  ;; we don't know if the right neighbor is rightmost and do not know the relationship 
-  ;; between rightmost and the list header.
+  ;; d<cell> for non-right-bound cells must be handled by implementations becasue
+  ;; we don't know if the right neighbor is right-bound and do not know the relationship 
+  ;; between right-bound and the list header.
   ;;
-  ;; 'solitary' also goes here, because it is a specialization of rightmost
+  ;; 'solitary' also goes here, because it is a specialization of right-bound
   ;;
     (def-function-class d<cell> (cell &optional ➜))
-    (defun-typed d<cell> ((cell rightmost) &optional ➜)
+    (defun-typed d<cell> ((cell right-bound) &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
           &allow-other-keys
           )
         ➜
-        [➜rightmost]
+        [➜right-bound]
         ))
 
   ;; left neighbor version for doubly linked lists
-  ;; (➜ok #'echo) (➜leftmost (be ∅))
+  ;; (➜ok #'echo) (➜left-bound (be ∅))
   ;;
-  ;; -d<cell> for non-rightmost cells must be handled by implementations becasue
-  ;; we don't know if the right neighbor is rightmost and do not know the relationship 
-  ;; between rightmost and the list header.
+  ;; -d<cell> for non-right-bound cells must be handled by implementations becasue
+  ;; we don't know if the right neighbor is right-bound and do not know the relationship 
+  ;; between right-bound and the list header.
   ;;
-  ;; 'solitary' also goes here, because it is a specialization of leftmost
+  ;; 'solitary' also goes here, because it is a specialization of left-bound
   ;;
     (def-function-class -d<cell> (cell &optional ➜))
-    (defun-typed -d<cell> ((cell leftmost) &optional ➜)
+    (defun-typed -d<cell> ((cell left-bound) &optional ➜)
       (destructuring-bind
         (&key
-          (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          (➜left-bound (λ()(error 'dealloc-on-left-bound)))
           &allow-other-keys
           )
         ➜
-        [➜leftmost]
+        [➜left-bound]
         ))
 
   ;; The 'swap trick'
@@ -183,23 +184,23 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; Swaps instances with the right neighbor, then deletes the right neighbor.
   ;; Returns the deleted right neighbor after the instance swap.
   ;; Creates the appearence of deleting 'this cell' even for a singly linked list,
-  ;; though we can't use it to delete rightmost.
+  ;; though we can't use it to delete right-bound.
   ;; This is not needed for doubly linked lists, which can simply use 's-d'.
   ;; Wreaks havoc when external pointer are pointing at the cells.
   ;;
-  ;; (➜ok #'echo) (➜rightmost  (λ()(error 'dealloc-on-rightmost))).
+  ;; (➜ok #'echo) (➜right-bound  (λ()(error 'dealloc-on-right-bound))).
   ;;
     (def-function-class d.<cell> (cell &optional ➜))
-    (defun-typed d.<cell> ((cell-0 rightmost) &optional ➜)
+    (defun-typed d.<cell> ((cell-0 right-bound) &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
           &allow-other-keys
           )
         ➜
-        [➜rightmost]
+        [➜right-bound]
         ))
-    (defun-typed d.<cell> ((cell-0 leftmost-interior) &optional ➜)
+    (defun-typed d.<cell> ((cell-0 left-bound-interior) &optional ➜)
       (let*(
              (cell-0-instance (r cell-0))
              (cell-1 (right-neighbor cell-0))
@@ -215,16 +216,16 @@ machine constructs, such a tape head, are involved in the implementation of the 
   ;; fix the righmost cell's relationships with the tape header. Kleene '*' can mean zero
   ;; applications, but in the ➜ok case we must return something, so this becomes d+ rather
   ;; than d*. '+' means one or more applications. If applications is not possible, we
-  ;; take the error path ➜rightmost
+  ;; take the error path ➜right-bound
   ;;
     (def-function-class d+<cell> (cell &optional ➜))
-    (defun-typed d+<cell> ((cell rightmost) &optional ➜)
+    (defun-typed d+<cell> ((cell right-bound) &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
           &allow-other-keys
           )
         ➜
-        [➜rightmost]
+        [➜right-bound]
         ))
 

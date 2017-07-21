@@ -43,8 +43,8 @@ See LICENSE.txt
   (lables(
            (=tape-0 ()
              (let(
-                   (cell-0 (leftmost tape-0))
-                   (cell-1 (leftmost tape-1))
+                   (cell-0 (left-bound tape-0))
+                   (cell-1 (left-bound tape-1))
                    )
                (=tape-1 cell-0 cell-1)
                ))
@@ -91,7 +91,7 @@ See LICENSE.txt
                ))
            (print-0 ()
              (let(
-                   (a-cell (leftmost tape))
+                   (a-cell (left-bound tape))
                    )
                (print-1 a-cell)
                ))

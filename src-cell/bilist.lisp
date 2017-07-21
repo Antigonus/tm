@@ -14,43 +14,43 @@ See LICENSE.txt
 ;;
   (def-type cell-bilist (cell-list left-neighbor cell)())
 
-  (def-type bilist-leftmost-interior
+  (def-type bilist-left-bound-interior
     (
       cell-bilist 
-      list-leftmost-interior
+      list-left-bound-interior
       )())
-  (def-type bilist-rightmost-interior
+  (def-type bilist-right-bound-interior
     (
       cell-bilist
-      list-rightmost-interior
+      list-right-bound-interior
       )())
   (def-type bilist-interior 
     (
-      bilist-leftmost-interior
-      bilist-rightmost-interior
+      bilist-left-bound-interior
+      bilist-right-bound-interior
       list-interior
       )())
-  (def-type bilist-leftmost 
+  (def-type bilist-left-bound 
     (
-      bilist-leftmost-interior
-      list-leftmost
+      bilist-left-bound-interior
+      list-left-bound
       )())
-  (def-type bilist-rightmost
+  (def-type bilist-right-bound
     (
-      bilist-rightmost-interior 
-      list-rightmost
+      bilist-right-bound-interior 
+      list-right-bound
       )())
   (def-type bilist-solitary  
     (
-      bilist-rightmost 
-      bilist-leftmost
+      bilist-right-bound 
+      bilist-left-bound
       list-solitary
       )())
     
   (defun-typed to-cell      ((cell cell-bilist))(change-class cell 'cell-bilist))
   (defun-typed to-interior  ((cell cell-bilist))(change-class cell 'bilist-interior))
-  (defun-typed to-leftmost  ((cell cell-bilist))(change-class cell 'bilist-leftmost))
-  (defun-typed to-rightmost ((cell cell-bilist))(change-class cell 'bilist-rightmost))
+  (defun-typed to-left-bound  ((cell cell-bilist))(change-class cell 'bilist-left-bound))
+  (defun-typed to-right-bound ((cell cell-bilist))(change-class cell 'bilist-right-bound))
   (defun-typed to-solitary  ((cell cell-bilist))(change-class cell 'bilist-solitary))
 
   (defun-typed init ((cell cell-bilist) instance &optional ➜)
@@ -101,34 +101,34 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜bad-direction (λ()(error 'bad-direction)))
-        (direction *right*)
-        (distance 1)
+        (d *right*)
+        (n 0)
         &allow-other-keys
         )
       ➜
       (cond
-        ((= direction *right*) t)
-        ((= direction *left*) (setf distance (- distance)))
+        ((= d *right*) t)
+        ((= d *left*) (setf n (- n)))
         (t (return-from neighbor [➜bad-direction]))
         )
       (cond
-        ((≥ distance 0)
-          (neighbor-1 cell #'right-neighbor distance ➜)
+        ((≥ n 0)
+          (neighbor-1 cell #'right-neighbor n ➜)
           )
         (t ; distance must be negative
-          (neighbor-1 cell #'left-neighbor distance ➜)
+          (neighbor-1 cell #'left-neighbor n ➜)
           )
         )))
 
 ;;--------------------------------------------------------------------------------
-;; pimitive topology manipulation
+;; pimitive topologypp manipulation
 ;;
 
   ;; terminate the connections of a cell so that it can not affect gc
   ;;
-    (defun-typed cap-left ((c cell-bilist))
+    (defun-typed cap-left ((c left-neighbor))
       (setf (left-neighbor c) ∅)
-      (to-leftmost c)
+      (to-left-bound c)
       )
     (defun-typed cap ((c cell-bilist)) 
       (setf (right-neighbor c) ∅)
@@ -149,16 +149,16 @@ See LICENSE.txt
   ;; c1 and c2 are neighbors.  re-routes connections around cell c1
   ;;
     (def-function-class -extract (c0 c1))
-    (defun-typed -extract ((c1 bilist-leftmost) (c2 bilist-rightmost))
+    (defun-typed -extract ((c1 bilist-left-bound) (c2 bilist-right-bound))
       (cap-left c2)
       (to-solitary c2)
       (cap c1)
       )
-    (defun-typed -extract ((c1 bilist-interior) (c2 bilist-rightmost))
+    (defun-typed -extract ((c1 bilist-interior) (c2 bilist-right-bound))
       (cap-left c2)
       (cap c1)
       )
-    (defun-typed -extract ((c1 bilist-leftmost-interior) (c2 bilist-interior))
+    (defun-typed -extract ((c1 bilist-left-bound-interior) (c2 bilist-interior))
       (let(
             (c0 (left-neighbor c1))
             )
@@ -176,14 +176,14 @@ See LICENSE.txt
     (defun-typed -a<cell> ((c0 bilist-solitary) (c1 cell-bilist))
       (cap-left c1)
       (connect c1 c0)
-      (to-rightmost c0)
+      (to-right-bound c0)
       )
-    (defun-typed -a<cell> ((c0 bilist-leftmost) (c1 cell-bilist))
+    (defun-typed -a<cell> ((c0 bilist-left-bound) (c1 cell-bilist))
       (cap-left c1)
       (connect c1 c0)
       (to-interior c0)
       )
-    (defun-typed -a<cell> ((c0 bilist-rightmost-interior) (c1 cell-bilist))
+    (defun-typed -a<cell> ((c0 bilist-right-bound-interior) (c1 cell-bilist))
       (let(
             (c2 (left-neighbor c0))
             )
@@ -194,20 +194,20 @@ See LICENSE.txt
       ))
 
   ;; Deletes the left neighbor cell.
-  ;; leftmost handled on the interface.
+  ;; left-bound handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
-  ;; here as otherwise CLOS would choose bilist-rightmost-interior as being more specific
+  ;; here as otherwise CLOS would choose bilist-right-bound-interior as being more specific
   ;;
     (defun-typed -d<cell> ((cell bilist-solitary) &optional ➜)
       (destructuring-bind
         (&key
-          (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+          (➜left-bound (λ()(error 'dealloc-on-left-bound)))
           &allow-other-keys
           )
         ➜
-        [➜leftmost]
+        [➜left-bound]
         ))
-    (defun-typed -d<cell> ((c2 bilist-rightmost-interior) &optional ➜)
+    (defun-typed -d<cell> ((c2 bilist-right-bound-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)

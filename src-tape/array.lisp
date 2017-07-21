@@ -20,7 +20,7 @@ See LICENSE.txt
   ;; If this were C we could have an actual cell rather than emulating one here.
   ;; Accordingly, instead of the index we would have a reference, then dereference it to
   ;; do a read.  Though we would still need to know the max index to handle the
-  ;; rightmost endcase on a right-neighbor call.
+  ;; right-bound endcase on a right-neighbor call.
   (def-type cell-array (cell)
     (
       (tape
@@ -137,8 +137,8 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜leftmost (λ()(error 'step-from-leftmost)))
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜left-bound (λ()(error 'step-from-left-bound)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -148,13 +148,13 @@ See LICENSE.txt
             )
         (cond
           ((< address 0)
-            [➜leftmost]
+            [➜left-bound]
             )
           ((≤ address maximum-address)
             [➜ok (aref the-array address)]
             )
           (t
-            [➜rightmost]
+            [➜right-bound]
             )
           )
         )))
@@ -163,8 +163,8 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜leftmost (λ()(error 'step-from-leftmost)))
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜left-bound (λ()(error 'step-from-left-bound)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -174,14 +174,14 @@ See LICENSE.txt
             )
         (cond
           ((< address 0)
-            [➜leftmost]
+            [➜left-bound]
             )
           ((≤ address maximum-address)
             (setf (aref the-array address) instance)
             [➜ok]
             )
           (t
-            [➜rightmost]
+            [➜right-bound]
             )
           )
         )))
@@ -214,7 +214,7 @@ See LICENSE.txt
       (aref the-array index)
       ))
 
-  ;; Writing a zero into the rightmost tile makes the natural shorter.  But this is a cell
+  ;; Writing a zero into the right-bound tile makes the natural shorter.  But this is a cell
   ;; operation not a tape operation, so the outer tape operation will have to take this
   ;; into account.
   (defun-typed w<cell> ((cell cell-array) instance)
@@ -225,7 +225,7 @@ See LICENSE.txt
       (setf (aref the-array index) instance)
       ))
 
-  (defun-typed leftmost ((tape tape-array-active) &optional ➜)
+  (defun-typed left-bound ((tape tape-array-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -244,7 +244,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -259,7 +259,7 @@ See LICENSE.txt
             [➜ok (make-instance 'cell-array :tape tape :index (1+ index))]
             )
           (t
-            [➜rightmost]
+            [➜right-bound]
             )))))
 
 

@@ -101,7 +101,7 @@ from a sequence.
       (setf (elt the-sequence index) instance)
       ))
 
-  (defun-typed leftmost ((tape tape-sequence) &optional ➜)
+  (defun-typed left-bound ((tape tape-sequence) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -112,7 +112,7 @@ from a sequence.
         (make-instance 'cell-sequence :tape tape :index 0)
         ]))
 
-  (defun-typed rightmost ((tape tape-sequence) &optional ➜)
+  (defun-typed right-bound ((tape tape-sequence) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -129,7 +129,7 @@ from a sequence.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -143,14 +143,14 @@ from a sequence.
             [➜ok (make-instance 'cell-sequence :tape tape :index (1+ index))]
             )
           (t
-            [➜rightmost]
+            [➜right-bound]
             )))))
 
   (defun-typed left-neighbor ((cell cell-sequence) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜leftmost (λ()(error 'step-from-leftmost)))
+        (➜left-bound (λ()(error 'step-from-left-bound)))
         &allow-other-keys
         )
       ➜
@@ -163,7 +163,7 @@ from a sequence.
             [➜ok (make-instance 'cell-sequence :tape tape :index (1- index))]
             )
           (t
-            [➜leftmost]
+            [➜left-bound]
             )))))
 
 

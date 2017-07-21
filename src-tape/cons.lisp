@@ -103,7 +103,7 @@ Need to add in the no-alloc continuations
   (defun-typed r<cell> ((cell cell-cons)) (car (cons-cell cell)))
   (defun-typed w<cell> ((cell cell-cons) instance) (setf (car (cons-cell cell)) instance))
 
-  (defun-typed leftmost ((tape tape-cons-active) &optional ➜)
+  (defun-typed left-bound ((tape tape-cons-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -117,7 +117,7 @@ Need to add in the no-alloc continuations
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜right-bound (λ()(error 'step-from-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -126,13 +126,13 @@ Need to add in the no-alloc continuations
             )
         (if rn
           [➜ok (make-instance 'cell-cons :cons-cell (cdr (cons-cell cell)))]
-          [➜rightmost]
+          [➜right-bound]
           ))))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-  ;; accepts a tape-cons and a cell, makes the cell the new leftmost
+  ;; accepts a tape-cons and a cell, makes the cell the new left-bound
   ;; will be a problem if (cons-list tape) is shared
   (defun-typed epa<cell> ((tape tape-cons-active) (cell cell-cons))
     (let(
@@ -149,7 +149,7 @@ Need to add in the no-alloc continuations
       (setf (cons-list tape) cons-cell)
       ))
 
-  ;; accepts a tape-cons and an instance, makes a new leftmost initialized with the
+  ;; accepts a tape-cons and an instance, makes a new left-bound initialized with the
   ;; instance will be a problem if (cons-list tape) is shared
   (defun-typed epa<instance> ((tape tape-cons-active) instance)
     (let(
@@ -183,7 +183,7 @@ Need to add in the no-alloc continuations
       (rplacd cons0 cons1)
       ))
 
-  ;; removes the leftmost cell and returns it
+  ;; removes the left-bound cell and returns it
   ;; will be a problem if (cons-list tape) is shared
   (defun-typed epd<tape> ((tape tape-cons-active) &optional ➜)
     (destructuring-bind
@@ -193,8 +193,8 @@ Need to add in the no-alloc continuations
         )
       ➜
       (let*(
-             (leftmost (cons-list tape))
-             (right-neighbor (cdr leftmost))
+             (left-bound (cons-list tape))
+             (right-neighbor (cdr left-bound))
              )
         (if right-neighbor
           (setf (cons-list tape) right-neighbor)
@@ -202,7 +202,7 @@ Need to add in the no-alloc continuations
             (setf (cons-list tape) ∅)
             (to-empty tape)
             ))
-        [➜ok (make-instance 'cell-cons :cons-cell leftmost)]
+        [➜ok (make-instance 'cell-cons :cons-cell left-bound)]
         )))
 
   ;; deletes the right neighbor cell
@@ -210,7 +210,7 @@ Need to add in the no-alloc continuations
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        (➜right-bound (λ()(error 'dealloc-on-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -226,10 +226,10 @@ Need to add in the no-alloc continuations
               (rplacd cell-0 cell-2) ; this orphans cell-1
               [➜ok (make-instance 'cell-cons :cons-cell cell-1)]
               ))
-          [➜rightmost]
+          [➜right-bound]
           ))))
 
-  ;; References to the right neghbor of leftmost get messed up,
+  ;; References to the right neghbor of left-bound get messed up,
   ;; but (cons-list tape) will be ok, so no tape sharing issues
   (defun-typed ◧d.<tape> ((tape tape-cons-active) &optional ➜)
     (destructuring-bind
@@ -238,10 +238,10 @@ Need to add in the no-alloc continuations
         &allow-other-keys
         )
       ➜
-      (d.<cell> (leftmost tape)
+      (d.<cell> (left-bound tape)
         {
           :➜ok ➜ok
-          :➜rightmost
+          :➜right-bound
           (λ()
             (let(
                   (cell-0 (cons-list tape))
@@ -272,7 +272,7 @@ Need to add in the no-alloc continuations
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        (➜right-bound (λ()(error 'dealloc-on-right-bound)))
         &allow-other-keys
         )
       ➜
@@ -286,5 +286,5 @@ Need to add in the no-alloc continuations
             [➜ok rhs-cell]
             )
           (t
-            [➜rightmost]
+            [➜right-bound]
             )))))

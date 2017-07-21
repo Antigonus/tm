@@ -93,7 +93,7 @@ stepping the ensemble steps all the member machines.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜rightmost (λ()(error 'step-from-rightmost)))
+          (➜right-bound (λ()(error 'step-from-right-bound)))
           (➜no-alloc #'alloc-fail)
           &allow-other-keys
           )
@@ -115,11 +115,11 @@ stepping the ensemble steps all the member machines.
                               :➜no-alloc (λ()(return-from esr [➜no-alloc]))
                               }
                             ))
-                    :➜rightmost c∅
+                    :➜right-bound c∅
                     }))
               {
                 :➜t (λ()[➜ok result])
-                :➜∅ ➜rightmost
+                :➜∅ ➜right-bound
                 }
               )))))
 
@@ -138,7 +138,7 @@ stepping the ensemble steps all the member machines.
       (destructuring-bind
         (&key
           (➜ok (be t))
-          (➜rightmost (be ∅))
+          (➜right-bound (be ∅))
           &allow-other-keys
           )
         ➜
@@ -148,11 +148,11 @@ stepping the ensemble steps all the member machines.
           (-s* mtm)
           (∀ mtm
             (λ(mtm ct c∅)
-              (esw (r mtm) {:➜ok ct :➜rightmost c∅})
+              (esw (r mtm) {:➜ok ct :➜right-bound c∅})
               )
             {
               :➜t ➜ok
-              :➜∅ ➜rightmost
+              :➜∅ ➜right-bound
               }
             ))))
 
@@ -183,7 +183,7 @@ stepping the ensemble steps all the member machines.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜rightmost (λ()(error 'step-from-rightmost)))
+          (➜right-bound (λ()(error 'step-from-right-bound)))
           (➜no-alloc #'alloc-fail)
           &allow-other-keys
           )
@@ -205,11 +205,11 @@ stepping the ensemble steps all the member machines.
                               :➜no-alloc (λ()(return-from ◧sr [➜no-alloc]))
                               }
                             ))
-                    :➜rightmost c∅
+                    :➜right-bound c∅
                     }))
               {
                 :➜t (λ()[➜ok result])
-                :➜∅ ➜rightmost
+                :➜∅ ➜right-bound
                 }
               )))))
 
@@ -228,7 +228,7 @@ stepping the ensemble steps all the member machines.
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜rightmost (be ∅))
+        (➜right-bound (be ∅))
         &allow-other-keys
         )
       ➜
@@ -238,11 +238,11 @@ stepping the ensemble steps all the member machines.
         (-s* mtm)
         (∀ mtm
           (λ(mtm ct c∅)
-            (◧sw (r mtm) {:➜ok ct :➜rightmost c∅})
+            (◧sw (r mtm) {:➜ok ct :➜right-bound c∅})
             )
           {
             :➜t ➜ok
-            :➜∅ ➜rightmost
+            :➜∅ ➜right-bound
             }
           ))))
 
@@ -265,25 +265,25 @@ stepping the ensemble steps all the member machines.
   ;;--------------------------------------------------------------------------------
   ;; head stepping
   ;;
-    ;; if there exists a member machine on rightmost, the ensemble is on rightmost
+    ;; if there exists a member machine on right-bound, the ensemble is on right-bound
     (defun-typed s ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok (be t))
-          (➜rightmost (be ∅))
+          (➜right-bound (be ∅))
           &allow-other-keys
           )
         ➜
         (let(
               (mtm (members tm))
               )
-          (-s*∃ mtm (λ(mtm ct c∅)(on-rightmost (r mtm) {:➜t ct :➜∅ c∅}))
+          (-s*∃ mtm (λ(mtm ct c∅)(on-right-bound (r mtm) {:➜t ct :➜∅ c∅}))
             {
-              :➜t ➜rightmost
+              :➜t ➜right-bound
               :➜∅ (λ()(-s*∀*
                         mtm
                         (λ(mtm)
-                          (s (r mtm) {:➜ok #'do-nothing :➜rightmost #'cant-happen})
+                          (s (r mtm) {:➜ok #'do-nothing :➜right-bound #'cant-happen})
                           ))
                     [➜ok]
                     )
@@ -297,8 +297,8 @@ stepping the ensemble steps all the member machines.
   ;;--------------------------------------------------------------------------------
   ;; location
   ;;  
-    ;; any on leftmost - predicts if -s would take a leftmost continuation
-    (defun-typed on-leftmost ((tm ensemble-tr) &optional ➜)
+    ;; any on left-bound - predicts if -s would take a left-bound continuation
+    (defun-typed on-left-bound ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -312,7 +312,7 @@ stepping the ensemble steps all the member machines.
           (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
-              (on-leftmost (r mtm) {:➜t ct :➜∅ c∅})
+              (on-left-bound (r mtm) {:➜t ct :➜∅ c∅})
               )
             {
               :➜t ➜t
@@ -320,8 +320,8 @@ stepping the ensemble steps all the member machines.
               }
             ))))
 
-    ;; any on rightmost - predicts if step would take a rightmost continuation
-    (defun-typed on-rightmost ((tm ensemble-tr) &optional ➜)
+    ;; any on right-bound - predicts if step would take a right-bound continuation
+    (defun-typed on-right-bound ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -335,7 +335,7 @@ stepping the ensemble steps all the member machines.
           (-s* mtm)
           (∃ mtm
             (λ(mtm ct c∅)
-              (on-rightmost (r mtm) {:➜t ct :➜∅ c∅})
+              (on-right-bound (r mtm) {:➜t ct :➜∅ c∅})
               )
             {
               :➜t ➜t
@@ -346,7 +346,7 @@ stepping the ensemble steps all the member machines.
   ;;--------------------------------------------------------------------------------
   ;; length-tape
   ;;
-    ;; would ◧s take a rightmost continuation?
+    ;; would ◧s take a right-bound continuation?
     (defun-typed tape-length-is-one ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key
@@ -369,7 +369,7 @@ stepping the ensemble steps all the member machines.
               }
             ))))
 
-    ;; would ◧ss take a rightmost continuation?
+    ;; would ◧ss take a right-bound continuation?
     (defun-typed tape-length-is-two ((tm ensemble-tr) &optional ➜)
       (destructuring-bind
         (&key

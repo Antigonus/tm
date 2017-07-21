@@ -4,8 +4,8 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
 A subspace is a tape held as an instance within a cell.  A subspace
-may be entered using #'si from the cell.  Once a subspace has been entered, leftmost
-and rightmost, etc. apply to the subspace (not the original tape).
+may be entered using #'si from the cell.  Once a subspace has been entered, left-bound
+and right-bound, etc. apply to the subspace (not the original tape).
 
 This is copied from tm-region.lisp:
 
@@ -18,15 +18,15 @@ This is copied from tm-region.lisp:
 
     Suppose we have two adjacent regions, thus we have a left neighbor region and a right
     neighbor region. Notice that the location of the right neighbor region is the
-    rightmost cell of the left neighbor region.
+    right-bound cell of the left neighbor region.
 
     Now suppose we want to make the left neighbor region void.  There is a problem,
-    because the rightmost cell of the left neighbor region, which is acting as the
+    because the right-bound cell of the left neighbor region, which is acting as the
     location of the right neighbor region, is entangled.  We can not deallocte this
-    rightmost cell.  
+    right-bound cell.  
 
     Now as mentioned above, we can move the location machine for the right neighbor region
-    to the left one cell, and then delete the rightmost cell of the left neighbor region.
+    to the left one cell, and then delete the right-bound cell of the left neighbor region.
     However, after doing this we have an ambiguous sitiation.  Both the now void
     leftneighbor region and the right neighbor region will have the same location.  They
     are in fact no longer left and right neighbors.  We have lost the order information.
@@ -91,7 +91,7 @@ This is copied from tm-region.lisp:
       (cont-mount-fail (be ∅)) ; instance isn't a tape machine
       (cont-no-alloc (λ()(error 'alloc-fail)))
       )
-    "Allocates a new cell to the left of leftmost in the subspace.
+    "Allocates a new cell to the left of left-bound in the subspace.
      "
     (r tm
       (λ(subspace)
@@ -125,17 +125,17 @@ This is copied from tm-region.lisp:
               spill 
               (cont-ok #'echo)
               (cont-mount-fail (λ()(error 'mount-fail)))
-              (cont-rightmost (λ()(error 'dealloc-on-rightmost)))
+              (cont-right-bound (λ()(error 'dealloc-on-right-bound)))
               (cont-not-supported (λ()(error 'not-supported)))
               (cont-collision (λ()(error 'dealloc-entangled)))
               (cont-no-alloc (λ()(error 'alloc-fail)))
               )
-    "Object is subspace. Deletes the subspace leftmost."
+    "Object is subspace. Deletes the subspace left-bound."
     (r tm
       (λ(subspace)
         (if 
           (typep subspace 'tape-machine)
-          (epd subspace spill cont-ok cont-rightmost cont-not-supported cont-collision cont-no-alloc)
+          (epd subspace spill cont-ok cont-right-bound cont-not-supported cont-collision cont-no-alloc)
           cont-mount-fail
           ))
       cont-mount-fail

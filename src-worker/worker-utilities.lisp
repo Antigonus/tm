@@ -27,7 +27,7 @@ back to a lambda, and needs to be updated.
     op
     (&optional 
       (cont-ok (be t)) 
-      (cont-rightmost (be ∅))
+      (cont-right-bound (be ∅))
       (cont-no-such-bin (λ(bin)(declare(ignore bin))(error 'binner-no-such-bin)))
       (cont-no-alloc (λ()(error 'tm-alloc-fail)))
       )
@@ -49,7 +49,7 @@ back to a lambda, and needs to be updated.
           (λ()(funcall cont-no-such-bin bin))
           )))
 
-    (s src cont-ok cont-rightmost)
+    (s src cont-ok cont-right-bound)
     )
 
   (defun test-binner-0 ()
