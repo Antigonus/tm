@@ -95,11 +95,11 @@ they belong to.
     ;; type
     ;;
       #:cell
-      #:leftmost-interior
-      #:rightmost-interior
+      #:left-bound-interior
+      #:right-bound-interior
       #:interior
-      #:leftmost
-      #:rightmost
+      #:left-bound
+      #:right-bound
       #:solitary
 
     ;; queries
@@ -108,54 +108,45 @@ they belong to.
       #:r
       #:w
 
-    ;; data access on neighbors
+    ;; traversal
     ;;
       #:neighbor ; returns neighbor cell considering :direction and :distance
-      #:esr
-      #:esw
 
     ;; topology manipulation
     ;;
       #:a<cell>
-      #:-a<cell>
-      #:a<instance>
-      #:-a<instance>
-
+      #:a
       #:d<cell>
-      #:-d<cell>
-
       #:d.<cell>
       #:d+<cell>
-
-#|
 
 ;;;--------------------------------------------------------------------------------
 ;;; src-tape
 ;;;     
+      #:left-bound
+      #:right-bound
+      #:bound ;*
 
+      #:◧r ; read from left-bound
+      #:◧w
 
-      #:e◧sw
-      #:◧
-      #:s
-      #:a
-      #:on-leftmost
-      #:on-rightmost
-      #:tape-length-is-one
-      #:tape-length-is-two
+      #:◨r ; read from right-bound
+      #:◨w
 
-    ;;tm-generic
-    ;;
-      #:s*
-      #:as
-      #:a&hs*
-      #:as&hs*
+      #:epa<tape> ;* prepend a cell
+      #:epa       ; append an instance
+      #:epd<tape>  ;* delete the left-bound (causes neighbor to beomce the bound)
+      #:epd+<tape>  ; delete the entire tape
+      #:◧d.<tape>  ; swap contents with left-bound neighbor, delete neighbor
+
+#|
+;;;--------------------------------------------------------------------------------
+;;; src-tape-machine
+;;;     
+
 
     ;;quantifiers
     ;;
-      #:⟳
-      #:always-true
-      #:always-false
-
       #:∃
       #:-s*∃
       #:∀

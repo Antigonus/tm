@@ -12,7 +12,16 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type cell-bilist (cell-list left-neighbor cell)())
+  (def-type bilink (link)
+    (
+      (left-neighbor
+        :initarg :left-neighbor
+        :accessor left-neighbor
+        )
+      ))
+  (defparameter *left*  1)
+
+  (def-type cell-bilist (cell-list bilink cell)())
 
   (def-type bilist-left-bound-interior
     (
@@ -126,7 +135,7 @@ See LICENSE.txt
 
   ;; terminate the connections of a cell so that it can not affect gc
   ;;
-    (defun-typed cap-left ((c left-neighbor))
+    (defun-typed cap-left ((c cell-bilist))
       (setf (left-neighbor c) ∅)
       (to-left-bound c)
       )
@@ -138,7 +147,7 @@ See LICENSE.txt
 
   ;; c0 and c1 are two cells to be connected
   ;;
-    (defun-typed connect ((c0 cell-bilist)(c1 cell-bilist))
+    (defun-typed connect ((c0 bilink)(c1 bilink))
       (setf (right-neighbor c0) c1)
       (setf (left-neighbor c1) c0)
       )
@@ -170,8 +179,21 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation, interface implementations
 ;;
-  ;; c2 and c0 are neighbors, inserts c1 between them
-  ;;
+  (defun-typed a<cell> ((c0 cell-bilist) (c1 cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜bad-direction (λ()(error 'bad-direction)))
+        (d *right*)
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= d *right*) (call-next-method))
+        ((= d *left*) (-a<cell> c0 c1))
+        (t
+          [➜bad-direction]
+          ))))
+
     (def-function-class -a<cell> (c0 c1))
     (defun-typed -a<cell> ((c0 bilist-solitary) (c1 cell-bilist))
       (cap-left c1)
@@ -193,11 +215,28 @@ See LICENSE.txt
         ;; c0 keeps its status
       ))
 
+  (defun-typed d<cell> ((c0 cell-bilist) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜bad-direction (λ()(error 'bad-direction)))
+        (d *right*)
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((= d *right*) (call-next-method))
+        ((= d *left*) (-d<cell> c0 ➜))
+        (t
+          [➜bad-direction]
+          ))))
+
+
   ;; Deletes the left neighbor cell.
   ;; left-bound handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
   ;; here as otherwise CLOS would choose bilist-right-bound-interior as being more specific
   ;;
+    (def-function-class -d<cell> (cell &optional ➜))
     (defun-typed -d<cell> ((cell bilist-solitary) &optional ➜)
       (destructuring-bind
         (&key

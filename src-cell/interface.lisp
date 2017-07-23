@@ -41,27 +41,30 @@ machine constructs, such a tape head, are involved in the implementation of the 
 
   ;; these are only used as typed function argument specifiers
   ;;
-    (def-type left-bound-interior (cell)())
-    (def-type right-bound-interior (cell)())
+    (def-type tape-active (cell)()) ;; only used by tapes
+    (def-type left-bound-interior (tape-active)())
+    (def-type right-bound-interior (tape-active)())
 
   ;; all cells appearing on a tape have exactly one of these subtypes
   ;;
-    (def-type interior (left-bound-interior right-bound-interior)())
-    (def-type left-bound (left-bound-interior)())
+    (def-type tape-empty  (cell)()) ;; only used by tapes
+    (def-type interior    (left-bound-interior right-bound-interior)())
+    (def-type left-bound  (left-bound-interior)())
     (def-type right-bound (right-bound-interior)())
-    (def-type solitary (right-bound left-bound)())
+    (def-type solitary    (right-bound left-bound)())
 
   (def-function-class to-cell (cell))
-  (def-function-class to-interior (cell))
-  (def-function-class to-left-bound (cell))
-  (def-function-class to-right-bound (cell))
+  (def-function-class to-empty (cell))
   (def-function-class to-solitary (cell))
+  (def-function-class to-left-bound (cell))
+  (def-function-class to-interior (cell))
+  (def-function-class to-right-bound (cell))
 
 ;;--------------------------------------------------------------------------------
 ;; init
 ;; (➜ok #'echo) (➜bad (λ()(error 'bad-init-value))) (➜no-alloc #'alloc-fail)
 ;; 
-  (def-function-class init (tape-instance init &optional ➜))
+  (def-function-class init (instance init &optional ➜))
 
   (defun mk (tape-type init &optional ➜)
     (let(
@@ -69,6 +72,22 @@ machine constructs, such a tape head, are involved in the implementation of the 
           )
       (init tape-instance init ➜)
       ))
+
+  ;; makes a new independent cell of the same type and contents
+  (def-function-class clone<cell> (cell &optional ➜))
+  (defun-typed clone<cell> ((cell cell) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (new-cell (mk (type-of cell) (r cell)))
+            )
+        (cap new-cell)
+        [➜ok new-cell]
+        )))
 
 ;;--------------------------------------------------------------------------------
 ;; cell functions
@@ -117,25 +136,15 @@ machine constructs, such a tape head, are involved in the implementation of the 
 ;;
 
   ;; makes cell-1 a right-neighbor of cell-0
-  (def-function-class a<cell> (cell-0 cell-1))
-  ;; makes cell-1 a left-neighbor of cell-0
-  (def-function-class -a<cell> (cell-0 cell-1))
+  (def-function-class a<cell> (cell-0 cell-1 &optional ➜))
 
   ;; makes a new right neighbor for cell, and initializes it with instance.
-  (def-function-class a<instance> (cell instance))
-  (defun-typed a<instance> ((c0 cell) instance)
+  (def-function-class a (cell instance &optional ➜))
+  (defun-typed a ((c0 cell) instance  &optional ➜)
     (let(
           (new-cell (make-instance (type-of c0) :contents instance))
           )
-      (a<cell> c0 new-cell)
-      ))
-  ;; makes a new left neighbor for cell, and initializes it with instance.
-  (def-function-class -a<instance> (cell instance))
-  (defun-typed -a<instance> ((c0 cell) instance)
-    (let(
-          (new-cell (make-instance (type-of c0) :contents instance))
-          )
-      (-a<cell> c0 new-cell)
+      (a<cell> c0 new-cell ➜)
       ))
 
   ;; given a cell removes its right neighbor and returns it
@@ -156,26 +165,6 @@ machine constructs, such a tape head, are involved in the implementation of the 
           )
         ➜
         [➜right-bound]
-        ))
-
-  ;; left neighbor version for doubly linked lists
-  ;; (➜ok #'echo) (➜left-bound (be ∅))
-  ;;
-  ;; -d<cell> for non-right-bound cells must be handled by implementations becasue
-  ;; we don't know if the right neighbor is right-bound and do not know the relationship 
-  ;; between right-bound and the list header.
-  ;;
-  ;; 'solitary' also goes here, because it is a specialization of left-bound
-  ;;
-    (def-function-class -d<cell> (cell &optional ➜))
-    (defun-typed -d<cell> ((cell left-bound) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜left-bound (λ()(error 'dealloc-on-left-bound)))
-          &allow-other-keys
-          )
-        ➜
-        [➜left-bound]
         ))
 
   ;; The 'swap trick'

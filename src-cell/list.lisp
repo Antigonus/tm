@@ -14,51 +14,41 @@ CLOS version of the cons cell.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type right-neighbor ()
+  (def-type link ()
     (
       (right-neighbor
         :initarg :right-neighbor
         :accessor right-neighbor
         )
       ))
-  ;; though a list cell only has one differential, the header for a list tape keeps track of both
-  ;; tape boundaries
-  ;;
-    (def-type left-neighbor ()
-      (
-        (left-neighbor
-          :initarg :left-neighbor
-          :accessor left-neighbor
-          )
-        ))
-    (def-type bilink (right-neighbor left-neighbor)())
-
 
   (defparameter *right* 0)
-  (defparameter *left*  1)
 
-  (def-type cell-list (right-neighbor cell substrate)
+  (def-type cell-list (link cell substrate)
     (
       (contents :initarg :contents :accessor contents)
       ))
 
   ;; these are only used as typed function argument specifiers
   ;;
-    (def-type list-left-bound-interior (cell-list left-bound-interior)())
-    (def-type list-right-bound-interior (cell-list right-bound-interior)())
+    (def-type list-active (cell-list tape-active)())
+    (def-type list-left-bound-interior (left-bound-interior list-active)())
+    (def-type list-right-bound-interior (right-bound-interior list-active)())
 
   ;; all cells appearing on a tape have exactly one of these subtypes
   ;;
+    (def-type list-empty (cell)())
     (def-type list-interior  (list-left-bound-interior list-right-bound-interior interior)())
     (def-type list-left-bound  (list-left-bound-interior left-bound)())
     (def-type list-right-bound (list-right-bound-interior right-bound)())
     (def-type list-solitary  (list-right-bound list-left-bound solitary)())
     
   (defun-typed to-cell      ((cell cell-list))(change-class cell 'cell-list))
-  (defun-typed to-interior  ((cell cell-list))(change-class cell 'list-interior))
-  (defun-typed to-left-bound  ((cell cell-list))(change-class cell 'list-left-bound))
-  (defun-typed to-right-bound ((cell cell-list))(change-class cell 'list-right-bound))
+  (defun-typed to-empty     ((cell cell-list))(change-class cell 'list-empty))
   (defun-typed to-solitary  ((cell cell-list))(change-class cell 'list-solitary))
+  (defun-typed to-left-bound  ((cell cell-list))(change-class cell 'list-left-bound))
+  (defun-typed to-interior  ((cell cell-list))(change-class cell 'list-interior))
+  (defun-typed to-right-bound ((cell cell-list))(change-class cell 'list-right-bound))
 
   (defun-typed init ((cell cell-list) instance &optional ➜)
     (destructuring-bind
@@ -161,7 +151,7 @@ CLOS version of the cons cell.
         )
       ➜
       (cond
-        ((≥ 0)
+        ((≥ n 0)
           (neighbor-1 cell #'right-neighbor n ➜)
           )
         (t [➜bad-direction])
@@ -191,7 +181,7 @@ CLOS version of the cons cell.
   ;; c0 and c1 are two cells to be connected
   ;;
     (def-function-class connect (c0 c1))
-    (defun-typed connect ((c0 cell-list)(c1 cell-list))
+    (defun-typed connect ((c0 link)(c1 link))
       (setf (right-neighbor c0) c1)
       )
 
@@ -216,35 +206,38 @@ CLOS version of the cons cell.
         (cap c1)
         ))
 
-    ;; c0 and c1 are neighbors. disconnects them.
-    ;;
-      (def-function-class disconnect (c0 c1))
-      (defun-typed disconnect ((c0 list-left-bound) (c1 list-right-bound-interior))
-        (cap-right c0)
-        (to-solitary c0)
-        (cap-left c1)
-        )
-      (defun-typed disconnect ((c0 list-interior) (c1 list-right-bound-interior))
-        (cap-right c0)
-        (cap-left c1)
-        )
+  ;; c0 and c1 are neighbors. disconnects them.
+  ;;
+    (def-function-class disconnect (c0 c1))
+    (defun-typed disconnect ((c0 list-left-bound) (c1 list-right-bound-interior))
+      (cap-right c0)
+      (to-solitary c0)
+      (cap-left c1)
+      )
+    (defun-typed disconnect ((c0 list-interior) (c1 list-right-bound-interior))
+      (cap-right c0)
+      (cap-left c1)
+      )
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation, interface implementations
 ;;
   ;; c0 and c2 are neighbors, inserts c1 between them
   ;;
-    (defun-typed a<cell> ((c0 list-solitary) (c1 cell-list))
+    (defun-typed a<cell> ((c0 list-solitary) (c1 cell-list) &optional ➜)
+      (declare (ignore ➜))
       (cap-right c1)
       (connect c0 c1)
       (to-left-bound c0)
       )
-    (defun-typed a<cell> ((c0 list-right-bound) (c1 cell-list))
+    (defun-typed a<cell> ((c0 list-right-bound) (c1 cell-list)  &optional ➜)
+      (declare (ignore ➜))
       (cap-right c1)
       (connect c0 c1)
       (to-interior c0)
       )
-    (defun-typed a<cell> ((c0 list-left-bound-interior) (c1 cell-list))
+    (defun-typed a<cell> ((c0 list-left-bound-interior) (c1 cell-list)  &optional ➜)
+      (declare (ignore ➜))
       (let(
             (c2 (right-neighbor c0))
             )
