@@ -29,33 +29,11 @@ CLOS version of the cons cell.
       (contents :initarg :contents :accessor contents)
       ))
 
-  ;; these are only used as typed function argument specifiers
-  ;;
-    (def-type list-active (cell-list tape-active)())
-    (def-type list-left-bound-interior (left-bound-interior list-active)())
-    (def-type list-right-bound-interior (right-bound-interior list-active)())
-
-  ;; all cells appearing on a tape have exactly one of these subtypes
-  ;;
-    (def-type list-empty (cell)())
-    (def-type list-interior  (list-left-bound-interior list-right-bound-interior interior)())
-    (def-type list-left-bound  (list-left-bound-interior left-bound)())
-    (def-type list-right-bound (list-right-bound-interior right-bound)())
-    (def-type list-solitary  (list-right-bound list-left-bound solitary)())
-    
-  (defun-typed to-cell      ((cell cell-list))(change-class cell 'cell-list))
-  (defun-typed to-empty     ((cell cell-list))(change-class cell 'list-empty))
-  (defun-typed to-solitary  ((cell cell-list))(change-class cell 'list-solitary))
-  (defun-typed to-left-bound  ((cell cell-list))(change-class cell 'list-left-bound))
-  (defun-typed to-interior  ((cell cell-list))(change-class cell 'list-interior))
-  (defun-typed to-right-bound ((cell cell-list))(change-class cell 'list-right-bound))
-
   (defun-typed init ((cell cell-list) instance &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
         (➜fail (λ()(error 'bad-init-value)))
-        status 
         right-neighbor
         &allow-other-keys
         )
@@ -65,15 +43,6 @@ CLOS version of the cons cell.
         (right-neighbor (setf (right-neighbor cell) right-neighbor))
         (t              (setf (right-neighbor cell) ∅))
         )
-      (when status
-        (case status
-          (empty     (to-empty cell))
-          (solitary  (to-solitary  cell))
-          (left-bound  (to-left-bound  cell))
-          (interior  (to-interior  cell))
-          (right-bound (to-right-bound cell))
-          (otherwise (return-from init [➜fail]))
-          ))
       [➜ok cell]
       ))
 

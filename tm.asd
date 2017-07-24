@@ -38,6 +38,11 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
+               (:module "src-init"
+                 :components (
+                               (:file "mk")
+                               ))
+
                (:module "src-cell"
                  :components (
                                (:file "interface")
