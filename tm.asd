@@ -47,8 +47,8 @@ See LICENSE.txt
 
                (:module "src-tape"
                  :components (
-;;                               (:file "interface")
-;;                               (:file "list")
+                               (:file "interface")
+                               (:file "list")
 ;;                               (:file "bilist")
                                ))
 
@@ -175,7 +175,7 @@ See LICENSE.txt
 
                (:module "test-tape"
                  :components (
-;;                               (:file "bilist")
+                               (:file "list")
                                ))
 
 

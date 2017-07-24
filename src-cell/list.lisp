@@ -67,10 +67,11 @@ CLOS version of the cons cell.
         )
       (when status
         (case status
-          (interior  (to-interior  cell))
-          (left-bound  (to-left-bound  cell))
-          (right-bound (to-right-bound cell))
+          (empty     (to-empty cell))
           (solitary  (to-solitary  cell))
+          (left-bound  (to-left-bound  cell))
+          (interior  (to-interior  cell))
+          (right-bound (to-right-bound cell))
           (otherwise (return-from init [➜fail]))
           ))
       [➜ok cell]
@@ -177,6 +178,12 @@ CLOS version of the cons cell.
       (setf (right-neighbor c) ∅)
       (to-cell c)
       )
+
+  (def-function-class cap<tape> (tape))
+  (defun-typed cap<tape> ((tape cell-list)) 
+    (setf (right-neighbor tape) ∅)
+    (to-empty tape)
+    )
 
   ;; c0 and c1 are two cells to be connected
   ;;

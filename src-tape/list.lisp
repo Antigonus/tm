@@ -30,36 +30,29 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  ;; tape-list is just a reference to a left-bound cell-list
 
-;;--------------------------------------------------------------------------------
-;; primitive topology manipulation
-;;
-  (defun-typed cap<tape> ((tape cell-list)) 
-    (setf (right-neighbor tape) ∅)
-    (to-empty tape)
-    )
 
 ;;--------------------------------------------------------------------------------
 ;; init
 ;;
-  ;; more advanced tape init found in src-tape-enhancements (when it is written ;-)
 
-  (defun-typed init ((tape tape-list) (init null) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (cap tape)
-      [➜ok tape]
-      ))
+;; 1. Use the cell init with a null instance and the :status empty option.
+;; 2. Use the cell init with any instance, including nil, and the :status solitary option.
+;; 3. build the tape manually, e.g.:
+#| 
+  (let*(
+        (c3 (mk 'cell-list 40 {:status right-bound}))
+        (c2 (mk 'cell-list 30 {:status interior :right-neighbor c3}))
+        (c1 (mk 'cell-list 20 {:status interior :right-neighbor c2}))
+        (c0 (mk 'cell-list 10 {:status left-bound :right-neighbor c1})
+       )
+|#
+
 
 ;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
-  (defun-typed bound ((tape tape-list-active) &optional ➜)
+  (defun-typed bound ((tape list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜bad-direction (λ()(error 'bad-direction)))
@@ -68,8 +61,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )
       ➜
       (cond
-        ((= d *right*) (right-neighbor tape))
-        ((= d *left*) (left-neighbor tape))
+        ((= d *left*) tape)
         (t [➜bad-direction])
         )))
 
@@ -77,35 +69,40 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;; topology manipulation
 ;;
 ;;
-  ;; accepts a tape-list and a cell, makes the cell the new left-bound
-  ;; will be a problem if (cons-list tape) is shared
-  (defun-typed epa<tape> ((tape tape-list-empty) (new-cell cell-list) &optional ➜)
-    (to-solitary tape)
-    (w tape (r new-cell))
-    )
-  (defun-typed epa<tape> ((tape tape-list-active) (new-cell cell-list) &optional ➜)
+  ;; accepts a cell-list and a cell, makes the cell the new left-bound
+  ;; will cause prior references to the tape head to become stale
+  (defun-typed epa<tape> ((tape list-empty) (new-cell cell-list) &optional ➜)
     (destructuring-bind
       (&key
+        (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (let(
-            (c1 (right-neighbor tape))
-            )
-        (if
-          (typep c1 'solitary)
-          (to-right-bound c1)
-          (to-interior c1)
-          )
-        (connect new-cell c1)
-        (connect tape new-cell)
-        )))
+      (to-solitary tape)
+      (w tape (r new-cell))
+      [➜ok]
+      ))
+  (defun-typed epa<tape> ((tape list-active) (new-cell cell-list) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (connect new-cell tape)
+      (to-left-bound new-cell)
+      (cond
+        ((typep tape 'solitary) (to-right-bound tape))
+        (t (to-interior tape))
+        )
+      [➜ok]
+      )))
 
   ;; removes the left-bound  and returns it, thus making its right-neighbor the new left-bound
   ;; an active tape always has a left-bound to be deleted
   ;; will be a problem if the tape is intangled, as partners will not have correct left-bound afterward
   ;; empty and solitary cases handled on the interface
-  (defun-typed epd<tape> ((tape tape-list-active) &optional ➜)
+  (defun-typed epd<tape> ((tape list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -120,7 +117,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )))
 
   ;; empty case handled on the interface
-  (defun-typed epd+<tape> ((tape tape-list-active) &optional ➜)
+  (defun-typed epd+<tape> ((tape list-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)

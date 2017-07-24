@@ -145,7 +145,7 @@ so it won't mind having a few more types.
       [➜ok]
       ))
 
-  (def-function-class epa (tape instance &optional ➜)
+  (def-function-class epa (tape instance &optional ➜))
   (defun-typed epa ((c0 tape-empty) instance &optional ➜)
     (destructuring-bind
       (&key
@@ -169,7 +169,7 @@ so it won't mind having a few more types.
   ;; tape has one cell, albeit an empty one. Delete is obliged to return a cell to support
   ;; spilling, so we make one up. Hopefully the optimizer removes his code when we are not
   ;; spilling, or if others call this without spilling, maybe it should leave it be so
-  ;; that the cached version can be used.
+ ;; that the cached version can be used.
   ;;
     (defun d-last (tape)
       (let(
@@ -197,9 +197,15 @@ so it won't mind having a few more types.
         [➜right-bound]
         ))
     (defun-typed epd<tape> ((tape solitary) &optional ➜)
-      (d-last tape ➜)
-      )
-
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          &allow-other-keys
+          )
+        ➜
+        [➜ok (d-last tape)]
+        ))
+ 
   ;; Deletes the whole tape.
   ;; Afterward tape will be empty.
   ;; Returns the left-bound that is still connected to its neighbor
@@ -214,7 +220,7 @@ so it won't mind having a few more types.
         ➜
         [➜right-bound]
         ))
-    (defun-typed epd+<tape> ((tape tape-valid) &optional ➜)
+    (defun-typed epd+<tape> ((tape tape-active) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
