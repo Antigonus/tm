@@ -17,7 +17,7 @@ just a reference to the tape, then 2.2. could have been relaxed.  A reference to
 a reference is similar to using one cell of padding; hence, all operations that start at
 the beginning of a tape would pay an overhead to skip the extra reference, and thus would
 also need extra code just for this case.  This might not have been so bad, as it could
-have been built into cue-leftmost.
+have been built into cue-bound-left.
 
 One approach to avoiding these hazards is to keep a set of references to the entanglemed
 machines and then 1) to check for collisions before deleting a cell, and 2) to update

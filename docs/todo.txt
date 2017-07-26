@@ -92,7 +92,7 @@ copy to new list doe snot have the problem and it is also transactional
 58. rename d◧ to epd (entangled copy, p, delete). 
      Then unambiguously, hp -> p h◧->◧ h◨->◨ 
 
-     43. cue-leftmost / rightmost names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
+     43. cue-bound-left / bound-right names updated to cue◧  and cue◨.   Perhaps c◧ and c◨.
          I don't think we will have 'copy' because that would be w* with a fill.  We
          will have move.  So c might be available.
 
@@ -148,11 +148,11 @@ faster.
 add a time to wait as part of test-hook (similar to #50 above)
 
 56. ensemble needs something to help the programer know which machines hit
-   rightmost.  Look at shallow copy for example.  After a quantifier we
+   bound-right.  Look at shallow copy for example.  After a quantifier we
    are left trying to make sense of what happened.  Perhaps an additional
    slot in ensemble that can be used to understand more about the
-   ensemble.  We do have this, upon hiting rightmost, the members machine's
-   head is left on the cell holding the machine that hit rightmost.
+   ensemble.  We do have this, upon hiting bound-right, the members machine's
+   head is left on the cell holding the machine that hit bound-right.
 
 57. only have generic implementation for d*, which is rather inefficient,
     need to add implementation specific versions.  Might also give some

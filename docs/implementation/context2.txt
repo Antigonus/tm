@@ -1,0 +1,51 @@
+
+So I implemented the approach of using subtypes to carry cell attributes.  Accordingly
+a cell can have a subtype of  solitary, bound-left, inner, bound-right.  A tape is
+just a series of cells, so I had to add the sub-type tape-empty to signify an empty tape.
+
+But what happens when we want to define a region on the tape with different bounds?  So
+the bounding information would be held in two member region instance, and a given tape
+could have multiple regions defined.  But then if I delete the bound-right of a region I
+need to know not to cap off the new bound-right if it has a right-neighbor for another
+region.  Regions are in fact entangled. The seems to pressage the concept of a entangled
+tape machines.  This indicates that regions might be better implemented or managed at the
+tape machine level.
+
+So suppose I introduce such a region object and ditch the concept of attaching cell
+attributes through subtype. Now consider the multi-world view.  I.e. where in one
+interpretation a tape starts at cell, say, c0, and ends at cell, say cna, but in another
+world it ends at cell cnb.
+
+In a multiworld cell there will be potentially different links chosen as a function
+of a world number.  I.e. what channel are you on?  If there is an external region
+object, then each world must have its own region object.  Again these are entangled.
+
+Hence, multiworld interpretation potentially causes more data to be embedded in a cell in
+the form of different neighbor cell links depending on the world number.  Any information
+that depends both on the world, and on the cell, goes into the cell. Are region boundaries
+for the world and example of such information?
+
+A boundary is link dependent not cell dependent.  It is a link that is marked. If a cell
+can have 4 neighbor links, then ther are four possible boundaries to stepping to a
+neighbor.  We abstract links through the neighbor function, so it is the neighbor function
+that expresses boundary information.  Currently it does this through continuing through
+a boundary continuation.  We also maintain a reference to one boundary.  In the case
+of a tape, that of the bound-left.
+
+So we type cells.  We place cells of the same type into the same area of memory.  We have
+the ability to create address spaces (*), so this is straightforward.  Each type gets its
+own address space object.  Intereting then, the cells on a tape may appear in different
+address spaces.  We are using two references then to link a cell, the address space object
+reference, and then the address within that space. The address space reference is used to
+dispatch the correct functions for handling the cell.
+
+(*) in the C++ version this is explicitly manged.  At least some implementations of Lisp
+have this built in.
+
+Multiple regions are then a simple example of different worlds sharing the same data.
+
+#'neighbor then needs to know which world it is interpretting the cell in.  In the
+ simplest case this means passing in a world context.
+
+
+

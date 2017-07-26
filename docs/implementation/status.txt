@@ -22,8 +22,8 @@ Simultaneous operation on the Base Machine
 Parked 
 
   For an empty machine the status machine will act like the head is parked, and
-  requests for a right neighbor will meet with right of rightmost continuation.
-  Appending to an empty machine will create a new leftmost cell (and in the current
+  requests for a right neighbor will meet with right of bound-right continuation.
+  Appending to an empty machine will create a new bound-left cell (and in the current
   implementation, create a new machine as well).
 
   When the status is 'parked, the status machine will claim the head is not on any
@@ -36,12 +36,12 @@ Parked
   is a sort of region locator. Should we have a general concept of region locator?
 
   However, we run into a problem with the operation #'a if the right neighbor to a parked
-  head is anything except the leftmost cell.  This is because to perform the append of a
+  head is anything except the bound-left cell.  This is because to perform the append of a
   new cell relative to a parked head for a singly linked list we would need to modify the
   left neighbor cell to account for it having a new right neighbor, but having a parked
   head does not give us a reference to it. If we made the parked head an actual alias
   for the left neighbor cell, then it would have to be entanglement accounted, then there
-  would be an anomoly when parking from the leftmost cell, as then the parked head can
+  would be an anomoly when parking from the bound-left cell, as then the parked head can
   not be an alias for a left neighbor.
 
   If we adopt the convention that right neighbor for a parked head, is the cell the head
@@ -49,12 +49,12 @@ Parked
   from' state associated with a parked head.
 
   When we adopt the convention that the right neighbor of the parked head is always the
-  leftmost cell, then we can not allow operations on the base machine, or the head might
-  be moved away form the leftmost cell.  If we tried to always cue-leftmost before
+  bound-left cell, then we can not allow operations on the base machine, or the head might
+  be moved away form the bound-left cell.  If we tried to always cue-bound-left before
   unparking a head, then we are communicating with the code using the base machine, but we
   have not developed a framework for such communication.
 
-  If we adopt the convention that the parked head's right neighbor is always the leftmost
+  If we adopt the convention that the parked head's right neighbor is always the bound-left
   cell on the base machine, and that the status machine owns the base machine.  A
   programmer can make an entangled copy, but can not use the base base machine.  Then the
   status machine has a single machine interface, with a single head state. I will go with

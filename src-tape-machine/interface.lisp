@@ -119,11 +119,11 @@ picks them up.
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;
-  (def-function-class on-left-bound (tm &optional ➜)
+  (def-function-class on-bound-left (tm &optional ➜)
     (:documentation
-      "tm head is on left-bound ➜t, else ➜∅
+      "tm head is on bound-left ➜t, else ➜∅
       "))
-  (defun-typed on-left-bound ((tm tape-machine-empty-or-parked) &optional ➜)
+  (defun-typed on-bound-left ((tm tape-machine-empty-or-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -133,11 +133,11 @@ picks them up.
       [➜∅]
       ))
 
-  (def-function-class on-right-bound (tm &optional ➜)
+  (def-function-class on-bound-right (tm &optional ➜)
     (:documentation
-      "tm head is on the right-bound cell ➜t, else ➜∅
+      "tm head is on the bound-right cell ➜t, else ➜∅
       "))
-  (defun-typed on-right-bound ((tm tape-machine-empty-or-parked) &optional ➜)
+  (defun-typed on-bound-right ((tm tape-machine-empty-or-parked) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -246,11 +246,11 @@ picks them up.
       (destructuring-bind
         (
           &key
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
     (defun-typed esnr ((tm tape-machine-empty) &optional ➜) (◧snr tm ➜))
 
@@ -265,11 +265,11 @@ picks them up.
       (destructuring-bind
         (
           &key
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
     (defun-typed esnw ((tm tape-machine-empty) instance &optional ➜) (◧snw tm instance ➜))
     
@@ -280,17 +280,17 @@ picks them up.
   (def-function-class s (tm &optional ➜)
     (:documentation
       "If the head is on a cell, and there is a right neighbor, puts the head on the
-       right neighbor and ➜ok.  If there is no right neighbor, then ➜right-bound.
+       right neighbor and ➜ok.  If there is no right neighbor, then ➜bound-right.
        "))
   (defun-typed s ((tm tape-machine-empty) &optional ➜)
     (destructuring-bind
       (
         &key
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
-      [➜right-bound]
+      [➜bound-right]
       ))
 
   (def-function-class -s (tm &optional ➜))
@@ -298,11 +298,11 @@ picks them up.
     (destructuring-bind
       (
         &key
-        (➜left-bound (be ∅))
+        (➜bound-left (be ∅))
         &allow-other-keys
         )
       ➜
-      [➜left-bound]
+      [➜bound-left]
       ))
 
   (def-function-class sn (tm n &optional ➜))
@@ -311,20 +311,20 @@ picks them up.
       (
         &key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
       (if (= 0 n)
         [➜ok]
-        [➜right-bound]
+        [➜bound-right]
         )))
   (defun-typed sn ((tm tape-machine-parked) n &optional ➜)
     (destructuring-bind
       (
         &key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
@@ -335,12 +335,12 @@ picks them up.
           (s tm
             {
               :➜ok (λ()(sn tm (1- n) ➜))
-              :➜right-bound ➜right-bound
+              :➜bound-right ➜bound-right
               }))
         )))
 
   ;; '*' is zero or more times
-  (def-function-class s* (tm &optional ➜)) ; move to right-bound
+  (def-function-class s* (tm &optional ➜)) ; move to bound-right
   (defun-typed s* ((tm tape-machine-empty) &optional ➜)
     (destructuring-bind
       (
@@ -363,12 +363,12 @@ picks them up.
            (s tm
              {
                :➜ok [➜again]
-               :➜right-bound [➜ok]
+               :➜bound-right [➜ok]
                })))
       ))
 
   ;; step backwards zero or more times, and as many times as possible
-  ;; i.e. move to left-bound
+  ;; i.e. move to bound-left
   (def-function-class -s* (tm &optional ➜)) 
   (defun-typed -s* ((tm tape-machine-empty) &optional ➜)
     (destructuring-bind
@@ -392,7 +392,7 @@ picks them up.
            (-s tm
              {
                :➜ok [➜again]
-               :➜left-bound [➜ok]
+               :➜bound-left [➜ok]
                })))
       ))
 
@@ -400,7 +400,7 @@ picks them up.
   ;;
   ;; The boundary is the cell that tm1's head is on.
   ;;   
-  ;;     ➜right-bound if head is on the boundary cell
+  ;;     ➜bound-right if head is on the boundary cell
   ;;     ➜ok if tm0 is not on a boundary cell.
   ;;
   ;; By contract, tm0 and tm1 are entangled. Because they are entangled they are of the
@@ -417,11 +417,11 @@ picks them up.
       (destructuring-bind
         (
           &key
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
 
     (defun-typed s= 
@@ -433,11 +433,11 @@ picks them up.
       (destructuring-bind
         (
           &key
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
 
     (defun-typed s= 
@@ -449,15 +449,15 @@ picks them up.
       (destructuring-bind
         (
           &key
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           (➜ok (be t))
           &allow-other-keys
           )
         ➜
         (heads-on-same-cell tm0 tm1
           {
-            :➜t ➜right-bound
-            :➜∅ (λ() (s tm0 {:➜ok ➜ok :➜right-bound ➜right-bound}))
+            :➜t ➜bound-right
+            :➜∅ (λ() (s tm0 {:➜ok ➜ok :➜bound-right ➜bound-right}))
             })
         ))
 
@@ -507,7 +507,7 @@ picks them up.
     (s tm
       {
         :➜ok (λ()(∃ tm pred ➜))
-        :➜right-bound #'cant-happen ; tm is parked
+        :➜bound-right #'cant-happen ; tm is parked
         }))
   (defun-typed ∃ ((tm tape-machine) (pred function) &optional ➜)
     (destructuring-bind
@@ -519,14 +519,14 @@ picks them up.
       ➜
       (if (∧ (functionp ➜t) (functionp ➜∅))
         (⟳(λ(again)
-            [pred tm (λ()(s tm {:➜ok again :➜right-bound ➜∅})) ➜t]
+            [pred tm (λ()(s tm {:➜ok again :➜bound-right ➜∅})) ➜t]
             ))
         (error 'non-function-continuation)
         )
       ))
 
 
-  ;; existence from left-bound, atomic
+  ;; existence from bound-left, atomic
   (def-function-class -s*∃ (tm pred &optional ➜))
   (defun-typed -s*∃ ((tm tape-machine-empty) pred &optional ➜)
     (destructuring-bind
@@ -566,7 +566,7 @@ picks them up.
       {:➜∅ ➜t :➜t ➜∅}
       )))
 
-  ;; These cue left-bound first, note they do not entangle, the tape machines head is moved.
+  ;; These cue bound-left first, note they do not entangle, the tape machines head is moved.
   ;; These are atomic operations, and the end case choices reflect this.
   (def-function-class -s*∀ (tm pred &optional ➜))
   (defun-typed -s*∀ ((tm tape-machine-valid) (pred function) &optional ➜)
@@ -611,7 +611,7 @@ picks them up.
   (defun-typed as ((tm tape-machine-valid) instance &optional ➜)
     (destructuring-bind
       (&key
-        ;; ➜ok and ➜right-bound snagged by #'s as part of #'a ➜ok
+        ;; ➜ok and ➜bound-right snagged by #'s as part of #'a ➜ok
         (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
@@ -625,7 +625,7 @@ picks them up.
 
   (def-function-class a&h◨ (tm instance &optional ➜)
     (:documentation
-      "#'a with a contract that the head is on right-bound.
+      "#'a with a contract that the head is on bound-right.
       "))
   ;; surely specializations will make better use of the contract
   (defun-typed a&h◨ 
@@ -639,7 +639,7 @@ picks them up.
 
   (def-function-class as&h◨ (tm instance &optional ➜)
     (:documentation
-      "#'as with a contract that the head is on right-bound.
+      "#'as with a contract that the head is on bound-right.
       "))
    ;; surely specializations will make better use of the contract
   (defun-typed as&h◨
@@ -663,7 +663,7 @@ picks them up.
   ;;
     (def-function-class epd (tm &optional ➜)
       (:documentation
-        "Deallocates left-bound.
+        "Deallocates bound-left.
          Returns the instance from the deallocated cell.
          If spill is not ∅, the deallocated cell is moved to spill, or a new
          cell is allocated to spill and the instance reference is moved there.
@@ -683,7 +683,7 @@ picks them up.
 
     (def-function-class ep-d (tm &optional ➜)
       (:documentation
-        "Deallocates right-bound.
+        "Deallocates bound-right.
          Returns the instance from the deallocated cell.
          If spill is not ∅, the deallocated cell is moved to spill, or a new
          cell is allocated to spill and the instance reference is moved there.
@@ -727,7 +727,7 @@ picks them up.
                    (epd tm
                      {
                        :➜ok #'work
-                       :➜right-bound ➜ok
+                       :➜bound-right ➜ok
                        (o ➜) ; for the spill option
                        }
                      ))
@@ -817,7 +817,7 @@ picks them up.
                    (d tm 
                      {
                        :➜ok #'work
-                       :➜right-bound ➜ok
+                       :➜bound-right ➜ok
                        (o ➜) ; for the spill option
                        }
                      ))

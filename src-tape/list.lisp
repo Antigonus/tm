@@ -7,8 +7,8 @@ Conceptually this is cleaner, but it doesn't bind to Lisp's linked list.  Rather
 creates its own list form.  Perhaps this is what lists would have looked like had CLOS
 been part of the original language.
 
-The list header will be a list-tape type. The header will hold links to right-bound and
-left-bound.
+The list header will be a list-tape type. The header will hold links to bound-right and
+bound-left.
 
 Due to list-tape being inherited from link, the list-tape header can be passed to
 functions that manipulate links. This simplifies end case processing.
@@ -41,10 +41,10 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;; 3. build the tape manually, e.g.:
 #| 
   (let*(
-        (c3 (mk 'cell-list 40 {:status right-bound}))
+        (c3 (mk 'cell-list 40 {:status bound-right}))
         (c2 (mk 'cell-list 30 {:status interior :right-neighbor c3}))
         (c1 (mk 'cell-list 20 {:status interior :right-neighbor c2}))
-        (c0 (mk 'cell-list 10 {:status left-bound :right-neighbor c1})
+        (c0 (mk 'cell-list 10 {:status bound-left :right-neighbor c1})
        )
 |#
 
@@ -69,7 +69,7 @@ of a research project and I prefer to keep the language syntax paradigm consiste
 ;; topology manipulation
 ;;
 ;;
-  ;; accepts a cell-list and a cell, makes the cell the new left-bound
+  ;; accepts a cell-list and a cell, makes the cell the new bound-left
   ;; will cause prior references to the tape head to become stale
   (defun-typed epa<tape> ((tape list-empty) (new-cell cell-list) &optional ➜)
     (destructuring-bind
@@ -90,17 +90,17 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )
       ➜
       (connect new-cell tape)
-      (to-left-bound new-cell)
+      (to-bound-left new-cell)
       (cond
-        ((typep tape 'solitary) (to-right-bound tape))
+        ((typep tape 'solitary) (to-bound-right tape))
         (t (to-interior tape))
         )
       [➜ok]
       )))
 
-  ;; removes the left-bound  and returns it, thus making its right-neighbor the new left-bound
-  ;; an active tape always has a left-bound to be deleted
-  ;; will be a problem if the tape is intangled, as partners will not have correct left-bound afterward
+  ;; removes the bound-left  and returns it, thus making its right-neighbor the new bound-left
+  ;; an active tape always has a bound-left to be deleted
+  ;; will be a problem if the tape is intangled, as partners will not have correct bound-left afterward
   ;; empty and solitary cases handled on the interface
   (defun-typed epd<tape> ((tape list-active) &optional ➜)
     (destructuring-bind
@@ -125,11 +125,11 @@ of a research project and I prefer to keep the language syntax paradigm consiste
         )
       ➜
       (let(
-            (left-bound (right-neighbor tape))
+            (bound-left (right-neighbor tape))
             )
         (cap<tape> tape)
-        (cap-left left-bound) ; needed for call-next method on bilist types
-        [➜ok left-bound]
+        (cap-left bound-left) ; needed for call-next method on bilist types
+        [➜ok bound-left]
         )))
 
 

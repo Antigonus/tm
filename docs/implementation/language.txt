@@ -4,8 +4,8 @@
       r read cell under the head
       w write cell under the head
    
-      ◧ move head to leftmost
-      ◨ move head to rightmost
+      ◧ move head to bound-left
+      ◨ move head to bound-right
       s step 
 
       a allocate/add/append a new cell, place it just to the right of head cell, requires fill
@@ -38,25 +38,25 @@ direction
   with a '-' flip the tape over (left becomes right vice versa)
 
 modifier
-  '*' means to repeat until something breaks (hitting rightmost for example)
+  '*' means to repeat until something breaks (hitting bound-right for example)
   'n' means n times, the function will take a numeric argument
 
-   when operate on leftmost or rightmost is not specified, operates on the cell
+   when operate on bound-left or bound-right is not specified, operates on the cell
    the head is on
 
 contracts:
-    h◧    head is at leftmost
-    h◨    head is at rightmost
+    h◧    head is at bound-left
+    h◨    head is at bound-right
     hp    head is parked
     h¬p   head is not parked
 
 examples:
    -s     ; step left
-   s*     ; step to rightmost
-   -s*    ; step to leftmost
+   s*     ; step to bound-right
+   -s*    ; step to bound-left
    s&¬p   ; step with a contract that the head is not parked
-   epa    ; creates a new leftmost cell
-   ◨a     ; append to rightmost
+   epa    ; creates a new bound-left cell
+   ◨a     ; append to bound-right
    sn     ; step n times
 
 to derive a longer command, combine:

@@ -71,14 +71,14 @@ apparently independent machines
 
     (s tm)  ; optionals and continutations take defaults
 
-    (s tm {cont-ok cont-rightmost})  ; passes in two continuation functions
+    (s tm {cont-ok cont-bound-right})  ; passes in two continuation functions
 
   If optional arguments are defined, and one list is present in the
   call, which is it, the optional optional args?  or the optional continuation
   args?  So a placeholder is needed, no optional args, though optional
   args are possible:
 
-    (s tm {} {cont-ok cont-rightmost}) ; all optional args default
+    (s tm {} {cont-ok cont-bound-right}) ; all optional args default
 
     (s tm {a b}  {})  ; all continuations default
 

@@ -1,0 +1,128 @@
+
+Worlds are analogous to branches in a software library.
+
+In the C++ model for the database backend, I supported multiple world view tables. Each
+such table had an extra column for holding a 'world number'. Hence different worlds could
+view the same table differently.
+
+Now with tm we create a new world by entangling a second machine with a first. The entanglement
+can either be through sharing one tape, as was implemented in an earlier version, or
+having a tape that splits into multiple worlds, one per entangled machine, which I
+am implementing now.
+
+Accordingly when a machine is first entangled it becomes part of a different world.
+As it reads the tape nothing happens.  When it writes a cell on the tape, the cell then has
+to values, one for each world, i.e. one for each entangled machine.
+
+Example,
+
+Lets number the machines.  So we start with machine 0.  It is moving along creating and
+writing the tape, then there is a call to fork the machine.  The work of machine 0 is
+inherited by both machines after the fork, but future work by both machines is
+independent.  Hence lets give each the original machine, and the forked machine a
+new number.  Now we have machines 1 and 2.
+
+Say machine zero kindly numbered our cells by writing successive natural numbers as
+instances:
+
+   0:0
+   0:1
+   0:2
+   0:3
+   0:4
+   0:5
+
+Machine 1 goes and writes 10 to cell 1.  The tape was last written by machine 0, and
+machine 2 also inherited the machine 0 tape.  Hence, we make a new version just in case
+machine 2 needs to read that cell.
+
+   0:0
+   0:1  1:10 ;both cells have the same neighbors, each applies to different worlds
+   0:2
+   0:3
+   0:4
+   0:5
+
+Machine 2 knows its parent is 0, so it goes along happily computing using the 0
+versions of cells.  Alas it comes to a point were it wants to modify the cell
+topology.  It appends a cell holding 20 after cell 2.
+
+   0:0
+   0:1  0.1:10 
+   0:2
+             0.2:20 
+   0:3
+   0:4
+   0:5
+
+The zero tape should still read the same in the 0 world, and the 1 world.  So then 2:20
+cell should be skipped.  Thus, the links have world number also. So cell 0:2 now has two
+links.  The world 0 link references the 0:3 and the world 2 link references cell 2:20.
+As there is no world 1 link, world 1 makes use of its parent and reads the world 0 link.
+
+This shows a flaw in the table implementation.  In the table implementation there is
+a single column for the next cell id. However, we need to show two next cells for 0:2,
+and each of these has a different world and different next cell.  Thus the next cell
+field would hold a reference to a bridge table.
+
+In the in memory version then we do something similar.  In place of the link-right we have
+an array or hash for the next cell. World 1's link in 0:2 would be empty, so it uses its
+parent's link.  If that is also empty, then 0:2 would be the bound-right cell, but that is
+not the case in this example.  But it might be that world 0 also has a parent, so the
+parent searching is recusive. Looks like we need a parent table.
+
+If we then fork world 1, we get two new worlds with unique ids. Each would have as
+a parent world 1.  
+
+So to move from a list cell to a list cell that can be used with multiple worlds,
+we need to replace the link with a table of links, and the value with a table of
+values.
+
+Then what is the implementation of the table?  If we went database style, which would
+simplify life when it comes persistent store time, it would be an array of pairs,
+and we would have an index.  Though to be consistent, it seems it should be a
+tape where the cell instances are pairs.  In either case we might want to build
+an index on top of it.  Or, possibly, if it is short, to just walk the tables.
+
+Now, we can derive a multi-world cell type from another implementation to indicate
+that the contents and links are tables.
+
+Good news, is that nothing special has to be done to the base cell type.  We will
+need to pass in the world context on the interface.  If we make an optional argument
+then the interface does not change. .. ah but need the bound markers. 
+
+Can bound markers be placed on the tape machine?  Because neighbor can be passed
+an 'n' value, we can not compare a bound with the head on a step by step basis.
+#'neighbor needs to know the bounds.
+
+  ;; used to provide tape branch / universe multiplexed
+  (def-type cell-multiplexed (cell)())
+
+  ;; specifies which universe interpretation
+  (def-type context ()
+    (
+      (id
+        :initform 0 
+        :initarg :id
+        :accessor id
+        )
+      (bound-left 
+        :initarg :bound-left
+        :accessor bound-left
+        )
+      (bound-right
+        :initarg :bound-right
+        :accessor bound-right
+        )))
+
+  parent-table
+
+link type can be overloaded to allow for a table.  content can not be overloaded, but the
+cell type can be changed without changing its format, to reflect that contents is a table.
+Empty link would also mark an absolute bound.
+
+A region can be another world view.  The link multiplexing combined with link tags, such as
+being an absolute bound, thus gives the region its bounds.
+
+
+----

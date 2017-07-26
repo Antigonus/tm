@@ -12,7 +12,7 @@ An example is a the set of natural numbers:
   0 1 2 3 ... 
   0 f(0) f(f(0)) f(f(f(0)))
 
-We allow that there is a right-bound instance in 'recursive', so this may be 
+We allow that there is a bound-right instance in 'recursive', so this may be 
 a sequence:
 
   a b c .. z
@@ -118,14 +118,14 @@ implement the comparison of two machines as per #'head-on-same-cell.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜right-bound (λ()(error 'step-from-right-bound)))
+          (➜bound-right (λ()(error 'step-from-bound-right)))
           &allow-other-keys
           )
         ➜
         [(f tm)
           (head tm)
           ➜ok
-          ➜right-bound
+          ➜bound-right
           ]
         ))
 
@@ -155,13 +155,13 @@ implement the comparison of two machines as per #'head-on-same-cell.
       (destructuring-bind
         (&key
           (➜ok #'echo)
-          (➜right-bound (λ()(error 'step-from-right-bound)))
+          (➜bound-right (λ()(error 'step-from-bound-right)))
           &allow-other-keys
           )
         ➜
         [(f tm) (initial tm)
           ➜ok
-          ➜right-bound
+          ➜bound-right
           ]
         ))
 
@@ -200,7 +200,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
       (destructuring-bind
         (&key
           (➜ok (be t))
-          (➜right-bound (be ∅))
+          (➜bound-right (be ∅))
           &allow-other-keys
           )
         ➜
@@ -209,7 +209,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
             (setf (head tm) ip1)
             [➜ok]
             )
-          ➜right-bound
+          ➜bound-right
           ]
         ))
 
@@ -221,7 +221,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
   ;;--------------------------------------------------------------------------------
   ;; location
   ;;  
-    (defun-typed on-left-bound ((tm recursive) &optional ➜)
+    (defun-typed on-bound-left ((tm recursive) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))
@@ -232,7 +232,7 @@ implement the comparison of two machines as per #'head-on-same-cell.
         (if (eq (initial tm) (head tm)) [➜t] [➜∅])
         ))
 
-    (defun-typed on-right-bound ((tm recursive) &optional ➜)
+    (defun-typed on-bound-right ((tm recursive) &optional ➜)
       (destructuring-bind
         (&key
           (➜t (be t))

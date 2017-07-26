@@ -1,0 +1,8 @@
+
+
+wonder, if we can't break arrays into pieces and have them tend towards a list
+as topological operations are performed.  Then we can have a 'cleanup' operation
+that pushes things all back to an array.
+
+seems we need an interval tree.  Each interval provides an offset adjustment.
+

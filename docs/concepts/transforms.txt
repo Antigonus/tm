@@ -4,7 +4,7 @@ the 'base' machine, and it is given a slot in the transform machine.
 
 A simple example is the affine transform, which keeps a slot pointing at a projective
 machine.  Most operations are passed to the projective machine.  When there is a right of
-rightmost error, then the wrapper does a cue-leftmost on the machine, and does not pass
+bound-right error, then the wrapper does a cue-bound-left on the machine, and does not pass
 the error to the caller.
 
 A transform is similar to inheritance and specialization.  The affine transform, for

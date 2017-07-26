@@ -43,10 +43,10 @@ See LICENSE.txt
          )
 
     (let*(
-           (c0 (leftmost tp2))
+           (c0 (bound-left tp2))
            (c1 [(right-neighbor tp2) c0])
            (c2 [(right-neighbor tp2) c1])
-           (v  [(right-neighbor tp2) c2 {:➜ok (be 100) :➜rightmost (be 200)}])
+           (v  [(right-neighbor tp2) c2 {:➜ok (be 100) :➜bound-right (be 200)}])
            )
       (∧
         (= [(r<cell> tp2) c0] 4)
@@ -90,21 +90,21 @@ See LICENSE.txt
          (tp4 (mk 'tape-cons {17 18 19}))
          )
     (let*(
-           (c0 (leftmost tp2))
+           (c0 (bound-left tp2))
            (c1 (right-neighbor c0))
            )
       (∧
-        (epd<tape> tp0 {:➜ok (be ∅) :➜rightmost (be t)})
-        (epd<tape> tp1 {:➜ok (λ(c)(= [(r<cell> tp1) c] 1)) :➜rightmost (be ∅)})
+        (epd<tape> tp0 {:➜ok (be ∅) :➜bound-right (be t)})
+        (epd<tape> tp1 {:➜ok (λ(c)(= [(r<cell> tp1) c] 1)) :➜bound-right (be ∅)})
         (= [(r<cell> tp2) c1] 5)
-        [(d<cell> tp2) c1 {:➜ok (λ(c)(= [(r<cell> tp2) c] 6)) :➜rightmost (be ∅)}]
-        [(d<cell> tp2)c1 {:➜ok (be ∅) :➜rightmost (be t)}]
-        [(d.<cell> tp3) (leftmost tp3) {:➜ok (λ(c)(= [(r<cell> tp3) c] 1)) :➜rightmost (be ∅)}]
-        [(d.<cell> tp3) (leftmost tp3) {:➜ok (λ(c)(= [(r<cell> tp3) c] 2)) :➜rightmost (be ∅)}]
-        [(d.<cell> tp3) (leftmost tp3) {:➜ok (be ∅) :➜rightmost (be t)}]
-        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 17)) :➜rightmost (be ∅)})
-        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 18)) :➜rightmost (be ∅)})
-        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 19)) :➜rightmost (be ∅)})
+        [(d<cell> tp2) c1 {:➜ok (λ(c)(= [(r<cell> tp2) c] 6)) :➜bound-right (be ∅)}]
+        [(d<cell> tp2)c1 {:➜ok (be ∅) :➜bound-right (be t)}]
+        [(d.<cell> tp3) (bound-left tp3) {:➜ok (λ(c)(= [(r<cell> tp3) c] 1)) :➜bound-right (be ∅)}]
+        [(d.<cell> tp3) (bound-left tp3) {:➜ok (λ(c)(= [(r<cell> tp3) c] 2)) :➜bound-right (be ∅)}]
+        [(d.<cell> tp3) (bound-left tp3) {:➜ok (be ∅) :➜bound-right (be t)}]
+        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 17)) :➜bound-right (be ∅)})
+        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 18)) :➜bound-right (be ∅)})
+        (◧d.<tape> tp4 {:➜ok (λ(c)(= [(r<cell> tp4) c] 19)) :➜bound-right (be ∅)})
         (typep tp4 'tape-empty)
         ))))
 (test-hook test-tape-cons-4)

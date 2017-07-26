@@ -16,7 +16,7 @@ See LICENSE.txt
   Can be customerized through parameters:
      1. :length-tile sets the length of a tile.
 
-  The natural is least significant tile at left-bound, then extending rightward.  
+  The natural is least significant tile at bound-left, then extending rightward.  
   This is the opposite direction that we are accustomed to writing natural numbers.
 
 |#
@@ -172,14 +172,14 @@ See LICENSE.txt
     (read-tiled-natural (tape cell) (bit-dex cell))
     )
 
-  ;; Writing a zero into the right-bound tile makes the natural shorter.  But this is a cell
+  ;; Writing a zero into the bound-right tile makes the natural shorter.  But this is a cell
   ;; operation not a tape operation, so the outer tape operation will have to take this
   ;; into account.
   (defun-typed w<cell> ((cell cell-tiled-natural) instance)
     (write-tiled-natural (tape cell) (bit-dex cell) instance)
     )
 
-  (defun-typed left-bound ((tape tape-tiled-natural-active) &optional ➜)
+  (defun-typed bound-left ((tape tape-tiled-natural-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -198,7 +198,7 @@ See LICENSE.txt
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜right-bound (λ()(error 'step-from-right-bound)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
@@ -212,7 +212,7 @@ See LICENSE.txt
         (if
           (> 0 (ash natural (- next-bit-dex)))
           [➜ok (read-tiled-natural tape next-bit-dex)]
-          [➜right-bound]
+          [➜bound-right]
           ))))
 
 ;;--------------------------------------------------------------------------------

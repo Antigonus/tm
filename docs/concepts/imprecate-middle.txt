@@ -41,15 +41,15 @@
 
 3.  another interesting case
 
-   Is on-rightmost true for an empty machine?
+   Is on-bound-right true for an empty machine?
 
-   on-rightmost is short for 'on rightmost cell' but the machine is not on
-   a cell. So on-rightmost is false.
+   on-bound-right is short for 'on bound-right cell' but the machine is not on
+   a cell. So on-bound-right is false.
 
-   step has only two responses,  ➜ok,  or ➜rightmost, we can't step, so
-   on-rightmost is true.
+   step has only two responses,  ➜ok,  or ➜bound-right, we can't step, so
+   on-bound-right is true.
 
-   Perhaps ➜rightmost and on-rightmost should be renamed, perhaps to
+   Perhaps ➜bound-right and on-bound-right should be renamed, perhaps to
    ➜cant-step  and cant-step or some such.  Perhaps step should have
    another continuation -- actually it already does, 'accessing-empty'.
 

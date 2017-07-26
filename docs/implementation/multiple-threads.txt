@@ -14,8 +14,8 @@ Entangled Machines and Cell Deletion:
 
    The head motion functions are:
    s - step
-   cue-leftmost
-   cue-rightmost
+   cue-bound-left
+   cue-bound-right
    cue-to (available between entangled machines)
 
    Issue
@@ -124,7 +124,7 @@ Notes:
   operations to assure that the tm-solo restrictions are met on the list of entangled
   machines.  This approach is overly restrictive in that motion operations will also be
   blocked when they need not be, for example when the entanglements list is used for
-  updating leftmost cells (the leftmost is the leftmost independent of the head location).
+  updating bound-left cells (the bound-left is the bound-left independent of the head location).
   Also entanglement use functions are unnecessarily serialized when no destructive
   operations are involved.
 

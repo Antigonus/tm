@@ -1,12 +1,12 @@
 
 
-s* moves to the right most of the tape and signals ➜rightmost
+s* moves to the right most of the tape and signals ➜bound-right
 
 ◨  currently is an alias for es*
 
--s* moves to leftmost ..
+-s* moves to bound-left ..
 ◧  e-s*
 
-When the machine is parked, s* moves to rightmost.  -s* moves to leftmost ..
+When the machine is parked, s* moves to bound-right.  -s* moves to bound-left ..
 
 so the only difference are the continuations.

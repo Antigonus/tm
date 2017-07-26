@@ -88,8 +88,8 @@ have the base forms called).]
   (def-identity-tr-1 -s*)
   (def-identity-tr-1 s)
   (def-identity-tr-1 a instance)
-  (def-identity-tr-1 on-left-bound)
-  (def-identity-tr-1 on-right-bound)
+  (def-identity-tr-1 on-bound-left)
+  (def-identity-tr-1 on-bound-right)
 
 ;;--------------------------------------------------------------------------------
 ;; solo-tm-decl-only

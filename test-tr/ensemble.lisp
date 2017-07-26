@@ -28,23 +28,23 @@ See LICENSE.txt
       (= (r tm2) 9)
       (¬ (s tm10))
       (eq (r (members tm10)) tm1)
-      (on-right-bound (r (members tm10)))
+      (on-bound-right (r (members tm10)))
 
       (-s* (members tm10))
-      (¬ (on-right-bound (r (members tm10))))
+      (¬ (on-bound-right (r (members tm10))))
       (= (r (r (members tm10))) 3)
       (s (members tm10))
-      (on-right-bound (r (members tm10)))
+      (on-bound-right (r (members tm10)))
       (= (r (r (members tm10))) 6) 
       (s (members tm10))
-      (¬ (on-right-bound (r (members tm10))))
+      (¬ (on-bound-right (r (members tm10))))
       (= (r (r (members tm10))) 9) 
       (¬ (s (members tm10)))
 
       (-s*∃ (members tm10)
         (λ(tm ct c∅)
           (if
-            (¬ (on-right-bound (r tm)))
+            (¬ (on-bound-right (r tm)))
             [ct]
             [c∅]
             )))

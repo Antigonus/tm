@@ -11,9 +11,9 @@ See LICENSE.txt
 
 (defun test-tape-0 ()
   (let*(
-        (c3 (mk 'cell-list 43 {:status 'right-bound}))
+        (c3 (mk 'cell-list 43 {:status 'bound-right}))
         (c2 (mk 'cell-list 32 {:status 'interior   :right-neighbor c3}))
-        (c1 (mk 'cell-list 21 {:status 'left-bound :right-neighbor c2}))
+        (c1 (mk 'cell-list 21 {:status 'bound-left :right-neighbor c2}))
         (c0 (mk 'cell-list 10))
        )
     (∧
@@ -25,7 +25,7 @@ See LICENSE.txt
       (= 
         (◧r c0 {:n 4 
                    :➜ok (be 5)
-                   :right-bound (λ(cell n)(declare (ignore cell)) n)
+                   :bound-right (λ(cell n)(declare (ignore cell)) n)
                    })
         1
         )

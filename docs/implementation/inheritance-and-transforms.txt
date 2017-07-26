@@ -37,10 +37,10 @@ machine type look like another.
 Can a transform change the behavior of generic code?  No, the combination of primitive
 functions must be the same as calling those primitives separately.
 
-Here is an interesting scenario.  Take cue-rightmost, a generic function.  It steps all
+Here is an interesting scenario.  Take cue-bound-right, a generic function.  It steps all
 the way to the right, one step at a time.  Some implementations will specialize this with
 something much faster.  Now, suppose we have a base machine with such a faster
-implementation, we won't see this faster implementation unless we pass the cue-rightmost
+implementation, we won't see this faster implementation unless we pass the cue-bound-right
 to it, like we do for the priimtivies. Otherwise, we will end up in the generic routine
 with the transform, and repeatedly sending step to the base machine.  This scenario
 indicates that the best approach for the transform is to reimplment the entire interface

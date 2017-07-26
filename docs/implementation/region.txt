@@ -7,9 +7,9 @@ different behavior than the base machine would if used directly. It follows from
 definition that tm-region is a transform, where the more general space we speak of above
 is provided by the base machine.
 
-The leftmost cell of the region will also be a cell of the tape in the base machine, but
-not necessarily the leftmost cell of the base machine.  An analogous situation exists for
-the rightmost cell of the region.
+The bound-left cell of the region will also be a cell of the tape in the base machine, but
+not necessarily the bound-left cell of the base machine.  An analogous situation exists for
+the bound-right cell of the region.
 
 We might think of a region as a sort of 'super cell'.
 
@@ -17,7 +17,7 @@ We init a tm-region with a base machine, the head location on the base machine i
 the location of the region on the base machine's tape.  The region lies to the right of
 the cell the base machine's head is on.  Optionally we may also init with a :mount
 parameter for allocating and initializaing new cells to the new region.  Optionaly we may
-also init with a :rightmost parameter for including existing cells from the base into the
+also init with a :bound-right parameter for including existing cells from the base into the
 region.
 
 Because a region is a tape machine, quantified functions can be used as for other machines.
@@ -37,7 +37,7 @@ leaves the head of tm0 on the last cell of the newly allocated region.
 
 Repeat deallocation may be used to deallocate all the cells in a region.
 
-  (d* tm-region spill cont-rightmost cont-no-alloc)
+  (d* tm-region spill cont-bound-right cont-no-alloc)
 
 After all the cells of a region are deallocated, the region will collapse
 and become tm-void.  When spill is ∅, then nothing is spilled.  When spill is a void
@@ -50,7 +50,7 @@ that one can define as many regions as desired and the base will not get any lar
 there is nothing to 'clean up' in the base after abandoning a region machine.
 
 Given just a region, it is possible to implement methods to recover the base machine, as
-the location and the rightmost indicators are both base machines.  Currently I do not
+the location and the bound-right indicators are both base machines.  Currently I do not
 provide any such methods in the library.  One might imagine that it would be useful, for
 example, to have a predicate that identifies if two regions belong to the same space, if
 they overlap, etc.

@@ -85,7 +85,7 @@ This tm is not entanglment safe, and not thread safe.
           )
         ➜
         (setf (tape tm) init)
-        (setf (head tm) (left-bound init))
+        (setf (head tm) (bound-left init))
         (to-active tm)
         [➜ok tm]
         ))
@@ -210,7 +210,7 @@ This tm is not entanglment safe, and not thread safe.
 ;;--------------------------------------------------------------------------------
 ;; location
 ;;
-  (defun-typed on-left-bound ((tm tm-active) &optional ➜)
+  (defun-typed on-bound-left ((tm tm-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -218,10 +218,10 @@ This tm is not entanglment safe, and not thread safe.
         &allow-other-keys
         )
       ➜
-      (if (typep (head tm) 'left-bound) [➜t] [➜∅])
+      (if (typep (head tm) 'bound-left) [➜t] [➜∅])
       ))
 
-  (defun-typed on-right-bound ((tm tm-active) &optional ➜)
+  (defun-typed on-bound-right ((tm tm-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -229,7 +229,7 @@ This tm is not entanglment safe, and not thread safe.
         &allow-other-keys
         )
       ➜
-      (if (typep (head tm) 'right-bound) [➜t] [➜∅])
+      (if (typep (head tm) 'bound-right) [➜t] [➜∅])
       ))
 
   (defun-typed heads-on-same-cell ((tm0 tm-active)(tm1 tm-active) &optional ➜)
@@ -279,12 +279,12 @@ This tm is not entanglment safe, and not thread safe.
   (defun-typed ◧snr ((tm tm-parked-or-active) n &optional ➜)
     (destructuring-bind
       (&key
-        (➜left-bound (λ()(error 'step-from-left-bound)))
+        (➜bound-left (λ()(error 'step-from-bound-left)))
         &allow-other-keys
         )
       ➜
       (cond
-        ((< n 0) [➜left-bound])
+        ((< n 0) [➜bound-left])
         ((= n 0) (◧r tm ➜))
         (t       (◧snr (tape tm) n ➜))
         )))
@@ -294,12 +294,12 @@ This tm is not entanglment safe, and not thread safe.
   (defun-typed ◨snr ((tm tm-parked-or-active) n &optional ➜)
     (destructuring-bind
       (&key
-        (➜right-bound (λ()(error 'step-from-right-bound)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
       (cond
-        ((> n 0) [➜right-bound])
+        ((> n 0) [➜bound-right])
         ((= n 0) (◨r tm ➜))
         (t
           (◨snr (tape tm) n ➜)
@@ -335,12 +335,12 @@ This tm is not entanglment safe, and not thread safe.
   (defun-typed ◧snw ((tm tm-parked-or-active) n instance &optional ➜)
     (destructuring-bind
       (&key
-        (➜left-bound (λ()(error 'step-from-left-bound)))
+        (➜bound-left (λ()(error 'step-from-bound-left)))
         &allow-other-keys
         )
       ➜
       (cond
-        ((< n 0) [➜left-bound])
+        ((< n 0) [➜bound-left])
         ((= n 0) (◧w tm instance ➜))
         (t
           (◧snw (tape tm) n instance ➜)
@@ -351,12 +351,12 @@ This tm is not entanglment safe, and not thread safe.
   (defun-typed ◨snw ((tm tm-parked-or-active) n instance &optional ➜)
     (destructuring-bind
       (&key
-        (➜right-bound (λ()(error 'step-from-right-bound)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
       (cond
-        ((< n 0) [➜right-bound])
+        ((< n 0) [➜bound-right])
         ((= n 0) (◨w tm instance ➜))
         (t
           (◨snw (tape tm) n instance ➜)
@@ -382,14 +382,14 @@ This tm is not entanglment safe, and not thread safe.
       (
         &key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
       (right-neighbor (head tm)
         {
           :➜ok (λ(rn)(setf (head tm) rn) [➜ok])
-          :➜right-bound ➜right-bound
+          :➜bound-right ➜bound-right
           })))
 
   (defun-typed -s ((tm tm-active) &optional ➜)
@@ -397,14 +397,14 @@ This tm is not entanglment safe, and not thread safe.
       (
         &key
         (➜ok (be t))
-        (➜left-bound (be ∅))
+        (➜bound-left (be ∅))
         &allow-other-keys
         )
       ➜
       (left-neighbor (head tm)
         {
           :➜ok (λ(ln)(setf (head tm) ln) [➜ok])
-          :➜left-bound ➜left-bound
+          :➜bound-left ➜bound-left
           })))
   (defun-typed -s ((tm tm-parked) &optional ➜)
     (destructuring-bind
@@ -424,7 +424,7 @@ This tm is not entanglment safe, and not thread safe.
       (
         &key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
@@ -434,7 +434,7 @@ This tm is not entanglment safe, and not thread safe.
           (right-neighbor-n (head tm) n
             {
               :➜ok (λ(rn)(setf (head tm) rn))
-              :➜right-bound ➜right-bound
+              :➜bound-right ➜bound-right
               }))
         )))
 
@@ -442,26 +442,26 @@ This tm is not entanglment safe, and not thread safe.
     (destructuring-bind
       (
         &key
-        (➜right-bound (be t))
+        (➜bound-right (be t))
         &allow-other-keys
         )
       ➜
-      (setf (head tm) (right-bound (tape tm)))
-      [➜right-bound]
+      (setf (head tm) (bound-right (tape tm)))
+      [➜bound-right]
       ))
 
   ;; typically there is a more efficient way of doing this because we know
-  ;; the left-bound cell of the tape
+  ;; the bound-left cell of the tape
   (defun-typed -s* ((tm tm-parked-or-active) &optional ➜)
     (destructuring-bind
       (
         &key
-        (➜left-bound (be t))
+        (➜bound-left (be t))
         &allow-other-keys
         )
       ➜
-      (setf (head tm) (left-bound (tape tm)))
-      [➜left-bound]
+      (setf (head tm) (bound-left (tape tm)))
+      [➜bound-left]
       ))
 
 ;;--------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ This tm is not entanglment safe, and not thread safe.
         )
       ➜
       (epa<instance> (tape tm) instance) ; causes tape to become active
-      (setf (head tm) (left-bound (tape tm)))
+      (setf (head tm) (bound-left (tape tm)))
       (to-parked tm)
       [➜ok]
       ))
@@ -537,7 +537,7 @@ This tm is not entanglment safe, and not thread safe.
       (
         &key
         (➜ok #'echo)
-        (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+        (➜bound-right (λ()(error 'dealloc-on-bound-right)))
         (spill ∅)
         &allow-other-keys
         )
@@ -549,12 +549,12 @@ This tm is not entanglment safe, and not thread safe.
           (λ(cell)
             (when spill
               (a<cell> (tape spill) cell)
-              (s spill {:➜ok #'do-nothing :➜right-bound #'cant-happen})
+              (s spill {:➜ok #'do-nothing :➜bound-right #'cant-happen})
               )
             [➜ok (r<cell> cell)]
             )
 
-          :➜right-bound ➜right-bound
+          :➜bound-right ➜bound-right
           })
       ))
 
@@ -563,7 +563,7 @@ This tm is not entanglment safe, and not thread safe.
       (
         &key
         (➜ok #'echo)
-        (➜left-bound (λ()(error 'dealloc-on-left-bound)))
+        (➜bound-left (λ()(error 'dealloc-on-bound-left)))
         (spill ∅)
         &allow-other-keys
         )
@@ -575,12 +575,12 @@ This tm is not entanglment safe, and not thread safe.
           (λ(cell)
             (when spill
               (a<cell> (tape spill) cell)
-              (s spill {:➜ok #'do-nothing :➜left-bound #'cant-happen})
+              (s spill {:➜ok #'do-nothing :➜bound-left #'cant-happen})
               )
             [➜ok (r<cell> cell)]
             )
 
-          :➜left-bound ➜left-bound
+          :➜bound-left ➜bound-left
           })
       ))
 
@@ -624,7 +624,7 @@ This tm is not entanglment safe, and not thread safe.
         (
           &key
           (➜ok #'echo)
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           (spill ∅)
           &allow-other-keys
           )
@@ -640,7 +640,7 @@ This tm is not entanglment safe, and not thread safe.
                 [➜ok instance]
                 ))
 
-            :➜right-bound ➜right-bound
+            :➜bound-right ➜bound-right
             })
         ))
     (defun-typed d ((tm tm-active) &optional ➜)
@@ -648,7 +648,7 @@ This tm is not entanglment safe, and not thread safe.
         (
           &key
           (➜ok #'echo)
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           (spill ∅)
           &allow-other-keys
           )
@@ -659,12 +659,12 @@ This tm is not entanglment safe, and not thread safe.
             (λ(cell)
               (when spill
                 (a<cell> (tape spill) cell)
-                (s spill {:➜ok #'do-nothing :➜right-bound #'cant-happen})
+                (s spill {:➜ok #'do-nothing :➜bound-right #'cant-happen})
                 )
               [➜ok (r<cell> cell)]
               )
 
-            :➜right-bound ➜right-bound
+            :➜bound-right ➜bound-right
             })
         ))
 
@@ -673,7 +673,7 @@ This tm is not entanglment safe, and not thread safe.
         (
           &key
           (➜ok #'echo)
-          (➜left-bound (λ()(error 'dealloc-on-left-bound)))
+          (➜bound-left (λ()(error 'dealloc-on-bound-left)))
           (spill ∅)
           &allow-other-keys
           )
@@ -689,7 +689,7 @@ This tm is not entanglment safe, and not thread safe.
                 [➜ok instance]
                 ))
 
-            :➜left-bound ➜left-bound
+            :➜bound-left ➜bound-left
             })
         ))
     (defun-typed -d ((tm tm-active) &optional ➜)
@@ -697,7 +697,7 @@ This tm is not entanglment safe, and not thread safe.
         (
           &key
           (➜ok #'echo)
-          (➜left-bound (λ()(error 'dealloc-on-left-bound)))
+          (➜bound-left (λ()(error 'dealloc-on-bound-left)))
           (spill ∅)
           &allow-other-keys
           )
@@ -708,12 +708,12 @@ This tm is not entanglment safe, and not thread safe.
             (λ(cell)
               (when spill
                 (a<cell> (tape spill) cell)
-                (s spill {:➜ok #'do-nothing :➜left-bound #'cant-happen})
+                (s spill {:➜ok #'do-nothing :➜bound-left #'cant-happen})
                 )
               [➜ok (r<cell> cell)]
               )
 
-            :➜left-bound ➜left-bound
+            :➜bound-left ➜bound-left
             })
         ))
 

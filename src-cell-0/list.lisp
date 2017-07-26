@@ -7,6 +7,9 @@ Implementation of cell intended for use in a list.
 
 CLOS version of the cons cell.
 
+Subspace and multiple world cells are used in src-cell-1 when more of the tm
+interface is available.
+
 |#
 
 (in-package #:tm)
@@ -14,20 +17,24 @@ CLOS version of the cons cell.
 ;;--------------------------------------------------------------------------------
 ;; type definition
 ;;
-  (def-type link ()
+  (def-type cell-list (cell substrate)
     (
+      (contents :initarg :contents :accessor contents)
       (right-neighbor
+        :init-form ∅
         :initarg :right-neighbor
         :accessor right-neighbor
         )
       ))
 
-  (defparameter *right* 0)
-
-  (def-type cell-list (link cell substrate)
+  ;; cell with a subspace
+  (def-type cell-list-subspace (cell-list)
     (
-      (contents :initarg :contents :accessor contents)
+      (tape ; instances are continuation tapes
+        :init-form ∅
+        )
       ))
+
 
   (defun-typed init ((cell cell-list) instance &optional ➜)
     (destructuring-bind
@@ -50,7 +57,8 @@ CLOS version of the cons cell.
 ;; cell functions
 ;;
   ;; we don't provide a cell copy, so one can usually just use eq
-  (defun-typed =<cell> ((cell-0 cell-list) (cell-1 cell-list) &optional ➜)
+  (defun-typed =<cell> ((context context) (cell-0 cell-list) (cell-1 cell-list) &optional ➜)
+    (declare (ignore context))
     (destructuring-bind
       (&key
         (➜∅ (be ∅))
@@ -67,7 +75,8 @@ CLOS version of the cons cell.
         [➜∅]
         )))
 
-  (defun-typed r<cell> ((cell cell-list) &optional ➜)
+  (defun-typed r<cell> (context (cell cell-list) &optional ➜)
+    (declare (ignore context))
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -98,14 +107,14 @@ CLOS version of the cons cell.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜right-bound (λ(cell n)(declare (ignore cell n))(error 'step-from-right-bound)))
+        (➜bound-right (λ(cell n)(declare (ignore cell n))(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
       (⟳(λ(➜again)
           (cond
             ((= n 0) [➜ok cell])
-            ((typep cell 'right-bound) [➜right-bound cell n])
+            ((typep cell 'bound-right) [➜bound-right cell n])
             (t
               (setf cell [differential cell])
               (decf n)
@@ -134,12 +143,12 @@ CLOS version of the cons cell.
   ;;
     (defun cap-right (c)
       (setf (right-neighbor c) ∅)
-      (to-right-bound c)
+      (to-bound-right c)
       )
 
     (def-function-class cap-left (c))
     (defun-typed cap-left ((c cell-list))
-      (to-left-bound c)
+      (to-bound-left c)
       )
 
     (def-function-class cap (c))
@@ -164,16 +173,16 @@ CLOS version of the cons cell.
   ;; c0 and c1 are neighbors.  re-routes connections around cell c1
   ;;
     (def-function-class extract (c0 c1))
-    (defun-typed extract ((c0 list-left-bound) (c1 list-right-bound))
+    (defun-typed extract ((c0 list-bound-left) (c1 list-bound-right))
       (cap-right c0)
       (to-solitary c0)
       (cap c1)
       )
-    (defun-typed extract ((c0 list-interior) (c1 list-right-bound))
+    (defun-typed extract ((c0 list-interior) (c1 list-bound-right))
       (cap-right c0)
       (cap c1)
       )
-    (defun-typed extract ((c0 list-left-bound-interior) (c1 list-interior))
+    (defun-typed extract ((c0 list-bound-left-interior) (c1 list-interior))
       (let(
             (c2 (right-neighbor c1))
             )
@@ -185,12 +194,12 @@ CLOS version of the cons cell.
   ;; c0 and c1 are neighbors. disconnects them.
   ;;
     (def-function-class disconnect (c0 c1))
-    (defun-typed disconnect ((c0 list-left-bound) (c1 list-right-bound-interior))
+    (defun-typed disconnect ((c0 list-bound-left) (c1 list-bound-right-interior))
       (cap-right c0)
       (to-solitary c0)
       (cap-left c1)
       )
-    (defun-typed disconnect ((c0 list-interior) (c1 list-right-bound-interior))
+    (defun-typed disconnect ((c0 list-interior) (c1 list-bound-right-interior))
       (cap-right c0)
       (cap-left c1)
       )
@@ -204,15 +213,15 @@ CLOS version of the cons cell.
       (declare (ignore ➜))
       (cap-right c1)
       (connect c0 c1)
-      (to-left-bound c0)
+      (to-bound-left c0)
       )
-    (defun-typed a<cell> ((c0 list-right-bound) (c1 cell-list)  &optional ➜)
+    (defun-typed a<cell> ((c0 list-bound-right) (c1 cell-list)  &optional ➜)
       (declare (ignore ➜))
       (cap-right c1)
       (connect c0 c1)
       (to-interior c0)
       )
-    (defun-typed a<cell> ((c0 list-left-bound-interior) (c1 cell-list)  &optional ➜)
+    (defun-typed a<cell> ((c0 list-bound-left-interior) (c1 cell-list)  &optional ➜)
       (declare (ignore ➜))
       (let(
             (c2 (right-neighbor c0))
@@ -224,20 +233,20 @@ CLOS version of the cons cell.
       ))
 
   ;; Deletes the right neighbor cell.
-  ;; right-bound handled on the interface.
+  ;; bound-right handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
-  ;; here as otherwise CLOS wold choose list-left-bound-interior as being more specific
+  ;; here as otherwise CLOS wold choose list-bound-left-interior as being more specific
   ;;
     (defun-typed d<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
-    (defun-typed d<cell> ((c0 list-left-bound-interior) &optional ➜)
+    (defun-typed d<cell> ((c0 list-bound-left-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)
@@ -251,20 +260,20 @@ CLOS version of the cons cell.
           [➜ok c1]
           )))
 
-  ;; c0 right-bound case handled on the interface.
+  ;; c0 bound-right case handled on the interface.
   ;; solitary, though this has the same behavior for all cells, had to be put 
-  ;; here as otherwise CLOS wold choose list-left-bound-interior as being more specific
+  ;; here as otherwise CLOS wold choose list-bound-left-interior as being more specific
   ;;
     (defun-typed d+<cell> ((cell list-solitary) &optional ➜)
       (destructuring-bind
         (&key
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
-    (defun-typed d+<cell> ((c0 list-left-bound-interior) &optional ➜)
+    (defun-typed d+<cell> ((c0 list-bound-left-interior) &optional ➜)
       (destructuring-bind
         (&key
           (➜ok #'echo)

@@ -51,10 +51,10 @@
 
 
 4. Notice that all the situations where entanglment accounting is required entail
-   either deallocation of cells, or allocation of a new leftmost cell.
+   either deallocation of cells, or allocation of a new bound-left cell.
 
    In a single threaded version,  or where a single thread is guaranteed due to
-   locks, and there is neither deallocation, nor allocation of leftmost, entanglement
+   locks, and there is neither deallocation, nor allocation of bound-left, entanglement
    accounting is not needed.
 
    In the multithreaded case, if it were not for entanglement accounting, deallocation in
@@ -62,7 +62,7 @@
    that other thread has no situations where entanglement accounting is necessary.
 
 5. We can now define 'non-destructive'  programming, as a programming style that neither
-   allocates new leftmost cells, nor deallocates cells, and this is true for all threads
+   allocates new bound-left cells, nor deallocates cells, and this is true for all threads
    of execution.  Entanglement accounting is not needed for non-destructive programming.
 
 
@@ -101,9 +101,9 @@ Parked
 
   There is no head on the tape for a parked machine, hence it will never have a head on a
   region, and hence it will never trip a region not clear continuation.  However, the
-  parked head does indicate a region starting from leftmost on the tape.  We might, for
+  parked head does indicate a region starting from bound-left on the tape.  We might, for
   example call deallocate region, #'d, while passing it a parked machine to indicate the
-  region to be deallocated, while expecting the leftmost cell to be deallocated.
+  region to be deallocated, while expecting the bound-left cell to be deallocated.
 
   When a machine is parked, we keep the same instance as was used for the machine before
   it was parked, and instead modify the slot values.  In this manner the entanglements
@@ -138,7 +138,7 @@ Void
 
 Region
 
-  A region machine can not step beyond the leftmost or rightmost of the region, nor affect
+  A region machine can not step beyond the bound-left or bound-right of the region, nor affect
   any cell outside the region.  Hence, given a region machine it is not possible to 
   affect or detect the non-region portion of the space.
 
@@ -155,7 +155,7 @@ Region
 
   The region location is a machine that belongs to the larger space, and not to the
   region. Hence the entanglement issues for it are as for any other machines in the
-  space.  The same holds for the rightmost, and the head position machines as well.
+  space.  The same holds for the bound-right, and the head position machines as well.
   Hence, much of the entanglement problem for regions will be taken care of without
   any special consideration.
 

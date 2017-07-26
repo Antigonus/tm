@@ -53,7 +53,7 @@ tape machines:
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
@@ -65,11 +65,11 @@ tape machines:
             [➜ok]
             )
 
-          :➜right-bound
+          :➜bound-right
           (λ()
             (r (history tm)
               {
-                :➜empty ➜right-bound
+                :➜empty ➜bound-right
                 :➜ok
                 (λ()
                   (epd (history tm)
@@ -77,9 +77,9 @@ tape machines:
                       :➜ok
                       (λ(instance)
                         (setf (base tm) instance)
-                        (s tm ➜ok ➜right-bound)
+                        (s tm ➜ok ➜bound-right)
                         )
-                      :➜right-bound #'cant-happen
+                      :➜bound-right #'cant-happen
                       :➜no-alloc #'cant-happen ; no spill
                       }))
                 }))
@@ -89,7 +89,7 @@ tape machines:
     (destructuring-bind
       (&key
         (➜ok (be t))
-        (➜right-bound (be ∅))
+        (➜bound-right (be ∅))
         &allow-other-keys
         )
       ➜
@@ -100,7 +100,7 @@ tape machines:
             (s-into (r tm) tm)
             [➜ok]
             )
-          :➜right-bound
+          :➜bound-right
           (λ()
             )
           })

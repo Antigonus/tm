@@ -1,4 +1,5 @@
-for i in `ls *.lisp` ; do \
+for i in $(find $1 -type f) ; do \
+  echo $i
   sed -f fix.sed $i > $i.tmp; \
   mv $i.tmp $i; \
 done

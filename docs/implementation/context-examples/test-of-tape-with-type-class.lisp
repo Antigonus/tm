@@ -29,27 +29,27 @@ See LICENSE.txt
       (◧r tp0 {:➜ok (be ∅) :➜empty (be t)})
       (◧r tp1 {:➜ok (be t) :➜empty (be ∅)})
 
-      (◧sr tp00 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
-      (◧sr tp1  {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
-      (◧sr tp2  {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
+      (◧sr tp00 {:➜ok (be ∅) :➜bound-right (be ∅) :➜empty (be t)})
+      (◧sr tp1  {:➜ok (be ∅) :➜bound-right (be t) :➜empty (be ∅)})
+      (◧sr tp2  {:➜ok (be t) :➜bound-right (be ∅) :➜empty (be ∅)})
 
       (◧w tp0 12 {:➜ok (be ∅) :➜empty (be t)})
       (◧w tp1 13 {:➜ok (be t) :➜empty (be ∅)})
 
-      (◧sw tp0 14 {:➜ok (be ∅) :➜rightmost (be ∅) :➜empty (be t)})
-      (◧sw tp1 15 {:➜ok (be ∅) :➜rightmost (be t) :➜empty (be ∅)})
-      (◧sw tp2 16 {:➜ok (be t) :➜rightmost (be ∅) :➜empty (be ∅)})
+      (◧sw tp0 14 {:➜ok (be ∅) :➜bound-right (be ∅) :➜empty (be t)})
+      (◧sw tp1 15 {:➜ok (be ∅) :➜bound-right (be t) :➜empty (be ∅)})
+      (◧sw tp2 16 {:➜ok (be t) :➜bound-right (be ∅) :➜empty (be ∅)})
 
       (◨r tp0 {:➜ok (be ∅) :➜empty (be t)})
       (◨-sr tp00 {:➜ok (be ∅) :➜empty (be t)})
       (◨w tp0 16 {:➜ok (be ∅) :➜empty (be t)})
       (◨-sw tp00 17 {:➜ok (be ∅) :➜empty (be t)})
 
-      (leftmost tp00 {:➜ok (be ∅) :➜empty (be t)})
-      (leftmost tp1 {:➜ok (be t) :➜empty (be ∅)})
+      (bound-left tp00 {:➜ok (be ∅) :➜empty (be t)})
+      (bound-left tp1 {:➜ok (be t) :➜empty (be ∅)})
 
-      (epd<tape> tp0 {:➜ok (be ∅) :➜rightmost (be t)})
-      (◨-sd<tape> tp00 {:➜ok (be ∅) :➜leftmost (be t)})
+      (epd<tape> tp0 {:➜ok (be ∅) :➜bound-right (be t)})
+      (◨-sd<tape> tp00 {:➜ok (be ∅) :➜bound-left (be t)})
 
       (tape-length-is-one tp00 {:➜∅ (be t) :➜t (be ∅)})
       (tape-length-is-one tp1 {:➜∅ (be ∅) :➜t (be t)})

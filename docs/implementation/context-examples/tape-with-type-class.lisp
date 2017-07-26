@@ -10,7 +10,7 @@ things must be enforced externally.
 
 Though these are tapes, not tape machines, function names found here appear to refer to
 head operations. For example, '◧' which reads as entanglement copy and step left to
-leftmost.  These names are used only because they are descriptive of what the
+bound-left.  These names are used only because they are descriptive of what the
 corresponding function does to the tape.
 
 Not all tapes implement all of the interface.  The tapes only implement the interface
@@ -39,7 +39,7 @@ on operand type, and it won't mind having a few more types to work with.
         (λ (tape-ctx cell-0 &optional ➜)
           (destructuring-bind
             (&key
-              (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+              (➜bound-right (λ()(error 'dealloc-on-bound-right)))
               &allow-other-keys
               )
             ➜
@@ -57,7 +57,7 @@ on operand type, and it won't mind having a few more types to work with.
                       [(w<cell> tape-ctx) cell-1 cell-0-instance]
                       [(d<cell> tape-ctx) cell-0 ➜]
                       ))
-                  :➜rightmost ➜rightmost
+                  :➜bound-right ➜bound-right
                   }]
               )))
         )))
@@ -175,12 +175,12 @@ on operand type, and it won't mind having a few more types to work with.
                    [(w<cell> tape-1) cell-1 initial-instance]
                    [(right-neighbor tape-1) cell-1
                      {
-                       :➜rightmost #'do-nothing ; we are finished
+                       :➜bound-right #'do-nothing ; we are finished
                        :➜ok (λ(rn-1)(copy-2 rn-1))
                        }])
                  (copy-0 ()
                    (let(
-                         (cell-1 (leftmost tape-1)) ; active tapes always have a leftmost
+                         (cell-1 (bound-left tape-1)) ; active tapes always have a bound-left
                          )
                      (copy-2 cell-1)
                      ))
@@ -202,7 +202,7 @@ on operand type, and it won't mind having a few more types to work with.
                    [(w<cell> tape-1) cell-1 initial-instance]
                    [(right-neighbor tape-1) cell-1
                      {
-                       :➜rightmost #'do-nothing ; we are finished
+                       :➜bound-right #'do-nothing ; we are finished
                        :➜ok (λ(rn-1)(copy-2 rn-1))
                        }])
 
@@ -210,12 +210,12 @@ on operand type, and it won't mind having a few more types to work with.
                    [(w<cell> tape-1) cell-1 (r<cell> cell-0)]
                    [(right-neighbor tape-1) cell-1
                      {
-                       :➜rightmost #'do-nothing ; we are finished
+                       :➜bound-right #'do-nothing ; we are finished
                        :➜ok
                        (λ(rn-1)
                          [(right-neighbor tape-0) cell-0
                            {
-                             :➜rightmost ; uh-oh ran out of copyializer data
+                             :➜bound-right ; uh-oh ran out of copyializer data
                              (λ()(copy-2 rn-1))
                              :➜ok
                              (λ(rn-0)
@@ -225,8 +225,8 @@ on operand type, and it won't mind having a few more types to work with.
 
                  (copy-0 ()
                    (let(
-                         (cell-1 (leftmost tape-1)) ; active tapes always have a leftmost
-                         (cell-0 (leftmost tape-0)) ; active tapes always have a leftmost
+                         (cell-1 (bound-left tape-1)) ; active tapes always have a bound-left
+                         (cell-0 (bound-left tape-0)) ; active tapes always have a bound-left
                          )
                      (copy-1 cell-1 cell-0)
                      ))
@@ -238,7 +238,7 @@ on operand type, and it won't mind having a few more types to work with.
 
     ;; appends new cell to cell-1 and initializes it to the instance from cell-0
     ;; recurs on right neighbors of cell-1 and cell-0
-    ;; returns rightmost of tape-1, in case it is needed, perhaps for a tail pointer
+    ;; returns bound-right of tape-1, in case it is needed, perhaps for a tail pointer
     (defun shallow-copy-topo-extend (tape-ctx-1 cell-1 tape-ctx-0 cell-0 &optional (cont-ok #'echo))
       (labels(
                (shallow-copy-topo-extend-1 (cell-1 cell-0)
@@ -251,10 +251,10 @@ on operand type, and it won't mind having a few more types to work with.
                          {
                            :➜ok
                            (λ(rn-0)(shallow-copy-topo-extend-1 rn-1 rn-0))
-                           :➜rightmost
+                           :➜bound-right
                            (λ()[cont-ok rn-1])
                            }])
-                     :➜rightmost #'cant-happen ; we just added a cell
+                     :➜bound-right #'cant-happen ; we just added a cell
                      }])
                )
         (shallow-copy-topo-extend-1 cell-1 cell-0)
@@ -272,14 +272,14 @@ on operand type, and it won't mind having a few more types to work with.
                          {
                            :➜ok
                            (λ(rn-1)(shallow-copy-topo-overwrite-1 rn-1 rn-0))
-                           :➜rightmost ;ran out of places to write initialization data, so extend..
+                           :➜bound-right ;ran out of places to write initialization data, so extend..
                            (λ()
                              (shallow-copy-topo-extend 
                                tape-ctx-1 cell-1 
                                tape-ctx-0 rn-0
                                cont-ok)) 
                            }])
-                     :➜rightmost ; no more initialization data, we are done
+                     :➜bound-right ; no more initialization data, we are done
                      (λ()
                        [(d*<cell> tape-ctx-1) cell-1]
                        [cont-ok cell-1]
@@ -316,13 +316,13 @@ on operand type, and it won't mind having a few more types to work with.
           &allow-other-keys
           )
         ➜
-        (leftmost tape-0
+        (bound-left tape-0
           {
             :➜empty #'cant-happen ; tape is active
             :➜ok
             (λ(cell-0)
               (epa<instance> tape-1 (r<cell> cell-0))
-              (leftmost tape-1
+              (bound-left tape-1
                 {
                   :➜ok 
                   (λ(cell-1)
@@ -330,7 +330,7 @@ on operand type, and it won't mind having a few more types to work with.
                       {
                         :➜ok
                         (λ(rn-0)(shallow-copy-topo-extend tape-1 cell-1 tape-0 rn-0))
-                        :➜rightmost ; no more initialization data, so we are done!
+                        :➜bound-right ; no more initialization data, so we are done!
                         (λ()[➜ok cell-1])
                         }])
                   :➜empty #'cant-happen ; we just added a cell
@@ -338,8 +338,8 @@ on operand type, and it won't mind having a few more types to work with.
              })))
     (defun-typed shallow-copy-topo ((tape-1 tape-active) (tape-0 tape-active) &optional ➜)
       (let(
-            (cell-1 (leftmost tape-1))
-            (cell-0 (leftmost tape-0))
+            (cell-1 (bound-left tape-1))
+            (cell-0 (bound-left tape-0))
             )
         (shallow-copy-topo-overwrite tape-1 cell-1 tape-0 cell-0 ➜)
         ))
@@ -370,10 +370,10 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [➜ok [(r<cell> tape) (leftmost tape)]]
+      [➜ok [(r<cell> tape) (bound-left tape)]]
       ))
 
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
+  ;; (➜ok #'echo) (➜bound-right (be ∅))
   (def-function-class ◧sr (tape &optional ➜))
   (defun-typed ◧sr ((tape tape-empty) &optional ➜)
     (destructuring-bind
@@ -388,20 +388,20 @@ on operand type, and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
       (let(
-            (leftmost (leftmost tape))
+            (bound-left (bound-left tape))
             )
-        [(right-neighbor tape) leftmost
+        [(right-neighbor tape) bound-left
           {
             :➜ok 
             (λ(the-right-neighbor)
               [➜ok [(r<cell> tape) the-right-neighbor]]
               )
-            :➜rightmost ➜rightmost
+            :➜bound-right ➜bound-right
             }])))
 
   (def-function-class ◧w (tape instance &optional ➜))
@@ -422,11 +422,11 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [➜ok [(w<cell> tape) (leftmost tape) instance]]
+      [➜ok [(w<cell> tape) (bound-left tape) instance]]
       ))
 
 
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
+  ;; (➜ok #'echo) (➜bound-right (be ∅))
   (def-function-class ◧sw (tape instance &optional ➜))
   (defun-typed ◧sw ((tape tape-empty) instance &optional ➜)
     (declare (ignore tape))
@@ -442,20 +442,20 @@ on operand type, and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
       (let(
-            (leftmost (leftmost tape))
+            (bound-left (bound-left tape))
             )
-        [(right-neighbor tape) leftmost
+        [(right-neighbor tape) bound-left
           {
             :➜ok 
             (λ(the-right-neighbor)
               [➜ok [(w<cell> tape) the-right-neighbor instance]]
               )
-            :➜rightmost ➜rightmost
+            :➜bound-right ➜bound-right
             }])))
 
 
@@ -479,7 +479,7 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [➜ok [(r<cell> tape)(rightmost tape)]]
+      [➜ok [(r<cell> tape)(bound-right tape)]]
       ))
 
   (def-function-class ◨-sr (tape &optional ➜))
@@ -497,20 +497,20 @@ on operand type, and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜leftmost (λ()(error 'step-from-leftmost)))
+        (➜bound-left (λ()(error 'step-from-bound-left)))
         &allow-other-keys
         )
       ➜
       (let(
-            (rightmost (rightmost tape))
+            (bound-right (bound-right tape))
             )
-        (left-neighbor rightmost
+        (left-neighbor bound-right
           {
             :➜ok 
             (λ(the-left-neighbor)
               [➜ok [(r<cell> tape) the-left-neighbor]]
               )
-            :➜leftmost ➜leftmost
+            :➜bound-left ➜bound-left
             }))))
 
   (def-function-class ◨w (tape instance &optional ➜))
@@ -531,7 +531,7 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [➜ok [(w<cell> tape) (rightmost tape) instance]]
+      [➜ok [(w<cell> tape) (bound-right tape) instance]]
       ))
 
   (def-function-class ◨-sw (tape instance &optional ➜))
@@ -549,27 +549,27 @@ on operand type, and it won't mind having a few more types to work with.
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜leftmost (λ()(error 'step-from-leftmost)))
+        (➜bound-left (λ()(error 'step-from-bound-left)))
         &allow-other-keys
         )
       ➜
       (let(
-            (rightmost (rightmost tape))
+            (bound-right (bound-right tape))
             )
-        [(left-neighbor tape) rightmost
+        [(left-neighbor tape) bound-right
           {
             :➜ok 
             (λ(the-left-neighbor)
               [➜ok [(w<cell> tape) the-left-neighbor instance]]
               )
-            :➜leftmost ➜leftmost
+            :➜bound-left ➜bound-left
             }])))
 
 ;;--------------------------------------------------------------------------------
 ;; topology queries
 ;;
-  (def-function-class leftmost (tape &optional ➜)) ; returns a cell
-  (defun-typed leftmost ((tape tape-empty) &optional ➜)
+  (def-function-class bound-left (tape &optional ➜)) ; returns a cell
+  (defun-typed bound-left ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -581,8 +581,8 @@ on operand type, and it won't mind having a few more types to work with.
       ))
 
   ;; for doubly linked lists we also have:
-  (def-function-class rightmost (tape &optional ➜)) ; returns a cell
-  (defun-typed rightmost ((tape tape-empty) &optional ➜)
+  (def-function-class bound-right (tape &optional ➜)) ; returns a cell
+  (defun-typed bound-right ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
@@ -594,50 +594,50 @@ on operand type, and it won't mind having a few more types to work with.
       ))
 
   ;;;; this is now declared within a tape context
-  ;;;; (➜ok #'echo) (➜leftmost (be ∅))
+  ;;;; (➜ok #'echo) (➜bound-left (be ∅))
   ;;;; (def-function-class left-neighbor (cell &optional ➜))
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-  ;; inserts the given cell as a new leftmost cell
+  ;; inserts the given cell as a new bound-left cell
   (def-function-class epa<cell> (tape cell))
 
-  ;; makes and inserts a new leftmost cell initialized to the given instance
+  ;; makes and inserts a new bound-left cell initialized to the given instance
   (def-function-class epa<instance> (tape instance))
 
   ;; for a doubly linked list, these are the 'operate on tail' versions of the above
   (def-function-class ◨a<cell> (tape cell))
   (def-function-class ◨a<instance> (tape instance))
-  ;; (➜ok #'echo) (➜leftmost (be ∅))
+  ;; (➜ok #'echo) (➜bound-left (be ∅))
   (def-function-class ◨-sd<tape> (tape &optional ➜))
   (defun-typed ◨-sd<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
-        (➜leftmost (λ()(error 'dealloc-on-leftmost)))
+        (➜bound-left (λ()(error 'dealloc-on-bound-left)))
         &allow-other-keys
         )
       ➜
-      [➜leftmost]
+      [➜bound-left]
       ))
 
-  ;; removes the leftmost cell and returns it
-  ;; (➜ok #'echo) (➜rightmost (be ∅))
+  ;; removes the bound-left cell and returns it
+  ;; (➜ok #'echo) (➜bound-right (be ∅))
   (def-function-class epd<tape> (tape &optional ➜))
   (defun-typed epd<tape> ((tape tape-empty) &optional ➜)
     (declare (ignore tape))
     (destructuring-bind
       (&key
-        (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+        (➜bound-right (λ()(error 'dealloc-on-bound-right)))
         &allow-other-keys
         )
       ➜
-      [➜rightmost]
+      [➜bound-right]
       ))
 
   ;;;; left neighbor version for doubly linked lists
-  ;;;; (➜ok #'echo) (➜leftmost (be ∅))
+  ;;;; (➜ok #'echo) (➜bound-left (be ∅))
   ;;;; (def-function-class -d<cell> (cell &optional ➜))
 
   ;; If there is no rightneighbor, fails with ➜rightneighbor.
@@ -646,12 +646,12 @@ on operand type, and it won't mind having a few more types to work with.
   ;; Creates the appearence of deleting 'this cell' even for a singly linked list.
   ;; This is not needed for doubly linked lists, which can simply use 's-d'.
   ;;
-  ;; (➜ok #'echo) (➜rightmost  (λ()(error 'dealloc-on-rightmost))).
+  ;; (➜ok #'echo) (➜bound-right  (λ()(error 'dealloc-on-bound-right))).
   ;;
     (defun tape-class-d.<cell> (tape-ctx cell-0 &optional ➜)
       (destructuring-bind
         (&key
-          (➜rightmost (λ()(error 'dealloc-on-rightmost)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           &allow-other-keys
           )
         ➜
@@ -669,12 +669,12 @@ on operand type, and it won't mind having a few more types to work with.
                   [(w<cell> tape-ctx) cell-1 cell-0-instance]
                   [(d<cell> tape-ctx) cell-0 ➜]
                   ))
-              :➜rightmost ➜rightmost
+              :➜bound-right ➜bound-right
               }]
           )))
 
-  ;; appears to delete the leftmost cell, but doesn't, hence avoiding sharing issues
-  ;; however external references to the right neighbor of leftmost become orphaned
+  ;; appears to delete the bound-left cell, but doesn't, hence avoiding sharing issues
+  ;; however external references to the right neighbor of bound-left become orphaned
   ;; (➜ok #'echo) (➜empty #'accessed-empty)
   (def-function-class ◧d.<tape> (tape &optional ➜))
   (defun-typed ◧d.<tape> ((tape tape-empty) &optional ➜)
@@ -714,10 +714,10 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [(right-neighbor tape) (leftmost tape)
+      [(right-neighbor tape) (bound-left tape)
         {
           :➜ok (λ(cell)(declare (ignore cell))[➜∅])
-          :➜rightmost ➜t
+          :➜bound-right ➜t
           }]))
 
   (def-function-class tape-length-is-two (tape &optional ➜))
@@ -739,15 +739,15 @@ on operand type, and it won't mind having a few more types to work with.
         &allow-other-keys
         )
       ➜
-      [(right-neighbor tape) (leftmost tape)
+      [(right-neighbor tape) (bound-left tape)
         {
           :➜ok (λ(cell)
                  [(right-neighbor tape) cell
                    {
                      :➜ok (λ(cell)(declare (ignore cell))[➜∅])
-                     :➜rightmost ➜t
+                     :➜bound-right ➜t
                      }])
-          :➜rightmost ➜∅
+          :➜bound-right ➜∅
           }]))
 
  (def-function-class maximum-address (tape &optional ➜))
@@ -778,12 +778,12 @@ on operand type, and it won't mind having a few more types to work with.
                          (incf index)
                          (init-1 the-right-neighbor)
                          )
-                       :➜rightmost
+                       :➜bound-right
                        #'do-nothing
                        }])
                  (init-0 ()
                    (setf index 0)
-                   (setf cell (leftmost tape))
+                   (setf cell (bound-left tape))
                    (init-1 cell)
                    )
                  )

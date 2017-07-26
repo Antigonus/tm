@@ -52,7 +52,7 @@ max-address-compare
                   (incf n)
                   [➜again]
                   )
-                :➜right-bound
+                :➜bound-right
                 (λ(cell n)
                   (declare (ignore cell n)) 
                   [➜ok n]
@@ -99,7 +99,7 @@ max-address-compare
                   (incf n)
                   [➜again]
                   )
-                :➜right-bound
+                :➜bound-right
                 (λ(cell n)
                   (declare (ignore cell n)) 
                   [➜ok n]

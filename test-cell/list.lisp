@@ -28,11 +28,11 @@ See LICENSE.txt
     (setf flag1
       (∧
         (eq (right-neighbor tp0) tp1)
-        (typep tp0 'left-bound)
-        (typep tp1 'right-bound)
+        (typep tp0 'bound-left)
+        (typep tp1 'bound-right)
         (eq (right-neighbor tp2) tp3)
-        (typep tp2 'left-bound)
-        (typep tp3 'right-bound)
+        (typep tp2 'bound-left)
+        (typep tp3 'bound-right)
         ))
 
     (a<cell> tp0 tp4)
@@ -42,10 +42,10 @@ See LICENSE.txt
         (eq (right-neighbor tp0) tp4)
         (eq (right-neighbor tp4) tp1)
         (eq (right-neighbor tp1) tp2)
-        (typep tp0 'left-bound)
+        (typep tp0 'bound-left)
         (typep tp4 'interior)
         (typep tp1 'interior)
-        (typep tp2 'right-bound)
+        (typep tp2 'bound-right)
         ))
 
     (∧
@@ -58,9 +58,9 @@ See LICENSE.txt
 
 (defun test-cell-list-1 ()
   (let*(
-        (c2 (mk 'cell-list 20 {:status 'right-bound}))
+        (c2 (mk 'cell-list 20 {:status 'bound-right}))
         (c1 (mk 'cell-list 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-list 0  {:status 'left-bound :right-neighbor c1 }))
+        (c0 (mk 'cell-list 0  {:status 'bound-left :right-neighbor c1 }))
         )
     (w c1 10)
     (∧
@@ -70,7 +70,7 @@ See LICENSE.txt
           {
             :n 2
             :➜ok (λ(rn)(r<cell> rn))
-            :➜right-bound #'cant-happen
+            :➜bound-right #'cant-happen
             })
         20
         )
@@ -79,7 +79,7 @@ See LICENSE.txt
           {
             :n 3
             :➜ok #'cant-happen
-            :➜right-bound (be 27)
+            :➜bound-right (be 27)
             })
         27
         )
@@ -88,24 +88,24 @@ See LICENSE.txt
 
 (defun test-cell-list-2 ()
   (let*(
-        (c2 (mk 'cell-list 20 {:status 'right-bound}))
+        (c2 (mk 'cell-list 20 {:status 'bound-right}))
         (c1 (mk 'cell-list 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-list 0  {:status 'left-bound :right-neighbor c1 }))
+        (c0 (mk 'cell-list 0  {:status 'bound-left :right-neighbor c1 }))
         )
     (∧
-      (r c1 {:n 1 :➜ok (λ(v) (= v 20)) :➜right-bound #'cant-happen})
+      (r c1 {:n 1 :➜ok (λ(v) (= v 20)) :➜bound-right #'cant-happen})
       (= (r c1 {:n 1}) 20)
-      (= (r c2 {:n 1 :➜ok (be 5) :➜right-bound (be 21)}) 21)
-      (= (r c0 {:n 2 :➜ok (λ(v)v) :➜right-bound (be 17)}) 20)
-      (= (r c0 {:n 3 :➜ok (λ(v)v) :➜right-bound (be 17)}) 17)
+      (= (r c2 {:n 1 :➜ok (be 5) :➜bound-right (be 21)}) 21)
+      (= (r c0 {:n 2 :➜ok (λ(v)v) :➜bound-right (be 17)}) 20)
+      (= (r c0 {:n 3 :➜ok (λ(v)v) :➜bound-right (be 17)}) 17)
       )))
 (test-hook test-cell-list-2)
 
 (defun test-cell-list-3 ()
   (let*(
-        (c2 (mk 'cell-list 20 {:status 'right-bound}))
+        (c2 (mk 'cell-list 20 {:status 'bound-right}))
         (c1 (mk 'cell-list 1  {:status 'interior :right-neighbor c2}))
-        (c0 (mk 'cell-list 0  {:status 'left-bound :right-neighbor c1 }))
+        (c0 (mk 'cell-list 0  {:status 'bound-left :right-neighbor c1 }))
         )
     (∧
       (= (r<cell> c2) 20)
@@ -117,7 +117,7 @@ See LICENSE.txt
            {
              :n 2
              :➜ok (be 23)
-             :➜right-bound (λ(cell n)(declare (ignore cell n))24)
+             :➜bound-right (λ(cell n)(declare (ignore cell n))24)
              })
         23)
       (= (r c0 {:n 2}) 22)
@@ -125,7 +125,7 @@ See LICENSE.txt
            {
              :n 3
              :➜ok (be 34)
-             :➜right-bound
+             :➜bound-right
              (λ(cell n)
                (if
                  (∧
@@ -155,9 +155,9 @@ See LICENSE.txt
 
     (setf flag1 
       (∧
-        (= (r (d.<cell> c0)) 10) ; after d. c0 is still the left-bound, but contents is now 11
+        (= (r (d.<cell> c0)) 10) ; after d. c0 is still the bound-left, but contents is now 11
         (= (r c0) 11)
-        (typep c0 'left-bound)
+        (typep c0 'bound-left)
         ))
 
     (setf flag2
@@ -166,7 +166,7 @@ See LICENSE.txt
         (= (r c0 {:n 1}) 12)
         (= (r c0 {:n 2}) 13)
         (= (r c0 {:n 3}) 14)
-        (= (r c0 {:n 4 :➜right-bound (be 199)}) 199)
+        (= (r c0 {:n 4 :➜bound-right (be 199)}) 199)
         ))
       
     (setf flag3
@@ -174,22 +174,22 @@ See LICENSE.txt
         (= (r (d<cell> c2)) 13) ; deletes c3
         (typep c2 'interior)
         (= (r (d<cell> c2)) 14) ; deletes c4
-        (typep c2 'right-bound)
+        (typep c2 'bound-right)
         ))
 
     (setf flag4
       (∧
         (= (r c0 {:n 0}) 11)
         (= (r c0 {:n 1}) 12)
-        (= (r c0 {:n 2 :➜right-bound (be 122)}) 122)
+        (= (r c0 {:n 2 :➜bound-right (be 122)}) 122)
         ))
 
     (setf flag5
       (∧
-        (= (d.<cell> c2 {:➜right-bound (be 127)}) 127)
+        (= (d.<cell> c2 {:➜bound-right (be 127)}) 127)
         (= (r (d<cell> c0)) 12)
         (typep c0 'solitary)
-        (= (d<cell> c0 {:➜right-bound (be 129)}) 129)
+        (= (d<cell> c0 {:➜bound-right (be 129)}) 129)
         ))
 
     (∧

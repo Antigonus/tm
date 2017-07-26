@@ -8,7 +8,7 @@ Hence, we have placed in the finalizer and entangled copy of the entanglements m
 cell just to the left of the cell to be deleted.  When the finalizer is called, the cell
 to the right gets deleted, but there are problems.  What if the cell the finalizer is
 using to locate the cell to be deleted, is, itself, deleted?  It might even become
-the leftmost cell.  We have no access to the pointers built into the finalizer lambdas,
+the bound-left cell.  We have no access to the pointers built into the finalizer lambdas,
 so this is a no-go.
 
 We could keep a pointer to the cell to be deleted, then scan up the entanglements

@@ -1,17 +1,17 @@
         
 I. chapter 1 ;-)
 
-  I discovered a cute trick for implementing deallocate leftmost, #'d◧, in a gereric manner
+  I discovered a cute trick for implementing deallocate bound-left, #'d◧, in a gereric manner
   (making it a 'derived' function), so that it does not have to be a primitive function.
   Every tape machine type has to implement all the primitive function, so this saves
   some work and reduces the risk of introducing bugs.  This is all good.
 
-  It goes like this, first I take the instance in the right neighbor of leftmost, and I
-  write it into leftmost.  Then I deallocate the right neighbor.
+  It goes like this, first I take the instance in the right neighbor of bound-left, and I
+  write it into bound-left.  Then I deallocate the right neighbor.
 
-  Even if the leftmost being deallocated was being pointed at from a symbol
+  Even if the bound-left being deallocated was being pointed at from a symbol
   table or such, this still works for creating the appearance of deallocating
-  leftmost.
+  bound-left.
 
   But I ran into problems.  
 
@@ -20,7 +20,7 @@ I. chapter 1 ;-)
     base pointer, but I can't delete a cell out of it.  And actually I can get to the base
     pointer, as it lives in (tape tm).  Such pointers aren't from symbol tables, so this
     concern of symbol tables is unnecessary.  This problem with arrays was easily smoothed
-    over by defining a leftmost dealloc method with a type signature on arrays.  But now
+    over by defining a bound-left dealloc method with a type signature on arrays.  But now
     there are multiple #'d◧ functions, so we lose some of the benefit.
 
     Then I revised the library to use transitioning dynamic types for tape machines.  This
@@ -47,8 +47,8 @@ I. chapter 1 ;-)
     we are taking a  depth first traversal.
 
     As another example, the interval transform is a tape machine that picks a contiguous group
-    of cells (the interval space) and makes them look like their own machine.  Thus leftmost
-    and rightmost continuations will happen at the end of the interval rather the end of the
+    of cells (the interval space) and makes them look like their own machine.  Thus bound-left
+    and bound-right continuations will happen at the end of the interval rather the end of the
     tape, etc.
 
     So what happens when an interval is reduce to one cell?  If we make it singular, a
@@ -59,7 +59,7 @@ I. chapter 1 ;-)
     interval looks right, the base machine does not.  
 
     Transforms are important, probably more so than having a generic (i.e. derived from
-    primitives) deallocate routine.  Hence, I am moving deallocate leftmost back to
+    primitives) deallocate routine.  Hence, I am moving deallocate bound-left back to
     primitives, and removing singular machines from the library.  So now when the
     second to last cell is removed from an interval, it remains as view to the base
     machine.  When the last cell is removed, the interval becomes void, as do all
@@ -68,7 +68,7 @@ I. chapter 1 ;-)
     currently employed to go from singular back to a larger interval, though now
     we do it from void.
 
-    .. at least the swap trick still works for allocating a new cell to leftmost,
+    .. at least the swap trick still works for allocating a new cell to bound-left,
     so a◧ still has a generic implementation.
 
     3. entangled machines
@@ -76,7 +76,7 @@ I. chapter 1 ;-)
     We must fix pointers on entangled machines that reference the rightneighbor where
     the swap data came from, as otherwise they will be unaware of the swap and be left
     pointing to the wrong cell. And if we are going to walk through the entanglements list
-    fixing pointers, why not just fix the original problem .. the leftmost pointer.
+    fixing pointers, why not just fix the original problem .. the bound-left pointer.
 
 Chapter 2
 
@@ -86,7 +86,7 @@ Chapter 2
     appears to be 'no'.
 
     Of course doubly linked lists don't need this trick.  's-d' can already be implemented
-    discretely.  For status machines one can park and then delete to delete the leftmost
+    discretely.  For status machines one can park and then delete to delete the bound-left
     cell.
 
     The programmer using the library can always code the swap trick themselves.  The user
@@ -131,7 +131,7 @@ Chapter 2
     and arrays don't need it.  However, entanglement accounting is done at the second
     level, where it is intended to work independent of the base implementation.
 
-    .. an indicator that the swap trick should be done, and then cue leftmost
+    .. an indicator that the swap trick should be done, and then cue bound-left
     fix for entangled machines, is that we then do not need to break the
     model with 'update-after-a/d◧'. By using the swap trick, the second level
     machines use the first level machines without modification.

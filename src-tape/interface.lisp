@@ -29,16 +29,16 @@ so it won't mind having a few more types.
 ;; type
 ;;
   ;; a tape is a referenced cell, that cell is either an empty-tape, solitary, or
-  ;; left-bound.  If it is left-bound it has a right neighbor.
+  ;; bound-left.  If it is bound-left it has a right neighbor.
 
 
 ;;--------------------------------------------------------------------------------
 ;; tape queries
 ;;
-  (defun left-bound (tape &optional ➜)
+  (defun bound-left (tape &optional ➜)
     (bound tape ➜)
     )
-  (defun right-bound (tape &optional ➜)
+  (defun bound-right (tape &optional ➜)
     (bound tape {:d *right* (o ➜)})
     )
   ;; accepts a :d (direction) parameter, defaults to direction 0
@@ -59,7 +59,7 @@ so it won't mind having a few more types.
 ;;
 
   ;;----------------------------------------
-  ;; relative to left-bound
+  ;; relative to bound-left
   ;;
     (def-function-class ◧r (tape &optional ➜))
     (defun-typed ◧r ((tape tape-empty) &optional ➜)
@@ -92,7 +92,7 @@ so it won't mind having a few more types.
       )
 
   ;;----------------------------------------
-  ;; relative to right-bound
+  ;; relative to bound-right
   ;;
     (def-function-class ◨r (tape &optional ➜))
     (defun-typed ◨r ((tape tape-empty) &optional ➜)
@@ -106,7 +106,7 @@ so it won't mind having a few more types.
         [➜empty]
         ))
     (defun-typed ◨r ((tape tape-active) &optional ➜)
-      (r (right-bound tape) ➜)
+      (r (bound-right tape) ➜)
       )
 
     (def-function-class ◨w (tape instance &optional ➜))
@@ -121,13 +121,13 @@ so it won't mind having a few more types.
         [➜empty]
         ))
     (defun-typed ◨w ((tape tape-active) instance &optional ➜)
-      (w (right-bound tape) instance ➜)
+      (w (bound-right tape) instance ➜)
       )
 
 ;;--------------------------------------------------------------------------------
 ;; topology manipulation
 ;;
-  ;; inserts the given cell as a new left-bound cell
+  ;; inserts the given cell as a new bound-left cell
   (def-function-class epa<tape> (tape cell &optional ➜))
 
   ;; With an empty tape, we already have a cell so we toss the one we are given.
@@ -181,20 +181,20 @@ so it won't mind having a few more types.
         copy
         ))
 
-  ;; Removes the left-bound and returns it, (or the right bound if d= *left*).  The
+  ;; Removes the bound-left and returns it, (or the right bound if d= *left*).  The
   ;; neighbor of the removed bounding cell becomes the new bound and the tape head is
   ;; adjusted accordingly. 
-  ;; returns a cell (➜ok #'echo) (➜right-bound (be ∅))
+  ;; returns a cell (➜ok #'echo) (➜bound-right (be ∅))
   ;; 
     (def-function-class epd<tape> (tape &optional ➜))
     (defun-typed epd<tape> ((tape tape-empty) &optional ➜)
       (destructuring-bind
         (&key
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
     (defun-typed epd<tape> ((tape solitary) &optional ➜)
       (destructuring-bind
@@ -208,17 +208,17 @@ so it won't mind having a few more types.
  
   ;; Deletes the whole tape.
   ;; Afterward tape will be empty.
-  ;; Returns the left-bound that is still connected to its neighbor
+  ;; Returns the bound-left that is still connected to its neighbor
   ;;
     (def-function-class epd+<tape> (tape &optional ➜))
     (defun-typed epd+<tape> ((tape tape-empty) &optional ➜)
       (destructuring-bind
         (&key
-          (➜right-bound (λ()(error 'dealloc-on-right-bound)))
+          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
           &allow-other-keys
           )
         ➜
-        [➜right-bound]
+        [➜bound-right]
         ))
     (defun-typed epd+<tape> ((tape tape-active) &optional ➜)
       (destructuring-bind
@@ -227,14 +227,14 @@ so it won't mind having a few more types.
           &allow-other-keys
           )
         ➜
-        (d+<cell> (left-bound tape)
+        (d+<cell> (bound-left tape)
           {
             :➜ok
             (λ(rhs)
               (epa<tape> rhs (d-last tape))
               [➜ok rhs]
               )
-            :➜right-bound 
+            :➜bound-right 
             (λ()
               [➜ok (d-last tape)]
               )
@@ -243,10 +243,10 @@ so it won't mind having a few more types.
 
   ;; Swaps data with the right neighbor, and deletes the right neighbor.
   ;; Creates appearance of deleting 'this cell'.
-  ;; Doesn't work when 'this cell' if the right-bound cell.
+  ;; Doesn't work when 'this cell' if the bound-right cell.
   ;; Messes up external references to this cell and the right neighbor cell.
-  ;; Almost didn't include this in the library, bit is useful for deleting left-bound
-  ;; without having to update the left-bound pointer in the header.
+  ;; Almost didn't include this in the library, bit is useful for deleting bound-left
+  ;; without having to update the bound-left pointer in the header.
   ;; (➜ok #'echo) (➜empty #'accessed-empty)
   ;; returns a cell, but operates correctly for a tape
   ;;
@@ -262,7 +262,7 @@ so it won't mind having a few more types.
         [➜empty]
         ))
     (defun-typed ◧d.<tape> ((tape tape-active) &optional ➜)
-      (d.<cell> (left-bound tape) ➜)
+      (d.<cell> (bound-left tape) ➜)
       )
 
 

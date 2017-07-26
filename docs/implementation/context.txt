@@ -1,13 +1,13 @@
 
 
-The leftmost and rightmost cells are distinct from other cells.  leftmost has
+The bound-left and bound-right cells are distinct from other cells.  bound-left has
 no left neighbor, and righmost has no right neighbor.  If topology modifying operations
 are allowed such cells may later pick up such a neighbor. When traversing a space we
 need to be able to distinguish between the middle cells and the end cells.
 
 Here are four techniques for dealing with this:
 
-  1. marking. One cell type, right-neighbor of rightmost is marked.  Say by either pointing
+  1. marking. One cell type, right-neighbor of bound-right is marked.  Say by either pointing
      to itself or by being set to null.
 
   2. subtypes. We have four cell subtypes: singleton, left neighbor, middle, and right
@@ -27,7 +27,7 @@ Here are four techniques for dealing with this:
   7. curried contract. we have a general function then provide a contract
      promise to it, and get the contract version of the function.
   
-  8. special cells -- e.g. a rightmost cell, we eq to see if we are rightmost.
+  8. special cells -- e.g. a bound-right cell, we eq to see if we are bound-right.
      what I am doing with 'tape' in bilist.
 
 ----
@@ -84,13 +84,13 @@ depending on the type of the data.  I.e. it directs control flow changes based o
 past decision.
 
 type: cell
-subtypes:  rightmost-type middle-type leftmost-type
+subtypes:  bound-right-type middle-type bound-left-type
 
 (right-neighbor a-cell) --> rn-cell
 
-When a-cell is a middle-type cell, it might be turned into a leftmost-type cell
+When a-cell is a middle-type cell, it might be turned into a bound-left-type cell
 by #'right-neighbor.  However, for #'right-neighbor to do this, it must have
-the header context to perform the #'is-rightmost test, or that test must be
+the header context to perform the #'is-bound-right test, or that test must be
 applied externally, perhaps as (set-cell-type cell tape).
 
 
@@ -100,7 +100,7 @@ applied externally, perhaps as (set-cell-type cell tape).
 
 We provide each routine with an extra argument known as a 'context'.  Context holds values
 that are needed to complete end case analysis.  As an example the tape-bilist header can
-be context as it holds leftmost and rightmost.
+be context as it holds bound-left and bound-right.
 
 Context has the overhead of adding an extra parameter to functions.  It has the advantage
 of not constraining the programmer to any particular set of tests.
@@ -123,10 +123,10 @@ contracts with the programmer.  This moves tests out of subroutines and into
 the caller, which removes one argument/parameter from the subroutine.
 
 
-  ;; tape provides context so cell can be tested to for being rightmost
+  ;; tape provides context so cell can be tested to for being bound-right
   (def-function-class right-neighbor (cell tape &optional ➜))
 
-  ;; only called when when cell is not rightmost
+  ;; only called when when cell is not bound-right
   (def-function-class right-neighbor (cell &optional ➜))
 
 
@@ -137,7 +137,7 @@ Here is an example
     (destructuring-bind
       (&key
         (➜ok #'echo)
-        (➜rightmost (λ()(error 'step-from-rightmost)))
+        (➜bound-right (λ()(error 'step-from-bound-right)))
         &allow-other-keys
         )
       ➜
@@ -146,7 +146,7 @@ Here is an example
             )
         (if
           (eq rn tape)   *** where did tape come from?
-          [➜rightmost]
+          [➜bound-right]
           [➜ok rn]
           ))))
 
@@ -431,15 +431,15 @@ eventually be part of the hardware.  Things such as #'right-neighbor may become
 macros.  This consideration favors the external context approach. 
 
 With subtypes, when we increment an array index, we need to check the index to see if it
-is the same as max-index, so as to set its type to 'cell-rightmost.  Thus there will be
+is the same as max-index, so as to set its type to 'cell-bound-right.  Thus there will be
 one test per iteration loop.  With external context we can do that test inside the
 #'right-neighbor function, which is also called only one time per loop. With subtypes, the
-test will be done each time to chose whether to set the type for the index to rightmost
+test will be done each time to chose whether to set the type for the index to bound-right
 when we increment and arrive at maxindex.  Then upon the next #'right-neighbor call, we
-get the on rightmost version rather than the regular version, and that version exits the
-loop, ➜rightmost.  In contrast with the external context approach we test to see if the
+get the on bound-right version rather than the regular version, and that version exits the
+loop, ➜bound-right.  In contrast with the external context approach we test to see if the
 index is already maxindex inside of #'right-neighbor, then chose the correct exit, ➜ok or
-➜rightmost. In the external context case we are not obligated to use dispatch, though we
+➜bound-right. In the external context case we are not obligated to use dispatch, though we
 might for other reasons (which in the C++ version was a virtual function table).  Below
 find an example of using subtypes.
 
@@ -457,45 +457,45 @@ Here is a subtypes example for bilist.
 
 It is possible, though a bit awkward, to get dispatch to recognize end cases.  Types
 unions can be read as 'accepted by' in the inheritance list.  Hence 'singleton' is
-'accepted by' a function that specifies its argument type as singleton, rightmost, or
-leftmost.  And rightmost is accepted by a function that specifies an argument type
-of rightmost or rightmost middle, etc.
+'accepted by' a function that specifies its argument type as singleton, bound-right, or
+bound-left.  And bound-right is accepted by a function that specifies an argument type
+of bound-right or bound-right middle, etc.
 
 
   (def-type cell-bilist (bilink cell)
     (
       (cargo :initarg cargo :accessor cargo)
       ))
-  (def-type cell-bilist-leftmost-middle (cell-bilist))
-  (def-type cell-bilist-rightmost-middle (cell-bilist))
+  (def-type cell-bilist-bound-left-middle (cell-bilist))
+  (def-type cell-bilist-bound-right-middle (cell-bilist))
 
   (def-type cell-bilist-empty (cell-bilist)) ;; the library doesn't use this
 
-  (def-type cell-bilist-leftmost
+  (def-type cell-bilist-bound-left
     (
-      cell-bilist-leftmost-middle 
+      cell-bilist-bound-left-middle 
       ))
   (def-type cell-bilist-middle
     (
-      cell-bilist-rightmost-middle 
-      cell-bilist-leftmost-middle
+      cell-bilist-bound-right-middle 
+      cell-bilist-bound-left-middle
       ))
-  (def-type cell-bilist-rightmost
+  (def-type cell-bilist-bound-right
     (
-      cell-bilist-rightmost-middle
+      cell-bilist-bound-right-middle
       ))
 
   (def-type cell-bilist-singleton
     (
-      cell-bilist-rightmost
+      cell-bilist-bound-right
       cell-bilist-leftmmost
       ))
 
   (defun-typed to-empty     ((cell cell-bilist)) (change-class cell 'cell-bilist-empty))
   (defun-typed to-singleton ((cell cell-bilist)) (change-class cell 'cell-bilist-singleton))
-  (defun-typed to-leftmost  ((cell cell-bilist)) (change-class cell 'cell-bilist-leftmost))
+  (defun-typed to-bound-left  ((cell cell-bilist)) (change-class cell 'cell-bilist-bound-left))
   (defun-typed to-middle    ((cell cell-bilist)) (change-class cell 'cell-bilist-middle))
-  (defun-typed to-rightmost ((cell cell-bilist)) (change-class cell 'cell-bilist-rightmost))
+  (defun-typed to-bound-right ((cell cell-bilist)) (change-class cell 'cell-bilist-bound-right))
 
   (def-type tape-bilist (bilink tape) ())
   (def-type tape-bilist-empty (tape-bilist))
@@ -509,21 +509,21 @@ of rightmost or rightmost middle, etc.
 
   (def-function-class splice (c0 c2 new-cell))
   (defun-typed splice (c0 (c2 cell-bilist-singleton) new-cell)
-    (to-leftmost new-cell)
-    (to-rightmost c2)
+    (to-bound-left new-cell)
+    (to-bound-right c2)
     (splice-links c0 c2 new-cell)
     )
-  (defun-typed splice (c0 (c2 cell-bilist-leftmost) new-cell)
-    (to-leftmost new-cell)
+  (defun-typed splice (c0 (c2 cell-bilist-bound-left) new-cell)
+    (to-bound-left new-cell)
     (to-middle c2)
     (splice-links c0 c2 new-cell)   
     )
-  (defun-typed splice (c0 (c2 cell-bilist-rightmost-middle) new-cell)
+  (defun-typed splice (c0 (c2 cell-bilist-bound-right-middle) new-cell)
     (to-middle new-cell)
     (splice-links c0 c2 new-cell)   
     )
-  (defun-typed splice ((c0 cell-bilist-rightmost) c2 new-cell)
-    (to-rightmost new-cell)
+  (defun-typed splice ((c0 cell-bilist-bound-right) c2 new-cell)
+    (to-bound-right new-cell)
     (to-middle c0)
     (splice-links c0 c2 new-cell)   
     )

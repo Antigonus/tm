@@ -85,32 +85,38 @@ they belong to.
       #:print-to-log
 
 ;;;--------------------------------------------------------------------------------
-;;; src-cell
+;;; src-init
 ;;;     
-    ;; init
-    ;;
       #:init
       #:mk
+      #:clone
+
+;;;--------------------------------------------------------------------------------
+;;; src-cell
+;;;     
 
     ;; type
     ;;
       #:cell
-      #:left-bound-interior
-      #:right-bound-interior
-      #:interior
-      #:left-bound
-      #:right-bound
-      #:solitary
+      #:cell-virtual
+      #:cell-substrate
+      #:cell-alternatives
+      #:context
+
+    ;; multiple world support
+    ;;
+      #:wr<cell> ; uses context to return a cell among the alternatives
+      #:wa<cell> ; add another world alternative to cell
 
     ;; queries
     ;;
       #:=<cell>
-      #:r
-      #:w
+      #:r<cell>
+      #:w<cell>
 
     ;; traversal
     ;;
-      #:neighbor ; returns neighbor cell considering :direction and :distance
+      #:neighbor
 
     ;; topology manipulation
     ;;
@@ -123,21 +129,21 @@ they belong to.
 ;;;--------------------------------------------------------------------------------
 ;;; src-tape
 ;;;     
-      #:left-bound
-      #:right-bound
+      #:bound-left
+      #:bound-right
       #:bound ;*
 
-      #:◧r ; read from left-bound
+      #:◧r ; read from bound-left
       #:◧w
 
-      #:◨r ; read from right-bound
+      #:◨r ; read from bound-right
       #:◨w
 
       #:epa<tape> ;* prepend a cell
       #:epa       ; append an instance
-      #:epd<tape>  ;* delete the left-bound (causes neighbor to beomce the bound)
+      #:epd<tape>  ;* delete the bound-left (causes neighbor to beomce the bound)
       #:epd+<tape>  ; delete the entire tape
-      #:◧d.<tape>  ; swap contents with left-bound neighbor, delete neighbor
+      #:◧d.<tape>  ; swap contents with bound-left neighbor, delete neighbor
 
 #|
 ;;;--------------------------------------------------------------------------------
