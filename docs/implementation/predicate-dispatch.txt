@@ -1,0 +1,34 @@
+
+predicate dispatch would simplify the code a lot.  For example, bound-left singelton and
+bound-right all play together.  I emulated predicate dispatch with an inheritance
+hierarchy.  That worked, but it was upside down from how people think about it.
+
+nice article on the topic of predicate disptaching
+ftp://publications.ai.mit.edu/ai-publications/2001/AITR-2001-006.pdf
+
+Jpred for Java (for reference)
+http://web.cs.ucla.edu/~todd/research/oopsla04.pdf
+
+This is interesting.  Passes in another variable just for purposes of choosing the
+interface. 
+ https://common-lisp.net/~frideau/lil-ilc2012/lil-ilc2012.html
+
+ wonder ...
+
+http://www.p-cos.net/documents/filtered-dispatch.pdf
+
+July 23, 2007
+yes, this was the article I saw some months back.
+http://www.european-lisp-workshop.org/archives/07.rhodes.pdf
+
+https://common-lisp.net/~frideau/lil-ilc2012/lil-ilc2012.pdf
+
+Haven't been able to find any libraries so ...
+
+
+I will emulate disjunction by specifying multiple typed functions with different
+signatures that all call the same untyped function.
+
+I will emulate conjunction by using a typep cond inside the code.  Alternatively
+I could call typed sub-functions from the first term function.
+

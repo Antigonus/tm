@@ -29,14 +29,14 @@
   (global-set-key (kbd "C-x g exists SPC") [?∃])
   (global-set-key (kbd "C-x g all SPC") [?∀])
 
-  (global-set-key (kbd "C-x g do SPC") [?⟳])
+  (global-set-key (kbd "C-x g do SPC") [?⟳]) ; do
 
-  (global-set-key (kbd "C-x g rm SPC") [?◨])
-  (global-set-key (kbd "C-x g lm SPC") [?◧])
+  (global-set-key (kbd "C-x g rb SPC") [?◨]) ; right bound
+  (global-set-key (kbd "C-x g lb SPC") [?◧]) ; left bound
 
-  (global-set-key (kbd "C-x g cont SPC") [?➜]) 
+  (global-set-key (kbd "C-x g cont SPC") [?➜]) ; continue
 
-  (global-set-key (kbd "C-x g thread SPC") [?☥]) 
+  (global-set-key (kbd "C-x g thread SPC") [?☥]) ; thread
 
 
 

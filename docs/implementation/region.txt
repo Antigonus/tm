@@ -1,3 +1,38 @@
+2017-08-04T07:14:15Z
+
+I originally imagined a region to be a special tape machine.  One where the bound-left
+and bound-right were set by the programmer, so the machine operated on a contiguous
+subset of cells.
+
+However, if we leave Δ off of the cell layer, then a generic tape machine implementation
+becomes inefficient, as it will repeatedly iterate accross cells for the array
+implementation rather than just adding Δ to the pointer. Sometimes a cell as an artificial
+bound is more convenient to specify than a count, so that became a parameter also.
+
+Delete is also an issue. Arrays can not have topology manipulation.  We can have address
+space manipulation.  But that requires modifying an address generator and doing a
+'reframe' copy. 
+
+We can delete a right neighbor on a list, but the programmer almost always wants to delete
+'this cell'.  It is like sitting on a limb of a tree while one saws it off. 
+
+For an address space a natural number is a cell. Say we want to remove the address '5'
+from it.  We don't know if the prior address is 4, as that might have the target of a
+prior delete.
+
+Might be best to just not have a generic tape machine, and leave Δ and bounds cells
+off of cell interface. 
+
+
+
+
+
+
+
+
+
+-----------
+older
 
 A region is a set of contiguous cells that belong to another space. 
 
