@@ -12,7 +12,7 @@ than necessary.  This makes growing a bit expensive, as the whole array is copie
 each time a cell is added.
 
 Common Lisp knows the length of an array, and that information must be stored somewhere.
-Hence I would like expand the tape from being a single instance, a pair instances held in
+Hence I would like to expand the tape from being a single instance, a pair instances held in
 a struct, perhaps a triple held in a struct, then an array.  To support such a progression
 with CLOS, we must distinguish a pair, struct, or an array when they appear as the single
 instance, from the pair, struct, or array we use for expansion. I don't see a reasonable
