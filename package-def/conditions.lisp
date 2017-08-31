@@ -32,17 +32,26 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
-;; cell
+;; src-1
 ;;
-  ;; used for #'a and #'d on spill when allocation fails
   (define-condition alloc-fail (error)
     ((text :initarg :text :reader text)))
-
-  (define-condition unknown-direction (error)
+  (define-condition accessed-empty (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition bad-direction (error)
+  (define-condition no-parent (error)
     ((text :initarg :text :reader text)))
+  (define-condition bad-channel (error)
+    ((text :initarg :text :reader text)))
+  (define-condition bad-parent (error)
+    ((text :initarg :text :reader text)))
+
+
+
+
+;;--------------------------------------------------------------------------------
+;; src-2
+;;
 
   (define-condition step-from-rightmost (error)
     ((text :initarg :text :reader text)))

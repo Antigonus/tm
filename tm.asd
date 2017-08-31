@@ -14,7 +14,7 @@ See LICENSE.txt
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
-  :depends-on ("local-time" "bordeaux-threads")
+  :depends-on ("local-time" "bordeaux-threads" "closer-mop")
   :serial t
   :components(
                (:module "package-def"
@@ -38,18 +38,15 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
-               (:module "src-init"
+               (:module "src-1"
                  :components (
                                (:file "mk")
+                               (:file "tape-array")
+                               (:file "plex")
+;;                               (:file "cell")
+;;                               (:file "cell-list")
                                ))
-
-               (:module "src-cell"
-                 :components (
-                               (:file "interface")
-                               (:file "list")
-                               (:file "bilist")
-                               ))
-
+#|
                (:module "src-tape"
                  :components (
                                (:file "interface")
@@ -62,7 +59,7 @@ See LICENSE.txt
 ;;                               (:file "interface")
 ;;                               (:file "tm")
                                ))
-
+|#
 
 #|
                (:module "src-list" ; both the list and generic interface
@@ -172,11 +169,13 @@ See LICENSE.txt
                                (:file "functions")
                                ))
 
-               (:module "test-cell"
+               (:module "test-1"
                  :components (
-                               (:file "list")
-                               (:file "bilist")
+                               (:file "tape-array")
+;;                               (:file "cell-list")
                                ))
+
+#|
 
                (:module "test-tape"
                  :components (
@@ -184,7 +183,6 @@ See LICENSE.txt
                                ))
 
 
-#|
                (:module "test-list"
                 :components (
                               ;; generic interface tests

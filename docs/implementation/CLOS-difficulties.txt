@@ -256,3 +256,16 @@ that has almost no syntax..
    ... looks like a neuron.  tag matching tiggers, then the function fires.
 
   
+16.
+  note this in src-1/tape-array.lisp
+
+    Common Lisp knows the length of an array, and that information must be stored somewhere.
+    Hence I would like to expand the tape from being a single instance, a pair instances held
+    in a struct, perhaps a triple held in a struct, then an array or hash table.  The hash
+    table would be used when many cells are empty.
+
+    To support such a progression with CLOS, we must distinguish a pair, struct, array or hash
+    table when they appear as the single instance, from the pair, struct, array or hash table
+    we use for expansion. I don't see a reasonable way to do this, as common Lisp isn't giving
+    me a way to alias a type, and if I make a wrapper type it looks like there is a yet
+    another layer of indirection or worse.

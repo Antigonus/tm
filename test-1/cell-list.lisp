@@ -19,7 +19,6 @@ See LICENSE.txt
          flag1 flag2
          )
 
-    (to-solitary tp0)
     (a<cell> tp0 tp1)
     
     (to-solitary tp2)

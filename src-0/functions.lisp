@@ -32,16 +32,14 @@ See LICENSE.txt
   (defun notλ (f) (λ(&rest x)(not (apply f x))))
 
 ;;--------------------------------------------------------------------------------
-;; fundamental errors as functions
+;; basic errors
 ;;
+  ;; reaching this point in a control path is a programming error
   (defun cant-happen (&rest x) (declare (ignore x)) (error 'cant-happen))
-  (defun alloc-fail () (error 'alloc-fail)) ;; for memory allocation failure
-  (defun not-implemented () (error 'not-implemented)) ;; for memory allocation failure
 
-  ;; status related
-  (defun operation-on-abandoned () (error 'operation-on-abandoned))
-  (defun accessed-empty () (error 'accessed-empty))
-  (defun access-through-parked-head () (error 'access-through-parked-head))
+  (defun alloc-fail (&rest x) (declare (ignore x)) (error 'alloc-fail)) ;; for memory allocation failure
+  (defun accessed-empty (&rest x) (declare (ignore x)) (error 'accessed-empty))
+
 
 ;;--------------------------------------------------------------------------------
 ;; pass a value in a box  (via dmitry_vk stack exchange)

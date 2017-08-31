@@ -5,69 +5,445 @@ See LICENSE.txt
 
 A tape-array.
 
-Typically starts out with a length of zero or one, and then grows slowly via a◨.
+This design is intended to minimize required storage.
 
-Designed for storage critical applications, as it doesn't take up any more storage
-than necessary.  This makes growing a bit expensive, as the whole array is copied
-each time a cell is added.
+I need to change the array reference when expanding the tape, so I used macros on the 
+interface.  Consequently we do not have dispatch based on argument type.
 
-Common Lisp knows the length of an array, and that information must be stored somewhere.
-Hence I would like to expand the tape from being a single instance, a pair instances held in
-a struct, perhaps a triple held in a struct, then an array.  To support such a progression
-with CLOS, we must distinguish a pair, struct, or an array when they appear as the single
-instance, from the pair, struct, or array we use for expansion. I don't see a reasonable
-way to do this, as common Lisp isn't giving me a way to alias a type, and if I make a wrapper
-type it looks like there is a yet another layer of indirection or worse.  I suppose one could
-type-of, create a new type, and change-type ... nah.
+At its smallest a tape-array has type 'empty and no instance.  After a single value is
+added to a tape array, the tape array acts just like a single value. Etc.
 
-One good thing about making tape array an array is that nil is not a valid value.  I use
-this in the cell list to distringuish when there are no contents for a given universe id, and
-thus we should check the parents table for an inherited value.
+Common Lisp knows the length of an array, and that information must be stored somewhere,
+so I don't use an array for short tapes to avoid this overhead. .. Hopefully the compiler
+implements structs efficiently, or this approach will be moot.  2nd edition of Asimow's 
+book .. Zero, One, Two, Arbitrary LOL
 
-In this implementation we just use a simple array and copy and expand as needed.  In the
-single instance case, where the single instance is a number or a referece, we pay big with
-100% overhead.
+Cells with index larger than the largest index for the tape array, and those that hold
+an empty type instance, are considered to be empty. Empty is not an instance, Hence we
+do not let empty type instances leave the tape-array as read values, but instead invoke
+empty continutations.
 
+Turing Machine tapes are infinite.  Our tape machine tapes are finite by expandable.
+We showed that for computation that this is sufficient.  Hence, appending to lengthen
+a tape is not a topology modifying operation on a Turing Machine; though it is on 
+our Tape Machine.  It is intresting that this one topology modification operation is
+safe relative safe even when machines are entangled.
 
 |# 
 
 (in-package #:tm)
 
-(defun make<tape-array> (&optional (length 0) (init ∅)) (make-array length :initial-element init))
+;;--------------------------------------------------------------------------------
+;; type
+;;
+  (def-type empty ()())
 
-(demacro expand<tape-array> (tape-array max-address)
-  `(let(
-         (length (length ,tape-array))
-         )
-     (when
-       (≥ ,max-address length)
-       (let(
-             (new-tape-array (make-array (1+ ,max-address)))
-             )
-         (loop for address below length do
-           (setf (aref new-tape-array address) (aref ,tape-array))
+  (defun-typed init ((instance empty) init &optional ➜)
+    (declare (ignore init))
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok instance]
+      ))
+
+  ;; suffix on the struct names is the max-address for a corresponding array
+  (defstruct tape-array-max-0 zero)
+  (defstruct tape-array-max-1 zero one)
+  (defstruct tape-array-max-2 zero one two)
+  (defstruct tape-array-max-n array)
+
+
+;;--------------------------------------------------------------------------------
+;; tape properties
+;;
+  (def-function-class max-active<tape-array> (x &optional ➜))
+  (defun-typed max-active<tape-array> ((x empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max-active<tape-array> ((x tape-array-max-0) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (if
+        (typep (tape-array-max-0-zero x) 'empty)
+        [➜empty]
+        [➜ok 0]
+        )))
+  (defun-typed max-active<tape-array> ((x tape-array-max-1) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((∧ 
+           (typep (tape-array-max-1-one x) 'empty)
+           (typep (tape-array-max-1-zero x) 'empty)
            )
-         (loop for address upto ,max-address do
-           (setf (aref new-tape-array address) ∅)
-           )))))
-
-;; hopefully the compiler is smart enough to eliminate the array access in the default case
-(defmacro r<tape-array> (tape-array &optional (address 0))
-  `(aref ,tape-array ,address)
-  )
-(defmacro w<tape-array> (tape-array instance &optional (address 0))
-  `(setf (aref ,tape-array ,address) ,instance)
-  )
-
-;; need to add the ➜ code because we can have an allocation error
-(defmacro a◨<tape-array> (tape-array instance &optional ➜)
-  `(let*(
-          (length         (length ,tape-array))
-          (new-tape-array (make-array (1+ ,length)))
+          [➜empty]
           )
-     (loop for address below length do
-       (setf (aref new-tape-array address) (aref ,tape-array address))
-       )
-     (setf (aref ,new-tape-array length) ,instance)
-     (setf ,tape-array new-tape-array)
-     ))
+        ((typep (tape-array-max-1-one x) 'empty)
+          [➜ok 0]
+          )
+        (t
+          [➜ok 1]
+          ))))
+  (defun-typed max-active<tape-array> ((x tape-array-max-2) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (cond
+        ((∧ 
+           (typep (tape-array-max-2-two x) 'empty)
+           (typep (tape-array-max-2-one x) 'empty)
+           (typep (tape-array-max-2-zero x) 'empty)
+           )
+          [➜empty]
+          )
+        ((∧ 
+           (typep (tape-array-max-2-two x) 'empty)
+           (typep (tape-array-max-2-one x) 'empty)
+           )
+          [➜ok 0]
+          )
+        ((typep (tape-array-max-2-two x) 'empty)
+          [➜ok 1]
+          )
+        (t
+          [➜ok 2]
+          ))))
+  (defun-typed max-active<tape-array> ((x tape-array-max-n) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (tape (tape-array-max-n-array x))
+            )
+        (if
+          (= 0 (length tape))
+          [➜empty]
+          (let(
+                (max (1- (length tape)))
+                )
+            (⟳(λ(➜again)
+                (if 
+                  (typep (aref tape max) 'empty)
+                  (if
+                    (= max 0)
+                    [➜empty]
+                    (progn
+                      (decf max)
+                      [➜again]
+                      ))
+                  [➜ok max]
+                  ))))))))
+
+
+  (def-function-class max<tape-array> (x &optional ➜))
+  (defun-typed max<tape-array> ((x empty) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max<tape-array> ((x tape-array-max-0) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok 0]
+      ))
+  (defun-typed max<tape-array> ((x tape-array-max-1) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok 1]
+      ))
+  (defun-typed max<tape-array> ((x tape-array-max-2) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok 2]
+      ))
+  (defun-typed max<tape-array> ((x tape-array-max-n) &optional ➜)
+    (destructuring-bind
+      (&key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      [➜ok (1- (length (tape-array-max-n-array x)))]
+      ))
+
+
+;;--------------------------------------------------------------------------------
+;; cell access
+;;
+  (defmacro r<tape-array>-ret (x ➜ok ➜empty)
+    `(if 
+      (typep ,x 'empty)
+      [,➜empty]
+      [,➜ok ,x]
+    ))
+
+  (defmacro r<tape-array> (tape-array &optional ➜)
+    `(destructuring-bind
+       (&key
+         (address 0)
+         (➜ok #'echo)
+         (➜empty #'accessed-empty)
+         &allow-other-keys
+         )
+       ,➜
+       (etypecase ,tape-array
+         (empty [➜empty])
+         (tape-array-max-0
+           (cond
+             ((= address 0) (r<tape-array>-ret (tape-array-max-0-zero ,tape-array) ➜ok ➜empty))
+             (t [➜empty])
+             ))
+         (tape-array-max-1
+           (cond
+             ((= address 0) (r<tape-array>-ret (tape-array-max-1-zero ,tape-array) ➜ok ➜empty))
+             ((= address 1) (r<tape-array>-ret (tape-array-max-1-one ,tape-array) ➜ok ➜empty))
+             (t [➜empty])
+             ))
+         (tape-array-max-2
+           (cond
+             ((= address 0) (r<tape-array>-ret (tape-array-max-2-zero ,tape-array) ➜ok ➜empty))
+             ((= address 1) (r<tape-array>-ret (tape-array-max-2-one ,tape-array) ➜ok ➜empty))
+             ((= address 2) (r<tape-array>-ret (tape-array-max-2-two ,tape-array) ➜ok ➜empty))
+             (t [➜empty])
+             ))
+         (tape-array-max-n
+           (if
+             (≥ address (length (tape-array-max-n-array ,tape-array)))
+             [➜empty]
+             (r<tape-array>-ret (aref (tape-array-max-n-array ,tape-array) address) ➜ok ➜empty)
+             ))
+         )))
+
+  ;; If a programmer wants an implemented empty tail, write an empty type instance
+  ;; at the end of the desired empty tail.
+  (defmacro w<tape-array> (tape-array instance &optional ➜)
+    `(destructuring-bind
+       (&key
+         (address 0)
+         (➜ok (be t))
+         (➜alloc-fail #'alloc-fail)
+         &allow-other-keys
+         )
+       ,➜
+       (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
+       (etypecase ,tape-array
+
+         (empty
+           (cond
+             ((= address 0)
+               (setf ,tape-array
+                 (make-tape-array-max-0
+                   :zero ,instance
+                   )))
+             ((= address 1)
+               (setf ,tape-array
+                 (make-tape-array-max-1
+                   :zero (mk 'empty)
+                   :one ,instance
+                   )))
+             ((= address 2)
+               (setf ,tape-array
+                 (make-tape-array-max-2
+                   :zero (mk 'empty)
+                   :one (mk 'empty)
+                   :two ,instance
+                   )))
+             ((≥ address 3)
+               (let(
+                     (new-array (make-array (1+ address) :initial-element (make-instance 'empty)))
+                     )
+                 (setf (aref new-array address) ,instance)
+                 (setf ,tape-array 
+                   (make-tape-array-max-n :array new-array)
+                   )))
+             ))
+
+         (tape-array-max-0
+           (cond
+
+             ((= address 0)
+               (setf (tape-array-max-0-zero ,tape-array) ,instance)
+               )
+
+             ((= address 1)
+               (let(
+                     (new-tape-array
+                       (make-tape-array-max-1
+                         :zero (tape-array-max-0-zero ,tape-array)
+                         :one ,instance
+                         ))
+                     )
+                 (setf ,tape-array new-tape-array)
+                 ))
+
+             ((= address 2)
+               (let(
+                     (new-tape-array
+                       (make-tape-array-max-2
+                         :zero (tape-array-max-0-zero ,tape-array)
+                         :one (make-instance 'empty)
+                         :two ,instance
+                         ))
+                     )
+                 (setf ,tape-array new-tape-array)
+                 ))
+
+             ((≥ address 3)
+               (let(
+                     (new-array (make-array (1+ address) :initial-element (make-instance 'empty)))
+                     )
+                 (setf (aref new-array 0) (tape-array-max-0-zero ,tape-array))
+                 (setf (aref new-array address) ,instance)
+                 (setf ,tape-array 
+                   (make-tape-array-max-n :array new-array)
+                   )))
+             ))
+
+         (tape-array-max-1
+           (cond
+
+             ((= address 0)
+               (setf (tape-array-max-1-zero ,tape-array) ,instance)
+               )
+
+             ((= address 1)
+               (setf (tape-array-max-1-one ,tape-array) ,instance)
+               )
+
+             ((= address 2)
+               (let(
+                     (new-tape-array
+                       (make-tape-array-max-2
+                         :zero (tape-array-max-1-zero ,tape-array)
+                         :one  (tape-array-max-1-one ,tape-array)
+                         :two ,instance
+                         ))
+                     )
+                 (setf ,tape-array new-tape-array)
+                 ))
+
+             ((≥ address 3)
+               (let(
+                     (new-array (make-array (1+ address) :initial-element (make-instance 'empty)))
+                     )
+                 (setf (aref new-array 0) (tape-array-max-1-zero ,tape-array))
+                 (setf (aref new-array 1) (tape-array-max-1-one ,tape-array))
+                 (setf (aref new-array address) ,instance)
+                 (setf ,tape-array 
+                   (make-tape-array-max-n :array new-array)
+                   )))
+               ))
+           
+         (tape-array-max-2
+           (cond
+
+             ((= address 0)
+               (setf (tape-array-max-2-zero ,tape-array) ,instance)
+               )
+
+             ((= address 1)
+               (setf (tape-array-max-2-one ,tape-array) ,instance)
+               )
+
+             ((= address 2)
+               (setf (tape-array-max-2-two ,tape-array) ,instance)
+               )
+
+             ((≥ address 3)
+               (let(
+                     (new-array (make-array (1+ address) :initial-element (make-instance 'empty)))
+                     )
+                 (setf (aref new-array 0) (tape-array-max-2-zero ,tape-array))
+                 (setf (aref new-array 1) (tape-array-max-2-one ,tape-array))
+                 (setf (aref new-array 2) (tape-array-max-2-two ,tape-array))
+                 (setf (aref new-array address) ,instance)
+                 (setf ,tape-array 
+                   (make-tape-array-max-n :array new-array)
+                   )))
+               ))
+
+         (tape-array-max-n
+           (let(
+                 (max (max<tape-array> ,tape-array))
+                 (array (tape-array-max-n-array ,tape-array))
+                 )
+             (when
+               (> address max)
+               (let(
+                     (new-array (make-array (1+ address)))
+                     (empty (make-instance 'empty))
+                     (bound (1- address))
+                     (i 0)
+                     ) 
+                 (⟳(λ(➜again)
+                     (setf (aref new-array i) (aref array i))  
+                     (unless (= i max)
+                       (incf i)
+                       [➜again]
+                       )))
+                 (⟳(λ(➜again)
+                     (unless (= i bound)
+                       (incf i)
+                       (setf (aref new-array i) empty)
+                       [➜again]
+                       )))
+                 (setf (tape-array-max-n-array ,tape-array) new-array)
+                 ))
+             (setf (aref (tape-array-max-n-array ,tape-array) address) ,instance)
+             ))
+         )
+       [➜ok]
+       ))
+
+  (defmacro a◨<tape-array> (tape-array instance &optional ➜)
+    `(destructuring-bind
+       (&key
+         (right-bound (max<tape-array> ,tape-array {:➜ok (λ(max)(1+ max)) :➜empty (λ()0)}))
+         &allow-other-keys
+         )
+       ,➜
+       (w<tape-array> ,tape-array ,instance {:address right-bound (o ,➜)})
+       ))

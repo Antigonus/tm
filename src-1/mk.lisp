@@ -25,23 +25,20 @@ Generalized mk structure we use throughout the tm library.
 ;;
 ;;
   (def-function-class init (instance init &optional ➜))
-  (defun mk (type init &optional ➜)
+  (defun mk (type &optional ➜)
     (destructuring-bind
       (&key
+        init 
         (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
       ➜
-      (declare (ignore alloc-fail)) ; temporary, need to add the error handlers around make-instance
+      (declare (ignore ➜no-alloc)) ; temporary, need to add the error handlers around make-instance
       (let(
             (instance (make-instance type))
             )
         (init instance init ➜)
         )))
 
-;; Makes a new independent instance of the same type and intiialized to the
-;; same data.  Some instance types might not implment this.
-;;
-  (def-function-class clone (instance &optional ➜))
 
 
