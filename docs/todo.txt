@@ -261,3 +261,4 @@ add a time to wait as part of test-hook (similar to #50 above)
    'left' and 'right' be possible without changing the interface much.  Perhaps leave
    the word 'right' out of the right going operations.
 
+

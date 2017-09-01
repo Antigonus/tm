@@ -172,6 +172,7 @@ See LICENSE.txt
                (:module "test-1"
                  :components (
                                (:file "tape-array")
+                               (:file "plex")
 ;;                               (:file "cell-list")
                                ))
 

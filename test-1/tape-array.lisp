@@ -55,3 +55,4 @@ See LICENSE.txt
 (test-hook test-tape-array-0)
 
 
+;; need to add a test for expanding with intermediate empty cells
