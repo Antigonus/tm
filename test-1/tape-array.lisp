@@ -10,13 +10,7 @@ See LICENSE.txt
 (in-package #:tm)
 
 (defun test-tape-array-0 ()
-  (let(
-        (tp-empty (mk 'empty))
-        (tp0 (mk 'empty))
-        (tp1 (mk 'empty))
-        (tp2 (mk 'empty))
-        (tp3 (mk 'empty))
-        )
+  (let(tp-empty tp0 tp1 tp2 tp3)
     (∧
       (a◨<tape-array> tp0 0)
 
@@ -32,7 +26,7 @@ See LICENSE.txt
       (a◨<tape-array> tp3 2)
       (a◨<tape-array> tp3 3)
 
-      (typep tp-empty 'empty)
+      (typep tp-empty 'null)
       (typep tp0 'tape-array-max-0)
       (typep tp1 'tape-array-max-1)
       (typep tp2 'tape-array-max-2)

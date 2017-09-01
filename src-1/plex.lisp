@@ -40,25 +40,33 @@ has no parent.
 ;;--------------------------------------------------------------------------------
 ;; parent table
 ;;
-  ;; a parent table is made from empty.  As there is no parent for channel zero, so we do not keep
-  ;; a row in the table for channel 0, consequently we subtract one from addresses into the
-  ;; table.
+  ;; A parent table is made from empty.  Because there is no parent for channel zero we
+  ;; subtract one from table addresses, and knock the zero row out of the table.
 
   ;; allocates a new channel as the child of the given parent channel
   ;; parent must be less than the new-child (assures recursive lookup always tends to zero)
-  (defun get-channel (parent-table &optional (parent 0)) 
-    (let(
-          (new-channel (+ 2 (max<tape-array> parent-table)))
-          )
-      (w<tape-array> parent-table parent {:address (1- new-channel)})
-      (when (≥ parent new-channel) (error 'bad-parent))
-      new-channel
-      ))
+  ;; adds an entry in the parent table for the new channel
+  (defmacro get-channel (parent-table &optional (parent 0)) 
+    `(max<tape-array> ,parent-table
+       {
+         :➜empty
+         (λ()
+           (w<tape-array> ,parent-table ,parent)
+           1 ; channel 1
+           )
+
+         :➜ok
+         (λ(max)
+           (w<tape-array> ,parent-table ,parent {:address (1+ max)})
+           (+ 2 max) ; because channel numbers have one subtracted from them before accessing the table
+           )
+         }))
 
   ;; returns the parent for the given channel
   (defun parent (parent-table channel &optional ➜)
     (destructuring-bind
       (&key
+        ;; ok continuation passed through to r<tape-array> via (o ➜)
         (➜no-parent (λ()(error 'no-parent)))
         (➜bad-channel (λ()(error 'bad-channel)))
         &allow-other-keys
@@ -75,13 +83,13 @@ has no parent.
 ;;--------------------------------------------------------------------------------
 ;; plex
 ;;
-  ;; Under normal circumstances this should reliably return a read value
-  ;; because channel 0 always has contents, and a parent table has a parent
-  ;; for every channel except channel 0.
+  ;; reading a plex can not modify the underlying tape topology, so this need not be a macro
   ;;
-    (defun r<plex> (plex channel parent-table &optional ➜)
+    (defun r<plex> (plex &optional ➜)
       (destructuring-bind
         (&key
+          (channel 0)
+          parent-table ; not needed on channel 0
           (➜ok #'echo)
           (➜bad-channel (λ()(error 'bad-channel)))
           (➜empty #'accessed-empty)
@@ -111,26 +119,52 @@ has no parent.
                 })
             ))))
 
-  ;; The channel is considered to be valid if it has an entry in the parents table.  The
-  ;; write might cause the plex to expand, which might lead to a parents table array copy
-  ;; and replacement, which is why this is a macro.
+  ;; Writing the plex with an channel beyond the end of the plex causes the plex to expand.
+  ;; We provide an iota of protection against a bad channel number causing a huge expansion
+  ;; by checking that the channel number is valid.  The channel is considered to be valid
+  ;; if it is zero, or if it has an entry in the parents table.
   ;;
-    (defmacro w<plex> (plex instance channel parent-table &optional ➜)
+  ;; I was tempted to have the parent look up return a bool, but was concerned about a continuation
+  ;; I don't know about returning a value, and that being interpreted as a bool.
+  ;;
+    (defmacro w<plex> (plex instance &optional ➜)
       `(destructuring-bind
          (&key
+           (channel 0)
+           parent-table ; not needed on channel 0
            (➜ok #'echo)
            (➜bad-channel (λ()(error 'bad-channel)))
+           (➜alloc-fail #'alloc-fail)
            &allow-other-keys
            )
          ,➜
-         (parent ,parent-table ,channel
+
+         (parent parent-table channel ; this is called just as a channel validity test
            {
-             :➜ok
+             :➜ok ; then channel has a parent so it is valid
              (λ(parent)
                (declare (ignore parent))
-               (w<tape-array> ,plex ,instance ,➜)
+               (w<tape-array> ,plex ,instance
+                 {
+                   :address channel
+                   :➜ok ➜ok
+                   :➜alloc-fail ➜alloc-fail
+                   })
+               [➜ok]
                )
-             :➜no-parent ➜bad-channel
+
+             :➜no-parent ; only channel 0 has no parent
+             (λ()
+               (when (≠ channel 0) [➜bad-channel]); optimizer should remove this
+               (w<tape-array> ,plex ,instance
+                 {
+                   :address channel
+                   :➜ok ➜ok
+                   :➜alloc-fail ➜alloc-fail
+                   })
+               [➜ok]
+               )
+
              :➜bad-channel ➜bad-channel
-             }))
-      )
+             })))
+
