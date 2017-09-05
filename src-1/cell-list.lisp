@@ -75,11 +75,11 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
     `(w<plex> (content ,cell) ,instance ,➜)
     )
 
-  (defun w<neighbors> (cell instance &optional ➜)
+  (defun w<neighbors> (cell a-neighbor-cell &optional ➜)
     (destructuring-bind
       (&key
-        (address 0)
-        (channel 0)
+        (address 0) ; selects the neighbor
+        (channel 0) ; each neighbor may be multiplexed
         (➜ok (be t))
         (➜alloc-fail #'alloc-fail)
         &allow-other-keys
@@ -92,7 +92,7 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
 
           :➜ok
           (λ(neighbor)
-            (w<plex> neighbor instance {:channel channel})
+            (w<plex> neighbor a-neighbor-cell {:channel channel})
             (w<tape-array> (neighbors cell) neighbor {:address address})
             [➜ok]
             )
@@ -100,7 +100,7 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
           :➜empty
           (λ()
             (let(neighbor)
-              (w<plex> neighbor instance {:channel channel})
+              (w<plex> neighbor a-neighbor-cell {:channel channel})
               (w<tape-array> (neighbors cell) neighbor {:address address})
               [➜ok]
               ))

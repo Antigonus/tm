@@ -50,7 +50,7 @@ subtract one from table addresses, and knock the zero row out of the table.
     (make-plex-channel :channel ch)
     )
 
-  ;; sbcl issues many errors unless this is provided:
+  ;; sbcl compiler issues many errors unless this is provided:
   (defmethod make-load-form ((self plex-channel) &optional environment)
     (declare (ignore environment))
     `(make-plex-channel :channel ',(plex-channel-channel self))

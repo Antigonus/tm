@@ -43,8 +43,7 @@ See LICENSE.txt
                                (:file "mk")
                                (:file "tape-array")
                                (:file "plex")
-;;                               (:file "cell")
-;;                               (:file "cell-list")
+                               (:file "cell")
                                ))
 #|
                (:module "src-tape"

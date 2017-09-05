@@ -5,7 +5,7 @@ See LICENSE.txt
 
 Architectural definition of a cell.
 
-A cell has contents.  These contents can be multiplexed.
+A cell has a single value as content.  This content may be multiplexed.
 
 A cell has any number of neighbors.  Each neighbor may be multiplexed.
 
@@ -31,10 +31,8 @@ A 'bound' is a link that cannot be followed.  Bound links have a value of ∅.
 ;;
   (def-function-class r<contents> (cell &optional ➜)) ; returns contents of cell
   (def-function-class w<contents> (cell instance &optional ➜)) ; writes contents of cell
-  (def-function-class a◨<contents> (cell instance &optional ➜)) ; append to contents as a list
 
-  (def-function-class r<neighbor> (cell &optional ➜))
-  (def-function-class w<neighbor> (cell0 cell1 &optional ➜))
-  (def-function-class a◨<neighbor> (cell0 cell1 &optional ➜)) ; append to list of neighbors
+  (def-function-class r<neighbors> (cell &optional ➜))
+  (def-function-class w<neighbors> (cell a-neighbor-cell &optional ➜))
 
 
