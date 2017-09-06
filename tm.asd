@@ -172,7 +172,7 @@ See LICENSE.txt
                  :components (
                                (:file "tape-array")
                                (:file "plex")
-;;                               (:file "cell-list")
+                               (:file "cell")
                                ))
 
 #|
