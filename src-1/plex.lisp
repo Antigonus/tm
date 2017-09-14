@@ -30,6 +30,20 @@ has no parent.
 A parent table is made from empty.  Because there is no parent for channel zero we
 subtract one from table addresses, and knock the zero row out of the table.
 
+---
+  This plex implementation has a bug:
+
+  If a child has not yet written to a cell, then when the child reads, the child reads the
+  value that was written by the parent.  That part is correct.  Then if the child writes a
+  value, then the plex expands so that the child has a channel, and the value is written.
+  The parent value is unperturbed.  This part is also correct.
+
+  However, in the current implementation, if after the fork, and before the child has done
+  a write, if the parent writes a value, and then the child does a read, the child reads
+  the updated value, but it shouldn't.  The child should read the value as it appeared at
+  the time of the fork.
+
+
 |#
 
 

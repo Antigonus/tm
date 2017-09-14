@@ -11,9 +11,6 @@ See LICENSE.txt
 
 ;;--------------------------------------------------------------------------------
 ;; 
-  (define-condition not-implemented (error)
-    ((text :initarg :text :reader text)))
-
   (define-condition cant-happen (error)
     ((text :initarg :text :reader text)))
 
@@ -47,16 +44,14 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 
-
-
 ;;--------------------------------------------------------------------------------
 ;; src-2
 ;;
-
-  (define-condition step-from-rightmost (error)
+  (define-condition use-of-abandoned (error)
     ((text :initarg :text :reader text)))
 
-  (define-condition step-from-leftmost (error)
+  ;; we have abstracted to potentially multiple neighbors, so -n steps is unclear
+  (define-condition negative-step (error)
     ((text :initarg :text :reader text)))
 
 

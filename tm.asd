@@ -45,6 +45,13 @@ See LICENSE.txt
                                (:file "plex")
                                (:file "cell")
                                ))
+
+               (:module "src-2"
+                 :components (
+                               (:file "tm")
+                               ))
+
+
 #|
                (:module "src-tape"
                  :components (
