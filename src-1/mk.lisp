@@ -24,11 +24,12 @@ Generalized mk structure we use throughout the tm library.
 ;; init can have additional continuations and options
 ;;
 ;;
-  (def-function-class init (instance &optional ➜))
+  (def-function-class init (instance value &optional ➜))
 
   (defun mk (type &optional ➜)
     (destructuring-bind
       (&key
+        value
         (➜no-alloc #'alloc-fail)
         &allow-other-keys
         )
@@ -37,7 +38,7 @@ Generalized mk structure we use throughout the tm library.
       (let(
             (instance (make-instance type))
             )
-        (init instance ➜)
+        (init instance value ➜) ; I put the init value in the call so that dispatch can key from it
         )))
 
 

@@ -51,7 +51,7 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
   ;; we have abstracted to potentially multiple neighbors, so -n steps is unclear
-  (define-condition negative-step (error)
+  (define-condition accessed-parked (error)
     ((text :initarg :text :reader text)))
 
 

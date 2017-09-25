@@ -5,7 +5,7 @@ See LICENSE.txt
 
   This is the tm library's basic loop form.  We call it "do", and use the symbol '⟳'
   for the function name.  We prefer that programmers use quantification rather than
-  our 'do' function, as they are less error prone.
+  our 'do' function, as quantifiers are less error prone.
 
   When evaluating #'⟳, we pass it exactly one argument, a function, which for sake of
   discussion here we will call #'work. This function may be a nameless lamda.
@@ -24,6 +24,10 @@ See LICENSE.txt
   conventional structured languages.  What is known as the 'loop body' is the #'work
   function for #'⟳. A 'continue' statement is just a call to #'again, and a 'break'
   statement is just a return from #'work.
+
+  I considered adding a numeric form, say ⟳n, that would loop n times, but this
+  begged the question as to how to access the loop control variable so as to use
+  it as an index.  With the addition complexity one might as well just use ⟳.
 
 |#
 
@@ -60,5 +64,3 @@ See LICENSE.txt
           )
         return-value
         ))
-
-

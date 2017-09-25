@@ -1,0 +1,22 @@
+
+
+The neighbor topology on the tape provides for a mapping between cells and natural
+numbers.  This follows simply from the Peano axioms.  We call such natural numbers
+addresses.
+
+When we use a tape array as a tape, as per tm-array, then this mapping is automatic.  The array
+indexes are our tape addreses.
+
+Topology modifying operations then are of two types.  Those that modify the address space and
+thus invalidate old addresses, and those which do not.  Our only topology modify that does not
+perturb the address space is that of append.
+
+If a user wants to preserve the address space, and still allow insertion of new cells on the tape,
+the user may put the insertions into subspaces.  Though, then, sub-space addressing of the form
+xxx.yy  will be needed to locate cells in the subspace (here xxx is an address on the main tape,
+and yy is an address in the subspace).  This then becomes recursive.
+
+But this begs the question as to how to preserve the address space when prepending to the tape.
+Perhaps the leading digit would then be ∅.
+
+

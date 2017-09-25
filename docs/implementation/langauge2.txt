@@ -1,0 +1,87 @@
+
+  tape machine primitive functions (access lang statments)
+
+      ;; absolute head placement
+      ;;
+        p park
+        u cue
+        l location
+
+      ;; relative head placement
+      ;;
+        s step
+
+      ;; direct access
+      ;;
+        r<tape>
+        w<tape>
+
+      ;; access through the head
+      ;;
+        r read cell under the head
+        w write cell under the head
+   
+
+      ;; topology modification
+      ;;
+        a allocate/add/append a new cell, place it just to the right of head cell, requires fill
+        d deallocate/drop/delete cell - optional spill (i.e. realloc), affects cell to the right of the head
+
+      ;; parallelism
+      ;;
+        e entangle
+        x multiplex
+
+
+...,
+
+
+      e entangle, we operate on an entangled copy of the machine operand instead of the
+        the machine itself
+
+      ☥ returns an entangled copy on a new thread
+
+
+syntax of derived functions:
+
+---
+
+  ([direction] command [<tag>]* [& contract]*[modifier])+
+
+  direction:: -
+
+  command::  r | w | s | a | d | m | e | ☥
+
+  modifier:: * n 
+
+  <tag>:: '<' and '>' are literal tag is anything that can go in a symbol
+
+direction
+  with a '-' flip the tape over (left becomes right vice versa)
+
+modifier
+  '*' means to repeat until something breaks (hitting bound-right for example)
+  'n' means n times, the function will take a numeric argument
+
+   when operate on bound-left or bound-right is not specified, operates on the cell
+   the head is on
+
+contracts:
+    h◧    head is at bound-left
+    h◨    head is at bound-right
+    hp    head is parked
+    h¬p   head is not parked
+
+examples:
+   -s     ; step left
+   s*     ; step to bound-right
+   -s*    ; step to bound-left
+   s&¬p   ; step with a contract that the head is not parked
+   epa    ; creates a new bound-left cell
+   ◨a     ; append to bound-right
+   sn     ; step n times
+
+to derive a longer command, combine:
+   as    ;  append then step
+   -a-s  ; append to the left, step to the left
+   

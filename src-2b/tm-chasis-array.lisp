@@ -3,12 +3,18 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  Implementation of a tape machine over a tape-array
+  tm-array - tape machine based on a tape which is a tape-array
+  handle-tm-array - 
 
-  So as to support entanglement, we make head into a tape-array of heads.
-  Consequently we must provide a head number for functions that use the head.
-  A parked head is given the value 'parked, so that the head is not locking a
-  cell in memory.  
+
+  Holds the heads and the tape.  The chasis is empty when the tape is empty.  There is no 'with' scoping
+  for the chasis, so we have no need for abandoned.  
+
+  tm-array specifies a head in the tm-array-chasis.  Hence, tm-array can be parked, but tm-base itself
+  can not.
+
+  We avoid keeping entanglement lists by having multiple heads on a chasis.  However, the entanglment
+  list model more resembles sharing of memory over distributed hardware.
 
 |#
 
@@ -18,14 +24,14 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
-  (def-type tm-array (tm)
+  (def-type chasis-array (chasis)
     (
-      (head
-        :initform ∅  ; there are no heads yet
-        :accessor head
+      (tms
+        :initform ∅  ; there are no tms yet
+        :accessor tms
         )
       (tape 
-        :initform ∅
+        :initform ∅ ; empty tape
         :accessor tape
         )
       (channel ; when we fork a tape array, we make a complete copy
@@ -34,39 +40,12 @@ See LICENSE.txt
         )
       ))
 
-  (def-type tm-array-abandoned (tm-array tm-abandoned)()) ; used by scoping operators
-
   ;; useful conjunctions of status:
-  (def-type tm-array-empty-parked-active (tm-array tm-empty-parked-active)()) ; not abandoned
-  (def-type tm-array-empty-parked        (tm-array tm-empty-parked)()) ; not active
-  (def-type tm-array-parked-active       (tm-array tm-parked-active)()) ; not empty
 
-  (def-type tm-array-empty
-    (
-      tm-array-empty-parked-active
-      tm-array-empty-parked
-      )
-    (tm-empty)
-    )
-  (def-type tm-array-parked
-    (
-      tm-array-empty-parked-active
-      tm-array-empty-parked
-      tm-array-parked-active
-      )
-    (tm-parked)
-    )
-  (def-type tm-array-active
-    (
-      tm-array-empty-parked-active
-      tm-array-parked-active
-      )
-    (tm-active)
-    )
+  (def-type tm-array-empty (tm-array tm-chasis-empty))
+  (def-type tm-array-active (tm-array tm-chasis-active))
   
-  (defun-typed to-abandoned ((tm tm-array)) (change-class tm 'tm-array-abandoned))
   (defun-typed to-empty     ((tm tm-array)) (change-class tm 'tm-array-empty))
-  (defun-typed to-parked    ((tm tm-array)) (change-class tm 'tm-array-parked))
   (defun-typed to-active    ((tm tm-array)) (change-class tm 'tm-array-active))
 
   (defun-typed init ((tm tm-array) array &optional ➜)
@@ -77,7 +56,6 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (head tm) 'parked)
       (setf (tape tm) array)
       [➜ok tm]
       ))
@@ -85,7 +63,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
-  (defun-typed eur ((tm tm-array-active) &optional ➜)
+  (defun-typed eur ((ch chasis-array) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -94,10 +72,10 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [➜ok (read<tape-array> (tape tm) {:address address})]
+      [➜ok (read<tape-array> (tape ch) {:address address})]
       ))
    
-  (defun-typed euw ((tm tm-array-active) instance &optional ➜)
+  (defun-typed euw ((ch chasis-array) instance &optional ➜)
     (destructuring-bind
       (
         &key
@@ -106,7 +84,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (write<tape-array> (tape tm) instance {:address address})
+      (write<tape-array> (tape ch) instance {:address address})
       [➜ok]
       ))
 
@@ -114,62 +92,63 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; absolue head control
 ;;
-  (defun-typed p ((tm tm-array-active) &optional ➜)
+  (defun-typed p<chasis> ((ch chasis-array) head-number &optional ➜)
     (destructuring-bind
       (
         &key
-        (head 0)
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (head tm) 'parked {:address head})
-      (to-parked tm)
+      (w<tape-array> (head tm) 'parked {:address head-number})
       [➜ok]
       ))
 
   ;; cue the head
-  (defun-typed u ((tm tm-array-parked-active) &optional ➜)
+  (defun-typed u<chasis> ((ch chasis-array) head-number &optional ➜)
     (destructuring-bind
       (
         &key
-        (head 0)
         (address 0) ; for higher rank tapes the cell address will be a list
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (head tm) address {:address head})
+      (w<tape-array> (head tm) address {:address head-number})
       [➜ok]
       ))
 
   ;; head location
-  (defun-typed @ ((tm tm-array-active) &optional ➜)
+  (defun-typed @<chasis> ((ch chasis-array) head-number &optional ➜)
     (destructuring-bind
       (
         &key
-        (head 0)
+        (➜parked )
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      [➜ok (r<tape-array> (head tm) {:address head})]
-      ))
+      (r<tape-array> (head tm) 
+        {
+          :address head-number
+          :➜ok (λ(instance)
+                 (cond
+                   ((eq instance 'parked) [➜parked])
+                   (t [➜ok instance])
+                   ))
+          })))
+
+
 
 ;;--------------------------------------------------------------------------------
 ;; relative head control
 ;;
 
-  ;; stepping from parked cues the machine
-  (defun-typed s ((tm tm-array-parked) &optional ➜)
-    (u tm ➜)
-    )
-  (defun-typed s ((tm tm-array-active) &optional ➜)
+  (defun-typed s<chasis> ((ch chasis-array) head-number &optional ➜)
     (destructuring-bind
       (
         &key
         (Δ 1)
-        (head 0)
         (➜ok (be t))
         (➜bound #'echo)
         &allow-other-keys
@@ -177,7 +156,7 @@ See LICENSE.txt
       ➜
       (r<tape-array> (head tm)
         {
-          :address head
+          :address head-number
           :➜ok (λ(address)
                  (let(
                        (proposed-new-address (+ address Δ))
@@ -185,15 +164,15 @@ See LICENSE.txt
                        )
                    (cond
                      ((< proposed-new-address 0)
-                       (w<tape-array> (head tm) 0 {:address head})
+                       (w<tape-array> (head tm) 0 {:address head-number})
                        [➜bound proposed-new-address]
                        )
                      ((> proposed-new-address max)
-                       (w<tape-array> (head tm) max {:address head})
+                       (w<tape-array> (head tm) max {:address head-number})
                        [➜bound (- proposed-new-address max)]
                        )
                      (t
-                       (w<tape-array> (head tm) proposed-new-address {:address head})
+                       (w<tape-array> (head tm) proposed-new-address {:address head-number})
                        [➜ok]
                        )))
                  :➜empty #'cant-happen
@@ -203,18 +182,17 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; access through head
 ;;
-  (defun-typed r ((tm tm-array-active) &optional ➜)
+  (defun-typed r<chasis> ((ch chasis-array) head-number &optional ➜)
     (destructuring-bind
       (
         &key
-        (head 0)
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
       (r<tape-array> (head tm)
         {
-          :address head
+          :address head-number
           :➜ok (λ(address)
                  (r<tape-array> (tape tm)
                    {
@@ -225,7 +203,7 @@ See LICENSE.txt
           :➜empty #'cant-happen
           })))
 
-  (defun-typed w ((tm tm-array-active) instance &optional ➜)
+  (defun-typed w ((tm tm-array-active) instance head-number &optional ➜)
     (destructuring-bind
       (
         &key
@@ -236,7 +214,7 @@ See LICENSE.txt
       ➜
       (r<tape-array> (head tm)
         {
-          :address head
+          :address head-number
           :➜ok (λ(address)
                  (w<tape-array> (tape tm) instance
                    {

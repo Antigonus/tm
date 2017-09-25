@@ -41,16 +41,15 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
         )
       ))
 
-  (defun-typed init ((cell cell) &optional ➜)
+  (defun-typed init ((cell cell) value &optional ➜)
     (destructuring-bind
       (&key
-        init-value
         (➜ok #'echo)
         ;;(➜fail (λ()(error 'bad-init-value)))
         &allow-other-keys
         )
       ➜
-      (w<plex> (content cell) init-value ➜)
+      (w<plex> (content cell) value ➜)
       [➜ok cell]
       ))
 

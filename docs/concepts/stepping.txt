@@ -1,0 +1,28 @@
+
+ Spent a lot of time deliberating stepping by Δ as an arbitrary value rather than just
+ stepping by one.  Array tape machine can efficiently step by Δ, but list tape machines
+ can not.
+
+ Where stepping by a constant is common, one can define a new step function that steps by
+ that constant.  Quantiification and such functions accept a step function as keyword
+ argument.
+
+ The tape-array has an efficiently accessed address space.  If one wants to step by
+ an amount calculated by a function, that might differ at every step, one can make
+ use of the address space rather than the tape head.
+
+ As yet another option, one can use a transform - a tape machine that has as its base
+ another tape machine, and thus create an arbitrary mapping from a linear path to
+ something more complex on the base machine.
+
+ This keeps step simple, predictable, and stops the feature creep and concommitant
+ explosion in number of optional arguments.
+
+...
+
+ For a sliding window an a tm-array, we entangle n machines, then use an ensemble step.
+ We intiialize the window pointers by calculating addresses and cueing the heads to the
+ appropriate places.
+
+ For a sliding window on a tm-list, entangle n machines, step each to the appropriate
+ offset, then use step ensemble to slide the window.

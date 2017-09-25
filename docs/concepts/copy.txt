@@ -1,0 +1,137 @@
+
+.. revisiting the two letter copy commands ..
+
+currently we have
+
+a tm  -- adds a cell or instance to a tape
+d tm  -- deletes a cell
+
+Originally the concept was to use repeated calls if one needed to remove multiple values.  Then came the
+concept of appending an entire tape, or a range.  Again, an array tape and want different interfaces.
+
+a and d modify topology, but topology is fixed for arrays, so for arrays it is best to take
+all the pieces and copy them into a new target array. If we use quantifiers and read and write to do
+this, we will thrash in expanding the target array, if the optimizer does not do its job (and we
+haven't yet made read and write inline)  we will also make many trips through dispatch.
+
+we have four combinations
+
+  cc  - copy instances from the source, copy over existing topology
+  mc  - move from the source (possibly ripping up topology),  copy into existing topology
+  mm  - mvove from the source, move that structure into the target
+  cm  - copy from the source, create new structure in the target.
+
+might be better to refer to the target operation as either copy or append
+
+  cc
+  mc
+  ma
+  ca
+
+
+(ma tm0 tm1) ; moves the right hand side of tm0 to tm1 to the right of the head
+
+makes the right hand side of tm0 to the left of tm1 tape.  
+
+  (p tm1)
+  (ma tm0 tm1) 
+
+places the entirety of tm0 tape to the right of the tm1 head.  tm0 is empty afterward
+
+  (p tm0)
+  (ma tm0 tm1)
+
+move operations on tape arrays causes the tape to be reallocated with the modification.
+
+Should allow a list of source tape machines. That way we can expand the destination array
+once.
+
+It will be common that the tm operatnds are reange machines.  This brings back the
+question of the implementation of ranges ...
+
+Entanglement copy is not efficient, why copy the whole header?  Instead have multiple heads on one machine
+and refer to which head.  Perhpas a wrapper, tm-entangled that has a head number and a tm pointer.
+
+or how about source is always a list of lists. The first in the sublist is the command 'c'
+or 'm' for copy or move.
+
+   (c {{'c tm0} {'m tm1}} tm2) ; copies tm0 and moves tm1, to tm2
+
+Or have the command provide the default command, make a sublist to override that.
+
+   (cc tm0 tm2) ; copies tm0 to tm2
+   (cc {tm0 {'m tm1}} tm2) ; copies tm0, moves tm1, to tm2
+
+Move is not important for an array as the delete can be done after the copy, but for a
+list it can save having to allocate new cells.
+
+An attribute of these compound apporaches is that the memory to hold the results after
+extraction is allocated before the target machine is allocated. Looks like this can be
+made transactional.  If the allocation for the target machine fails, we put the
+extractions back, and continue with alloc-fail.
+
+Or a variation, hmm
+
+   (c {tm0 {'d tm1}} tm2) ; copies tm0, copies tm1, to tm2.  'd tm1 is a command to run afterward
+
+   (c {tm0 (x tm1)} tm2) ; copies tm0 and moves an extraction of tm1, to tm2
+
+Such an extraction approach for lists can be literal.  We can operate on the base tape,
+extract the sublist, and then make it available to be appended to tm2.  It seems to work
+for arrays.  The original tape, with its range constraint becomes the extracted value.
+The base machine tape then is a reallocated array missing the extracted range.  Am
+'extracted' value is then a tape with range constraints.  .. though if we implement
+extract as a function, we won't have the original tape machines, so can't put them back.
+The whole operations can not be transactional, only the individual steps.
+
+The extractioms can be done as separate statements.  We need to distinguish an extraction
+as a separate type so we know to move it when practical, rather than copying it.  So what
+happens when we pass an extraction from tm-array to a tm-list?  Then we do a copy and
+throw the extraction away.  However, to know to do this copy for list has to be aware of
+arrays (and vice versa), so we do not have an advantage in this respect over the other
+propsosals.
+
+Suggest a range is two entangled machines.
+
+  (c {tm0 {'m tm11 tm12} tm2})
+
+or to delete a range
+  (d {tm11 tm12}) ; tm12 is entangled with tm11 and provides a bound
+  
+tmm11 has its head one before the region, and tm12 has its head on the last of the
+region. tm11 parked means the region starts with the leftmost cell. Thus delete and append
+are inverses, and tm11 is invariant to both operations.  We can also suppose single linked
+lists, as tm11 gives us the pointer to the leftmost deleted cell.  After the region delete
+tm12 is has a ∅ head.  It can not be used further.
+
+.. Or tm11 and tm12 are inclusive.  Then we do not potentially have to represent something
+outside the address space, and offset 0 from tm11 would also be address 0 for the region.
+After the region delete neither tm11 or tm12 can be used again.
+
+.. or tm11 and tm12 are both exclusive.
+
+After the region is deleted what are the values of tm11 and tm12?
+
+If entanglment uses a tape-array of heads, then a value of ∅ is a machine with no heads, not
+one that is 'parked.  Suggest using the symbol 'parked  for a parked head.  I need to go back
+and add :head argument to functions so that entangled machines can specify a head other than
+head zero.
+
+-------------------
+
+c copy
+x extract
+
+c0 copy with bound error upon hitting end of tape
+c1 copy and expand if necessary
+c2 copy fit, expand or delete tail
+a append
+
+(c { '(a (c tm0)) '(c (x tm1)) } tm2)
+
+(c {{'c tm0 'a} {'x tm1 'a}} tm2)
+
+
+if target is a range, then copy will not expand, but instead take a bound error
+
+(c {{'c {tm00 tm01} 'a} {'x {tm10 tm11}} {tm20 tm21}})

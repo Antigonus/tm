@@ -49,6 +49,8 @@ See LICENSE.txt
                (:module "src-2"
                  :components (
                                (:file "tm")
+                               (:file "quantification")
+                               (:file "tm-array")
                                ))
 
 
