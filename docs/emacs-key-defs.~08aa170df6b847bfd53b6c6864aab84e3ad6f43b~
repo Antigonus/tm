@@ -1,29 +1,17 @@
 
 ;; unicode
 ;;
-  (global-set-key (kbd "C-x g phi SPC") [?φ]) ; phi for phase
-  (global-set-key (kbd "C-x g Phi SPC") [?Φ]) 
-
   (global-set-key (kbd "C-x g d SPC") [?δ])
   (global-set-key (kbd "C-x g D SPC") [?Δ]) ; this is 'delta' is not 'increment'!
-  (global-set-key (kbd "C-x g delta SPC") [?δ])
-  (global-set-key (kbd "C-x g Delta SPC") [?Δ]) ; this is 'delta' is not 'increment'!
-
 
   (global-set-key (kbd "C-x g g SPC") [?γ])
   (global-set-key (kbd "C-x g G SPC") [?Γ])
-  (global-set-key (kbd "C-x g gamma SPC") [?γ])
-  (global-set-key (kbd "C-x g Gamma SPC") [?Γ])
 
   (global-set-key (kbd "C-x g l SPC") [?λ])
   (global-set-key (kbd "C-x g L SPC") [?Λ])
-  (global-set-key (kbd "C-x g lambda SPC") [?λ])
-  (global-set-key (kbd "C-x g Lambda SPC") [?Λ])
 
   (global-set-key (kbd "C-x g p SPC") [?π])
   (global-set-key (kbd "C-x g P SPC") [?Π])
-  (global-set-key (kbd "C-x g pi SPC") [?π])
-  (global-set-key (kbd "C-x g Pi SPC") [?Π])
 
   (global-set-key (kbd "C-x g > = SPC") [?≥])
   (global-set-key (kbd "C-x g < = SPC") [?≤])
@@ -37,15 +25,18 @@
   (global-set-key (kbd "C-x g and SPC") [?∧])
   (global-set-key (kbd "C-x g or SPC") [?∨])
 
+  (global-set-key (kbd "C-x g ex SPC") [?∃])
   (global-set-key (kbd "C-x g exists SPC") [?∃])
   (global-set-key (kbd "C-x g all SPC") [?∀])
 
-  (global-set-key (kbd "C-x g do SPC") [?⟳]) ; do
-  (global-set-key (kbd "C-x g rb SPC") [?◨])
-  (global-set-key (kbd "C-x g lb SPC") [?◧])
+  (global-set-key (kbd "C-x g do SPC") [?⟳])
 
-  (global-set-key (kbd "C-x g cont SPC") [?➜]) ; continue
-  (global-set-key (kbd "C-x g thread SPC") [?☥]) ; thread
+  (global-set-key (kbd "C-x g rm SPC") [?◨])
+  (global-set-key (kbd "C-x g lm SPC") [?◧])
+
+  (global-set-key (kbd "C-x g cont SPC") [?➜]) 
+
+  (global-set-key (kbd "C-x g thread SPC") [?☥]) 
 
 
 

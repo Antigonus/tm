@@ -54,12 +54,15 @@ See LICENSE.txt
   (define-condition accessed-parked (error)
     ((text :initarg :text :reader text)))
 
+  (define-condition out-of-bounds-start-point (error)
+    ((text :initarg :text :reader text)))
+
+  (define-condition zero-direction (error)
+    ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
 ;; tm first level
 ;;
-
-
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 

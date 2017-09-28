@@ -269,3 +269,6 @@ add a time to wait as part of test-hook (similar to #50 above)
 
 80.  need to generalize tm-array step to work with address vectors, not just flat addresses.
    + will have to be a vector addition, bounds compares on components, etc.
+
+81. use trivial garbage library and have gc clean the nulls off the end of the head tape array
+   and perhaps also the tapes.

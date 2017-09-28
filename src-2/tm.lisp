@@ -14,6 +14,9 @@ See LICENSE.txt
      parked - the tape is not empty, but the head does not indicate a cell on the tape
      active - tape is not empty, head is on the tape
 
+move is topological
+copy is not - we don't need copy as we have read and write
+
 |#
 
 
@@ -66,8 +69,125 @@ See LICENSE.txt
   (defun-typed to-active    ((tm tm)) (change-class tm 'tm-active))
 
 ;;--------------------------------------------------------------------------------
-;; head stepping
+;; tape operations
 ;;
+  (def-function-class eur (tm &optional ➜)
+    (:documentation
+      "Reads the cell at :address.  :address defaults to 0.
+       "))
+  (defun-typed eur ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed eur ((tm tm-empty) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+
+  (def-function-class euw (tm instance &optional ➜)
+    (:documentation
+      "Writes the cell at :address. :address defaults to 0.
+       "))
+  (defun-typed euw ((tm tm-abandoned) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed euw ((tm tm-empty) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+
+  (def-function-class eus*-count (tm instance &optional ➜)
+    (:documentation
+      "Writes the cell at :address. :address defaults to 0.
+       "))
+  (defun-typed eus*-count ((tm tm-abandoned) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed eus*-count ((tm tm-empty) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+
+
+;;;
+
+
+  (def-function-class epa (tm &optional ➜)
+    (:documentation
+      "Prepends a new leftmost cell or cells. 
+      :instance is a new instance.
+      :fill  
+       "))
+
+  (def-function-class ep-a (tm instance &optional ➜)
+    (:documentation
+      "Appends a new rightmost cell or cells.
+       "))
+
+  (def-function-class ep-a (tm instance &optional ➜)
+    (:documentation
+      "Appends a new rightmost cell or cells.
+       "))
+
+
+  (def-function-class epd (tm &optional ➜)
+    (:documentation
+      "Deletes the leftmost cell. Returns the instance.
+       "))
+
+  (def-function-class ep-d (tm &optional ➜)
+    (:documentation
+      "Deletes the rightmost cell.
+       "))
+
+
+;;--------------------------------------------------------------------------------
+;; absolute head control
+;;
+
+  ;; cue - functions that use cue will accept a cue function parameter so the user may use their own
+  ;; defaults to the leftmost of the tape
+  (def-function-class u (tm &optional ➜)
+    (:documentation
+      "Cue the head to specific cell.
+       "))
+  (defun-typed u ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed u ((tm tm-empty) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜bound (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜bound]
+      ))
+
   (def-function-class p (tm &optional ➜)
     (:documentation
       "Parks the head.
@@ -95,30 +215,108 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (def-function-class u (tm &optional ➜)
+  (def-function-class @ (tm &optional ➜)
     (:documentation
-      "Cue the head to specific cell.
+      "Location of the head as a natural number, or list of natural numbers.
        "))
-  (defun-typed u ((tm tm-abandoned) &optional ➜)
+  (defun-typed @ ((tm tm-abandoned) &optional ➜)
     (declare (ignore tm ➜))
     (error 'use-of-abandoned)
     )
-  (defun-typed u ((tm tm-empty) &optional ➜)
+  (defun-typed @ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm ➜))
     (destructuring-bind
       (
         &key
-        (➜bound (be ∅))
+        (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
-      [➜bound]
+      [➜empty]
+      ))
+  (defun-typed @ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
       ))
 
+  (def-function-class max@ (tm &optional ➜)
+    (:documentation
+      "Maximum address in the tape's address space.
+       "))
+  (defun-typed max@ ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed max@ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max@ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
+
+  (def-function-class max-active@ (tm &optional ➜)
+    (:documentation
+      "Maximum address in the tape's address space.
+       "))
+  (defun-typed max-active@ ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed max-active@ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max-active@ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm ➜))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
+
+
+
+;;--------------------------------------------------------------------------------
+;; relative head control
+;;
   ;; step, user will sometimes provide their own step function
   (def-function-class s (tm &optional ➜)
     (:documentation
-      "Steps the head to a neighboring cell.  :address choses the neighbor, defaults
-        to 0 (right).
+      "Steps the head to a neighboring cell.
        "))
   (defun-typed s ((tm tm-abandoned) &optional ➜)
     (declare (ignore tm ➜))
@@ -135,103 +333,64 @@ See LICENSE.txt
       [➜bound]
       ))
   
-  ;; invokes boundaries, note the option to specify the step function
-  (def-function-class s* (tm &optional ➜)
+;;--------------------------------------------------------------------------------
+;; access through head
+;;
+  (def-function-class r (tm &optional ➜)
     (:documentation
-      "Steps the head until the ➜bound continuation is taken.
+      "Reads the cell under the head.
        "))
-  (defun-typed s* ((tm tm-abandoned) &optional ➜)
+  (defun-typed r ((tm tm-abandoned) &optional ➜)
     (declare (ignore tm ➜))
     (error 'use-of-abandoned)
     )
-
-  ;; a provided step function might 'step by zero' so we don't have universal bound invocation behavior
-  ;; when stepping an empty machine (step by zero is ➜ok, otherwise ➜bound)
-
-
-;;--------------------------------------------------------------------------------
-;; quantification
-;;
-;;    pred takes three arguments, a tape machine, a false continuation, and a true
-;;    continuation.  false is normally 0, and true 1,  so the false clause come first.
-;;    Optionally provide a step function.
-;;
-  (def-function-class ∃ (tm pred &optional ➜))
-  (defun-typed ∃ ((tm tm-abandoned) pred &optional ➜)
-    (declare (ignore tm pred ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed ∃ ((tm tm-empty) (pred function) &optional ➜)
+  (defun-typed r ((tm tm-empty) &optional ➜)
     (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
+      (
+        &key
+        (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
-      [➜∅]
+      [➜empty]
       ))
-  (defun-typed ∃ ((tm tm-parked) (pred function) &optional ➜)
+  (defun-typed r ((tm tm-parked) &optional ➜)
     (destructuring-bind
-      (&key
-        (first #'s) ; must unpark the head on a parked machine
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
         &allow-other-keys
         )
       ➜
-      [first tm ; unpark
-        {
-          :➜ok (λ()(∃ tm pred ➜))
-          (o ➜)
-          }]))
-  (defun-typed ∃ ((tm tm-active) (pred function) &optional ➜)
-    (destructuring-bind
-      (&key
-        (step #'s) ; steps the head
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-      (⟳(λ(again)
-          [pred tm (λ()[step tm {:➜ok again :➜bound ➜∅}]) ➜t]
-          ))))
-      
-  (def-function-class ∀ (tm pred &optional ➜))
-  (defun-typed ∀ ((tm tm-abandoned) pred &optional ➜) 
-    (declare (ignore tm pred ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed ∀ ((tm tm-empty-parked-active) pred &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-    (∃ 
-      tm
-      (λ(tm c∅ ct)[pred tm ct c∅])
-      {:➜∅ ➜t :➜t ➜∅ (o ➜)}
-      )))
+      [➜parked]
+      ))
 
-  ;; parks the head before calling quantifier
-  (def-function-class p∃ (tm pred &optional ➜))
-  (defun-typed p∃ ((tm tm-abandoned) pred &optional ➜) 
-    (declare (ignore tm pred ➜))
+  (def-function-class w (tm instance &optional ➜)
+    (:documentation
+      "Reads the cell under the head.
+       "))
+  (defun-typed w ((tm tm-abandoned) instance &optional ➜)
+    (declare (ignore tm instance ➜))
     (error 'use-of-abandoned)
     )
-  (defun-typed p∃ ((tm tm-empty-parked-active) pred &optional ➜)
-    (p tm
-      {:➜ok (∃ tm pred ➜)}
-      (o ➜)
+  (defun-typed w ((tm tm-empty) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
       ))
-  (def-function-class p∀ (tm pred &optional ➜))
-  (defun-typed p∀ ((tm tm-abandoned) pred &optional ➜) 
-    (declare (ignore tm pred ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed p∀ ((tm tm-empty-parked-active) pred &optional ➜)
-    (p tm
-      {:➜ok (∀ tm pred ➜) }
-      (o ➜)
+  (defun-typed w ((tm tm-parked) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
       ))
+
