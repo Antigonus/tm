@@ -99,7 +99,7 @@ copy is not - we don't need copy as we have read and write
     (error 'use-of-abandoned)
     )
   (defun-typed euw ((tm tm-empty) instance &optional ➜)
-    (declare (ignore tm instance ➜))
+    (declare (ignore tm instance))
     (destructuring-bind
       (
         &key
@@ -119,7 +119,7 @@ copy is not - we don't need copy as we have read and write
     (error 'use-of-abandoned)
     )
   (defun-typed eus*-count ((tm tm-empty) instance &optional ➜)
-    (declare (ignore tm instance ➜))
+    (declare (ignore tm instance))
     (destructuring-bind
       (
         &key
@@ -215,6 +215,12 @@ copy is not - we don't need copy as we have read and write
       [➜ok]
       ))
 
+  (defun-typed abandon ((tm tm))
+    (to-abandoned tm)
+    )
+  (defun-typed abandon ((tm tm-abandoned)))
+
+
   (def-function-class @ (tm &optional ➜)
     (:documentation
       "Location of the head as a natural number, or list of natural numbers.
@@ -224,7 +230,7 @@ copy is not - we don't need copy as we have read and write
     (error 'use-of-abandoned)
     )
   (defun-typed @ ((tm tm-empty) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -235,7 +241,7 @@ copy is not - we don't need copy as we have read and write
       [➜empty]
       ))
   (defun-typed @ ((tm tm-parked) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -255,7 +261,7 @@ copy is not - we don't need copy as we have read and write
     (error 'use-of-abandoned)
     )
   (defun-typed max@ ((tm tm-empty) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -266,7 +272,7 @@ copy is not - we don't need copy as we have read and write
       [➜empty]
       ))
   (defun-typed max@ ((tm tm-parked) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -286,7 +292,7 @@ copy is not - we don't need copy as we have read and write
     (error 'use-of-abandoned)
     )
   (defun-typed max-active@ ((tm tm-empty) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key
@@ -297,7 +303,7 @@ copy is not - we don't need copy as we have read and write
       [➜empty]
       ))
   (defun-typed max-active@ ((tm tm-parked) &optional ➜)
-    (declare (ignore tm ➜))
+    (declare (ignore tm))
     (destructuring-bind
       (
         &key

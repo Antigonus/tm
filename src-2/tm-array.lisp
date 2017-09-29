@@ -15,6 +15,9 @@ See LICENSE.txt
   the prior entanglment list model (where each tm shared a listener list) but entanglement
   list model looks more like a simulation of sharing of memory over distributed hardware.
 
+  Wish the head could be a pointer into the array rather than an index, as the repeated access
+  calculation is a bit of a waste.  However, there is no pointer arithmetic in Lisp.
+
 |#
 
 
@@ -59,10 +62,22 @@ See LICENSE.txt
     (tm-active)
     )
 
-  (defun-typed to-abandoned ((tm tm-array)) (change-class tm 'tm-array-abandoned))
-  (defun-typed to-empty     ((tm tm-array)) (change-class tm 'tm-array-empty))
-  (defun-typed to-parked    ((tm tm-array)) (change-class tm 'tm-array-parked))
-  (defun-typed to-active    ((tm tm-array)) (change-class tm 'tm-array-active))
+  (defun-typed to-abandoned ((tm tm-array))
+    (setf (head tm) ∅)
+    (change-class tm 'tm-array-abandoned)
+    )
+  (defun-typed to-empty     ((tm tm-array))
+    (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
+    (change-class tm 'tm-array-empty)
+    )
+  (defun-typed to-parked    ((tm tm-array))
+    (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
+    (change-class tm 'tm-array-parked)
+    )
+  (defun-typed to-active  ((tm tm-array)) 
+    ;; external code sets the head before calling this, the head must have an array index when active
+    (change-class tm 'tm-array-active)
+    )
 
   (def-type chasis-array ()
     (
@@ -105,7 +120,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [➜ok (read<tape-array> (tape (chasis tm)) {:address address})]
+      [➜ok (r<tape-array> (tape (chasis tm)) {:address address})]
       ))
    
   (defun-typed euw ((tm tm-array-parked-active) instance &optional ➜)
@@ -117,15 +132,27 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (write<tape-array> (tape (chasis tm)) instance {:address address})
+      (w<tape-array> (tape (chasis tm)) instance {:address address})
       [➜ok]
       ))
-
 
 ;;--------------------------------------------------------------------------------
 ;; absolue head control
 ;;
   ;; cue the head
+  (defun-typed u ((tm tm-array-parked) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address 0) ; for higher rank tapes the cell address will be a list
+        (➜ok (be t))
+        &allow-other-keys
+        )
+      ➜
+      (setf (head tm) address)
+      (to-active tm)
+      [➜ok]
+      ))
   (defun-typed u ((tm tm-array-active) &optional ➜)
     (destructuring-bind
       (
@@ -135,22 +162,14 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (head tm) address {:address head-number})
+      (setf (head tm) address)
       [➜ok]
       ))
 
-  (defun-typed p ((tm tm-array-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (w<tape-array> (head tm) 'parked {:address head-number})
-      (to-parked tm)
-      [➜ok]
-      ))
+  (defun-typed abandon ((tm tm-array))
+    ;; add clean to the gc hook
+    (to-abandoned tm)
+    )
 
   ;; head address
   ;; for a multidimensional base array the address will be a list
@@ -158,19 +177,18 @@ See LICENSE.txt
     (destructuring-bind
       (
         &key
-        (➜parked )
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
-      (head tm) ; tape array head is the location
+      [➜ok (head tm)] ; tape array head is the location
       ))
 
 
 ;;--------------------------------------------------------------------------------
 ;; relative head control
 ;;
-  (defun-typed s ((tm tm-array) &optional ➜)
+  (defun-typed s ((tm tm-array-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -185,7 +203,9 @@ See LICENSE.txt
             (max (max<tape-array> (tape (chasis tm))))
             )
         (cond
-          ((∨ (< proposed-new-address 0)(> proposed-new-address max)) [➜bound])
+          ((∨ (< proposed-new-address 0)(> proposed-new-address max))
+            [➜bound]
+            )
           (t
             (setf (head tm) proposed-new-address)
             [➜ok]
@@ -222,7 +242,7 @@ See LICENSE.txt
         {
           :address (head tm)
           :➜ok ➜ok
-          :➜alloc-fail #'alloc-fail
+          :➜alloc-fail ➜alloc-fail
           :➜empty #'cant-happen
           })))
    
@@ -278,7 +298,7 @@ See LICENSE.txt
           (setf (tape new-chasis) new-tape)
           (setf (chasis new-tm) new-chasis)
           (setf (head new-tm) (head tm))
-          (a◨ (tms new-chasis) new-tm)
+          (a◨<tape-array> (tms new-chasis) new-tm)
           ))
       [➜ok tm]
       ))

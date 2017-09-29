@@ -1,0 +1,61 @@
+
+  Add a clean routine that removes tms with ∅ heads (or with tm-abanonded type).  Activate
+  this to happen when gc after tms are abandoned. (use trivial garbage).
+
+Clean wants to iterate over the tms, and thus we would like to make an tm-array to do this.
+So I'm moving this up to src-3 where the tm-array definition of src-2 is available to it.
+
+
+
+
+  ;; Calling entangle creates a tm on the chasis.  When the tm is abandoned, it is given type abandon and
+  ;; its head is set to null.  Here we go through the tms list on the chasis and remove all abandoned tms.
+  ;; 
+  (defun clean (tm)
+    (let(
+          (tms (tms (chasis tm)))
+          (new-tms ∅)
+          )
+      (when tms ; it is legal for a chasis to be empty, if so, we have nothing to clean
+        (let(
+              (max (max<tape-array> tms))
+              )
+          (let(
+                (i max)
+                (count 0)
+                )
+            (⟳(λ(➜again) ; we count the null entries (should have counted the abandoned type entries!)
+                (let((tm (r<tm-array> tms {:address i}))) ; too bad we can't walk a pointer over the array..
+                  (when (¬ (head tm)) (incf count))
+                  (when (> i 0)
+                    (decf i)
+                    [➜again]
+                    ))))))
+        (cond
+          ((= count 0) ∅); no cleanup needed
+          ((= (1- count) max) ; then all the heads have been abandoned
+            (setf (tms tm) ∅) ; the chasis should now be picked up by the gc
+            )
+          (t
+            (let(
+                  (new-tms ∅)
+                  (new-max (- max count))
+                  )
+              (let(
+                    (i max)
+                    (j new-max)
+                    )
+                (⟳(λ(➜again) ; this time we copy the array data over
+                    (let((tm (r<tm-array> tms {:address i}))) ; too bad we can't walk a pointer over the array..
+                      (when (head tm)
+                        (w<tape-array> new-tms (r<tape-array> tms {:address i}) {:address j})
+                        (decf j)
+                        )
+                      (when (> i 0)
+                        (decf i)
+                        [➜again]
+                        )))))
+              (setf (tms (chasis tm)) new-tms)
+              ))))))
+
+

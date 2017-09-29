@@ -86,17 +86,13 @@ See LICENSE.txt
     (error 'use-of-abandoned)
     )
   (defun-typed p∃ ((tm tm-empty-parked-active) pred &optional ➜)
-    (p tm
-      {:➜ok (∃ tm pred ➜)}
-      (o ➜)
-      ))
+    (p tm {:➜ok (∃ tm pred ➜) (o ➜)})
+    )
   (def-function-class p∀ (tm pred &optional ➜))
   (defun-typed p∀ ((tm tm-abandoned) pred &optional ➜) 
     (declare (ignore tm pred ➜))
     (error 'use-of-abandoned)
     )
   (defun-typed p∀ ((tm tm-empty-parked-active) pred &optional ➜)
-    (p tm
-      {:➜ok (∀ tm pred ➜) }
-      (o ➜)
-      ))
+    (p tm {:➜ok (∀ tm pred ➜) (o ➜)})
+    )
