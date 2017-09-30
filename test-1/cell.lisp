@@ -11,9 +11,9 @@ See LICENSE.txt
 
 (defun test-cell-0 ()
   (let*(
-         (tp0 (mk 'cell {:init-value 1}))
-         (tp1 (mk 'cell {:init-value 3}))
-         (tp2 (mk 'cell {:init-value 5}))
+         (tp0 (mk 'cell {:value 1}))
+         (tp1 (mk 'cell {:value 3}))
+         (tp2 (mk 'cell {:value 5}))
          )
 
     (w<neighbors> tp0 tp1)
