@@ -19,8 +19,6 @@ See LICENSE.txt
   calculation is a bit of a waste.  However, there is no pointer arithmetic in Lisp.
 
 |#
-
-
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
@@ -84,32 +82,44 @@ See LICENSE.txt
 
   (def-type chasis-array ()
     (
-      (tms
-        :initform ∅  ; there are no tms yet
+      (tms 
+        :initform ∅
         :accessor tms
         )
-      (tape 
-        :initform ∅ ; empty tape
+      (tape
+        :initform ∅
         :accessor tape
         )
       ))
 
-  (defun-typed init ((tm tm-ref-array-realloc) (value null) &optional ➜)
+  (defun-typed init ((tm tm-ref-array-realloc) value &optional ➜)
     (destructuring-bind
       (
         &key
         (➜ok #'echo)
+        (➜bad-init (λ()(error 'bad-init-value)))
         &allow-other-keys
         )
       ➜
-      (to-empty tm)
       (let(
             (chasis (make-instance 'chasis-array))
             )
         (setf (chasis tm) chasis)
-        (w<tape-ref-array-realloc> (tms chasis) tm)
-        [➜ok tm]
-        )))
+        (w<tape-ref-array-realloc> (tms chasis) (tg:make-weak-pointer tm))
+        (cond
+          ((typep value 'null)
+            (to-empty tm)
+            [➜ok tm]
+            )
+          ((typep value 'box) ; unboxed value must be a tape-ref-array-realloc type instance!
+            (setf (tape chasis) (unbox value))
+            (to-parked tm)
+            [➜ok tm]
+            )
+          (t
+            [➜bad-init]
+            )))))
+
 
 ;;--------------------------------------------------------------------------------
 ;; tape operations
@@ -261,61 +271,6 @@ See LICENSE.txt
           })))
    
 
-;;--------------------------------------------------------------------------------
-;; copy
-;;
-  (def-function-class entangle (tm &optional ➜))
-  (def-function-class fork (tm &optional ➜))
-
-  (defun-typed entangle ((tm tm-ref-array-realloc) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (chasis (chasis tm))
-            (new-tm (make-instance 'tm-ref-array-realloc))
-            )
-        (setf (head new-tm) (head tm))
-        (a◨<tape-ref-array-realloc> (tms chasis) new-tm)
-        [➜ok tm]
-        )))
-
-  (defun-typed fork ((tm tm-ref-array-realloc) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tape (tape (chasis tm)))
-            (new-tape ∅)
-            )
-        (let(
-              (i (max<tape-ref-array-realloc> tape))
-              )
-          (⟳(λ(➜again) ; important to write max address first, so that the new-tape doesn't repeatedly expand
-              (w<tape-ref-array-realloc> new-tape (r<tape-ref-array-realloc> tape {:address i}))
-              (when (> i 0)
-                (decf i)
-                [➜again]
-                ))))
-        (let(
-              (new-chasis (make-instance 'chasis))
-              (new-tm (make-instance 'tm))
-              )
-          (setf (tape new-chasis) new-tape)
-          (setf (chasis new-tm) new-chasis)
-          (setf (head new-tm) (head tm))
-          (a◨<tape-ref-array-realloc> (tms new-chasis) new-tm)
-          ))
-      [➜ok tm]
-      ))
 
 
 

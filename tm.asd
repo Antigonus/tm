@@ -14,7 +14,7 @@ See LICENSE.txt
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
-  :depends-on ("local-time" "bordeaux-threads" "closer-mop")
+  :depends-on ("local-time" "trivial-garbage" "bordeaux-threads")
   :serial t
   :components(
                (:module "package-def"
@@ -185,7 +185,7 @@ See LICENSE.txt
 
                (:module "test-2"
                  :components (
-                               (:file "tm-array")
+                               (:file "tm-ref-array-realloc")
                                ))
 
 

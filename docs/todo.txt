@@ -272,3 +272,6 @@ add a time to wait as part of test-hook (similar to #50 above)
 
 81. use trivial garbage library and have gc clean the nulls off the end of the head tape array
    and perhaps also the tapes.
+
+82. since moving to the chasis approach we don't need abandoned.  just park the head, wait
+    for the gc to pick it up.  remove the related code.
