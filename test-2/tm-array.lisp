@@ -3,56 +3,47 @@ Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  All tests have names of the form test-fun-n  where fun is the function
-  or logical concept being tested.
 
 |#
 (in-package #:tm)
 
-(defun test-tape-array-0 ()
-  (let(tp-empty tp0 tp1 tp2 tp3)
+(defun test-tm-ref-array-realloc-0 ()
+  (let(
+        (tm0 (mk 'tm-ref-array-realloc))
+        )
     (∧
-      (a◨<tape-array> tp0 0)
-
-      (a◨<tape-array> tp1 0)
-      (a◨<tape-array> tp1 1)
-
-      (a◨<tape-array> tp2 0)
-      (a◨<tape-array> tp2 1)
-      (a◨<tape-array> tp2 2)
-      
-      (a◨<tape-array> tp3 0)
-      (a◨<tape-array> tp3 1)
-      (a◨<tape-array> tp3 2)
-      (a◨<tape-array> tp3 3)
-
-      (typep tp-empty 'null)
-      (typep tp0 'tape-array-max-0)
-      (typep tp1 'tape-array-max-1)
-      (typep tp2 'tape-array-max-2)
-      (typep tp3 'tape-array-max-n)
-
-      (= (r<tape-array> tp-empty {:➜empty (λ()5)}) 5)
-      (= (r<tape-array> tp0 {:➜ok (λ(x)(if (= x 0) 7 12))}) 7)
-      (= (r<tape-array> tp0 {:address 1 :➜empty (λ()5)}) 5)
-
-      (= (r<tape-array> tp1) 0)
-      (= (r<tape-array> tp1 {:address 1}) 1)
-      (= (r<tape-array> tp1 {:address 2 :➜empty (λ()5)}) 5)
-
-      (= (r<tape-array> tp2) 0)
-      (= (r<tape-array> tp2 {:address 1}) 1)
-      (= (r<tape-array> tp2 {:address 2}) 2)
-      (= (r<tape-array> tp2 {:address 3 :➜empty (λ()5)}) 5)
-
-      (= (r<tape-array> tp3) 0)
-      (= (r<tape-array> tp3 {:address 1}) 1)
-      (= (r<tape-array> tp3 {:address 2}) 2)
-      (= (r<tape-array> tp3 {:address 3}) 3)
-      (= (r<tape-array> tp3 {:address 4 :➜empty (λ()5)}) 5)
-
+      (= (eur tm0 {:➜ok (be 1) :➜empty (be 3)}) 3)
+      (euw tm0 7)
+      (= (eur tm0) 7)
       )))
-(test-hook test-tape-array-0)
+(test-hook test-tm-ref-array-realloc-0)
+
+(defun test-tm-ref-array-realloc-1 ()
+  (let(
+        (tm0 (mk 'tm-ref-array-realloc))
+        )
+    (∧
+      (euw tm0 7 {:address 2})
+      (euw tm0 6 {:address 1})
+      (euw tm0 5 {:address 0})
+      (typep tm0 'tm-parked)
+      (u tm0)
+      (= (r tm0) 5)
+      (w tm0 50)
+      (s tm0)
+      (= (r tm0) 6)
+      (w tm0 60)
+      (s tm0)
+      (= (r tm0) 7)
+      (= (s tm0 {:➜bound (be 12) :➜ok (be 11)}) 12)
+      (s tm0 {:Δ -1})
+      (= (r tm0) 60)
+      (s tm0 {:Δ -1})
+      (= (r tm0) 50)
+      (= (s tm0 {:Δ -1 :➜bound (be 22) :➜ok (be 21)}) 22)
+      )))
+(test-hook test-tm-ref-array-realloc-1)
+
 
 
 ;; need to add a test for expanding with intermediate empty cells

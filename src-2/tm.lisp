@@ -98,37 +98,6 @@ copy is not - we don't need copy as we have read and write
     (declare (ignore tm instance ➜))
     (error 'use-of-abandoned)
     )
-  (defun-typed euw ((tm tm-empty) instance &optional ➜)
-    (declare (ignore tm instance))
-    (destructuring-bind
-      (
-        &key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-
-  (def-function-class eus*-count (tm instance &optional ➜)
-    (:documentation
-      "Writes the cell at :address. :address defaults to 0.
-       "))
-  (defun-typed eus*-count ((tm tm-abandoned) instance &optional ➜)
-    (declare (ignore tm instance ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed eus*-count ((tm tm-empty) instance &optional ➜)
-    (declare (ignore tm instance))
-    (destructuring-bind
-      (
-        &key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
 
 
 ;;;
@@ -215,11 +184,12 @@ copy is not - we don't need copy as we have read and write
       [➜ok]
       ))
 
+  (def-function-class abandon (tm))
+  (defun-typed abandon ((tm tm-abandoned)))
   (defun-typed abandon ((tm tm))
+    ;; add clean to the gc hook
     (to-abandoned tm)
     )
-  (defun-typed abandon ((tm tm-abandoned)))
-
 
   (def-function-class @ (tm &optional ➜)
     (:documentation

@@ -33,9 +33,9 @@ See LICENSE.txt
         )
       ))
 
-  ;; potentially shared by a number of tape-arrays
+  ;; potentially shared by a number of tape-ref-array-reallocs
   ;; stuff one would like to see compiled away, would like to put in sym table instead
-  (def-type tape-array-parms ()
+  (def-type tape-ref-array-realloc-parms ()
     (
       (name ; name for the parms
         :initarg :name
@@ -51,7 +51,7 @@ See LICENSE.txt
         )
       ))
 
-  (def-type tape-array (tape)
+  (def-type tape-ref-array-realloc (tape)
     (
       (the-array
         :initarg :the-array
@@ -63,16 +63,16 @@ See LICENSE.txt
         )
       ))
 
-  (def-type tape-array-active (tape-array tape-active)())
-  (def-type tape-array-empty (tape-array tape-empty)())
-  (defun-typed to-active ((tape tape-array)) (change-class tape 'tape-array-active))
-  (defun-typed to-empty  ((tape tape-array)) (change-class tape 'tape-array-empty))
+  (def-type tape-ref-array-realloc-active (tape-ref-array-realloc tape-active)())
+  (def-type tape-ref-array-realloc-empty (tape-ref-array-realloc tape-empty)())
+  (defun-typed to-active ((tape tape-ref-array-realloc)) (change-class tape 'tape-ref-array-realloc-active))
+  (defun-typed to-empty  ((tape tape-ref-array-realloc)) (change-class tape 'tape-ref-array-realloc-empty))
 
-  (defun tape-array-make (tape maximum-address)
+  (defun tape-ref-array-realloc-make (tape maximum-address)
     (setf
       (parms tape)
       (make-instance
-        'tape-array-parms
+        'tape-ref-array-realloc-parms
         :name 'local
         :maxdex maximum-address
         ))
@@ -87,7 +87,7 @@ See LICENSE.txt
         ))
     )
                 
-  (defun-typed init ((tape-1 tape-array) (tape-0 tape-empty) &optional ➜)
+  (defun-typed init ((tape-1 tape-ref-array-realloc) (tape-0 tape-empty) &optional ➜)
     (destructuring-bind
       (&key
         initial-element 
@@ -98,7 +98,7 @@ See LICENSE.txt
       ➜
       (cond
         (maximum-address
-          (tape-array-make tape-1 maximum-address)
+          (tape-ref-array-realloc-make tape-1 maximum-address)
           (do
             ((i 0 (1+ i)))
             ((> i maximum-address))
@@ -113,7 +113,7 @@ See LICENSE.txt
       ))
 
   ;; shallow copy from another tape
-  (defun-typed init ((tape-1 tape-array) (tape-0 tape-active) &optional ➜)
+  (defun-typed init ((tape-1 tape-ref-array-realloc) (tape-0 tape-active) &optional ➜)
     (destructuring-bind
       (&key
         initial-element 
@@ -123,7 +123,7 @@ See LICENSE.txt
         )
       ➜
       (when (¬ maximum-address) (setf maximum-address (maximum-address tape-0)))
-      (tape-array-make tape-1 maximum-address)
+      (tape-ref-array-realloc-make tape-1 maximum-address)
       (to-active tape-1)
       (shallow-copy-no-topo tape-1 tape-0 {:initial-element initial-element})
       [➜ok tape-1]
@@ -133,7 +133,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; accessing instances
 ;;
-  (defun-typed ◧snr (address (tape tape-array-active)  &optional ➜)
+  (defun-typed ◧snr (address (tape tape-ref-array-realloc-active)  &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -159,7 +159,7 @@ See LICENSE.txt
           )
         )))
 
-  (defun-typed ◧snw (address (tape tape-array-active) instance  &optional ➜)
+  (defun-typed ◧snw (address (tape tape-ref-array-realloc-active) instance  &optional ➜)
     (destructuring-bind
       (&key
         (➜ok (be t))
@@ -225,7 +225,7 @@ See LICENSE.txt
       (setf (aref the-array index) instance)
       ))
 
-  (defun-typed bound-left ((tape tape-array-active) &optional ➜)
+  (defun-typed bound-left ((tape tape-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)
@@ -272,7 +272,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; length-tape
 ;;
-   (defun-typed maximum-address ((tape tape-array-active) &optional ➜)
+   (defun-typed maximum-address ((tape tape-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (&key
         (➜ok #'echo)

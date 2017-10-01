@@ -23,7 +23,7 @@ done on that channel since the fork, and thus data must be found on the parent c
 This might fall through recursively until reaching channel 0, which must have a value.
 
 Hence, each mutiplexed tape machine has a parent table.  Here the parent table is
-implemented from a tape-array.  Reading the parent table using a channel number as an
+implemented from a tape-ref-array-realloc.  Reading the parent table using a channel number as an
 address results in the parent channel number, for all channels except for channel 0, which
 has no parent.
 
@@ -76,17 +76,17 @@ subtract one from table addresses, and knock the zero row out of the table.
 ;;  (defmacro get-channel (parent-table &optional (parent (channel 0)))
 
   (defmacro get-channel (parent-table &optional (parent (channel 0)))
-    `(max<tape-array> ,parent-table
+    `(max<tape-ref-array-realloc> ,parent-table
        {
          :➜empty
          (λ()
-           (w<tape-array> ,parent-table ,parent)
+           (w<tape-ref-array-realloc> ,parent-table ,parent)
            (channel 1)
            )
 
          :➜ok
          (λ(max)
-           (w<tape-array> ,parent-table ,parent {:address (1+ max)})
+           (w<tape-ref-array-realloc> ,parent-table ,parent {:address (1+ max)})
            (channel (+ 2 max))
            )
          }))
@@ -96,7 +96,7 @@ subtract one from table addresses, and knock the zero row out of the table.
   (defun parent (parent-table channel &optional ➜)
     (destructuring-bind
       (&key
-        ;; ok continuation passed through to r<tape-array> via (o ➜)
+        ;; ok continuation passed through to r<tape-ref-array-realloc> via (o ➜)
         (➜no-parent (λ()(error 'no-parent)))
         &allow-other-keys
         )
@@ -107,7 +107,7 @@ subtract one from table addresses, and knock the zero row out of the table.
         (cond
           ((= ch 0) [➜no-parent])
           (t
-            (r<tape-array> parent-table {:address (1- ch) (o ➜)})
+            (r<tape-ref-array-realloc> parent-table {:address (1- ch) (o ➜)})
             )))))
 
 ;;--------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ subtract one from table addresses, and knock the zero row out of the table.
             (let(
                   (ch (plex-channel-channel channel))
                   )
-              (r<tape-array> plex
+              (r<tape-ref-array-realloc> plex
                 {
                   :address ch
                   :➜ok ➜ok
@@ -164,7 +164,7 @@ subtract one from table addresses, and knock the zero row out of the table.
            &allow-other-keys
            )
          ,➜
-         (w<tape-array> ,plex ,instance
+         (w<tape-ref-array-realloc> ,plex ,instance
            {
              :address (plex-channel-channel channel)
              (o ,➜)

@@ -9,12 +9,12 @@ See LICENSE.txt
 |#
 (in-package #:tm)
 
-(defun test-tape-array-0 ()
+(defun test-tape-ref-array-realloc-0 ()
   (let*(
-         (tp0 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3} {:maximum-address 3}))
-         (tp2 (mk 'tape-array #(4 5 6)))
-         (tp3 (mk 'tape-array tp1))
+         (tp0 (mk 'tape-ref-array-realloc ∅))
+         (tp1 (mk 'tape-ref-array-realloc {1 2 3} {:maximum-address 3}))
+         (tp2 (mk 'tape-ref-array-realloc #(4 5 6)))
+         (tp3 (mk 'tape-ref-array-realloc tp1))
          )
     (let(
           (arr1 (the-array tp1))
@@ -32,11 +32,11 @@ See LICENSE.txt
           (equal list2 {4 5 6})
           (equal list3 {1 2 3 ∅})
           )))))
-(test-hook test-tape-array-0)
+(test-hook test-tape-ref-array-realloc-0)
 
-(defun test-tape-array-1 ()
+(defun test-tape-ref-array-realloc-1 ()
   (let*(
-         (tp1 (mk 'tape-array {1 2 3}))
+         (tp1 (mk 'tape-ref-array-realloc {1 2 3}))
          )
     (∧
       (= (◧r tp1) 1)
@@ -45,11 +45,11 @@ See LICENSE.txt
       (◧sw tp1 12)
       (equal (coerce (tm::the-array tp1) 'list) {11 12 3})
       )))
-(test-hook test-tape-array-1)
+(test-hook test-tape-ref-array-realloc-1)
 
-(defun test-tape-array-2 ()
+(defun test-tape-ref-array-realloc-2 ()
   (let*(
-         (tp2 (mk 'tape-array #(4 5 6)))
+         (tp2 (mk 'tape-ref-array-realloc #(4 5 6)))
          )
 
     (let*(
@@ -68,14 +68,14 @@ See LICENSE.txt
         (= v 200)
         (equal (coerce (tm::the-array tp2) 'list) {41 51 61})
         ))))
-(test-hook test-tape-array-2)
+(test-hook test-tape-ref-array-realloc-2)
 
 #| no topo ops for array
-(defun test-tape-array-3 ()
+(defun test-tape-ref-array-realloc-3 ()
   (let*(
-         (tp10 (mk 'tape-array ∅))
-         (tp20 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3}))
+         (tp10 (mk 'tape-ref-array-realloc ∅))
+         (tp20 (mk 'tape-ref-array-realloc ∅))
+         (tp1 (mk 'tape-ref-array-realloc {1 2 3}))
          )
     (let*(
            (c0 (make-instance 'cell-list :cons-cell (cons 77 79)))
@@ -90,15 +90,15 @@ See LICENSE.txt
         (equal (coerce (tm::the-array tp1) 'list) {0 81 1 2 3})
         (equal (coerce (tm::the-array tp20) 'list)  {9})
         ))))
-(test-hook test-tape-array-3)
+(test-hook test-tape-ref-array-realloc-3)
 
-(defun test-tape-array-4 ()
+(defun test-tape-ref-array-realloc-4 ()
   (let*(
-         (tp0 (mk 'tape-array ∅))
-         (tp1 (mk 'tape-array {1 2 3}))
-         (tp2 (mk 'tape-array #(4 5 6)))
-         (tp3 (mk 'tape-array tp1))
-         (tp4 (mk 'tape-array {17 18 19}))
+         (tp0 (mk 'tape-ref-array-realloc ∅))
+         (tp1 (mk 'tape-ref-array-realloc {1 2 3}))
+         (tp2 (mk 'tape-ref-array-realloc #(4 5 6)))
+         (tp3 (mk 'tape-ref-array-realloc tp1))
+         (tp4 (mk 'tape-ref-array-realloc {17 18 19}))
          )
     (let*(
            (c0 (bound-left tp2))
@@ -118,5 +118,5 @@ See LICENSE.txt
         (◧d.<tape> tp4 {:➜ok (λ(c)(= (r<cell> c) 19)) :➜bound-right (be ∅)})
         (typep tp4 'tape-empty)
         ))))
-(test-hook test-tape-array-4)
+(test-hook test-tape-ref-array-realloc-4)
 |#

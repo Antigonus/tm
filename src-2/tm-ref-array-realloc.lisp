@@ -3,10 +3,10 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-  tm-array - tape machine based on a tape which is a tape-array
-  handle-tm-array - 
+  tm-ref-array-realloc - tape machine based on a tape which is a tape-ref-array-realloc
+  handle-tm-ref-array-realloc - 
 
-  tm-array specifies a head in the tm-array-chasis.  Hence, tm-array can be parked, but the chasis itself
+  tm-ref-array-realloc specifies a head in the tm-ref-array-realloc-chasis.  Hence, tm-ref-array-realloc can be parked, but the chasis itself
   can not.
 
   We avoid keeping entanglement lists by having multiple 'tms' on a chasis.  Each tm has
@@ -26,57 +26,60 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
-  (def-type tm-array (tm)
+  (def-type tm-ref-array-realloc (tm)
     (
       (chasis :accessor chasis)
       (head :accessor head)
       ))
 
-  (def-type tm-array-abandoned (tm-array tm-abandoned)()) ; used by scoping operators
+  (def-type tm-ref-array-realloc-abandoned (tm-ref-array-realloc tm-abandoned)()) ; used by scoping operators
 
   ;; useful conjunctions of status:
-  (def-type tm-array-empty-parked-active (tm-array tm-empty-parked-active)()) ; not abandoned
-  (def-type tm-array-empty-parked        (tm-array tm-empty-parked)()) ; not active
-  (def-type tm-array-parked-active       (tm-array tm-parked-active)()) ; not empty
+  (def-type tm-ref-array-realloc-empty-parked-active (tm-ref-array-realloc tm-empty-parked-active)()) ; not abandoned
+  (def-type tm-ref-array-realloc-empty-parked        (tm-ref-array-realloc tm-empty-parked)()) ; not active
+  (def-type tm-ref-array-realloc-parked-active       (tm-ref-array-realloc tm-parked-active)()) ; not empty
 
-  (def-type tm-array-empty
+  (def-type tm-ref-array-realloc-empty
     (
-      tm-array-empty-parked-active
-      tm-array-empty-parked
+      tm-ref-array-realloc-empty-parked-active
+      tm-ref-array-realloc-empty-parked
+      tm-empty
       )
-    (tm-empty)
+    ()
     )
-  (def-type tm-array-parked
+  (def-type tm-ref-array-realloc-parked
     (
-      tm-array-empty-parked-active
-      tm-array-empty-parked
-      tm-array-parked-active
+      tm-ref-array-realloc-empty-parked-active
+      tm-ref-array-realloc-empty-parked
+      tm-ref-array-realloc-parked-active
+      tm-parked
       )
-    (tm-parked)
+    ()
     )
-  (def-type tm-array-active
+  (def-type tm-ref-array-realloc-active
     (
-      tm-array-empty-parked-active
-      tm-array-parked-active
+      tm-ref-array-realloc-empty-parked-active
+      tm-ref-array-realloc-parked-active
+      tm-active
       )
-    (tm-active)
+    ()
     )
 
-  (defun-typed to-abandoned ((tm tm-array))
+  (defun-typed to-abandoned ((tm tm-ref-array-realloc))
     (setf (head tm) ∅)
-    (change-class tm 'tm-array-abandoned)
+    (change-class tm 'tm-ref-array-realloc-abandoned)
     )
-  (defun-typed to-empty     ((tm tm-array))
+  (defun-typed to-empty     ((tm tm-ref-array-realloc))
     (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
-    (change-class tm 'tm-array-empty)
+    (change-class tm 'tm-ref-array-realloc-empty)
     )
-  (defun-typed to-parked    ((tm tm-array))
+  (defun-typed to-parked    ((tm tm-ref-array-realloc))
     (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
-    (change-class tm 'tm-array-parked)
+    (change-class tm 'tm-ref-array-realloc-parked)
     )
-  (defun-typed to-active  ((tm tm-array)) 
+  (defun-typed to-active  ((tm tm-ref-array-realloc)) 
     ;; external code sets the head before calling this, the head must have an array index when active
-    (change-class tm 'tm-array-active)
+    (change-class tm 'tm-ref-array-realloc-active)
     )
 
   (def-type chasis-array ()
@@ -91,7 +94,7 @@ See LICENSE.txt
         )
       ))
 
-  (defun-typed init ((tm tm-array) (value null) &optional ➜)
+  (defun-typed init ((tm tm-ref-array-realloc) (value null) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -104,14 +107,14 @@ See LICENSE.txt
             (chasis (make-instance 'chasis-array))
             )
         (setf (chasis tm) chasis)
-        (w<tape-array> (tms chasis) tm)
+        (w<tape-ref-array-realloc> (tms chasis) tm)
         [➜ok tm]
         )))
 
 ;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
-  (defun-typed eur ((tm tm-array-parked-active) &optional ➜)
+  (defun-typed eur ((tm tm-ref-array-realloc-parked-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -120,19 +123,35 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      [➜ok (r<tape-array> (tape (chasis tm)) {:address address})]
+      [➜ok (r<tape-ref-array-realloc> (tape (chasis tm)) {:address address})]
       ))
    
-  (defun-typed euw ((tm tm-array-parked-active) instance &optional ➜)
+  (defun-typed euw ((tm tm-ref-array-realloc-empty) instance &optional ➜)
     (destructuring-bind
       (
         &key
         (address 0)
         (➜ok (be t))
+        (➜alloc-fail #'alloc-fail)
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (tape (chasis tm)) instance {:address address})
+      (w<tape-ref-array-realloc> (tape (chasis tm)) instance {:address address :➜alloc-fail ➜alloc-fail})
+      (to-parked tm)
+      [➜ok]
+      ))
+
+  (defun-typed euw ((tm tm-ref-array-realloc-parked-active) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address 0)
+        (➜ok (be t))
+        (➜alloc-fail #'alloc-fail)
+        &allow-other-keys
+        )
+      ➜
+      (w<tape-ref-array-realloc> (tape (chasis tm)) instance {:address address :➜alloc-fail ➜alloc-fail})
       [➜ok]
       ))
 
@@ -140,7 +159,7 @@ See LICENSE.txt
 ;; absolue head control
 ;;
   ;; cue the head
-  (defun-typed u ((tm tm-array-parked) &optional ➜)
+  (defun-typed u ((tm tm-ref-array-realloc-parked) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -153,7 +172,7 @@ See LICENSE.txt
       (to-active tm)
       [➜ok]
       ))
-  (defun-typed u ((tm tm-array-active) &optional ➜)
+  (defun-typed u ((tm tm-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -166,14 +185,9 @@ See LICENSE.txt
       [➜ok]
       ))
 
-  (defun-typed abandon ((tm tm-array))
-    ;; add clean to the gc hook
-    (to-abandoned tm)
-    )
-
   ;; head address
   ;; for a multidimensional base array the address will be a list
-  (defun-typed @ ((tm tm-array-active) &optional ➜)
+  (defun-typed @ ((tm tm-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -188,7 +202,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; relative head control
 ;;
-  (defun-typed s ((tm tm-array-active) &optional ➜)
+  (defun-typed s ((tm tm-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -200,7 +214,7 @@ See LICENSE.txt
       ➜
       (let(
             (proposed-new-address (+ (head tm) Δ))
-            (max (max<tape-array> (tape (chasis tm))))
+            (max (max<tape-ref-array-realloc> (tape (chasis tm))))
             )
         (cond
           ((∨ (< proposed-new-address 0)(> proposed-new-address max))
@@ -214,7 +228,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; access through head
 ;;
-  (defun-typed r ((tm tm-array-active) &optional ➜)
+  (defun-typed r ((tm tm-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -222,14 +236,14 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (r<tape-array> (tape (chasis tm))
+      (r<tape-ref-array-realloc> (tape (chasis tm))
         {
           :address (head tm)
           :➜ok ➜ok
           :➜empty #'cant-happen
           })))
 
-  (defun-typed w ((tm tm-array-active) instance &optional ➜)
+  (defun-typed w ((tm tm-ref-array-realloc-active) instance &optional ➜)
     (destructuring-bind
       (
         &key
@@ -238,7 +252,7 @@ See LICENSE.txt
         &allow-other-keys
         )
       ➜
-      (w<tape-array> (tape (chasis tm)) instance
+      (w<tape-ref-array-realloc> (tape (chasis tm)) instance
         {
           :address (head tm)
           :➜ok ➜ok
@@ -253,7 +267,7 @@ See LICENSE.txt
   (def-function-class entangle (tm &optional ➜))
   (def-function-class fork (tm &optional ➜))
 
-  (defun-typed entangle ((tm tm-array) &optional ➜)
+  (defun-typed entangle ((tm tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -263,14 +277,14 @@ See LICENSE.txt
       ➜
       (let(
             (chasis (chasis tm))
-            (new-tm (make-instance 'tm-array))
+            (new-tm (make-instance 'tm-ref-array-realloc))
             )
         (setf (head new-tm) (head tm))
-        (a◨<tape-array> (tms chasis) new-tm)
+        (a◨<tape-ref-array-realloc> (tms chasis) new-tm)
         [➜ok tm]
         )))
 
-  (defun-typed fork ((tm tm-array) &optional ➜)
+  (defun-typed fork ((tm tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -283,10 +297,10 @@ See LICENSE.txt
             (new-tape ∅)
             )
         (let(
-              (i (max<tape-array> tape))
+              (i (max<tape-ref-array-realloc> tape))
               )
           (⟳(λ(➜again) ; important to write max address first, so that the new-tape doesn't repeatedly expand
-              (w<tape-array> new-tape (r<tape-array> tape {:address i}))
+              (w<tape-ref-array-realloc> new-tape (r<tape-ref-array-realloc> tape {:address i}))
               (when (> i 0)
                 (decf i)
                 [➜again]
@@ -298,7 +312,7 @@ See LICENSE.txt
           (setf (tape new-chasis) new-tape)
           (setf (chasis new-tm) new-chasis)
           (setf (head new-tm) (head tm))
-          (a◨<tape-array> (tms new-chasis) new-tm)
+          (a◨<tape-ref-array-realloc> (tms new-chasis) new-tm)
           ))
       [➜ok tm]
       ))

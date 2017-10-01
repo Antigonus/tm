@@ -41,7 +41,7 @@ See LICENSE.txt
                (:module "src-1"
                  :components (
                                (:file "mk")
-                               (:file "tape-array")
+                               (:file "tape-ref-array-realloc")
                                (:file "plex")
                                (:file "cell")
                                ))
@@ -50,9 +50,8 @@ See LICENSE.txt
                  :components (
                                (:file "tm")
                                (:file "quantification")
-                               (:file "tm-array")
+                               (:file "tm-ref-array-realloc")
                                ))
-
 
 #|
                (:module "src-tape"
@@ -183,6 +182,12 @@ See LICENSE.txt
                                (:file "plex")
                                (:file "cell")
                                ))
+
+               (:module "test-2"
+                 :components (
+                               (:file "tm-array")
+                               ))
+
 
 #|
 

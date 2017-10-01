@@ -7,7 +7,7 @@ Implementation of cell intended for use in a list.
 
 Our version of the cons cell.
 
-Contents is a single value, neighbors is a tape-array of neighbor linkes.  The contents can
+Contents is a single value, neighbors is a tape-ref-array-realloc of neighbor linkes.  The contents can
 be mulitplexed.  A neighbor link can be multiplexed.
 
 Our tape-list is a doubly linked list.  This cell can be used to implement single linked lists
@@ -31,9 +31,9 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
         :initform ∅
         )
 
-      ;; The cell neighbor slot is a tape-array of neighbors.  When we make a tape from
+      ;; The cell neighbor slot is a tape-ref-array-realloc of neighbors.  When we make a tape from
       ;; cells, each cell typically has two neighbors, a right neighbor and a left
-      ;; neighbor.  The neighbors tape-array will not be multiplexed.  However, each
+      ;; neighbor.  The neighbors tape-ref-array-realloc will not be multiplexed.  However, each
       ;; member neighbor link may be multiplexed.
       (neighbors
         :accessor neighbors
@@ -65,7 +65,7 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
     )
 
   (defun r<neighbors> (cell &optional ➜)
-    (r<tape-array> (neighbors cell)
+    (r<tape-ref-array-realloc> (neighbors cell)
       {
         :➜ok (λ(neighbor)(r<plex> neighbor ➜))
         (o ➜)
@@ -89,14 +89,14 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
         )
       ➜
       (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
-      (r<tape-array> (neighbors cell)
+      (r<tape-ref-array-realloc> (neighbors cell)
         {
           :address address
 
           :➜ok
           (λ(neighbor)
             (w<plex> neighbor a-neighbor-cell {:channel channel})
-            (w<tape-array> (neighbors cell) neighbor {:address address})
+            (w<tape-ref-array-realloc> (neighbors cell) neighbor {:address address})
             [➜ok]
             )
 
@@ -104,7 +104,7 @@ A cell with a subspace is simply a cell with an additional neighbor link for the
           (λ()
             (let(neighbor)
               (w<plex> neighbor a-neighbor-cell {:channel channel})
-              (w<tape-array> (neighbors cell) neighbor {:address address})
+              (w<tape-ref-array-realloc> (neighbors cell) neighbor {:address address})
               [➜ok]
               ))
           })))
