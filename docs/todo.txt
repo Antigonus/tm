@@ -262,7 +262,7 @@ add a time to wait as part of test-hook (similar to #50 above)
    the word 'right' out of the right going operations.
 
 78. operation to remove null tail on a tape array, so that such things as disentangling heads
-   will reduce the length of the head array
+   will reduce the length of the head array 
 
 79. need to inline a lot of these functions so that the compiler can optimize out the constant
    arguments.

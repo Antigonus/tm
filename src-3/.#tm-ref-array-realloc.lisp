@@ -1,0 +1,1 @@
+plato@Lenovo-ideapad-510S-14ISK.12007:1507018920

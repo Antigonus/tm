@@ -56,6 +56,17 @@ See LICENSE.txt
       (⟳(λ(again)
           [pred tm (λ()[step tm {:➜ok again :➜bound ➜∅}]) ➜t]
           ))))
+
+  ;; parks the head before calling quantifier
+  (def-function-class p∃ (tm pred &optional ➜))
+  (defun-typed p∃ ((tm tm-abandoned) pred &optional ➜) 
+    (declare (ignore tm pred ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed p∃ ((tm tm-empty-parked-active) pred &optional ➜)
+    (p tm {:➜ok (∃ tm pred ➜) (o ➜)})
+    )
+
       
 ;;--------------------------------------------------------------------------------
 ;; Universal
@@ -79,15 +90,6 @@ See LICENSE.txt
       {:➜∅ ➜t :➜t ➜∅ (o ➜)}
       )))
 
-  ;; parks the head before calling quantifier
-  (def-function-class p∃ (tm pred &optional ➜))
-  (defun-typed p∃ ((tm tm-abandoned) pred &optional ➜) 
-    (declare (ignore tm pred ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed p∃ ((tm tm-empty-parked-active) pred &optional ➜)
-    (p tm {:➜ok (∃ tm pred ➜) (o ➜)})
-    )
   (def-function-class p∀ (tm pred &optional ➜))
   (defun-typed p∀ ((tm tm-abandoned) pred &optional ➜) 
     (declare (ignore tm pred ➜))

@@ -178,7 +178,7 @@ See LICENSE.txt
 
                (:module "test-1"
                  :components (
-                               (:file "tape-array")
+                               (:file "tape-ref-array-realloc")
                                (:file "plex")
                                (:file "cell")
                                ))
@@ -186,6 +186,7 @@ See LICENSE.txt
                (:module "test-2"
                  :components (
                                (:file "tm-ref-array-realloc")
+                               (:file "quantification")
                                ))
 
 

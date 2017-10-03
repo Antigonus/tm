@@ -8,3 +8,5 @@ dispatch, though if one wants one can open that box.
 Seems to me it would be better to give the programmer operations to directly operate on this
 place where type is held, whether it is memory mapped type, an entry in a symbol table, or
 unseen header on instances.
+
+... the 'context'  discussion in the implementation directory

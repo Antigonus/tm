@@ -1,0 +1,70 @@
+
+
+An address interval is a set of contiguous addresses.  
+
+A region on the tape is a set of contiguous cells.  
+
+
+
+Representation by inclusive bounding:
+
+   With an 'inclusive' interval representation, we state only the smallest and largest
+   address found in the interval.  The order these are given are taken as the direction that
+   iteration should proceed in, i.e. smallest to largest, or largest to smallest.  An empty
+   type is used for representing an empty interval.
+
+   Analogously we represent an 'inclusive' region on the tape with two entangled tape
+   machines.  One with its head on the leftmost cell of the region, and the other on the
+   rightmost.  The empty type is used for representing an empty region.
+
+   With inclusive approaches the same representation for indexing can be used for holding
+   interval bounds.  For example, an array of 256 instances requires an 8 bit address, and
+   these addresses may be used as interval bounds.
+
+
+Examples of right exclusive bounding:
+
+   The Python language does not use an inclusive notation for representing intervals.
+   Instead the upper bound is one greater than the inclusive upper bound.  This approach
+   faciliates a for loop form that has a loop control variable test at the top, and the
+   increment operation at the bottom. An interval with the same value as lower and upper
+   bounds is empty.  If we need an interval of addresses on a 256 element array, then an
+   interval that contains the righmost cell will require more than one byte to represent.
+
+   Analogously in C++ STL the end of a region is represented as one past the end of the region.
+
+
+Argument for using an exclusive left bound:
+
+   To delete a region's left boundary cell from a single linked list region, we need a
+   reference to the cell to the left of the left boundary cell.  However, singly linked lists
+   do not have back pointers, so we must be given with the exclusive left bound.
+
+   The #'a and #'d commands operate on the right neighbor cell.  The a command is defined
+   this way because it is the command that expands the tape.  Thus the d command is the
+   inverse operation, and thus it too operates from a left exclusive bound.
+
+   It typically does not make sense to doubly link a list, because for any context in the
+   list we locallly operate on, we will have to iterate though it if we are to see the
+   cells, and while doing so we will gain knowledge of the back pointer cells for any given
+   cell -- except the first one we are given.
+
+   .. there is an argument that this is a consistent approach, the first marker marks the
+   last cell of the lefthand side, and the second maker marks the last cell on the lefthand
+   side.  If we were to make a list of contiguous intervals, say when defininig a memory
+   map, an approach like this is necessary.  .. though typically we are working on arrays
+   in memory and provide a list of base pointers (right exclusive bounds).
+
+   ..We can only extract from lists ... perhaps extract should interpret regions
+   differently. 
+
+
+ "here are the train cars who's hitches might be interesting"  rather than
+   calling it an interval or region. 
+
+ Topological region ..  different than an address space region .. so we have a list of marker
+
+.. could just make a region a pair of tms and an interval a pair of integers, and then
+leave that open to interpretation by the function ...
+
+.. seems that a region should be a transform machine

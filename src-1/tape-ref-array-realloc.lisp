@@ -7,12 +7,13 @@ A tape-ref-array-realloc.
 
 This design is intended to minimize required storage.
 
-I need to change the reference to the array when expanding the tape, so I used macros on the
-interface.  Consequently we do not have dispatch based on argument type. Instead we have
-etypecase. This approache leads to a lot of 'unused code being elminated' notes.
+I need to change the reference to the array when expanding the tape, so I used macros on
+the interface.  Consequently we do not have dispatch based on argument type. Instead we
+have etypecase. This approach leads to a lot of 'unused code being elminated' notes when
+compiling.
 
-At its smallest a tape-ref-array-realloc has type 'null (empty) and no instance.  After a single value
-is added to a tape array, the tape array acts just like a single value. Etc.
+At its smallest a tape-ref-array-realloc has type 'null (empty) and no instance.  After a
+single value is added to a tape array, the tape array acts just like a single value. Etc.
 
 Common Lisp knows the length of an array, and that information must be stored somewhere,
 so I don't use an array for short tapes to avoid this overhead. .. Hopefully the compiler
@@ -38,12 +39,17 @@ machines but not Turing machines, is relative safe even when machines are entang
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
+;; An empty tape-ref-array-realloc will not typep as tape-ref-array-realloc - it is a feature
+;; of Lisp that ∅ is its own type.  Perhaps we should define a empty array type.  A tape array
+;; passed into a function can not be made longer, as the base reference is needed in case there
+;; is a realloc operation.
+;;
+  (defstruct tape-ref-array-realloc)
   ;; suffix on the struct names is the max-address for a corresponding array
-  (defstruct tape-ref-array-realloc-max-0 zero)
-  (defstruct tape-ref-array-realloc-max-1 zero one)
-  (defstruct tape-ref-array-realloc-max-2 zero one two)
-  (defstruct tape-ref-array-realloc-max-n array)
-
+  (defstruct (tape-ref-array-realloc-max-0 (:include tape-ref-array-realloc)) zero)
+  (defstruct (tape-ref-array-realloc-max-1 (:include tape-ref-array-realloc)) zero one)
+  (defstruct (tape-ref-array-realloc-max-2 (:include tape-ref-array-realloc)) zero one two)
+  (defstruct (tape-ref-array-realloc-max-n (:include tape-ref-array-realloc)) array)
 
 ;;--------------------------------------------------------------------------------
 ;; tape properties
@@ -208,7 +214,7 @@ machines but not Turing machines, is relative safe even when machines are entang
       [,➜ok ,x]
     ))
 
-  (defun r<tape-ref-array-realloc> (tape-ref-array-realloc &optional ➜)
+  (defun r<tape-ref-array-realloc> (tape &optional ➜)
     (destructuring-bind
        (&key
          (address 0)
@@ -217,31 +223,31 @@ machines but not Turing machines, is relative safe even when machines are entang
          &allow-other-keys
          )
        ➜
-       (etypecase tape-ref-array-realloc
+       (etypecase tape
          (null [➜empty])
          (tape-ref-array-realloc-max-0
            (cond
-             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-0-zero tape-ref-array-realloc) ➜ok ➜empty))
+             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-0-zero tape) ➜ok ➜empty))
              (t [➜empty])
              ))
          (tape-ref-array-realloc-max-1
            (cond
-             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-1-zero tape-ref-array-realloc) ➜ok ➜empty))
-             ((= address 1) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-1-one tape-ref-array-realloc) ➜ok ➜empty))
+             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-1-zero tape) ➜ok ➜empty))
+             ((= address 1) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-1-one tape) ➜ok ➜empty))
              (t [➜empty])
              ))
          (tape-ref-array-realloc-max-2
            (cond
-             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-zero tape-ref-array-realloc) ➜ok ➜empty))
-             ((= address 1) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-one tape-ref-array-realloc) ➜ok ➜empty))
-             ((= address 2) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-two tape-ref-array-realloc) ➜ok ➜empty))
+             ((= address 0) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-zero tape) ➜ok ➜empty))
+             ((= address 1) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-one tape) ➜ok ➜empty))
+             ((= address 2) (r<tape-ref-array-realloc>-ret (tape-ref-array-realloc-max-2-two tape) ➜ok ➜empty))
              (t [➜empty])
              ))
          (tape-ref-array-realloc-max-n
            (if
-             (≥ address (length (tape-ref-array-realloc-max-n-array tape-ref-array-realloc)))
+             (≥ address (length (tape-ref-array-realloc-max-n-array tape)))
              [➜empty]
-             (r<tape-ref-array-realloc>-ret (aref (tape-ref-array-realloc-max-n-array tape-ref-array-realloc) address) ➜ok ➜empty)
+             (r<tape-ref-array-realloc>-ret (aref (tape-ref-array-realloc-max-n-array tape) address) ➜ok ➜empty)
              ))
          )))
 
@@ -425,12 +431,120 @@ machines but not Turing machines, is relative safe even when machines are entang
        [➜ok]
        ))
 
-  (defmacro a◨<tape-ref-array-realloc> (tape-ref-array-realloc instance &optional ➜)
+  (defmacro a◨<tape-ref-array-realloc> (tape instance &optional ➜)
     `(destructuring-bind
        (&key
-         (right-bound (max<tape-ref-array-realloc> ,tape-ref-array-realloc {:➜ok (λ(max)(1+ max)) :➜empty (λ()0)}))
+         (➜ok (be t))
+         (➜alloc-fail #'alloc-fail)
          &allow-other-keys
          )
        ,➜
-       (w<tape-ref-array-realloc> ,tape-ref-array-realloc ,instance {:address right-bound (o ,➜)})
+       (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
+       (max<tape-ref-array-realloc> ,tape
+         {
+           :➜ok
+           (λ(max)
+             (w<tape-ref-array-realloc> ,tape ,instance {:address (1+ max) (o ,➜)})
+             [➜ok]
+             )
+           :➜empty
+           (λ()
+             (w<tape-ref-array-realloc> ,tape ,instance ,➜)
+             [➜ok]
+             )
+           })
        ))
+
+  ;; writes the instance over the first null reference, or appends, then returns the index.
+  ;; separate exists for write and append facilitates the caller in keeping track of sparsity of the heap.
+  ;; The caller might want to '#'compact a heap that has become too sparse, or has too long of a tail.
+  ;;
+    (defmacro write-heap<tape-ref-array-realloc> (tape instance &optional ➜)
+      `(destructuring-bind
+         (&key
+           (➜write #echo)
+           (➜append #echo)
+           (➜alloc-fail #'alloc-fail)
+           &allow-other-keys
+           )
+         ,➜
+         (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
+         (max<tape-ref-array-realloc> ,tape
+           {
+             :➜empty
+             (λ()
+               (w<tape-ref-array-realloc> ,tape ,instance ,➜)
+               [➜apppend 0]
+               )
+
+             :➜ok
+             (λ(max)
+               (let((i 0))
+                 (⟳(λ(➜again) ; search for an empty cell
+                     (r<tape-ref-array-realloc> ,tape
+                       {
+                         :address i
+                         :➜empty 
+                         (λ() 
+                           (w<tape-ref-array-realloc> ,tape ,instance {:address i (o ,➜)})
+                           [➜write i]
+                           )
+                         :➜ok
+                         (λ(cell-contents)
+                           (declare (ignore cell-contents))
+                           (cond
+                             ((= i max) ; tape is full, append instance to the end
+                               (w<tape-ref-array-realloc> ,tape ,instance {:address (1+ i) (o ,➜)}) ; append
+                               [➜append i]
+                               )
+                             (t
+                               (incf i)
+                               [➜again] ; keep searching for an empty cell
+                               )))
+                         })))))
+             })))
+
+;; need to add the weak pointer part
+    (defmacro write-heap-weak<tape-ref-array-realloc> (tape instance &optional ➜)
+      `(destructuring-bind
+         (&key
+           (➜ok (be t))
+           (➜alloc-fail #'alloc-fail)
+           &allow-other-keys
+           )
+         ,➜
+         (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
+         (max<tape-ref-array-realloc> ,tape
+           {
+             :➜empty
+             (λ()
+               (w<tape-ref-array-realloc> ,tape ,instance ,➜)
+               [➜ok 0]
+               )
+
+             :➜ok
+             (λ(max)
+               (let((i 0))
+                 (⟳(λ(➜again) ; search for an empty cell
+                     (r<tape-ref-array-realloc> ,tape
+                       {
+                         :address i
+                         :➜empty 
+                         (λ() 
+                           (w<tape-ref-array-realloc> ,tape ,instance {:address i (o ,➜)})
+                           )
+                         :➜ok
+                         (λ(cell-contents)
+                           (declare (ignore cell-contents))
+                           (cond
+                             ((= i max) ; tape is full, append instance to the end
+                               (w<tape-ref-array-realloc> ,tape ,instance {:address (1+ i) (o ,➜)}) ; append
+                               )
+                             (t
+                               (incf i)
+                               [➜again] ; keep searching for an empty cell
+                               )))
+                         })))
+                 [➜ok i] ;whether we found an empty cell and wrote it, or append to the end, all is ➜ok
+                 ))
+             })))

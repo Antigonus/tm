@@ -69,6 +69,12 @@ copy is not - we don't need copy as we have read and write
   (defun-typed to-active    ((tm tm)) (change-class tm 'tm-active))
 
 ;;--------------------------------------------------------------------------------
+;; entanglment
+;;
+  (def-function-class entangle (tm &optional ➜))
+  (def-function-class fork (tm &optional ➜))
+
+;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
   (def-function-class eur (tm &optional ➜)

@@ -12,8 +12,6 @@ it to a machine
 ;;--------------------------------------------------------------------------------
 ;; copy
 ;;
-  (def-function-class entangle (tm &optional ➜))
-
   (defun-typed entangle ((tm tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
       (
@@ -31,7 +29,6 @@ it to a machine
         [➜ok tm]
         )))
 
-  (def-function-class fork (tm &optional ➜))
   (defun-typed fork ((tm tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
       (

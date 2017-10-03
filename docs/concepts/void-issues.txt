@@ -70,6 +70,7 @@ upon the allocation of a cell.  It is also interesting that there is an unused s
 tm-void.
 
 
+----
 
-
-
+there is no difference between having more representable value, and supporting an
+empty type ..  though dispatch looks at types so type is a convenient place to put the info.
