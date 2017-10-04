@@ -50,7 +50,6 @@ See LICENSE.txt
       (= (r<tape-ref-array-realloc> tp3 {:address 2}) 2)
       (= (r<tape-ref-array-realloc> tp3 {:address 3}) 3)
       (= (r<tape-ref-array-realloc> tp3 {:address 4 :➜empty (λ()5)}) 5)
-
       )))
 (test-hook test-tape-ref-array-realloc-0)
 
@@ -77,10 +76,10 @@ See LICENSE.txt
       (a◨<tape-ref-array-realloc> tp3 2)
       (a◨<tape-ref-array-realloc> tp3 3)
 
-      (write-heap<tape-ref-array-realloc> tp0 5)
-      (write-heap<tape-ref-array-realloc> tp1 7)
-      (write-heap<tape-ref-array-realloc> tp2 9)
-      (write-heap<tape-ref-array-realloc> tp3 11)
+      (= (write-heap<tape-ref-array-realloc> tp0 5  {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 200)
+      (= (write-heap<tape-ref-array-realloc> tp1 7  {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 202)
+      (= (write-heap<tape-ref-array-realloc> tp2 9  {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 203)
+      (= (write-heap<tape-ref-array-realloc> tp3 11 {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 104)
       
       (= (r<tape-ref-array-realloc> tp0) 5)
       (= (r<tape-ref-array-realloc> tp0 {:address 1}) 1)

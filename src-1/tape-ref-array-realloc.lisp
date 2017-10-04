@@ -462,8 +462,8 @@ machines but not Turing machines, is relative safe even when machines are entang
     (defmacro write-heap<tape-ref-array-realloc> (tape instance &optional ➜)
       `(destructuring-bind
          (&key
-           (➜write #echo)
-           (➜append #echo)
+           (➜write #'echo)
+           (➜append #'echo)
            (➜alloc-fail #'alloc-fail)
            &allow-other-keys
            )
@@ -474,7 +474,7 @@ machines but not Turing machines, is relative safe even when machines are entang
              :➜empty
              (λ()
                (w<tape-ref-array-realloc> ,tape ,instance ,➜)
-               [➜apppend 0]
+               [➜append 0]
                )
 
              :➜ok
@@ -495,7 +495,7 @@ machines but not Turing machines, is relative safe even when machines are entang
                            (cond
                              ((= i max) ; tape is full, append instance to the end
                                (w<tape-ref-array-realloc> ,tape ,instance {:address (1+ i) (o ,➜)}) ; append
-                               [➜append i]
+                               [➜append (1+ i)]
                                )
                              (t
                                (incf i)
@@ -504,6 +504,7 @@ machines but not Turing machines, is relative safe even when machines are entang
                          })))))
              })))
 
+#|
 ;; need to add the weak pointer part
     (defmacro write-heap-weak<tape-ref-array-realloc> (tape instance &optional ➜)
       `(destructuring-bind
@@ -548,3 +549,4 @@ machines but not Turing machines, is relative safe even when machines are entang
                  [➜ok i] ;whether we found an empty cell and wrote it, or append to the end, all is ➜ok
                  ))
              })))
+|#

@@ -84,7 +84,7 @@ See LICENSE.txt
 
   (def-type chasis-array ()
     (
-      (tms 
+      (tms  ;; intended to be the heap that holds the tms.  Currently we emulate the heap.
         :initform ∅
         :accessor tms
         )
