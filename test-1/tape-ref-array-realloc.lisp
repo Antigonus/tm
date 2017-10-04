@@ -108,4 +108,36 @@ See LICENSE.txt
       )))
 (test-hook test-tape-ref-array-realloc-1)
 
+(defun test-tape-ref-array-realloc-2 ()
+  (let(tp0)
+    (= (write-heap<tape-ref-array-realloc> tp0 5  {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 100)
+    (= (r<tape-ref-array-realloc> tp0) 5)
+    (= (r<tape-ref-array-realloc> tp0 {:address 1 :➜empty (λ()7)}) 7)
+    ))
+(test-hook test-tape-ref-array-realloc-2)
+
+(defun test-tape-ref-array-realloc-3 ()
+  (let(tp0)
+    (= (write-heap-weak<tape-ref-array-realloc> tp0 5  {:➜write (λ(i)(+ i 200)) :➜append (λ(i)(+ i 100))}) 100)
+    (= (r-weak<tape-ref-array-realloc> tp0) 5)
+    (= (r-weak<tape-ref-array-realloc> tp0 {:address 1 :➜ok (be 2) :➜empty (λ()7)}) 7)
+    ))
+(test-hook test-tape-ref-array-realloc-3)
+
+(defun test-tape-ref-array-realloc-4 ()
+  (let(tp0)
+    (∧
+      (a◨<tape-ref-array-realloc> tp0 ∅) ; this is nil not zero
+      (a◨<tape-ref-array-realloc> tp0 1)
+      (a◨<tape-ref-array-realloc> tp0 2)
+      (a◨<tape-ref-array-realloc> tp0 ∅)
+
+      (compact<tape-ref-array-realloc> tp0)
+
+      (= (r<tape-ref-array-realloc> tp0) 1)
+      (= (r<tape-ref-array-realloc> tp0 {:address 1}) 2)
+      (= (r<tape-ref-array-realloc> tp0 {:address 3 :➜empty (λ()4)}) 4)
+      )))
+(test-hook test-tape-ref-array-realloc-4)
+
 ;; need to add a test for expanding with intermediate empty cells

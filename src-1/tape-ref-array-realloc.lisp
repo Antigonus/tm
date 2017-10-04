@@ -504,9 +504,82 @@ machines but not Turing machines, is relative safe even when machines are entang
                          })))))
              })))
 
-#|
-;; need to add the weak pointer part
     (defmacro write-heap-weak<tape-ref-array-realloc> (tape instance &optional ➜)
+      `(destructuring-bind
+         (&key
+           (➜write #'echo)
+           (➜append #'echo)
+           (➜alloc-fail #'alloc-fail)
+           &allow-other-keys
+           )
+         ,➜
+         (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
+         (let(
+               (wkpt-instance (tg:make-weak-pointer ,instance))
+               )
+           (max<tape-ref-array-realloc> ,tape
+             {
+               :➜empty
+               (λ()
+                 (w<tape-ref-array-realloc> ,tape wkpt-instance ,➜)
+                 [➜append 0]
+                 )
+
+               :➜ok
+               (λ(max)
+                 (let((i 0))
+                   (⟳(λ(➜again) ; search for an empty cell
+                       (r<tape-ref-array-realloc> ,tape
+                         {
+                           :address i
+                           :➜empty 
+                           (λ() 
+                             (w<tape-ref-array-realloc> ,tape wkpt-instance {:address i (o ,➜)})
+                             [➜write i]
+                             )
+                           :➜ok
+                           (λ(cell-contents)
+                             (cond
+                               ((¬ (tg:weak-pointer-value cell-contents))
+                                 (w<tape-ref-array-realloc> ,tape wkpt-instance {:address i (o ,➜)})
+                                 [➜write i]
+                                 )
+                               ((= i max) ; tape is full, append instance to the end
+                                 (w<tape-ref-array-realloc> ,tape wkpt-instance {:address (1+ i) (o ,➜)}) ; append
+                                 [➜append (1+ i)]
+                                 )
+                               (t
+                                 (incf i)
+                                 [➜again] ; keep searching for an empty cell
+                                 )))
+                           })))))
+               }))))
+
+    (defun r-weak<tape-ref-array-realloc> (tape &optional ➜)
+      (destructuring-bind
+        (&key
+          (➜ok #'echo)
+          (➜empty #'accessed-empty)
+          &allow-other-keys
+          )
+        ➜
+        (r<tape-ref-array-realloc> tape
+          {
+            :➜ok
+            (λ(wpt-v)
+              (let(
+                    (v (tg:weak-pointer-value wpt-v))
+                    )
+                (if
+                  v
+                  [➜ok v]
+                  [➜empty]
+                  )))
+            :➜empty ➜empty
+            (o ➜)
+            })))
+
+    (defmacro compact<tape-ref-array-realloc> (tape &optional ➜)
       `(destructuring-bind
          (&key
            (➜ok (be t))
@@ -514,39 +587,63 @@ machines but not Turing machines, is relative safe even when machines are entang
            &allow-other-keys
            )
          ,➜
-         (declare (ignore ➜alloc-fail)) ; someday will have to fill this in ...
-         (max<tape-ref-array-realloc> ,tape
-           {
-             :➜empty
-             (λ()
-               (w<tape-ref-array-realloc> ,tape ,instance ,➜)
-               [➜ok 0]
-               )
+         (declare (ignore ➜alloc-fail))
+         (when ,tape
+           (let(
+                 (max (max<tape-ref-array-realloc> ,tape))
+                 (i 0)
+                 (new-tape ∅)
+                 (j 0)
+                 )
+             (⟳(λ(➜again)
+                 (r<tape-ref-array-realloc> ,tape
+                   {
+                     :address i
+                     :➜ok (λ(v)
+                            (w<tape-ref-array-realloc> new-tape v {:address j})
+                            (incf j)
+                            )
+                     :➜empty #'do-nothing
+                     })
+                 (when (≠ i max)
+                   (incf i)
+                   [➜again]
+                   )))
+             (setf ,tape new-tape)
+             [➜ok]
+             ))))
 
-             :➜ok
-             (λ(max)
-               (let((i 0))
-                 (⟳(λ(➜again) ; search for an empty cell
-                     (r<tape-ref-array-realloc> ,tape
-                       {
-                         :address i
-                         :➜empty 
-                         (λ() 
-                           (w<tape-ref-array-realloc> ,tape ,instance {:address i (o ,➜)})
-                           )
-                         :➜ok
-                         (λ(cell-contents)
-                           (declare (ignore cell-contents))
-                           (cond
-                             ((= i max) ; tape is full, append instance to the end
-                               (w<tape-ref-array-realloc> ,tape ,instance {:address (1+ i) (o ,➜)}) ; append
-                               )
-                             (t
-                               (incf i)
-                               [➜again] ; keep searching for an empty cell
-                               )))
-                         })))
-                 [➜ok i] ;whether we found an empty cell and wrote it, or append to the end, all is ➜ok
-                 ))
-             })))
-|#
+
+    (defmacro compact-weak<tape-ref-array-realloc> (tape &optional ➜)
+      `(destructuring-bind
+         (&key
+           (➜ok (be t))
+           (➜alloc-fail #'alloc-fail)
+           &allow-other-keys
+           )
+         ,➜
+         (declare (ignore ➜alloc-fail))
+         (when ,tape
+           (let(
+                 (max (max<tape-ref-array-realloc> ,tape))
+                 (i 0)
+                 (new-tape ∅)
+                 (j 0)
+                 )
+             (⟳(λ(➜again)
+                 (r-weak<tape-ref-array-realloc> ,tape
+                   {
+                     :address i
+                     :➜ok (λ(v)
+                            (w<tape-ref-array-realloc> new-tape (tg:make-weak-pointer v) {:address j})
+                            (incf j)
+                            )
+                     :➜empty #'do-nothing
+                     })
+                 (when (≠ i max)
+                   (incf i)
+                   [➜again]
+                   )))
+             (setf ,tape new-tape)
+             [➜ok]
+             ))))
