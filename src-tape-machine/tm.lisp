@@ -3,369 +3,182 @@ Copyright (c) 2017 Thomas W. Lynch and Reasoning Technology Inc.
 Released under the MIT License (MIT)
 See LICENSE.txt
 
-A generic implementation of a tape machine built using only the tape interface (see
-src-tape/tape.lisp). This implementation defines the behavior for tape machines.  All
-optimized machines, e.g. tape-machine-cons, must provide the same functionality.
+  Architectural definition of Tape Machine. I.e. the tape machine interface.
 
-This tm is not entanglment safe, and not thread safe.
+  Psuedo Status: 
+     abandoned - the tape machine has been left for garbage collection, using it in any manner
+                 raises 'use-of-abandoned
+
+  Status:
+     empty - the tape is empty
+     parked - the tape is not empty, but the head does not indicate a cell on the tape
+     active - tape is not empty, head is on the tape
+
+move is topological
+copy is not - we don't need copy as we have read and write
 
 |#
+
 
 (in-package #:tm)
 
 ;;--------------------------------------------------------------------------------
 ;; type
 ;;
-  (def-type tm (tape-machine)
-    (
-      (head
-        :initarg :head
-        :accessor head
-        )
-      (tape 
-        :initarg :tape
-        :accessor tape
-        )
-      ))
+  (def-type tm ()())
 
-  (def-type        tm-abandoned (tm)())
-  (def-type  tm-empty-or-parked (tm tape-machine-empty-or-parked)())
-  (def-type tm-parked-or-active (tm tape-machine-parked-or-active)())
-  (def-type            tm-valid (tm tape-machine-valid)())
+  (def-type tm-abandoned (tm)()) ; used by scoping operators
 
-  (def-type tm-empty
+  ;; useful conjunctions of status:
+  (def-type tm-empty-parked-active (tm)()) ; not abandoned
+  (def-type tm-empty-parked (tm)()) ; not active
+  (def-type tm-parked-active (tm)()) ; not empty
+
+  (def-type tm-empty ; empty tape, the head is not on any cell
     (
-      tm-empty-or-parked
-      tm-valid
-      tape-machine-empty
+      tm-empty-parked-active
+      tm-empty-parked
       )
     ()
     )
-  (def-type tm-parked
+  (def-type tm-parked ; non-empty tape, the head is not on any cell
     (
-      tm-empty-or-parked 
-      tm-parked-or-active
-      tm-valid
-      tape-machine-parked
+      tm-empty-parked-active
+      tm-empty-parked
+      tm-parked-active
       )
     ()
     )
-  (def-type tm-active 
+  (def-type tm-active ; non-empty tape, and the head is on a cell
     (
-      tm-parked-or-active
-      tm-valid
-      tape-machine-active
+      tm-empty-parked-active
+      tm-parked-active
       )
     ()
     )
+  
+  ;; changing the machine status, these are private
+  (def-function-class to-abandoned (tm))
+  (def-function-class to-active (tm))
+  (def-function-class to-empty (tm))
+  (def-function-class to-parked (tm))
 
   (defun-typed to-abandoned ((tm tm)) (change-class tm 'tm-abandoned))
-  (defun-typed to-active    ((tm tm)) (change-class tm 'tm-active))
   (defun-typed to-empty     ((tm tm)) (change-class tm 'tm-empty))
   (defun-typed to-parked    ((tm tm)) (change-class tm 'tm-parked))
-
-  ;; binds to a tape
-  ;; 
-    (defun-typed init ((tm tm) (init tape-empty) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (setf (tape tm) init)
-        (to-empty tm)
-        [➜ok tm]
-        ))
-    (defun-typed init ((tm tm) (init tape-active) &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          &allow-other-keys
-          )
-        ➜
-        (setf (tape tm) init)
-        (setf (head tm) (bound-left init))
-        (to-active tm)
-        [➜ok tm]
-        ))
-
-  ;; binds to a sequence
-  ;; 
-    (defun-typed init ((tm tm) (init null)  &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          (➜fail (λ()(error 'bad-init-value)))
-          (type 'tape-bilist)
-          &allow-other-keys
-          )
-        ➜
-        (mk type ∅ ; due to the ∅ this will call src-tape-0 #'init returning an empty tape
-          {
-            :➜fail ➜fail
-            :➜ok (λ(tape) 
-                   (setf (tape tm) tape)
-                   (to-empty tm)
-                   [➜ok tm]
-                   )
-            })))
-
-    ;; sequence will not be null
-    (defun-typed init ((tm tm) (init sequence)  &optional ➜)
-      (destructuring-bind
-        (&key
-          (➜ok #'echo)
-          (➜fail (λ()(error 'bad-init-value)))
-          (type 'tape-bilist)
-          &allow-other-keys
-          )
-        ➜
-        (mk type ∅ ; due to the ∅ this will call src-tape-0 #'init returning an empty tape
-          {
-            :➜fail ➜fail
-            :➜ok (λ(tape) 
-                   (setf (tape tm) tape)
-                   (to-empty tm)
-                   (let(
-                         (i 0)
-                         (i-max (1- (length init)))
-                         )
-                       (⟳ (λ(➜again)
-                            (as tm (elt init i)
-                              {
-                                :➜ok (λ()
-                                       (if (= i i-max)
-                                         [➜ok tm]
-                                         (progn
-                                           (incf i)
-                                           [➜again]
-                                           )))
-                                :➜no-alloc ➜fail
-                                })))))
-            })))
-
+  (defun-typed to-active    ((tm tm)) (change-class tm 'tm-active))
 
 ;;--------------------------------------------------------------------------------
-;; entanglement
+;; entanglment
 ;;
-  ;; returns an entangled machine
-  (defun-typed entangle ((tm0 tm-empty)  &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm1 (make-instance 'tm))
-            )
-        (setf (tape tm1) (tape tm0))
-        (to-empty tm1)
-        [➜ok tm1]
-        )))
-  (defun-typed entangle ((tm0 tm-parked)  &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm1 (make-instance 'tm))
-            )
-        (setf (tape tm1) (tape tm0))
-        (to-parked tm1)
-        [➜ok tm1]
-        )))
-  (defun-typed entangle ((tm0 tm-active)  &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (tm1 (make-instance 'tm))
-            )
-        (setf (head tm1) (head tm0))
-        (setf (tape tm1) (tape tm0))
-        (to-active tm1)
-        [➜ok tm1]
-        )))
-
-  ;; predicate tells if two generic machines are entangled
-  (defun-typed entangled ((tm0 tm) (tm1 tm) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-      (if (eq (tape tm0) (tape tm1)) [➜t] [➜∅])
-      ))
-
+  (def-function-class entangle (tm &optional ➜))
+  (def-function-class fork (tm &optional ➜))
 
 ;;--------------------------------------------------------------------------------
-;; location
+;; tape operations
 ;;
-  (defun-typed on-bound-left ((tm tm-active) &optional ➜)
+  (def-function-class eur (tm &optional ➜)
+    (:documentation
+      "Reads the cell at :address.  :address defaults to 0.
+       "))
+  (defun-typed eur ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed eur ((tm tm-empty) &optional ➜)
     (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
+      (
+        &key
+        (➜empty #'accessed-empty)
         &allow-other-keys
         )
       ➜
-      (if (typep (head tm) 'bound-left) [➜t] [➜∅])
+      [➜empty]
       ))
 
-  (defun-typed on-bound-right ((tm tm-active) &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜∅ (be ∅))
-        (➜t (be t))
-        &allow-other-keys
-        )
-      ➜
-      (if (typep (head tm) 'bound-right) [➜t] [➜∅])
-      ))
-
-  (defun-typed heads-on-same-cell ((tm0 tm-active)(tm1 tm-active) &optional ➜)
-    (=<cell> (head tm0) (head tm1) ➜)
+  (def-function-class euw (tm instance &optional ➜)
+    (:documentation
+      "Writes the cell at :address. :address defaults to 0.
+       "))
+  (defun-typed euw ((tm tm-abandoned) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (error 'use-of-abandoned)
     )
 
+
+;;;
+
+
+  (def-function-class epa (tm &optional ➜)
+    (:documentation
+      "Prepends a new leftmost cell or cells. 
+      :instance is a new instance.
+      :fill  
+       "))
+
+  (def-function-class ep-a (tm instance &optional ➜)
+    (:documentation
+      "Appends a new rightmost cell or cells.
+       "))
+
+  (def-function-class ep-a (tm instance &optional ➜)
+    (:documentation
+      "Appends a new rightmost cell or cells.
+       "))
+
+
+  (def-function-class epd (tm &optional ➜)
+    (:documentation
+      "Deletes the leftmost cell. Returns the instance.
+       "))
+
+  (def-function-class ep-d (tm &optional ➜)
+    (:documentation
+      "Deletes the rightmost cell.
+       "))
+
+
 ;;--------------------------------------------------------------------------------
-;; length
+;; absolute head control
 ;;
-  (defun-typed tape-length-is-one ((tm tm-parked-or-active) &optional ➜)
-    (length-is-one (tape tm) ➜)
+
+  ;; cue - functions that use cue will accept a cue function parameter so the user may use their own
+  ;; defaults to the leftmost of the tape
+  (def-function-class u (tm &optional ➜)
+    (:documentation
+      "Cue the head to specific cell.
+       "))
+  (defun-typed u ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
     )
-
-  (defun-typed tape-length-is-two ((tm tm-parked-or-active) &optional ➜)
-    (length-is-two (tape tm) ➜)
-    )
-
-;;--------------------------------------------------------------------------------
-;; accessing data
-;;
-  (defun-typed r ((tm tm-active) &optional ➜)
+  (defun-typed u ((tm tm-empty) &optional ➜)
     (destructuring-bind
-      (&key
-        (➜ok #'echo)
+      (
+        &key
+        (➜bound (be ∅))
         &allow-other-keys
         )
       ➜
-      [➜ok (r<cell> (head tm))]
+      [➜bound]
       ))
 
-  (defun-typed esr ((tm tm-active) &optional ➜)(esr<cell> (head tm) ➜))
-
-  (defun-typed esnr ((tm tm-parked) n &optional ➜)
-    (cond
-      ((< n 0) (◨snr (tape tm) (1+ n) ➜))
-      ((= n 0) (r tm ➜))
-      (t       (◧snr (tape tm) (1- n) ➜))
-      ))
-  (defun-typed esnr ((tm tm-active) n &optional ➜)
-    (cond
-      ((= n 0) (r tm ➜))
-      (t (esnr<cell> (head tm) n ➜))
-      ))
-
-  (defun-typed ◧r ((tm tm-parked-or-active) &optional ➜) (◧r (tape tm) ➜))
-  (defun-typed ◧sr ((tm tm-parked-or-active) &optional ➜)(◧sr (tape tm) ➜))
-  (defun-typed ◧snr ((tm tm-parked-or-active) n &optional ➜)
+  (def-function-class p (tm &optional ➜)
+    (:documentation
+      "Parks the head.
+       "))
+  ;; an empty machine is already parked
+  (defun-typed p ((tm tm-empty-parked) &optional ➜)
     (destructuring-bind
-      (&key
-        (➜bound-left (λ()(error 'step-from-bound-left)))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((< n 0) [➜bound-left])
-        ((= n 0) (◧r tm ➜))
-        (t       (◧snr (tape tm) n ➜))
-        )))
-
-  (defun-typed ◨r ((tm tm-parked-or-active) &optional ➜)  (◨r (tape tm) ➜))
-  (defun-typed ◨-sr ((tm tm-parked-or-active) &optional ➜)(◨-sr (tape tm) ➜))
-  (defun-typed ◨snr ((tm tm-parked-or-active) n &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜bound-right (λ()(error 'step-from-bound-right)))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((> n 0) [➜bound-right])
-        ((= n 0) (◨r tm ➜))
-        (t
-          (◨snr (tape tm) n ➜)
-          ))))
-
-  (defun-typed w ((tm tm-active) instance &optional ➜)
-    (destructuring-bind
-      (&key
+      (
+        &key
         (➜ok (be t))
         &allow-other-keys
         )
       ➜
-      (w<cell> (head tm) instance)
       [➜ok]
       ))
-
-  (defun-typed esw ((tm tm-active) instance &optional ➜)(esw<cell> (head tm) instance ➜))
-  (defun-typed esnw ((tm tm-parked) n instance &optional ➜)
-    (cond
-      ((< n 0) (◨snr (tape tm) (1+ n) instance ➜))
-      ((= n 0) (r tm ➜))
-      (t       (◨snr (tape tm) (1- n) instance ➜))
-      ))
-  (defun-typed esnw ((tm tm-active) n instance &optional ➜)
-    (cond
-      ((= n 0) (w tm instance ➜))
-      (t
-        (esnw<cell> (head tm) n instance ➜)
-        )))
-
-  (defun-typed ◧w ((tm tm-parked-or-active) instance &optional ➜) (◧w (tape tm) instance ➜))
-  (defun-typed ◧sw ((tm tm-parked-or-active) instance &optional ➜)(◧sw (tape tm) instance ➜))
-  (defun-typed ◧snw ((tm tm-parked-or-active) n instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜bound-left (λ()(error 'step-from-bound-left)))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((< n 0) [➜bound-left])
-        ((= n 0) (◧w tm instance ➜))
-        (t
-          (◧snw (tape tm) n instance ➜)
-          ))))
-
-  (defun-typed ◨w ((tm tm-parked-or-active) instance &optional ➜)  (◨w (tape tm) instance ➜))
-  (defun-typed ◨-sw ((tm tm-parked-or-active) instance &optional ➜)(◨-sw (tape tm) instance ➜))
-  (defun-typed ◨snw ((tm tm-parked-or-active) n instance &optional ➜)
-    (destructuring-bind
-      (&key
-        (➜bound-right (λ()(error 'step-from-bound-right)))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((< n 0) [➜bound-right])
-        ((= n 0) (◨w tm instance ➜))
-        (t
-          (◨snw (tape tm) n instance ➜)
-          ))))
-
-;;--------------------------------------------------------------------------------
-;; head motion
-;;
-  (defun-typed s ((tm tm-parked) &optional ➜)
+  (defun-typed p ((tm tm-active) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -373,364 +186,193 @@ This tm is not entanglment safe, and not thread safe.
         &allow-other-keys
         )
       ➜
-      (setf (head tm) (right-neighbor-slot (tape tm)))
-      (to-active tm)
-      [➜ok]
-    ))
-  (defun-typed s ((tm tm-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        (➜bound-right (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (right-neighbor (head tm)
-        {
-          :➜ok (λ(rn)(setf (head tm) rn) [➜ok])
-          :➜bound-right ➜bound-right
-          })))
-
-  (defun-typed -s ((tm tm-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        (➜bound-left (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (left-neighbor (head tm)
-        {
-          :➜ok (λ(ln)(setf (head tm) ln) [➜ok])
-          :➜bound-left ➜bound-left
-          })))
-  (defun-typed -s ((tm tm-parked) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) (left-neighbor-slot (tape tm)))
-      (to-active tm)
-      [➜ok]
-    ))
-
-  (defun-typed sn ((tm tm-active) n &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        (➜bound-right (be ∅))
-        &allow-other-keys
-        )
-      ➜
-      (cond
-        ((= n 0) [➜ok])
-        (t
-          (right-neighbor-n (head tm) n
-            {
-              :➜ok (λ(rn)(setf (head tm) rn))
-              :➜bound-right ➜bound-right
-              }))
-        )))
-
-  (defun-typed s* ((tm tm-parked-or-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜bound-right (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) (bound-right (tape tm)))
-      [➜bound-right]
-      ))
-
-  ;; typically there is a more efficient way of doing this because we know
-  ;; the bound-left cell of the tape
-  (defun-typed -s* ((tm tm-parked-or-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜bound-left (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) (bound-left (tape tm)))
-      [➜bound-left]
-      ))
-
-;;--------------------------------------------------------------------------------
-;; topology modification
-;;
-
-  (defsynonym epa ◧-a)
-  
-  (defun-typed epa ((tm tm-empty) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (epa<instance> (tape tm) instance) ; causes tape to become active
-      (setf (head tm) (bound-left (tape tm)))
       (to-parked tm)
       [➜ok]
       ))
-  (defun-typed epa ((tm tm-parked-or-active) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (epa<instance> (tape tm) instance)
-      [➜ok]
-      ))
 
-  (defsynonym ◨a ep-a)
-  (defun-typed ◨a (tm instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (◨a<instance> (tape tm) instance)
-      [➜ok]
-      ))
-
-  (defun-typed a ((tm tm-active) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (a<instance> (head tm) instance)
-      [➜ok]
-      ))
-
-  (defun-typed -a ((tm tm-active) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (-a<instance> (head tm) instance)
-      [➜ok]
-      ))
-
-  (defun-typed epd ((tm tm-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        (➜bound-right (λ()(error 'dealloc-on-bound-right)))
-        (spill ∅)
-        &allow-other-keys
-        )
-      ➜
-      (when (tape-length-is-one tm) (to-empty tm))
-      (epd<tape> (tape tm)  
-        {
-          :➜ok
-          (λ(cell)
-            (when spill
-              (a<cell> (tape spill) cell)
-              (s spill {:➜ok #'do-nothing :➜bound-right #'cant-happen})
-              )
-            [➜ok (r<cell> cell)]
-            )
-
-          :➜bound-right ➜bound-right
-          })
-      ))
-
-  (defun-typed ep-d ((tm tm-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        (➜bound-left (λ()(error 'dealloc-on-bound-left)))
-        (spill ∅)
-        &allow-other-keys
-        )
-      ➜
-      (when (tape-length-is-one tm) (to-empty tm))
-      (epd<tape> (tape tm)  
-        {
-          :➜ok
-          (λ(cell)
-            (when spill
-              (a<cell> (tape spill) cell)
-              (s spill {:➜ok #'do-nothing :➜bound-left #'cant-happen})
-              )
-            [➜ok (r<cell> cell)]
-            )
-
-          :➜bound-left ➜bound-left
-          })
-      ))
-
-
-   #| need to implement a<tape>,  also make a version for when spill is just tape-machine
-      we can still save by deleting the tape on tm in one step using epd*<tape>
-  (defun-typed epd* ((tm tm-parked-or-active) &optional (spill tm-parked-or-active) ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (when spill
-        (let(
-              (s1 (entangle tm))
-              )
-          (s* s1)
-          (a<tape> (tape spill) (tape tm))
-          (setf (head spill) (head s1))
-          ))
-      (epd*<tape> (tape tm))
-      (to-empty tm)
-      [➜ok]
-      ))
-  |#
-
-  ;; Spill can be ∅, in which case we just drop the deallocated cell.  When spill is not ∅,
-  ;; then the deallocated cell is moved to spill, or a new allocation is made on spill and
-  ;; the instance from the deallocated cell is moved to it, preferably the former. 
-  ;;
-  ;; d must have transactional behavior, i.e. the cell is only dealloced if all goes well,
-  ;; otherwise d makes no structural changes.  E.g. d will fail if spill is not nil, and
-  ;; reallocation to spill fails
-  ;;
-  ;; d can not make the tape empty
-  ;;
-    (defun-typed d ((tm tm-active) &optional ➜)
-      (destructuring-bind
-        (
-          &key
-          (➜ok #'echo)
-          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
-          (spill ∅)
-          &allow-other-keys
-          )
-        ➜
-        (d<cell> (head tm)  
-          {
-            :➜ok
-            (λ(cell)
-              (let(
-                    (instance (r<cell> cell))
-                    )
-                (when spill (as spill instance))
-                [➜ok instance]
-                ))
-
-            :➜bound-right ➜bound-right
-            })
-        ))
-    (defun-typed d ((tm tm-active) &optional ➜)
-      (destructuring-bind
-        (
-          &key
-          (➜ok #'echo)
-          (➜bound-right (λ()(error 'dealloc-on-bound-right)))
-          (spill ∅)
-          &allow-other-keys
-          )
-        ➜
-        (d<cell> (head tm)  
-          {
-            :➜ok
-            (λ(cell)
-              (when spill
-                (a<cell> (tape spill) cell)
-                (s spill {:➜ok #'do-nothing :➜bound-right #'cant-happen})
-                )
-              [➜ok (r<cell> cell)]
-              )
-
-            :➜bound-right ➜bound-right
-            })
-        ))
-
-    (defun-typed -d ((tm tm-active) &optional ➜)
-      (destructuring-bind
-        (
-          &key
-          (➜ok #'echo)
-          (➜bound-left (λ()(error 'dealloc-on-bound-left)))
-          (spill ∅)
-          &allow-other-keys
-          )
-        ➜
-        (-d<cell> (head tm)  
-          {
-            :➜ok
-            (λ(cell)
-              (let(
-                    (instance (r<cell> cell))
-                    )
-                (when spill (as spill instance))
-                [➜ok instance]
-                ))
-
-            :➜bound-left ➜bound-left
-            })
-        ))
-    (defun-typed -d ((tm tm-active) &optional ➜)
-      (destructuring-bind
-        (
-          &key
-          (➜ok #'echo)
-          (➜bound-left (λ()(error 'dealloc-on-bound-left)))
-          (spill ∅)
-          &allow-other-keys
-          )
-        ➜
-        (-d<cell> (head tm)  
-          {
-            :➜ok
-            (λ(cell)
-              (when spill
-                (a<cell> (tape spill) cell)
-                (s spill {:➜ok #'do-nothing :➜bound-left #'cant-happen})
-                )
-              [➜ok (r<cell> cell)]
-              )
-
-            :➜bound-left ➜bound-left
-            })
-        ))
-
-
-  ;; this function is private. intended to be used with entanglement accounting.
-  ;; after another machine in the entanglement group does an epa, we need to
-  ;; update the tape reference for the other memebers of the group.
-  (defun-typed update-tape-after-epa ((tm tm) (tm-ref tm))
-    (setf (tape tm) (tape tm-ref))
+  (def-function-class abandon (tm))
+  (defun-typed abandon ((tm tm-abandoned)))
+  (defun-typed abandon ((tm tm))
+    ;; add clean to the gc hook
+    (to-abandoned tm)
     )
 
-  ;; this function is private. intended to be used with entanglement accounting.
-  ;; after another machine in the entanglement group does an epa, we need to
-  ;; update the tape reference for the other memebers of the group.
-  (defun-typed update-tape-after-epd ((tm tm) (tm-ref tm))
-    (setf (tape tm) (tape tm-ref))
+  (def-function-class @ (tm &optional ➜)
+    (:documentation
+      "Location of the head as a natural number, or list of natural numbers.
+       "))
+  (defun-typed @ ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
     )
-    
+  (defun-typed @ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed @ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
 
+  (def-function-class max@ (tm &optional ➜)
+    (:documentation
+      "Maximum address in the tape's address space.
+       "))
+  (defun-typed max@ ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed max@ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max@ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
+
+  (def-function-class max-active@ (tm &optional ➜)
+    (:documentation
+      "Maximum address in the tape's address space.
+       "))
+  (defun-typed max-active@ ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed max-active@ ((tm tm-empty) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed max-active@ ((tm tm-parked) &optional ➜)
+    (declare (ignore tm))
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
+
+
+
+;;--------------------------------------------------------------------------------
+;; relative head control
+;;
+  ;; step, user will sometimes provide their own step function
+  (def-function-class s (tm &optional ➜)
+    (:documentation
+      "Steps the head to a neighboring cell.
+       "))
+  (defun-typed s ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed s ((tm tm-empty) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜bound (be ∅))
+        &allow-other-keys
+        )
+      ➜
+      [➜bound]
+      ))
+  
+;;--------------------------------------------------------------------------------
+;; access through head
+;;
+  (def-function-class r (tm &optional ➜)
+    (:documentation
+      "Reads the cell under the head.
+       "))
+  (defun-typed r ((tm tm-abandoned) &optional ➜)
+    (declare (ignore tm ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed r ((tm tm-empty) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed r ((tm tm-parked) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
+
+  (def-function-class w (tm instance &optional ➜)
+    (:documentation
+      "Reads the cell under the head.
+       "))
+  (defun-typed w ((tm tm-abandoned) instance &optional ➜)
+    (declare (ignore tm instance ➜))
+    (error 'use-of-abandoned)
+    )
+  (defun-typed w ((tm tm-empty) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      [➜empty]
+      ))
+  (defun-typed w ((tm tm-parked) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜parked (λ()(error 'accessed-parked)))
+        &allow-other-keys
+        )
+      ➜
+      [➜parked]
+      ))
 
