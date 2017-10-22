@@ -1,0 +1,147 @@
+Copyright (c) 2016 Thomas W. Lynch and Reasoning Technology Inc.
+Released under the MIT License (MIT)
+See LICENSE.txt
+
+1. splice functionality
+
+  We want to cut sections of tape out from source tapes, and then splice them into a destination tape.
+
+  A source tape may be affected in three ways:
+
+    1. delete -- we cut a region of tape out, and then throw it away
+    2. extract  -- we cut a region of tape out, and return it for some use
+    3. copy -- we leave the source region in tact, and return a new region that is a shallow copy
+
+  A region may be marked using two entangled heads. Hence, the source argument will be a tape machine.
+
+  Both extract and copy give us a tape. Extract gives us an existing tape, and we don't
+  want to create an intermediary tape for copy but would rather just copy to the
+  destination.
+
+  Delete and extract modify the source tape topology by removing a region of the tape.
+
+  A destination tape can be modified in three ways:
+
+    1. splice a tape to the left of the leftmost cell
+    2. splice a tape inbetween two cells.
+    3. splice a tape to the right of the righmost cell
+
+  When the destination tape is mounted on a tape machine, we can reduce this to one
+  'splice' operation by using the head to indicate the splice insert point.  Accordingly,
+  when splicing to a parked machine, we splice left of leftmost, when the head is on a
+  cell that has right neighbor we splice inbetween that cell and its right neighbor, and
+  when the head is on the righmost cell we append the tape to the end.
+
+2. problem with arrays and other machines
+
+  When the tape is implemented as a linked list, particularly a doubly linked list, cutting
+  and splicing is straightforwrad.  However, when a tape is implemented as an array, delete
+  and extract are not directly supported.  We can emulate delete on an array by copying the
+  cells before and after the region to be deleted and then splicing these on a new array.  With
+  the copy command and the emulated delete command we can emulate extract.  
+
+  Generators and other tape machine implemetations also have issues with topology modifying
+  commands.
+
+3. journaling
+
+  So for the array tape machine, we implement a journal.  We then queue all the delete
+  commands rather than using them directly.  At some point we play the journal and
+  perform a single copy splice operation to clear all the delete commands.
+
+  A journaled tape machine can be implemented as a transform over any other tape machine.
+  Thus, we can have delete and insert effects over arrays, generators, etc.
+
+4. synchronization
+
+  There are two types of commands, those that only affect the machine they belong to, and those
+  which have dependencies on other machine.   Delete is such an intrinsic command.  Copy is
+  such an extrinsic command.  Extrinsic commands cause dependencies.
+
+
+  E.g. with multiple journaled tape machines suppose we journal deletes on a source tape
+  machine and journal copies from the source machine on a destination machine.  Our idea
+  in doing this is to emulate extraction.  However when we play the journal on the
+  destination machine it will be reading through the journal on the source machine.  The
+  source machine will not know which, if any, or all, of the deletes should be applied
+  before the read. If we play the journal on the source machine, then play the one on the
+  destination machine, it is the same as applying all the journal command - all deleted
+  data would not appear in reads.
+
+  4.1
+
+    If we have a master journal, and the user enters commands in the desired order.  Though
+    with this approach the journal is not a transform machine.
+
+    Dependencies can be chcked on the master journal, and then command dispatched in
+    mutually non-blocking groups that rendezvous when complete.
+
+    The journal looks like source code, and the dispatcher like an interpretor or
+    compiler.
+
+  4.2 
+
+    Suppose we keep a time counter and have journaling machines as a transform.  Groups of
+    journaled commands would be stamped with a time for which they are to be
+    dispatched. The machine as a whole would have a time for which it is up to date.
+
+    There would then be a time context.  Machines would belong to the time context.  The
+    time context would advance the current time, going round robin telling each machine to
+    advance to the given base time.  Disptach of updates might be non-blocking.
+  
+    Update occurs in two steps.  First new state is created, then second old state is
+    deleted.  That way all machines can read from the old state of others.  Machines for
+    which there are no read dependencies by other machines can update in one step.
+
+    Thus, for array machines, in the first step we create the new array and copy data over
+    and finish the splice.  However we do not delete the old array as others may be
+    reading from it.  Then in the second step we delete the old array.  So the time
+    context manager goes round robin twice, first to create new state, second to delete
+    old state.
+
+ 
+  4.3
+
+    A splice has a single destination.  For the moment, suppose that all machine
+    are based on tape arrays.
+
+    (splice
+       dest-tm
+       {
+        {'copy region-0}
+        {'extract region-1}
+        ...
+        })
+
+     Splice takes two arguments, the first is the destination machine.  The second is
+     a list of regions that are to be extracted from or copied from.
+
+     The regions are to be placed in order on to the destination machine.
+
+     'extract calls initially act like 'copy, but they also queue secondary splice
+     commands that operate on the source machine.  These are called after first splice is
+     finished.  The secondary splices delete the extracted regions from the source
+     machine.
+
+     .. a drawback of this approach .. what if we just want to overwrite areas in the
+     destination machine, and that destination machine already has sufficient size ..
+     then don't use splice, do a copy ...
+
+     a region references entangled heads of a tape machine.  These are taken as bounds.
+     .. but then a generator can not be a region ..  a region should be a machine.  Perhaps
+     we should support negation, union, and intersection of regions,  splice would then
+     be working on a union .. but there is order to the splice source copy list...
+
+     regions can references the dest machine, as we will be replacing its array.
+     .. such self splice can be used to perform delete. 
+
+     perhaps we should just leave it to the user to do the deletes via self splice,
+     however, later, when we have list machines, and that context doing so would lead to
+     redundant operations.
+
+     for tape machines which use an address as a head value, a generator is a disembodied
+     head.  Within the machine, it is the complement of the tape.
+
+     
+
+       

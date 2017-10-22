@@ -12,9 +12,9 @@ See LICENSE.txt
         (tm0 (mk 'tm-ref-array-realloc))
         )
     (∧
-      (euw tm0 7 {:address 2})
-      (euw tm0 5 {:address 1})
-      (euw tm0 3 {:address 0})
+      (w tm0 7 {:address 2})
+      (w tm0 5 {:address 1})
+      (w tm0 3 {:address 0})
       (typep tm0 'tm-parked)
       (∀ tm0 (λ(tm0 ➜∅ ➜t)(if (oddp (r tm0)) [➜t] [➜∅])))
       )))

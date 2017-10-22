@@ -4,21 +4,23 @@ Released under the MIT License (MIT)
 See LICENSE.txt
 
   tm-ref-array-realloc - tape machine based on a tape which is a tape-ref-array-realloc
-  handle-tm-ref-array-realloc - 
 
-  tm-ref-array-realloc specifies a head in the tm-ref-array-realloc-chasis.  Hence, tm-ref-array-realloc can be parked, but the chasis itself
-  can not.
+  tm-ref-array-realloc-chasis holds the tape and a list of tm-ref-array-realloc instances.  In turn
+  each tm-ref-array-realloc instance has a head and a references the chasis.  Thus the chasis and the
+  tem are mutually referencial. I use weak pointers so that the gc can deal with tihs.
 
-  We avoid keeping entanglement lists by having multiple 'tms' on a chasis.  Each tm has
-  access to the chasis, and thus access to all tm.  So for example, if one goes empty,
-  then that one can make all the others empty.  This implimentation is more compact than
-  the prior entanglment list model (where each tm shared a listener list) but entanglement
-  list model looks more like a simulation of sharing of memory over distributed hardware.
+  With this approach we can avoid having to keep entanglement lists.  Because each tm has
+  access to the chasis, it can automatically communicate with all tms.  So for example, if
+  one goes empty, then that one can make all the others empty.  This implimentation is
+  more compact than the prior entanglment list model (where each tm shared a listener
+  list) thought the prior entanglement list approach did better model distributed computing
+  with shared memory. Perhaps for this reason it might come back some day.
 
-  Wish the head could be a pointer into the array rather than an index, as the repeated access
-  calculation is a bit of a waste.  However, the ref-array-realloc base can change with expansion,
-  so though indexes remain valid, pointers would not.  Perhaps we could keep a byte pointer
-  and add a stride value.  A sort of base invariant pointer arithmetic ..
+  Wish the head could be a pointer into the array rather than an index, as the repeated
+  access calculation is a bit of a waste.  But we can't do this because on an expanstion
+  event the ref-array-realloc can change out the array.  That is why its interface is a
+  bunch of macros.  Accordingly, indexes remain valid, but pointers would not.
+
 
 |#
 (in-package #:tm)
@@ -126,46 +128,7 @@ See LICENSE.txt
 ;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
-  (defun-typed eur ((tm tm-ref-array-realloc-parked-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (address 0)
-        (➜ok #'echo)
-        &allow-other-keys
-        )
-      ➜
-      [➜ok (r<tape-ref-array-realloc> (tape (chasis tm)) {:address address})]
-      ))
-   
-  (defun-typed euw ((tm tm-ref-array-realloc-empty) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (address 0)
-        (➜ok (be t))
-        (➜alloc-fail #'alloc-fail)
-        &allow-other-keys
-        )
-      ➜
-      (w<tape-ref-array-realloc> (tape (chasis tm)) instance {:address address :➜alloc-fail ➜alloc-fail})
-      (to-parked tm)
-      [➜ok]
-      ))
 
-  (defun-typed euw ((tm tm-ref-array-realloc-parked-active) instance &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (address 0)
-        (➜ok (be t))
-        (➜alloc-fail #'alloc-fail)
-        &allow-other-keys
-        )
-      ➜
-      (w<tape-ref-array-realloc> (tape (chasis tm)) instance {:address address :➜alloc-fail ➜alloc-fail})
-      [➜ok]
-      ))
 
 ;;--------------------------------------------------------------------------------
 ;; absolue head control
@@ -274,21 +237,43 @@ See LICENSE.txt
     (destructuring-bind
       (
         &key
+        (address (head tm))
         (➜ok #'echo)
         &allow-other-keys
         )
       ➜
       (r<tape-ref-array-realloc> (tape (chasis tm))
         {
-          :address (head tm)
+          :address address
           :➜ok ➜ok
           :➜empty #'cant-happen
           })))
+
+  (defun-typed r ((tm tm-ref-array-realloc-parked) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address ∅)
+        (➜ok #'echo)
+        (➜parked #'accessed-parked)
+        &allow-other-keys
+        )
+      ➜
+      (if
+        address
+        (r<tape-ref-array-realloc> (tape (chasis tm))
+          {
+            :address address
+            :➜ok ➜ok
+            })
+        [➜parked]
+        )))
 
   (defun-typed w ((tm tm-ref-array-realloc-active) instance &optional ➜)
     (destructuring-bind
       (
         &key
+        (address (head tm))
         (➜ok (be t))
         (➜alloc-fail #'alloc-fail)
         &allow-other-keys
@@ -296,12 +281,58 @@ See LICENSE.txt
       ➜
       (w<tape-ref-array-realloc> (tape (chasis tm)) instance
         {
-          :address (head tm)
+          :address address
           :➜ok ➜ok
           :➜alloc-fail ➜alloc-fail
-          :➜empty #'cant-happen
           })))
-   
+
+  (defun-typed w ((tm tm-ref-array-realloc-empty) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address ∅)
+        (➜ok (be t))
+        (➜alloc-fail #'alloc-fail)
+        (➜empty #'accessed-empty)
+        &allow-other-keys
+        )
+      ➜
+      (if
+        address
+        (progn
+          (w<tape-ref-array-realloc> (tape (chasis tm)) instance
+            {
+              :address address
+              :➜ok ➜ok
+              :➜alloc-fail ➜alloc-fail
+              })
+          (to-parked tm)
+          )
+        [➜empty]
+        )))
+
+  (defun-typed w ((tm tm-ref-array-realloc-parked) instance &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address ∅)
+        (➜ok (be t))
+        (➜alloc-fail #'alloc-fail)
+        (➜parked #'accessed-parked)
+        &allow-other-keys
+        )
+      ➜
+      (if
+        address
+        (w<tape-ref-array-realloc> (tape (chasis tm)) instance
+          {
+            :address address
+            :➜ok ➜ok
+            :➜alloc-fail ➜alloc-fail
+            })
+        [➜parked]
+        )))
+
 
 
 ;;--------------------------------------------------------------------------------

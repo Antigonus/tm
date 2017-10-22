@@ -613,7 +613,6 @@ machines but not Turing machines, is relative safe even when machines are entang
              [➜ok]
              ))))
 
-
     (defmacro compact-weak<tape-ref-array-realloc> (tape &optional ➜)
       `(destructuring-bind
          (&key

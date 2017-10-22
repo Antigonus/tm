@@ -12,9 +12,9 @@ See LICENSE.txt
         (tm0 (mk 'tm-ref-array-realloc))
         )
     (∧
-      (= (eur tm0 {:➜ok (be 1) :➜empty (be 3)}) 3)
-      (euw tm0 7)
-      (= (eur tm0) 7)
+      (= (r tm0 {:address 0 :➜ok (be 1) :➜empty (be 3)}) 3)
+      (w tm0 7 {:address 0})
+      (= (r tm0 {:address 0}) 7)
       )))
 (test-hook test-tm-ref-array-realloc-0)
 
@@ -23,9 +23,9 @@ See LICENSE.txt
         (tm0 (mk 'tm-ref-array-realloc))
         )
     (∧
-      (euw tm0 7 {:address 2})
-      (euw tm0 6 {:address 1})
-      (euw tm0 5 {:address 0})
+      (w tm0 7 {:address 2})
+      (w tm0 6 {:address 1})
+      (w tm0 5 {:address 0})
       (typep tm0 'tm-parked)
       (u tm0)
       (= (r tm0) 5)

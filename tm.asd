@@ -10,7 +10,7 @@ See LICENSE.txt
 
 (defsystem #:tm
   :name "tm"
-  :version "0.7"
+  :version "0.9"
   :author "Thomas W. Lynch <thomas.lynch@reasoningtechnology.com>"
   :description "Formalized Iteration Library for Common LISP"
   :license "MIT License"
@@ -38,7 +38,7 @@ See LICENSE.txt
                                (:file "test")
                                ))
 
-               (:module "src-1"
+               (:module "src-tape"
                  :components (
                                (:file "mk")
                                (:file "tape-ref-array-realloc")
@@ -46,7 +46,7 @@ See LICENSE.txt
                                (:file "cell")
                                ))
 
-               (:module "src-2"
+               (:module "src-tape-machine"
                  :components (
                                (:file "tm")
                                (:file "quantification")

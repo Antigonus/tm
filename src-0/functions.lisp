@@ -39,6 +39,7 @@ See LICENSE.txt
 
   (defun alloc-fail (&rest x) (declare (ignore x)) (error 'alloc-fail)) ;; for memory allocation failure
   (defun accessed-empty (&rest x) (declare (ignore x)) (error 'accessed-empty))
+  (defun accessed-parked (&rest x) (declare (ignore x)) (error 'accessed-parked))
 
 
 ;;--------------------------------------------------------------------------------

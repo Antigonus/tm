@@ -77,38 +77,9 @@ copy is not - we don't need copy as we have read and write
 ;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
-  (def-function-class eur (tm &optional ➜)
-    (:documentation
-      "Reads the cell at :address.  :address defaults to 0.
-       "))
-  (defun-typed eur ((tm tm-abandoned) &optional ➜)
-    (declare (ignore tm ➜))
-    (error 'use-of-abandoned)
-    )
-  (defun-typed eur ((tm tm-empty) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜empty #'accessed-empty)
-        &allow-other-keys
-        )
-      ➜
-      [➜empty]
-      ))
-
-  (def-function-class euw (tm instance &optional ➜)
-    (:documentation
-      "Writes the cell at :address. :address defaults to 0.
-       "))
-  (defun-typed euw ((tm tm-abandoned) instance &optional ➜)
-    (declare (ignore tm instance ➜))
-    (error 'use-of-abandoned)
-    )
 
 
-;;;
-
-
+;;
   (def-function-class epa (tm &optional ➜)
     (:documentation
       "Prepends a new leftmost cell or cells. 
@@ -340,7 +311,7 @@ copy is not - we don't need copy as we have read and write
     (destructuring-bind
       (
         &key
-        (➜parked (λ()(error 'accessed-parked)))
+        (➜parked #'accessed-parked)
         &allow-other-keys
         )
       ➜
@@ -369,7 +340,7 @@ copy is not - we don't need copy as we have read and write
     (destructuring-bind
       (
         &key
-        (➜parked (λ()(error 'accessed-parked)))
+        (➜parked #'accessed-parked)
         &allow-other-keys
         )
       ➜
