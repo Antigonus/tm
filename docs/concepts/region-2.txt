@@ -1,0 +1,302 @@
+
+--------------------------------------------------------------------------------
+2017-11-06T20:43:00Z
+
+The difficulty with specifying a region is that we are trying to specify topology by
+pointing at instances. This only approximately works, as one can see in the struggle to find
+a good defintiion presented in region.txt.
+
+An address specifies instances.  A neighboring address specifies the neighbor's instances.  However,
+neither address specifies the connection between the cells.  Rather here the topology is found in
+the integer field, we deal with it during the increment.
+
+When specifying a region our references are to topology of the sequence that holds the instances, not
+to the instances held in the sequence itself.
+
+For example, take the cons cell.  Suppose we have a reference to the cons cell.  Is that reference to
+the instance being held, which would be extracted by car,  or to the reference to the neighbor cell,
+which would be extracted with cdr.  The reference doesn't tell us.  Instead  we must instatiate this
+information directly into our code by calling one or both of the car and cdr functions.
+
+Accordingly a reference to a cons cell, one which is intended to be the left bound for a region, is
+interpeted as pointing to that pointer that points to the leftmost cell.  Analogously a pointer to
+a cons cell, where that cons cell is one past the region, is interpretted as being a pointer to that
+back pointer for which points to the rightmost cell.  Of course a cons cell typically does not have
+such a back pointer, but that is not a problem for our definition unless we try to dereference said
+back pointer.   In the case of a bidirection list this abstraction is unnecessary, as there will be
+a back pointer.
+
+Given this idea that our topology can be our data, but that data is abstractly defined, we
+can make a consistent set of rules for handling region pointers.  So the left bound
+pointer is pointing at the cons cell of to the left of the leftmost cell of the region.
+Should this cell be deleted, then the region pointer still points to the cons cell just to
+the left of the region.  This is because the invariant is "a pointer to that pointer that
+points to the leftmost cell", and now the new leftmost cell holds this pointer.  From this
+perspective our topology pointer did not change, though the cell was deleted.
+
+
+...123---xxx
+     |   |    < left and right region pointers
+
+...123xxx
+     ||       < left and right region pointers after deleting the '---' region.
+
+
+...12---xxx 
+    |   | < after deleting the cell holding the 3 instance
+
+...12--xxx 
+    |  | < after deleting the cell holding the first '-' instance
+
+
+We now do not have difficulty with adjacent regions.  Though two region pointers will both
+point to the cell where the two regions abut, they are actually pointing at different
+parts of the topology, so there is entanglement.
+
+2017-11-07T11:44:56Z
+
+Suppose we use index regions to specify regions of an array.  If we modify topology, by deleting
+cells (which will probably require copying the array, or perhaps the array is not a true array and there
+are other means)  then addresses to the right of the cells that were deleted must be modified to remain
+correct. 
+
+The method in the prior section also requires modifying addreses (pointers are addresses).
+The pointers point to the link in the bounding cells, i.e. point to bounding cells.
+Hence, we are talking about exclusive specification of address regions, and rules for
+modifying the addresses as topology changes are made.  Exclusive specification has the
+advantage of maintaining location information even for an empty region.
+
+  (3 7) = [4 6]  ; integer domain
+
+after deleting cells [4 6]
+
+  (3 4) = []
+
+after deleting cell 3, what was cell 4 now becomes cell 3.
+
+  (2 3)
+
+If we did not allow for empty regions, then the inclusive notation would be
+sufficient. This is another example of that the expression emptiness requiring a higher
+level logic. Emptiness is a topological concept, not an instance concept.
+
+
+--------------------------------------------------------------------------------
+2017-11-07T16:16:41Z
+
+We can now better understand the 'swap trick'.   The swap trick allows us to delete 'this' instance
+from a single linked list.  Accordingly the instance in in the next cell is copied into this cell,
+and the next cell is then deleted.  This is a legitmate way to perform the operation because the delete
+copies the pointer, and the topology is then correct.  As for other bound operations other pointers in the
+entanglement list will need be updated afterward.
+
+...
+
+It is suggested above that a left bound pointer is a pointer to a next cell pointer.  For
+a single linked list, e.g. c0 c1 c2 that are connected.  Then the cdr of c1 is a next cell
+pointer.  According to the discussion of 2017-11-06T20:43:00Z above, a pointer to the next
+cell pointer can be a left bound pointer, indicating c2 is the leftmost of a region.  If we happen
+to delete c1, then this left bound pointer would be modified to point to the cdr of c0.  Actually,
+because we know it is a left bound, we only point to the cell while knowing it refers to the cdr.
+
+
+
+...
+
+interesting so consider
+
+
+Five cons cells holding the values a, b, c, d, and e.  Also five cons cells holding
+addresses, 1, 2, 3, and 4.  Those addresses being next cell address thus defining the list
+topology.
+
+A.
+
+  Now suppose we want to delete the third cons cell, the one holding the c, and do so in the
+  conventional manner.  We will need a pointer to the [b.2] cell to copy the next cell pointer
+  to it, and the result will look like this:
+
+     [a.1] [b.2] [c.3] [d.4] [e. nil]
+     [a.1] [b.3] x     [d.4] [e. nil]
+           ^
+           |
+
+
+  The unusued cons cell, [c.3] is represented with an 'x'.  The instance in that
+  cell, the 'c is now gone from the list, but the next pointer '3', is still present in the
+  list.  Also the next pointer field for the cell [b.2], i.e. the '2' is now gone.  So
+  really we deleted the 2 from the cell [b.2] and the c from the cell [c.3].  Of course we
+  can't delete a half cell, so instead we copied the 3 over from the [c.3] cell while clobbering the
+  '2' in the [b.2] cell, and then deleted the entire [c.3] cell.
+
+  This conventional approach requires one copy operation, and a pointer one cell back from
+  the cell to be deleted.
+
+
+B. 
+
+  To delete [c.3], we could have done the copy clobber on the instance instead of the next
+  pointer. Here instead of copying back the next pointer, we copy forward the
+  instance. Then we copy back the next pointer from the [b.2] cell and delete it.  However
+  we will need to copy clobber the next pointer in the [a.1] cell before deleting [b.2].
+
+     [a.1] [b.2] [c.3] [d.4] [e.nil]
+     [a.2] x     [b.3] [d.4] [e.nil]
+     ^
+     |
+
+  This approach requires two copy operations, and a pointer two cells back from the cell
+  to being deleted, i.e. from [c.3].  It appears to have no advantages over the
+  conventional approach.
+
+C. 
+
+  As a third approach we can copy clobber both the instance and next pointer from the [d.4] cell
+  into the [c.3] cell, causing that cell to look just like the [d.4] cell.  Then we can
+  delete the [d.4] cell without any further operations.
+
+     [a.1] [b.2] [c.3] [d.4] [e.nil]
+     [a.1] [b.2] [d.4] x     [e.nil]
+                 ^
+                 |
+
+  This approach requires two copy operations, but no back context.  We can be handed a
+  pointer directly to the cell to be deleted.
+
+  Unfortunately, we can not use this approach to delete the the righmost cell in the list,
+  because there is no data to be copied back to it, and without a previous cell pointer
+  there is no way to disconnect it from the list.
+
+  However suppose that instead of a nil terminated list we have a circular list, i.e. we
+  recognize the rightmost cell in the list by the fact that its next cell reference points
+  to the first cell, and it is the only cell to do this.
+
+     [a.1] [b.2] [c.3] [d.4] [e.0]
+
+   Now we can delete the last cell using the copy back method.
+
+     [a.1] [b.2] [c.3] [d.4] [e.0]
+     x     [b.2] [c.3] [d.4] [a.1]
+   
+   We will also have to modify the symbol table reference to the list to follow the copy
+   back.  The first cell was at address 0, but after the operation it is at address 4.
+   This causes the cell [d.4] to correctly be marked as the last cell in the list.
+
+   This is an interesting result, because it is a common pattern to examine an instance in
+   a cell and then to decide if the cell should be deleted.  To use the conventional
+   approach one must have a sliding window, or place a dereference lookup in the loop, but
+   here the pointer to the cell with the instance is sufficient for causing the delete,
+   and the dereference operation to see a neighbor cell only occurs when the cell is
+   actually deleted.
+
+--------------------------------------------------------------------------------
+2017-11-07T20:35:39Z
+
+    We have a problem with the exclusive right bound marker.  Namely, #'s, the step
+    function, can not know to take a ➜bound continuation when asked to step from the
+    rightmost cell, without actually doing the step to find the next cell in the outer
+    object, and then doing a compare with that address against bounds. Unfortunately we
+    can not know how this compare will turn out until doing it, so every call to step
+    would have to do this extra step.  Because we can have abstract machines, it is
+    possible that the calculation of the extraneous step would be very expensive.  Also,
+    we would like to guarantee the programmer that there will be no extraneous steps.
+
+    Note in our expanding Turing Machine tape model the last cell of the active region of
+    the tape is both an exclusive left bound for a region known as the 'yet to exist rest
+    of the tape', and the inclusive right bound for the active area.  This suggests that
+    our region left bound marker should be exclusive, and the right bound marker should be
+    inclusive.  This is the opposite of what is done in the C language, where region pointers
+    are inclusively to the leftmost cell, and bounds tests are agaisnt one beyond, i.e. to
+    an exclusive right bound.
+
+    A thing that exclusive region markers can do that inclusive ones can't, is to give a
+    position for an empty region.  The very idea of a 'position' implies the existence of
+    a higher level object to be positioned within, so it seems at least one marker should
+    be exclusive.
+
+    Suppose we had an exclusive left bound marker for a region, and an inclusive right
+    bound marker as suggested by our TM theory. The exclusive left bound marker would
+    preserve our position information for an empty region.  An empty region would be on
+    the same cell - no left going information is required to detect this case.  However,
+    there is a problem case when using 'delete this'.  When the right bound cell is
+    deleted, then we would need to the move the inclusive right bound marker left one
+    cell. (In contrast, when the right bound marker is exclusive it remains with right
+    neighbor on the higher object.)  On a single linked list with the 'delete this'
+    algorithm there would be no easy way to do this, especially in light of the
+    possibility of multiple delete righmost of the region calls.  With the conventional
+    delete algorithm, we would have the pointer going back one cell, and thus would be
+    able to update the right bound reference.
+
+    A hybrid approach is possible.  Say for exmample, if the right bound is an empty
+    machine, then the left bound is considered to be a left exclusive bound marking the
+    position of an empty region.  Otherwise the left bound is an inclusive left bound.
+
+    Another hybrid approach is that if the right bound is one cell to the left of the left
+    bound, then the region is knonwn to be empty, and the exclusive left bound is
+    currently the right bound marker. (The left bound marker is then the exclusive right bound for
+    the empty region).
+
+    Instead of having a right bound, we could have a max address for the region, an
+    integer.  The step function would then keep a count of how far it has gone from the
+    leftmost cell in the region.  If a cell in the region is deleted,, then the max
+    address for the region is decremented.  There are no issues about moving a pointer
+    left a cell.  For arrays bounds checks would be straight forward even for absolute
+    addressing.  For lists absolute addressing requires traversal anyway, so the max
+    address is easy to maintain.
+
+    Suppose we give up on locating an empty region on the tape. Then does an inclusive
+    left bound marker work?  If the leftmost cell of the region is deleted, then the left
+    bound marker is walked right. There is no problem with that. When using 'delete this'
+    after deletion of the leftmost cell, nothing need be done.
+
+    ** This model looks promising:  an exclusive left bound, and the address of the rightmost cell.
+    I'm planning to keep shadow addresses with lists for purposes of posiition comparison,
+    so this will be a universal implementation for a region.  'delete this' will work - either
+    on the region or the tape as a whole, because we have the base pointer for the region in the
+    cell pointed to by the exclusive left bound.  Though the exclusive left bound will imply a
+    context window in cases we need to see an instance to know that the region has started.
+
+    Suppose we use an inclusive left bound, the address of the righmost cell - and when the
+    last cell from the region is deleted, we then know that the region position is to the
+    left of the then remaining left bound pointer, as recognized by the fact that the right
+    bound address is to the left of it.  .. but we can't expand the region on a single linked
+    list, because we need a reference to the left neighbor to do so.
+
+    ...
+
+    A region machine is initialized from a region.  The region is analogous to a tape
+    for other machines.
+
+    Perhaps a region has a chasis.  The base of the region (its exclusive left bound), is
+    in the entanglement list marked as a region and thus treated differently.  ... trying to
+    get a hierarchical design here where the address spaces of the region machines are small
+    and thus the region machines will be small.  How do entanglement checks work then?  I might
+    have a region machine and a machine belonging to the parent tape on the cell. .. recursively
+    drop into the region entanglement lists and add the base addresses to the addresses of the
+    machines found there ..  probably a good start.
+
+    Perhaps a region is an region machine with no heads entangled -- but that seem unnecessarily
+    heavy.  But for hierarchy to work, the entanglement list of the parent will have to contain
+    a machine representing the region, which can be used to find the regions entanglement list, the
+    left bound marker alone will not be sufficient (unless we add more to the left bound marker, but
+    then it starts looking like a region rather than just a marker).
+
+
+--------------------------------------------------------------------------------
+2017-11-09T12:30:37Z
+
+  It is interesting that the right only delete algorithm does not make use of nil.  Though
+  we could accomplish the same for the conventional algorithm by having a self reference
+  mean nil.
+
+
+
+
+
+
+
+
+
+
+
+

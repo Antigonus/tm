@@ -69,12 +69,6 @@ copy is not - we don't need copy as we have read and write
   (defun-typed to-active    ((tm tm)) (change-class tm 'tm-active))
 
 ;;--------------------------------------------------------------------------------
-;; entanglment
-;;
-  (def-function-class entangle (tm &optional ➜))
-  (def-function-class fork (tm &optional ➜))
-
-;;--------------------------------------------------------------------------------
 ;; tape operations
 ;;
 
@@ -127,11 +121,12 @@ copy is not - we don't need copy as we have read and write
     (destructuring-bind
       (
         &key
-        (➜bound (be ∅))
+        (address 0) ; for higher rank tapes the cell address will be a list
+        (➜bound (be ∅)) ; takes one operand, the spill amount
         &allow-other-keys
         )
       ➜
-      [➜bound]
+      [➜bound address]
       ))
 
   (def-function-class p (tm &optional ➜)
@@ -347,3 +342,26 @@ copy is not - we don't need copy as we have read and write
       [➜parked]
       ))
 
+;;--------------------------------------------------------------------------------
+;; instance creation
+;;
+
+  (defun entangle (tm0  &optional ➜)
+    (mk (typeof tm0)
+      {
+        :➜ok (λ(tm1)
+               (init tm1 tm0 ➜)
+               )
+        (o ➜)
+        }))
+
+  (defun with-entangled ( tm0 tms f ) ; tms is will each be entangled and given to f
+    (apply f
+      (mapcar (λ(tm1)(init tm0 tm1)))
+      )
+    (mapcar #'disentangle tms)
+    )
+
+  (def-function-class disentangle (tm &optional ➜))
+
+  (def-function-class fork (tm &optional ➜))

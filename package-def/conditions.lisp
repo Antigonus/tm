@@ -45,7 +45,7 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; src-2
+;; src-tape
 ;;
   (define-condition use-of-abandoned (error)
     ((text :initarg :text :reader text)))
@@ -61,8 +61,11 @@ See LICENSE.txt
     ((text :initarg :text :reader text)))
 
 ;;--------------------------------------------------------------------------------
-;; tm first level
+;; src-tape-machine
 ;;
+  (define-condition out-of-bounds (error)
+    ((text :initarg :text :reader text)))
+
   (define-condition dealloc-on-rightmost (error)
     ((text :initarg :text :reader text)))
 

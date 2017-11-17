@@ -68,15 +68,15 @@ See LICENSE.txt
     )
 
   (defun-typed to-abandoned ((tm tm-ref-array-realloc))
-    (setf (head tm) ∅)
+    (setf (chasis tm) ∅) ; so that a bunch of data doesn't stay alive while the tm is in limbo
     (change-class tm 'tm-ref-array-realloc-abandoned)
     )
   (defun-typed to-empty     ((tm tm-ref-array-realloc))
-    (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
+    (setf (head tm) 'enpty) ; to prevent unintended communication on using an empty machine
     (change-class tm 'tm-ref-array-realloc-empty)
     )
   (defun-typed to-parked    ((tm tm-ref-array-realloc))
-    (setf (head tm) 'parked) ; so that there are no gc issues with head keeping data alive
+    (setf (head tm) 'parked) ; to prevent unintended communication on a parked  machine
     (change-class tm 'tm-ref-array-realloc-parked)
     )
   (defun-typed to-active  ((tm tm-ref-array-realloc)) 
@@ -86,9 +86,9 @@ See LICENSE.txt
 
   (def-type chasis-array ()
     (
-      (tms  ;; intended to be the heap that holds the tms.  Currently we emulate the heap.
+      (heap  ;; intended to be the heap that holds the tms.  Currently we emulate the heap.
         :initform ∅
-        :accessor tms
+        :accessor heap
         )
       (tape
         :initform ∅
@@ -96,69 +96,80 @@ See LICENSE.txt
         )
       ))
 
-  (defun-typed init ((tm tm-ref-array-realloc) value &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (➜ok #'echo)
-        (➜bad-init (λ()(error 'bad-init-value)))
-        &allow-other-keys
-        )
-      ➜
-      (let(
-            (chasis (make-instance 'chasis-array))
-            )
-        (setf (chasis tm) chasis)
-        (w<tape-ref-array-realloc> (tms chasis) (tg:make-weak-pointer tm))
-        (cond
-          ((typep value 'null)
-            (to-empty tm)
-            [➜ok tm]
-            )
-          ((typep value 'box) ; unboxed value must be a tape-ref-array-realloc type instance!
-            (setf (tape chasis) (unbox value))
-            (to-parked tm)
-            [➜ok tm]
-            )
-          (t
-            [➜bad-init]
-            )))))
-
-
 ;;--------------------------------------------------------------------------------
-;; tape operations
+;; heap emulation
 ;;
+;;  These are not available on the library interface, rather are used internally.
+;;
+;;  we use a linked list for the heap.  Instead of instances being the heap, the
+;;  instances is passed in, and a reference to it is kept on the heap.  We hook
+;;  into the GC system by using weak pointers.
+;;
+  (defun loc-tm-alloc (tm chasis) ; normally tm would not be an operand to alloc
+    (let(
+          (heap (heap chasis))
+          (tm-pointer (tg:make-weak-pointer tm))
+          )
+      (if (¬ heap)
+        (setf (chasis heap) (cons tm-pointer ∅))
+        (⟳(λ(➜again)
+            (if (¬ (tg:weak-pointer-value (car heap)))
+              (setf (car heap) tm-pointer)
+              (if (¬ (cdr heap))
+                (setf (cdr heap) (cons tm-pointer ∅))
+                (progn
+                  (setf heap (cdr heap))
+                  [➜again]
+                  )))))))
+    tm
+    )
 
+  ;; left out the 'hey this aint on the heap in the first place' error for now.
+  ;; convnetional delete
+  ;;
+    (defun loc-tm-dealloc (tm chasis)
+      (let(
+            (pt (heap chasis))
+            )
+        (when pt ; i.e. when not empty list
+          (if (eq (tg:weak-pointer-value (car pt)) tm)
+            (setf (heap chasis) (cdr pt))
+            (⟳(λ(➜again)
+                (when (cdr pt)
+                  (if (eq (tg:weak-pointer-value (cadr pt)) tm)
+                    (setf (cdr pt) (cddr pt))
+                    (progn
+                      (setf pt (cdr pt))
+                      [➜again]
+                      )))))))))
+
+  ;; for reference, a right only delete implementation
+  #|
+    (defun tm-dealloc (tm chasis)
+      (cond
+        ((empty-list (heap chasis)) t)
+        ((singleton (heap chasis)) (make-empty-list (heap chasis)))
+        (t
+          (let(
+                (pt (heap chasis))
+                )
+            (⟳(λ(➜again)
+                (if (eq (tg:weak-pointer-value (car pt)) tm)
+                  (progn
+                    (when (is-rightmost pt) (setf (heap chasis) pt))
+                    (setf (car pt) (cadr pt))
+                    (setf (cdr pt) (cddr pt))
+                    )
+                  (unless (is-rightmost pt)
+                    (setf pt (cdr pt))
+                    [➜again]
+                    ))))
+            ))))
+  |#
 
 ;;--------------------------------------------------------------------------------
 ;; absolue head control
 ;;
-  ;; cue the head
-  (defun-typed u ((tm tm-ref-array-realloc-parked) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (address 0) ; for higher rank tapes the cell address will be a list
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) address)
-      (to-active tm)
-      [➜ok]
-      ))
-  (defun-typed u ((tm tm-ref-array-realloc-active) &optional ➜)
-    (destructuring-bind
-      (
-        &key
-        (address 0) ; for higher rank tapes the cell address will be a list
-        (➜ok (be t))
-        &allow-other-keys
-        )
-      ➜
-      (setf (head tm) address)
-      [➜ok]
-      ))
 
   ;; head address
   ;; for a multidimensional base array the address will be a list
@@ -173,12 +184,62 @@ See LICENSE.txt
       [➜ok (head tm)] ; tape array head is the location
       ))
 
+  ;; cue the head
+  ;; need to add a past right bound continuation to this
+  (defun-typed u ((tm tm-ref-array-realloc-parked) &optional ➜)
+    (to-active tm)
+    (u tm ➜)
+    )
+
+  ;; we really need to inline and optimize calls to this ..
+  ;; need to add a past right bound continuation to this
+  ;; if we attempt to cue off the tape, the head is not moved, and a spill value (how far out of 
+  ;; the region) is returned with the bound continuation 
+  (defun-typed u ((tm tm-ref-array-realloc-active) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (address 0) 
+        bound-address
+        bound-tm 
+        (➜ok (be t))
+        (➜bound (be ∅)) ; takes one operand, the spill amount
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            max
+            )
+        ;; user probably shouldn't set both the bound-address and bound-tm .. but just in case
+        ;; take the lesser of the bound address and address of the bound-tm
+        (when (∧ bound-tm bound-address (< (@ bound-tm) bound-address)) (setf bound-address (@ bound-tm)))
+        (cond
+          (bound-address (setf max bound-address))
+          (bound-tm (setf max (@ bound-tm))) ; we only get here if there is not a bound-address
+          (t
+            (setf max (max<tape-ref-array-realloc> (tape (chasis tm))))
+            ))
+        (cond
+          ((< address 0) 
+            [➜bound address]
+            )
+          ((> address max)
+            [➜bound (- address max)]
+            )
+          (t
+            (setf (head tm) address)
+            [➜ok]
+            )))))
+
 
 ;;--------------------------------------------------------------------------------
 ;; relative head control
 ;;
-  ;; usually Δ is a constant, so I expect that the optimizing compiler reduces this code
-  ;; after I get the funciton inlining in place. .. can we inline a dispatched function .. hmmm
+
+  ;; a right step from parked is leftmost
+  ;; a left step from parked is rightmost
+  ;; usually Δ is a constant (but for all invocations?), so I hope that the optimizing compiler reduces this code
+  ;; want to add functioning inlining for step and queue .. can we do that with dispatched functions? probably not.
   (defun-typed s ((tm tm-ref-array-realloc-parked) &optional ➜)
     (destructuring-bind
       (
@@ -189,46 +250,40 @@ See LICENSE.txt
         )
       ➜
       (cond
-        ((> Δ 0)
-          (setf (head tm) 0)
-          (to-active tm)
-          (if (> Δ 1)
-            (s tm {:Δ (1- Δ) (o ➜)})
-            [➜ok]
-            ))
-        ((< Δ 0)
-          (setf (head tm) (max<tape-ref-array-realloc> (tape (chasis tm))))
-          (to-active tm)
-          (if (< Δ -1)
-            (s tm {:Δ (1+ Δ) (o ➜)})
-            [➜ok]
-            ))
-        (t
+        ((= Δ 0)
           [➜ok]
-          ))))
-
+          )
+        ((> Δ 0)
+          (u tm {:address (1- Δ) (o ➜)})
+          )
+        ((< Δ 0)
+          (let(
+                (max (max<tape-ref-array-realloc> (tape (chasis tm))))
+                )
+            (u tm {:address (- max (+ Δ 1)) (o ➜)})
+            ))
+        (t #'cant-happen)
+        )))
   (defun-typed s ((tm tm-ref-array-realloc-active) &optional ➜)
     (destructuring-bind
       (
         &key
         (Δ 1)
         (➜ok (be t))
-        (➜bound (be ∅))
         &allow-other-keys
         )
       ➜
-      (let(
-            (proposed-new-address (+ (head tm) Δ))
-            (max (max<tape-ref-array-realloc> (tape (chasis tm))))
-            )
-        (cond
-          ((∨ (< proposed-new-address 0)(> proposed-new-address max))
-            [➜bound]
-            )
-          (t
-            (setf (head tm) proposed-new-address)
-            [➜ok]
+      (cond
+        ((= Δ 0)
+          [➜ok]
+          )
+        (t
+          (let(
+                (new-address (+ (head tm) Δ))
+                )
+            (u tm {:address new-address (o ➜)})
             )))))
+
   
 ;;--------------------------------------------------------------------------------
 ;; access through head
@@ -336,12 +391,37 @@ See LICENSE.txt
 
 
 ;;--------------------------------------------------------------------------------
-;; copy
+;; instance creation
 ;;
+  (defun-typed init ((tm tm-ref-array-realloc) value &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok #'echo)
+        (➜bad-init (λ()(error 'bad-init-value)))
+        &allow-other-keys
+        )
+      ➜
+      (let(
+            (chasis (make-instance 'chasis-array))
+            )
+        (setf (chasis tm) chasis)
+        (w<tape-ref-array-realloc> (heap chasis) (tg:make-weak-pointer tm))
+        (cond
+          ((typep value 'null)
+            (to-empty tm)
+            [➜ok tm]
+            )
+          ((typep value 'box) ; unboxed value must be a tape-ref-array-realloc type instance!
+            (setf (tape chasis) (unbox value))
+            (to-parked tm)
+            [➜ok tm]
+            )
+          (t
+            [➜bad-init]
+            )))))
 
-#|
-
-  (defun-typed entangle ((tm tm-ref-array-realloc) &optional ➜)
+  (defun-typed init ((tm1 tm-ref-array-realloc) (tm0 tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
       (
         &key
@@ -350,33 +430,30 @@ See LICENSE.txt
         )
       ➜
       (let(
-            (chasis (chasis tm))
-            (new-tm (make-instance 'tm-ref-array-realloc))
+            (chasis (chasis tm0))
             )
-        (setf (chasis new-tm) chasis)
-        (setf (head new-tm) (head tm)) ; starts in the same place
-
-        ;; ok now we need to add the new-tm to the chasis tm list
-        ;; we will try to use a stale weak-pointer, but failing that will append to the list
-        (let(
-              (i 0)
-              (max (max<tape-ref-array-realloc> (tms chasis)
-              )
-          (proposed-tm (r<tape-ref-array-realloc> (tms chasis)))
-          (⟳(λ(➜again)
-              (cond
-                ((tg:weak-pointer-value proposed-tm)
-                  (incf i)
-                  [➜again]
-                  )
-                (t
-                  
-                
-
-              ))
-        (a◨<tape-ref-array-realloc> (tms chasis) (tg:make-weak-pointer new-tm))
-        [➜ok new-tm]
+        (loc-tm-alloc tm1 chasis)
+        (setf (chasis tm1) chasis)
+        (setf (head tm1) (head tm0)) ; starts in the same place
+        [➜ok tm1]
         )))
+
+  (defun-typed disentangle ((tm tm-ref-array-realloc) &optional ➜)
+    (destructuring-bind
+      (
+        &key
+        (➜ok #'echo)
+        &allow-other-keys
+        )
+      ➜
+      (to-abandoned tm)
+      (loc-tm-dealloc tm)
+      ))
+
+
+#|
+
+
 
   (defun-typed fork ((tm tm-ref-array-realloc) &optional ➜)
     (destructuring-bind
@@ -406,7 +483,7 @@ See LICENSE.txt
           (setf (tape new-chasis) new-tape)
           (setf (chasis new-tm) new-chasis)
           (setf (head new-tm) (head tm))
-          (a◨<tape-ref-array-realloc> (tms new-chasis) (tg:make-weak-pointer new-tm))
+          (a◨<tape-ref-array-realloc> (heap new-chasis) (tg:make-weak-pointer new-tm))
           [➜ok new-tm]
           ))
       ))
